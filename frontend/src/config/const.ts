@@ -1,6 +1,6 @@
 import { t } from "@/lang/i18n";
 
-export const GLOBAL_INSTANCE_NAME = "__MCSM_GLOBAL_INSTANCE__";
+export const GLOBAL_INSTANCE_NAME = "__TIRNUE_GLOBAL_INSTANCE__";
 
 export const GLOBAL_INSTANCE_UUID = "global0001";
 

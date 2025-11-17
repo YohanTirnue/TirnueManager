@@ -48,26 +48,35 @@ const { containerState } = useLayoutContainerStore();
 @import "@/assets/global.scss";
 
 .padding {
-  padding: 16px;
+  padding: 20px;
 }
 
 .card-panel {
   border: 1px solid var(--card-border-color);
-  background-color: var(--background-color-white);
+  background: var(--background-color-white);
   display: flex;
   flex-direction: column;
   position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    border-color: rgba(220, 38, 38, 0.3);
+  }
 
   .card-panel-title {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-color);
+    letter-spacing: -0.02em;
 
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: -4px; // For Ant-Design Font
-    margin-bottom: 8px;
+    margin-top: -4px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--card-border-color);
   }
+
   .card-panel-content {
     flex-grow: 1;
     color: var(--text-color);

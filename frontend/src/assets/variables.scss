@@ -1,27 +1,27 @@
 .app-light-theme {
   @extend .app-light-base-color;
 
-  --background-color: rgb(245, 245, 245);
-  --background-color-white: var(--color-gray-1);
-  --drag-background-color: rgb(212, 212, 212);
-  --new-card-list-background-color: rgba(201, 200, 200, 0.2);
-  --new-card-list-background-color-menu: rgba(255, 255, 255, 0.8);
-  --float-box-bg-color: rgba(235, 235, 235, 0.2);
-  --gray-border-color: var(--color-gray-10);
+  --background-color: rgb(250, 245, 245);
+  --background-color-white: rgb(255, 252, 252);
+  --drag-background-color: rgb(254, 226, 226);
+  --new-card-list-background-color: rgba(254, 226, 226, 0.3);
+  --new-card-list-background-color-menu: rgba(255, 252, 252, 0.95);
+  --float-box-bg-color: rgba(254, 242, 242, 0.9);
+  --gray-border-color: rgb(254, 202, 202);
 
-  --login-panel-bg: rgb(255, 255, 255, 1);
+  --login-panel-bg: rgb(255, 252, 252);
 
-  --app-header-bg: rgba(12, 12, 12, 0.8);
-  --app-header-bg-extend: rgba(12, 12, 12, 0.8);
-  --app-header-text-color: var(--color-gray-5);
+  --app-header-bg: linear-gradient(135deg, rgba(153, 27, 27, 0.95) 0%, rgba(127, 29, 29, 0.95) 100%);
+  --app-header-bg-extend: linear-gradient(135deg, rgba(153, 27, 27, 1) 0%, rgba(127, 29, 29, 1) 100%);
+  --app-header-text-color: rgb(254, 242, 242);
 
-  --text-color: var(--color-gray-10);
+  --text-color: rgb(55, 11, 11);
 
-  --card-border-color: rgba(0, 0, 0, 0);
-  --card-shadow-color: rgba(0, 0, 0, 0.16);
-  --card-shadow-extend-color: rgba(0, 0, 0, 0.16);
+  --card-border-color: rgba(254, 202, 202, 0.8);
+  --card-shadow-color: rgba(127, 29, 29, 0.15);
+  --card-shadow-extend-color: rgba(153, 27, 27, 0.25);
 
-  --card-bottom-background-color: rgba(12, 12, 12, 0.6);
+  --card-bottom-background-color: rgba(254, 242, 242, 0.8);
 }
 
 .app-light-base-color {
@@ -161,9 +161,9 @@
   --color-gray-12: #141414;
   --color-gray-13: #000000;
 
-  --color-primary: var(--color-blue-5);
-  --color-danger: var(--color-red-5);
-  --color-warning: var(--color-yellow-6);
-  --color-success: var(--color-green-5);
-  --color-info: var(--color-gray-7);
+  --color-primary: #2563eb;
+  --color-danger: #dc2626;
+  --color-warning: #f59e0b;
+  --color-success: #10b981;
+  --color-info: #6b7280;
 }

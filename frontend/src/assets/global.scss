@@ -13,6 +13,10 @@ html {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
     "Noto Color Emoji";
+  font-feature-settings: "liga", "kern";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .global-text-color {
@@ -42,14 +46,15 @@ html {
 }
 
 .global-card-container-shadow {
-  border-radius: 6px;
-  box-shadow: 0 1px 2px 1px var(--card-shadow-color);
-  transition: box-shadow 0.4s ease-in-out;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px var(--card-shadow-color), 0 2px 4px -1px var(--card-shadow-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
     box-shadow:
-      0 4px 8px 0 var(--card-shadow-extend-color),
-      0 1px 2px 1px var(--card-shadow-extend-color);
+      0 10px 20px -5px var(--card-shadow-extend-color),
+      0 6px 10px -3px var(--card-shadow-extend-color);
+    transform: translateY(-2px);
   }
 }
 
@@ -138,15 +143,34 @@ html {
   }
 }
 
-// Override the AntDesign original style
+// Override the AntDesign original style - Modern Black theme
 .ant-modal-mask,
 .ant-drawer-mask {
-  backdrop-filter: saturate(110%) blur(4px);
+  backdrop-filter: saturate(110%) blur(8px);
+  background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 .ant-modal {
   margin-top: 16px !important;
   margin-bottom: 16px !important;
+}
+
+.ant-btn {
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ant-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border: 1px solid #1e40af;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px);
 }
 
 // Override the AntDesign progress bar animation

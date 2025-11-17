@@ -43,7 +43,7 @@ interface MySettings extends Settings {
   proLicenseKey?: string;
 }
 
-const ApacheLicense = `Copyright ${new Date().getFullYear()} MCSManager
+const ApacheLicense = `Copyright ${new Date().getFullYear()} Tirnue
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -104,17 +104,6 @@ const menus = arrayFilter([
     icon: LockOutlined
   },
   {
-    title: t("TXT_CODE_46cb40d5"),
-    key: "sponsor",
-    icon: MoneyCollectOutlined,
-    condition: () => !isCN(),
-    click: () => {
-      let url = "https://www.patreon.com/mcsmanager";
-      if (isCN()) url = "https://afdian.com/a/mcsmanager";
-      window.open(url, "_blank");
-    }
-  },
-  {
     title: t("TXT_CODE_3b4b656d"),
     key: "about",
     icon: QuestionCircleOutlined
@@ -149,36 +138,9 @@ const totpDriftOptions = ref([
   }
 ]);
 
-const aboutLinks = arrayFilter([
-  {
-    title: "GitHub",
-    icon: GithubOutlined,
-    url: "https://github.com/MCSManager/MCSManager"
-  },
-  {
-    title: "Discord",
-    icon: MessageOutlined,
-    url: "https://discord.gg/BNpYMVX7Cd"
-  }
-]);
+const aboutLinks: { title: string; icon: any; url: string }[] = arrayFilter([]);
 
-const contacts = arrayFilter([
-  {
-    title: t("TXT_CODE_41dd4d19"),
-    icon: BankOutlined,
-    url: "https://mcsmanager.com/"
-  },
-  {
-    title: t("TXT_CODE_74c3d3e5"),
-    icon: BookOutlined,
-    url: "https://docs.mcsmanager.com/"
-  },
-  {
-    title: t("TXT_CODE_26407d1f"),
-    icon: BugOutlined,
-    url: "https://github.com/MCSManager/MCSManager/issues"
-  }
-]);
+const contacts: { title: string; icon: any; url: string }[] = arrayFilter([]);
 
 const uploadBackground = async () => {
   const body = document.querySelector("body");
@@ -631,34 +593,38 @@ onUnmounted(() => {
               <a-typography-title :level="4" class="mb-24">
                 {{ t("TXT_CODE_3b4b656d") }}
               </a-typography-title>
-              <a-typography-paragraph>
-                <p>
-                  {{ $t("TXT_CODE_d0c670df") }}
-                </p>
-              </a-typography-paragraph>
-              <div class="pb-4 flex">
-                <div v-for="item in aboutLinks" :key="item.url" class="mr-12 mb-12">
-                  <a :href="item.url" target="_blank">
-                    <a-button>
-                      <component :is="item.icon" />
-                      {{ item.title }}
-                    </a-button>
-                  </a>
+              <div v-if="aboutLinks.length > 0">
+                <a-typography-paragraph>
+                  <p>
+                    {{ $t("TXT_CODE_d0c670df") }}
+                  </p>
+                </a-typography-paragraph>
+                <div class="pb-4 flex">
+                  <div v-for="item in aboutLinks" :key="item.url" class="mr-12 mb-12">
+                    <a :href="item.url" target="_blank">
+                      <a-button>
+                        <component :is="item.icon" />
+                        {{ item.title }}
+                      </a-button>
+                    </a>
+                  </div>
                 </div>
               </div>
-              <a-typography-paragraph>
-                <p>
-                  {{ $t("TXT_CODE_97433ac4") }}
-                </p>
-              </a-typography-paragraph>
-              <div class="pb-4 flex">
-                <div v-for="item in contacts" :key="item.url" class="mr-12 mb-12">
-                  <a :href="item.url" target="_blank">
-                    <a-button>
-                      <component :is="item.icon" />
-                      {{ item.title }}
-                    </a-button>
-                  </a>
+              <div v-if="contacts.length > 0">
+                <a-typography-paragraph>
+                  <p>
+                    {{ $t("TXT_CODE_97433ac4") }}
+                  </p>
+                </a-typography-paragraph>
+                <div class="pb-4 flex">
+                  <div v-for="item in contacts" :key="item.url" class="mr-12 mb-12">
+                    <a :href="item.url" target="_blank">
+                      <a-button>
+                        <component :is="item.icon" />
+                        {{ item.title }}
+                      </a-button>
+                    </a>
+                  </div>
                 </div>
               </div>
               <a-typography-paragraph>

@@ -296,7 +296,7 @@ const openPhoneMenu = (b = false) => {
 };
 
 const onClickIcon = () => {
-  window.open("https://github.com/MCSManager/MCSManager", "_blank");
+  window.open("https://github.com/House-of-the-Hearth/HOTH", "_blank");
 };
 </script>
 
@@ -501,13 +501,13 @@ const onClickIcon = () => {
 }
 
 .app-header-wrapper {
-  box-shadow: 0 2px 4px 0 var(--card-shadow-color);
+  box-shadow: 0 4px 12px -2px var(--card-shadow-color);
 
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--app-header-bg);
+  background: var(--app-header-bg);
   backdrop-filter: saturate(180%) blur(20px);
   color: var(--app-header-text-color);
 
@@ -518,8 +518,8 @@ const onClickIcon = () => {
 
   z-index: 20;
 
-  // 添加平滑过渡效果
-  transition: height 0.4s ease-in-out;
+  // Smooth transitions
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   .app-header-content {
     @extend .global-app-container;
@@ -540,29 +540,55 @@ const onClickIcon = () => {
   }
 
   .nav-button {
-    margin: 0 4px;
+    margin: 0 6px;
     font-size: 14px;
-    transition: all 0.4s;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--app-header-text-color) !important;
     text-align: center;
-    padding: 8px 12px;
+    padding: 10px 16px;
     min-width: 40px;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 10px;
     user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nav-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(254, 242, 242, 0.15);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
   }
 
   .right-nav-button {
-    margin: 0 2px;
-    font-size: 14px;
-    padding: 8px 8px;
+    margin: 0 4px;
+    font-size: 15px;
+    padding: 10px 12px;
   }
 
   .icon-button {
     font-size: 16px !important;
   }
+
   .nav-button:hover {
-    background-color: rgba(215, 215, 215, 0.261);
+    background-color: rgba(254, 242, 242, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .nav-button:hover::before {
+    transform: scaleX(1);
+  }
+
+  .nav-button:active {
+    transform: translateY(0);
   }
 
   .logo {

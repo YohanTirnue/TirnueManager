@@ -167,18 +167,7 @@ onMounted(async () => {
             </form>
 
             <div class="mt-24 flex-between align-center">
-              <div v-if="!appConfig.settings.businessMode" class="mcsmanager-link">
-                <div
-                  v-if="pageInfoResult?.loginInfo"
-                  class="global-markdown-html"
-                  v-html="markdownToHTML(pageInfoResult?.loginInfo || '')"
-                ></div>
-                Powered by
-                <a href="https://mcsmanager.com" target="_blank" rel="noopener noreferrer">
-                  MCSManager
-                </a>
-              </div>
-              <div v-else></div>
+              <div></div>
               <div class="justify-end" style="gap: 10px">
                 <a-button
                   v-if="appConfig.settings.businessMode"
@@ -254,15 +243,6 @@ onMounted(async () => {
   }
 }
 
-.mcsmanager-link {
-  font-size: var(--font-body);
-  text-align: right;
-  color: var(--color-gray-7);
-  a {
-    color: var(--color-gray-7) !important;
-    text-decoration: underline;
-  }
-}
 .logging-icon {
   animation: opacityAnimation 0.4s;
 }
