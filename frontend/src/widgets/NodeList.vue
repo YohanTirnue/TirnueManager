@@ -327,11 +327,7 @@ const toggleSort = (newSortBy: SortBy) => {
 .search-input {
   transition: all 0.4s;
   text-align: center;
-  width: 80%;
-
-  &:hover {
-    width: 100%;
-  }
+  width: 100%;
 
   .status-filter {
     border-radius: 6px 0 0 6px;
