@@ -52,15 +52,34 @@ const { containerState } = useLayoutContainerStore();
 }
 
 .card-panel {
-  border: 1px solid var(--card-border-color);
+  border: 2px solid var(--card-border-color);
   background: var(--background-color-white);
   display: flex;
   flex-direction: column;
   position: relative;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px var(--card-shadow-color);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.02), rgba(212, 175, 55, 0.02));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
 
   &:hover {
-    border-color: rgba(220, 38, 38, 0.3);
+    border-color: rgba(255, 140, 66, 0.4);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(255, 140, 66, 0.15);
+
+    &::before {
+      opacity: 1;
+    }
   }
 
   .card-panel-title {

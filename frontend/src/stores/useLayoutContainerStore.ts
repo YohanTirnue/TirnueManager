@@ -5,7 +5,8 @@ export const useLayoutContainerStore = createGlobalState(() => {
   const containerState = reactive({
     isDesignMode: false,
     showNewCardDialog: false,
-    showPhoneMenu: false
+    showPhoneMenu: false,
+    sidebarCollapsed: false
   });
 
   const changeDesignMode = (b: boolean) => {

@@ -163,18 +163,44 @@ const manualInstallOptions = [
 
 .install-option-card {
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  border: 2px solid transparent;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.05), rgba(212, 175, 55, 0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
+    border-color: rgba(255, 140, 66, 0.3);
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.2);
 
     &::before {
       opacity: 1;
+    }
+
+    .icon-wrapper {
+      color: #FF8C42;
+      opacity: 0.3;
+      transform: rotate(-1deg) scale(1.1);
+    }
+
+    .card-action :deep(.ant-btn) {
+      background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
     }
   }
 
@@ -183,9 +209,12 @@ const manualInstallOptions = [
     align-items: center;
 
     .card-title {
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 600;
-      color: var(--color-gray-10);
+      background: linear-gradient(135deg, #FF8C42, #D4AF37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       flex: 1;
     }
   }
@@ -193,7 +222,7 @@ const manualInstallOptions = [
   .card-description {
     color: var(--color-gray-8);
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.6;
     margin-bottom: 16px;
     flex: 1;
   }
@@ -201,10 +230,20 @@ const manualInstallOptions = [
   .card-action {
     display: flex;
     justify-content: flex-end;
-    color: var(--color-blue-6);
-    font-size: 14px;
     gap: 4px;
     margin-right: 4px;
+
+    :deep(.ant-btn) {
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid rgba(255, 140, 66, 0.3);
+      color: #FF8C42;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+    }
   }
 
   .icon-wrapper {
@@ -212,9 +251,10 @@ const manualInstallOptions = [
     left: 2px;
     bottom: 0;
     color: var(--color-gray-8);
-    opacity: 0.2;
-    font-size: 20px;
+    opacity: 0.15;
+    font-size: 80px;
     transform: rotate(-1deg);
+    transition: all 0.3s ease;
   }
 }
 </style>

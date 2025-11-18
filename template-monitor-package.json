@@ -1,0 +1,23 @@
+{
+  "name": "mcsmanager-template-monitor",
+  "version": "1.0.0",
+  "description": "Automatic template version monitoring and archiving for MCSManager",
+  "main": "template-version-monitor.js",
+  "scripts": {
+    "start": "node template-version-monitor.js",
+    "check-once": "node -e \"require('./template-version-monitor.js'); setTimeout(() => process.exit(0), 30000)\"",
+    "pm2-start": "pm2 start template-version-monitor.js --name mcsm-template-monitor",
+    "pm2-stop": "pm2 stop mcsm-template-monitor",
+    "pm2-restart": "pm2 restart mcsm-template-monitor",
+    "pm2-logs": "pm2 logs mcsm-template-monitor"
+  },
+  "keywords": [
+    "mcsmanager",
+    "minecraft",
+    "template",
+    "monitoring",
+    "automation"
+  ],
+  "author": "MCSManager Template Monitor",
+  "license": "MIT"
+}

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import AppConfigProvider from "./components/AppConfigProvider.vue";
-import { RouterView } from "vue-router";
+import { RouterView, useRoute } from "vue-router";
 import AppHeader from "./components/AppHeader.vue";
+import AppHeaderSimple from "./components/AppHeaderSimple.vue";
+import AppSidebar from "./components/AppSidebar.vue";
 import { useAppConfigStore } from "@/stores/useAppConfigStore";
 import InputDialogProvider from "./components/InputDialogProvider.vue";
 import { Button, Select, Input, Table } from "ant-design-vue";
@@ -13,6 +15,7 @@ import UploadBubble from "@/components/UploadBubble.vue";
 
 const { isDarkTheme, setBackgroundImage } = useAppConfigStore();
 const { getSettingsConfig, hasBgImage } = useLayoutConfigStore();
+const route = useRoute();
 
 const GLOBAL_COMPONENTS = [InputDialogProvider, MyselfInfoDialog];
 
@@ -47,14 +50,49 @@ onMounted(async () => {
 
 <template>
   <AppConfigProvider :has-bg-image="hasBgImage">
-    <!-- App Container -->
+    <!-- App Container with Sidebar -->
     <div class="global-app-container">
-      <AppHeader />
-      <RouterView :key="$route.fullPath" />
-      <UploadBubble />
+      <!-- Show sidebar for logged-in pages (not login/install) -->
+      <AppSidebar v-if="route.path !== '/login' && route.path !== '/install'" />
+
+      <!-- Main Content Area -->
+      <div class="main-content-wrapper" :class="{ 'with-sidebar': route.path !== '/login' && route.path !== '/install' }">
+        <!-- Use simplified header when sidebar is shown, full header for login/install -->
+        <AppHeaderSimple v-if="route.path !== '/login' && route.path !== '/install'" />
+        <AppHeader v-else />
+        <RouterView :key="$route.fullPath" />
+        <UploadBubble />
+      </div>
     </div>
 
     <!-- Global Components -->
     <component :is="component" v-for="(component, index) in GLOBAL_COMPONENTS" :key="index" />
   </AppConfigProvider>
 </template>
+
+<style lang="scss" scoped>
+.global-app-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: margin-left 0.3s ease;
+  background: var(--background-color);
+
+  &.with-sidebar {
+    margin-left: var(--sidebar-width, 260px);
+  }
+}
+
+@media (max-width: 992px) {
+  .main-content-wrapper.with-sidebar {
+    margin-left: 0;
+  }
+}
+</style>

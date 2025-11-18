@@ -510,18 +510,38 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
+// Modern Marketplace with Gold/Orange Theme
 .package-card-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
   justify-content: space-between;
   height: 100%;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
 }
 
 .package-image-container {
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(212, 175, 55, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
 }
 
 .cursor-pointer {
@@ -532,73 +552,97 @@ onMounted(() => {
   height: 100%;
   width: 100%;
   object-fit: cover;
-  height: 160px;
-  transition: transform 0.3s ease;
-  background-color: var(--color-gray-1);
+  height: 200px; // Increased from 160px for better visibility
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.05), rgba(212, 175, 55, 0.05));
+  user-drag: none;
+  user-select: none;
+
+  &:hover {
+    transform: scale(1.05);
+    filter: brightness(1.15) saturate(1.2);
+  }
 }
 
 .package-info {
   flex: 1;
+
+  .ant-typography-title {
+    margin-bottom: 12px !important;
+
+    span:first-child {
+      background: linear-gradient(135deg, #FF8C42, #D4AF37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 600;
+      font-size: 17px;
+    }
+  }
+
+  .ant-tag {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border: none;
+    background: linear-gradient(135deg, rgba(255, 171, 0, 0.15), rgba(230, 81, 0, 0.15));
+    color: #E65100;
+
+    &[color="cyan"] {
+      background: linear-gradient(135deg, rgba(255, 140, 66, 0.2), rgba(212, 175, 55, 0.2));
+      color: #D4AF37;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    &[color="blue"] {
+      background: linear-gradient(135deg, rgba(255, 140, 66, 0.15), rgba(212, 175, 55, 0.15));
+      color: #FF6B35;
+      border: 1px solid rgba(255, 140, 66, 0.3);
+    }
+  }
 }
 
 .package-action {
   display: flex;
   justify-content: center;
+  margin-top: auto;
 }
 
 .download-button {
   margin: 0px auto;
-  transition: all 0.3s ease;
-  max-width: 140px;
-}
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 140px;
+  height: 40px;
+  font-weight: 600;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+  border: none;
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
 
-.package-image {
-  user-drag: none;
-  user-select: none;
-  position: relative;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+  &:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 140, 66, 0.4);
+    background: linear-gradient(135deg, #FF6B35 0%, #FF4500 100%);
+  }
 
-.package-image::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, transparent, rgba(24, 144, 255, 0.1), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.package-image:hover {
-  transform: scale(1.08) rotate(2deg);
-  filter: brightness(1.1) contrast(1.1);
-}
-
-.package-image:hover::after {
-  opacity: 1;
+  &:active {
+    transform: translateY(0) scale(1);
+  }
 }
 
 .ant-card:hover .download-button {
-  transform: scale(1.08);
-  box-shadow:
-    0 8px 20px rgba(24, 144, 255, 0.4),
-    0 0 15px rgba(24, 144, 255, 0.2);
-  background: linear-gradient(45deg, #1890ff, #40a9ff);
-  border: none;
-  animation: pulse-glow 2s infinite;
+  animation: pulse-glow-gold 2s infinite;
 }
 
 .package-subtitle {
   cursor: pointer;
-  background-color: var(--card-bottom-background-color);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.95), rgba(212, 175, 55, 0.95));
+  backdrop-filter: blur(8px);
   color: rgb(255, 255, 255);
-  padding: 8px;
-  font-size: 14px;
-  font-weight: 400;
-  // border-bottom-left-radius: 6px;
-  // border-bottom-right-radius: 6px;
+  padding: 12px 8px;
+  font-size: 15px;
+  font-weight: 600;
   border-radius: 0 !important;
   position: absolute;
   bottom: 0;
@@ -608,23 +652,82 @@ onMounted(() => {
   text-align: center;
   z-index: 1;
   margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.95), rgba(255, 140, 66, 0.95));
+    padding: 14px 8px;
+  }
 }
 
 .package-image-container-summary {
   position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.2);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.3);
+  }
+
+  .package-image-container {
+    border-radius: 0;
+
+    .package-image {
+      height: 240px; // Larger for category cards
+    }
+  }
 }
 
-@keyframes pulse-glow {
+// Modern filter styling
+:deep(.ant-select) {
+  .ant-select-selector {
+    border-radius: 10px !important;
+    border: 2px solid transparent !important;
+    transition: all 0.2s ease !important;
+
+    &:hover {
+      border-color: rgba(255, 140, 66, 0.3) !important;
+    }
+  }
+
+  &.ant-select-focused .ant-select-selector {
+    border-color: #FF8C42 !important;
+    box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.1) !important;
+  }
+}
+
+:deep(.ant-btn) {
+  border-radius: 10px;
+  font-weight: 500;
+
+  &[type="default"] {
+    border: 2px solid rgba(255, 140, 66, 0.3);
+    color: #FF8C42;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: #FF8C42;
+      color: #FF6B35;
+      background: rgba(255, 140, 66, 0.05);
+    }
+  }
+}
+
+@keyframes pulse-glow-gold {
   0%,
   100% {
     box-shadow:
-      0 8px 20px rgba(24, 144, 255, 0.4),
-      0 0 15px rgba(24, 144, 255, 0.2);
+      0 6px 20px rgba(255, 140, 66, 0.4),
+      0 0 15px rgba(255, 140, 66, 0.2);
   }
   50% {
     box-shadow:
-      0 8px 25px rgba(24, 144, 255, 0.6),
-      0 0 25px rgba(24, 144, 255, 0.4);
+      0 8px 30px rgba(255, 140, 66, 0.6),
+      0 0 25px rgba(255, 140, 66, 0.4);
   }
 }
 </style>

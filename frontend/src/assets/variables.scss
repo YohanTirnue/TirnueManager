@@ -15,6 +15,13 @@
   --app-header-bg-extend: linear-gradient(135deg, rgba(153, 27, 27, 1) 0%, rgba(127, 29, 29, 1) 100%);
   --app-header-text-color: rgb(254, 242, 242);
 
+  // Sidebar Variables
+  --sidebar-width: 260px;
+  --sidebar-bg: linear-gradient(180deg, rgba(153, 27, 27, 0.95) 0%, rgba(80, 15, 15, 1) 100%);
+  --sidebar-text: rgb(254, 242, 242);
+  --sidebar-active-bg: rgba(255, 255, 255, 0.15);
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.1);
+
   --text-color: rgb(55, 11, 11);
 
   --card-border-color: rgba(254, 202, 202, 0.8);
