@@ -598,8 +598,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .modern-stats {
-  max-width: 1600px;
-  margin: 0 auto;
+  width: 100%;
   padding: 24px;
 }
 

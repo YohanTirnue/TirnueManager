@@ -323,8 +323,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .modern-marketplace {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
   padding: 0 24px 48px;
   background: var(--background-color);
 }
