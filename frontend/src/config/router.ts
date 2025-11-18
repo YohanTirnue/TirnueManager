@@ -170,7 +170,11 @@ const originRouterConfig: RouterConfig[] = [
   },
   {
     path: "/overview",
-    name: t("TXT_CODE_84fbe277"),
+    redirect: "/stats"
+  },
+  {
+    path: "/stats",
+    name: "Statistics",
     component: LayoutContainer,
     meta: {
       mainMenu: true,

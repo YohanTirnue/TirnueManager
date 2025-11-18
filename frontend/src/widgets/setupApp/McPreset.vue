@@ -7,7 +7,7 @@ import { createAsyncTask } from "@/services/apis/instance";
 import { reportErrorMsg } from "@/tools/validator";
 import type { LayoutCard, QuickStartPackages } from "@/types";
 import TemplateNameDialog from "@/widgets/instance/dialogs/TemplateNameDialog.vue";
-import AppPackages from "@/widgets/setupApp/AppPackages.vue";
+import AppPackages from "@/widgets/setupApp/AppPackagesModern.vue";
 import { message } from "ant-design-vue";
 import { ref } from "vue";
 
