@@ -599,7 +599,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .modern-stats {
   width: 100%;
-  padding: 24px;
+  padding: 0 24px 24px 24px;
 }
 
 // Hero Banner
