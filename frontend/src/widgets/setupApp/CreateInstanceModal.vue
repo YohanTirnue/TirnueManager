@@ -8,7 +8,8 @@ import {
   RocketOutlined
 } from "@ant-design/icons-vue";
 import { router } from "@/config/router";
-import { QUICKSTART_ACTION_TYPE } from "@/hooks/widgets/quickStartFlow";
+import { QUICKSTART_ACTION_TYPE, QUICKSTART_METHOD } from "@/hooks/widgets/quickStartFlow";
+import { openNodeSelectDialog } from "@/components/fc/index";
 
 const props = defineProps<{
   open: boolean;
@@ -16,7 +17,27 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   "update:open": [value: boolean];
+  "create": [data: { createMethod: QUICKSTART_METHOD; appType: QUICKSTART_ACTION_TYPE; daemonId: string }];
 }>();
+
+const handleCreateOption = async (createMethod: QUICKSTART_METHOD, appType: QUICKSTART_ACTION_TYPE) => {
+  try {
+    // First select the node
+    const selectedNode = await openNodeSelectDialog();
+    if (!selectedNode) return;
+
+    closeModal();
+
+    // Emit the creation data to parent
+    emit("create", {
+      createMethod,
+      appType,
+      daemonId: selectedNode.uuid
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 const createOptions = [
   {
@@ -25,16 +46,7 @@ const createOptions = [
     title: "Import Compressed Package",
     description: "Automatically create an instance by uploading a server compressed package. Only .zip files are supported. It will be automatically decompressed after upload.",
     color: "#1890ff",
-    action: () => {
-      closeModal();
-      router.push({
-        path: "/quickstart",
-        query: {
-          appType: QUICKSTART_ACTION_TYPE.AnyApp,
-          mode: "import"
-        }
-      });
-    }
+    action: () => handleCreateOption(QUICKSTART_METHOD.IMPORT, QUICKSTART_ACTION_TYPE.SteamGameServer)
   },
   {
     id: "docker",
@@ -42,16 +54,7 @@ const createOptions = [
     title: "Create with Docker Image",
     description: "Docker needs to be installed in advance. Then, use any image you found on DockerHub to create, install, and start the instance.",
     color: "#0db7ed",
-    action: () => {
-      closeModal();
-      router.push({
-        path: "/quickstart",
-        query: {
-          appType: QUICKSTART_ACTION_TYPE.AnyApp,
-          mode: "docker"
-        }
-      });
-    }
+    action: () => handleCreateOption(QUICKSTART_METHOD.DOCKER, QUICKSTART_ACTION_TYPE.SteamGameServer)
   },
   {
     id: "direct",
@@ -59,16 +62,7 @@ const createOptions = [
     title: "Create Directly",
     description: "Create an instance directly without uploading any files. Configure it later. This is suitable for experienced users.",
     color: "#52c41a",
-    action: () => {
-      closeModal();
-      router.push({
-        path: "/quickstart",
-        query: {
-          appType: QUICKSTART_ACTION_TYPE.AnyApp,
-          mode: "direct"
-        }
-      });
-    }
+    action: () => handleCreateOption(QUICKSTART_METHOD.EXIST, QUICKSTART_ACTION_TYPE.AnyApp)
   }
 ];
 

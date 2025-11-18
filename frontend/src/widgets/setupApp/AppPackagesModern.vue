@@ -5,9 +5,12 @@ import { Modal } from "ant-design-vue";
 import CardPanel from "@/components/CardPanel.vue";
 import Loading from "@/components/Loading.vue";
 import CreateInstanceModal from "@/widgets/setupApp/CreateInstanceModal.vue";
+import CreateInstanceForm from "@/widgets/setupApp/CreateInstanceForm.vue";
+import { router } from "@/config/router";
 import { getCurrentLang, isCN, t } from "@/lang/i18n";
 import { quickInstallListAddr } from "@/services/apis/instance";
 import { reportErrorMsg } from "@/tools/validator";
+import { QUICKSTART_ACTION_TYPE, QUICKSTART_METHOD } from "@/hooks/widgets/quickStartFlow";
 import type { QuickStartPackages } from "@/types";
 
 const props = defineProps<{
@@ -30,10 +33,37 @@ const {
 // State
 const searchQuery = ref("");
 const showCreateModal = ref(false);
+const showCreateForm = ref(false);
 const selectedCategory = ref<string>("all");
 const currentPage = ref(1);
 const pageSize = ref(18); // 3 rows of 6
 const viewMode = ref<"grid" | "list">("grid");
+
+// Creation form data
+const formData = ref({
+  appType: QUICKSTART_ACTION_TYPE.AnyApp,
+  createMethod: QUICKSTART_METHOD.DOCKER,
+  daemonId: ""
+});
+
+// Handle create option selected from modal
+const handleCreateInstance = (data: { createMethod: QUICKSTART_METHOD; appType: QUICKSTART_ACTION_TYPE; daemonId: string }) => {
+  formData.value = data;
+  showCreateForm.value = true;
+};
+
+// Handle instance created successfully
+const handleNext = (instanceUuid: string) => {
+  showCreateForm.value = false;
+  // Navigate to instance terminal
+  router.push({
+    path: "/instances/terminal",
+    query: {
+      daemonId: formData.value.daemonId,
+      instanceId: instanceUuid
+    }
+  });
+};
 
 // Get all available categories from templates
 const categories = computed(() => {
@@ -317,7 +347,23 @@ onMounted(() => {
     </div>
 
     <!-- Create Instance Modal -->
-    <CreateInstanceModal v-model:open="showCreateModal" />
+    <CreateInstanceModal v-model:open="showCreateModal" @create="handleCreateInstance" />
+
+    <!-- Create Instance Form -->
+    <a-modal
+      v-model:open="showCreateForm"
+      :title="t('TXT_CODE_645bc545')"
+      :width="800"
+      :footer="null"
+      :destroy-on-close="true"
+    >
+      <CreateInstanceForm
+        :app-type="formData.appType"
+        :create-method="formData.createMethod"
+        :daemon-id="formData.daemonId"
+        @next-step="handleNext"
+      />
+    </a-modal>
   </div>
 </template>
 
