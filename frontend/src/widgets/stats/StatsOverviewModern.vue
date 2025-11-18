@@ -17,7 +17,7 @@ import {
   AppstoreOutlined,
   ThunderboltOutlined,
   ClockCircleOutlined,
-  UserOutlined,
+  DatabaseOutlined,
   CheckCircleOutlined
 } from "@ant-design/icons-vue";
 import { useOverviewInfo } from "@/hooks/useOverviewInfo";
@@ -108,7 +108,7 @@ const systemResources = computed(() => {
   return {
     cpu: {
       usage: overviewInfo.value?.cpu || 0,
-      cores: sys.cpus?.length || 0
+      cores: 0 // System type doesn't provide CPU core count
     },
     memory: {
       used: usedMem,
@@ -450,7 +450,6 @@ onUnmounted(() => {
           <div class="stat-label">{{ stat.title }}</div>
           <div class="stat-value">
             {{ stat.value }}
-            <span class="stat-trend">{{ stat.trend }}</span>
           </div>
           <div class="stat-subtitle">{{ stat.subtitle }}</div>
         </div>
@@ -559,25 +558,36 @@ onUnmounted(() => {
         </template>
       </CardPanel>
 
-      <!-- Recent Activity -->
+      <!-- System Information -->
       <CardPanel class="activity-card">
         <template #title>
-          <CheckCircleOutlined /> Recent Activity
+          <CheckCircleOutlined /> System Information
         </template>
         <template #body>
-          <div class="activity-list">
-            <div
-              v-for="(activity, index) in recentActivity"
-              :key="index"
-              class="activity-item"
-            >
-              <div class="activity-dot" :class="activity.status"></div>
-              <div class="activity-content">
-                <div class="activity-main">
-                  <strong>{{ activity.name }}</strong> {{ activity.action }}
-                </div>
-                <div class="activity-time">{{ activity.time }}</div>
-              </div>
+          <div class="info-grid" v-if="overviewInfo">
+            <div class="info-item">
+              <span class="info-label">MCS Version</span>
+              <span class="info-value">{{ overviewInfo.version }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Hostname</span>
+              <span class="info-value">{{ overviewInfo.system?.hostname || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Platform</span>
+              <span class="info-value">{{ overviewInfo.system?.platform || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Node.js</span>
+              <span class="info-value">{{ overviewInfo.system?.node || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Uptime</span>
+              <span class="info-value">{{ Math.floor((overviewInfo.system?.uptime || 0) / 3600) }}h</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Server Time</span>
+              <span class="info-value">{{ new Date(overviewInfo.system?.time || 0).toLocaleTimeString() }}</span>
             </div>
           </div>
         </template>
@@ -724,12 +734,6 @@ onUnmounted(() => {
   gap: 8px;
 }
 
-.stat-trend {
-  font-size: 14px;
-  color: #52c41a;
-  font-weight: 600;
-}
-
 .stat-subtitle {
   font-size: 12px;
   color: var(--color-gray-6);
@@ -813,71 +817,48 @@ onUnmounted(() => {
   color: #999;
 }
 
-// Activity
+// System Information
 .activity-card {
   :deep(.card-panel-content) {
     padding: 24px;
   }
 }
 
-.activity-list {
-  display: flex;
-  flex-direction: column;
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 
-.activity-item {
+.info-item {
   display: flex;
-  gap: 12px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(255, 140, 66, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #FF8C42;
+  transition: all 0.2s ease;
 
-  &:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
+  &:hover {
+    background: rgba(255, 140, 66, 0.1);
+    transform: translateX(4px);
   }
 }
 
-.activity-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-top: 6px;
-  flex-shrink: 0;
-
-  &.success {
-    background: #52c41a;
-    box-shadow: 0 0 0 4px rgba(82, 196, 26, 0.1);
-  }
-
-  &.warning {
-    background: #faad14;
-    box-shadow: 0 0 0 4px rgba(250, 173, 20, 0.1);
-  }
-
-  &.info {
-    background: #1890ff;
-    box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.1);
-  }
-}
-
-.activity-content {
-  flex: 1;
-}
-
-.activity-main {
-  font-size: 14px;
-  color: var(--text-color);
-  margin-bottom: 4px;
-
-  strong {
-    color: #FF8C42;
-  }
-}
-
-.activity-time {
+.info-label {
   font-size: 12px;
-  color: var(--color-gray-6);
+  color: var(--color-gray-7);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 16px;
+  color: var(--text-color);
+  font-weight: 700;
+  word-break: break-all;
 }
 
 // Responsive
