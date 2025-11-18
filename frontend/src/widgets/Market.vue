@@ -163,13 +163,14 @@ const manualInstallOptions = [
 
 .install-option-card {
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
   border: 2px solid transparent;
+  will-change: transform;
 
   &::before {
     content: "";
@@ -254,7 +255,8 @@ const manualInstallOptions = [
     opacity: 0.15;
     font-size: 80px;
     transform: rotate(-1deg);
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+    will-change: transform, opacity;
   }
 }
 </style>
