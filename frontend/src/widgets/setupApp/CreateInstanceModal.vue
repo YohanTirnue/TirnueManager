@@ -1,0 +1,212 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import { Modal } from "ant-design-vue";
+import {
+  CloudUploadOutlined,
+  ContainerOutlined,
+  SettingOutlined,
+  RocketOutlined
+} from "@ant-design/icons-vue";
+import { router } from "@/config/router";
+import { QUICKSTART_ACTION_TYPE } from "@/hooks/widgets/quickStartFlow";
+
+const props = defineProps<{
+  open: boolean;
+}>();
+
+const emit = defineEmits<{
+  "update:open": [value: boolean];
+}>();
+
+const createOptions = [
+  {
+    id: "compressed",
+    icon: CloudUploadOutlined,
+    title: "Import Compressed File",
+    description: "Upload and extract a compressed server package (zip, tar.gz)",
+    color: "#1890ff",
+    action: () => {
+      closeModal();
+      router.push({
+        path: "/quickstart",
+        query: {
+          appType: QUICKSTART_ACTION_TYPE.AnyApp,
+          mode: "import"
+        }
+      });
+    }
+  },
+  {
+    id: "docker",
+    icon: ContainerOutlined,
+    title: "Docker Container",
+    description: "Deploy a Dockerized application with container management",
+    color: "#0db7ed",
+    action: () => {
+      closeModal();
+      router.push({
+        path: "/quickstart",
+        query: {
+          appType: QUICKSTART_ACTION_TYPE.AnyApp,
+          mode: "docker"
+        }
+      });
+    }
+  },
+  {
+    id: "direct",
+    icon: SettingOutlined,
+    title: "Direct Configuration",
+    description: "Manually configure startup command and settings",
+    color: "#52c41a",
+    action: () => {
+      closeModal();
+      router.push({
+        path: "/quickstart",
+        query: {
+          appType: QUICKSTART_ACTION_TYPE.AnyApp,
+          mode: "direct"
+        }
+      });
+    }
+  }
+];
+
+const closeModal = () => {
+  emit("update:open", false);
+};
+</script>
+
+<template>
+  <Modal
+    :open="props.open"
+    :footer="null"
+    :width="800"
+    @cancel="closeModal"
+  >
+    <template #title>
+      <div class="modal-header">
+        <RocketOutlined class="header-icon" />
+        <span>Create New Instance</span>
+      </div>
+    </template>
+
+    <div class="create-options-container">
+      <p class="subtitle">Choose how you want to create your instance</p>
+
+      <div class="options-grid">
+        <div
+          v-for="option in createOptions"
+          :key="option.id"
+          class="option-card"
+          @click="option.action"
+        >
+          <div class="option-icon" :style="{ background: `${option.color}15`, color: option.color }">
+            <component :is="option.icon" />
+          </div>
+          <h3 class="option-title">{{ option.title }}</h3>
+          <p class="option-description">{{ option.description }}</p>
+          <div class="option-arrow">→</div>
+        </div>
+      </div>
+    </div>
+  </Modal>
+</template>
+
+<style scoped lang="scss">
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 600;
+
+  .header-icon {
+    font-size: 24px;
+    color: #D4AF37;
+  }
+}
+
+.create-options-container {
+  padding: 8px 0;
+
+  .subtitle {
+    color: var(--color-gray-8);
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .option-card {
+    background: var(--background-color-white);
+    border: 2px solid var(--card-border-color);
+    border-radius: 12px;
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      border-color: #D4AF37;
+
+      .option-arrow {
+        transform: translateX(4px);
+        opacity: 1;
+      }
+
+      .option-icon {
+        transform: scale(1.1) rotate(5deg);
+      }
+    }
+
+    &:active {
+      transform: translateY(-2px);
+    }
+
+    .option-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .option-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 8px;
+    }
+
+    .option-description {
+      font-size: 13px;
+      color: var(--color-gray-8);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .option-arrow {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--color-gray-8);
+      opacity: 0.5;
+      transition: all 0.3s ease;
+    }
+  }
+}
+</style>

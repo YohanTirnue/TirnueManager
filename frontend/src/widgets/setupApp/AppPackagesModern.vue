@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
-import { DatabaseOutlined, SearchOutlined, FireOutlined, RocketOutlined, StarOutlined } from "@ant-design/icons-vue";
+import { DatabaseOutlined, SearchOutlined, FireOutlined, RocketOutlined, StarOutlined, PlusCircleOutlined } from "@ant-design/icons-vue";
 import { Modal } from "ant-design-vue";
 import CardPanel from "@/components/CardPanel.vue";
 import Loading from "@/components/Loading.vue";
+import CreateInstanceModal from "@/widgets/setupApp/CreateInstanceModal.vue";
 import { getCurrentLang, isCN, t } from "@/lang/i18n";
 import { quickInstallListAddr } from "@/services/apis/instance";
 import { reportErrorMsg } from "@/tools/validator";
@@ -28,6 +29,7 @@ const {
 
 // State
 const searchQuery = ref("");
+const showCreateModal = ref(false);
 const selectedCategory = ref<string>("all");
 const currentPage = ref(1);
 const pageSize = ref(18); // 3 rows of 6
@@ -145,6 +147,15 @@ onMounted(() => {
         </div>
         <h1 class="hero-title">Template Marketplace</h1>
         <p class="hero-subtitle">Browse and install game servers, bots, and applications instantly</p>
+        <a-button
+          type="primary"
+          size="large"
+          class="create-instance-btn"
+          @click="showCreateModal = true"
+        >
+          <template #icon><PlusCircleOutlined /></template>
+          Create Instance
+        </a-button>
       </div>
     </div>
 
@@ -304,6 +315,9 @@ onMounted(() => {
         </a-pagination>
       </div>
     </div>
+
+    <!-- Create Instance Modal -->
+    <CreateInstanceModal v-model:open="showCreateModal" />
   </div>
 </template>
 
@@ -371,8 +385,32 @@ onMounted(() => {
 .hero-subtitle {
   font-size: 20px;
   color: rgba(255,255,255,0.95);
-  margin: 0;
+  margin: 0 0 24px 0;
   font-weight: 500;
+}
+
+.create-instance-btn {
+  background: white;
+  color: #FF6B35;
+  border: none;
+  font-weight: 600;
+  font-size: 16px;
+  height: 48px;
+  padding: 0 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255,255,255,0.95);
+    color: #FF6B35;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 }
 
 // Search Container
