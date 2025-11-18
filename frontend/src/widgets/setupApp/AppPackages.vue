@@ -9,7 +9,7 @@ import type { QuickStartPackages } from "@/types";
 import { DatabaseOutlined, DownloadOutlined } from "@ant-design/icons-vue";
 import { Flex, Modal } from "ant-design-vue";
 import Link from "ant-design-vue/es/typography/Link";
-import { computed, onMounted, reactive } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 
 const props = defineProps<{
   title?: string;
@@ -29,6 +29,10 @@ const {
 } = quickInstallListAddr();
 
 const SEARCH_ALL_KEY = "ALL";
+
+// Pagination state for better performance
+const currentPage = ref(1);
+const pageSize = ref(24); // Show 24 items per page
 
 // Search form state for filtering packages
 // Contains language, category, game type, and platform filters with default values
@@ -178,11 +182,21 @@ const generateOptionsList = (
   }));
 };
 
-// Computed property for filtered application list
-// Uses the generic getFilteredPackages function with current search criteria
-const appList = computed(() => {
+// Computed property for all filtered packages (without pagination)
+const allFilteredPackages = computed(() => {
   return getSummaryPackages();
 });
+
+// Computed property for paginated application list
+// Uses pagination for better performance
+const appList = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return allFilteredPackages.value.slice(start, end);
+});
+
+// Total count for pagination
+const totalPackages = computed(() => allFilteredPackages.value.length);
 
 // Computed property for language options dropdown
 // Includes "ALL" option and available languages from preset data
@@ -240,21 +254,31 @@ const handleReset = () => {
   searchForm.gameType = SEARCH_ALL_KEY;
   searchForm.category = SEARCH_ALL_KEY;
   searchForm.platform = SEARCH_ALL_KEY;
+  currentPage.value = 1; // Reset to first page
 };
 
 const handleGameTypeChange = () => {
   searchForm.category = SEARCH_ALL_KEY;
   searchForm.platform = SEARCH_ALL_KEY;
+  currentPage.value = 1; // Reset to first page
 };
 
 const handleLanguageChange = () => {
   searchForm.gameType = SEARCH_ALL_KEY;
   searchForm.category = SEARCH_ALL_KEY;
   searchForm.platform = SEARCH_ALL_KEY;
+  currentPage.value = 1; // Reset to first page
 };
 
 const handlePlatformChange = () => {
   searchForm.category = SEARCH_ALL_KEY;
+  currentPage.value = 1; // Reset to first page
+};
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page;
+  // Scroll to top when page changes
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 const handleSelectTopCategory = (item: QuickStartPackages) => {
@@ -398,7 +422,7 @@ onMounted(() => {
     </a-col>
 
     <!-- Empty state - shown when no packages match current filters -->
-    <a-col v-if="appList.length === 0" :span="24">
+    <a-col v-if="allFilteredPackages.length === 0" :span="24">
       <div style="display: flex; justify-content: center; align-items: center; height: 40vh">
         <a-typography-paragraph :style="{ color: 'var(--color-gray-7)' }">
           {{ t("TXT_CODE_7356e569") }}
@@ -430,7 +454,8 @@ onMounted(() => {
                 style="height: 220px; border-radius: 0"
                 :src="item.image"
                 alt=""
-                srcset=""
+                loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -447,7 +472,7 @@ onMounted(() => {
             <template #body>
               <div class="package-card-content">
                 <div class="package-image-container">
-                  <img class="package-image cursor-pointer" :src="item.image" alt="" srcset="" />
+                  <img class="package-image cursor-pointer" :src="item.image" alt="" loading="lazy" decoding="async" />
                 </div>
 
                 <div class="package-info">
@@ -506,6 +531,20 @@ onMounted(() => {
         </div>
       </a-col>
     </fade-up-animation>
+
+    <!-- Pagination -->
+    <a-col v-if="totalPackages > pageSize" :span="24" style="margin-top: 24px">
+      <div style="display: flex; justify-content: center">
+        <a-pagination
+          v-model:current="currentPage"
+          :total="totalPackages"
+          :page-size="pageSize"
+          :show-size-changer="false"
+          :show-total="(total: number) => `Total ${total} templates`"
+          @change="handlePageChange"
+        />
+      </div>
+    </a-col>
   </a-row>
 </template>
 
@@ -517,7 +556,8 @@ onMounted(() => {
   gap: 16px;
   justify-content: space-between;
   height: 100%;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 
   &:hover {
     transform: translateY(-2px);
@@ -529,19 +569,13 @@ onMounted(() => {
   border-radius: 12px;
   position: relative;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
 
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(212, 175, 55, 0.1));
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  &:hover {
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.15);
   }
 
-  &:hover::after {
-    opacity: 1;
-  }
+  // Removed ::after pseudo-element for better performance
 }
 
 .cursor-pointer {
@@ -553,14 +587,15 @@ onMounted(() => {
   width: 100%;
   object-fit: cover;
   height: 200px; // Increased from 160px for better visibility
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
   background: linear-gradient(135deg, rgba(255, 140, 66, 0.05), rgba(212, 175, 55, 0.05));
   user-drag: none;
   user-select: none;
+  will-change: transform;
 
   &:hover {
     transform: scale(1.05);
-    filter: brightness(1.15) saturate(1.2);
+    // Removed heavy filters (brightness/saturate) for performance
   }
 }
 
@@ -610,7 +645,7 @@ onMounted(() => {
 
 .download-button {
   margin: 0px auto;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
   min-width: 140px;
   height: 40px;
   font-weight: 600;
@@ -619,11 +654,12 @@ onMounted(() => {
   border: none;
   color: white;
   box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+  will-change: transform;
 
   &:hover {
-    transform: translateY(-2px) scale(1.05);
+    transform: translateY(-2px) scale(1.03);
     box-shadow: 0 6px 20px rgba(255, 140, 66, 0.4);
-    background: linear-gradient(135deg, #FF6B35 0%, #FF4500 100%);
+    // Removed gradient change on hover for better performance
   }
 
   &:active {
@@ -631,9 +667,10 @@ onMounted(() => {
   }
 }
 
-.ant-card:hover .download-button {
-  animation: pulse-glow-gold 2s infinite;
-}
+// Removed infinite animation on hover for better performance
+// .ant-card:hover .download-button {
+//   animation: pulse-glow-gold 2s infinite;
+// }
 
 .package-subtitle {
   cursor: pointer;
@@ -653,11 +690,13 @@ onMounted(() => {
   z-index: 1;
   margin: 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
 
   &:hover {
-    background: linear-gradient(135deg, rgba(255, 107, 53, 0.95), rgba(255, 140, 66, 0.95));
-    padding: 14px 8px;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    // Removed gradient and padding changes for better performance
   }
 }
 
@@ -665,8 +704,9 @@ onMounted(() => {
   position: relative;
   border-radius: 12px;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
   box-shadow: 0 4px 16px rgba(255, 140, 66, 0.2);
+  will-change: transform;
 
   &:hover {
     transform: translateY(-4px);
