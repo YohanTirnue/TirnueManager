@@ -307,6 +307,7 @@ onMounted(() => {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 24px 48px;
+  background: var(--background-color);
 }
 
 // Hero Section
@@ -376,10 +377,10 @@ onMounted(() => {
 
 .modern-search {
   :deep(.ant-input-affix-wrapper) {
-    border: 3px solid transparent;
+    border: 3px solid var(--card-border-color);
     border-radius: 16px;
-    background: white;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    background: var(--background-color-white);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
     transition: all 0.3s ease;
     padding: 8px 16px;
 
@@ -417,17 +418,17 @@ onMounted(() => {
 .category-pill {
   padding: 12px 24px;
   border-radius: 12px;
-  background: white;
-  border: 2px solid #e0e0e0;
+  background: var(--background-color-white);
+  border: 2px solid var(--card-border-color);
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 600;
   font-size: 14px;
-  color: #666;
+  color: var(--text-color);
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 
   &:hover {
     border-color: #FF8C42;
@@ -456,7 +457,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #333;
+  color: var(--text-color);
 
   .anticon {
     color: #FF8C42;
@@ -470,12 +471,13 @@ onMounted(() => {
 }
 
 .featured-card {
-  background: white;
+  background: var(--background-color-white);
   border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border: 2px solid var(--card-border-color);
 
   &:hover {
     transform: translateY(-8px);
@@ -531,11 +533,11 @@ onMounted(() => {
     font-size: 22px;
     font-weight: 700;
     margin: 0 0 12px 0;
-    color: #333;
+    color: var(--text-color);
   }
 
   p {
-    color: #666;
+    color: var(--color-gray-8);
     margin: 0 0 16px 0;
     line-height: 1.6;
   }
@@ -575,11 +577,12 @@ onMounted(() => {
 }
 
 .template-card {
-  background: white;
+  background: var(--background-color-white);
   border-radius: 16px;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  border: 2px solid var(--card-border-color);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -633,10 +636,7 @@ onMounted(() => {
   font-size: 18px;
   font-weight: 700;
   margin: 0 0 12px 0;
-  color: #333;
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-color);
 }
 
 .template-tags {
@@ -656,7 +656,7 @@ onMounted(() => {
 }
 
 .template-description {
-  color: #666;
+  color: var(--color-gray-8);
   font-size: 13px;
   line-height: 1.6;
   margin: 0 0 12px 0;
@@ -667,7 +667,7 @@ onMounted(() => {
   display: flex;
   gap: 12px;
   font-size: 12px;
-  color: #999;
+  color: var(--color-gray-7);
   margin-bottom: 8px;
 
   span {
@@ -712,12 +712,12 @@ onMounted(() => {
   h3 {
     font-size: 24px;
     font-weight: 700;
-    color: #333;
+    color: var(--text-color);
     margin: 0 0 12px 0;
   }
 
   p {
-    color: #666;
+    color: var(--color-gray-8);
     margin: 0 0 24px 0;
   }
 }
@@ -764,7 +764,7 @@ onMounted(() => {
 
   p {
     margin-top: 24px;
-    color: #666;
+    color: var(--color-gray-8);
     font-size: 16px;
   }
 }
