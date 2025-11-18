@@ -282,11 +282,25 @@ const updateInstanceChart = () => {
     animation: false,
     tooltip: {
       trigger: "item",
-      formatter: "{b}: {c} ({d}%)"
+      formatter: "{b}: {c} ({d}%)",
+      backgroundColor: "rgba(255, 255, 255, 0.95)",
+      borderColor: "#e8e8e8",
+      borderWidth: 1,
+      textStyle: {
+        color: "#333"
+      }
     },
     legend: {
       bottom: 10,
-      left: "center"
+      left: "center",
+      textStyle: {
+        color: "#666",
+        fontSize: 14,
+        fontWeight: 500
+      },
+      itemWidth: 16,
+      itemHeight: 16,
+      itemGap: 20
     },
     series: [
       {
@@ -298,21 +312,70 @@ const updateInstanceChart = () => {
         itemStyle: {
           borderRadius: 8,
           borderColor: "#fff",
-          borderWidth: 2
+          borderWidth: 3
         },
         label: {
-          show: false
+          show: true,
+          fontSize: 14,
+          fontWeight: "600",
+          color: "#333",
+          formatter: "{b}\n{d}%"
+        },
+        labelLine: {
+          show: true,
+          length: 15,
+          length2: 10,
+          lineStyle: {
+            width: 2
+          }
         },
         emphasis: {
           label: {
             show: true,
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: "bold"
+          },
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: "rgba(0, 0, 0, 0.3)"
           }
         },
         data: [
-          { value: running, name: "Running", itemStyle: { color: "#52c41a" } },
-          { value: stopped, name: "Stopped", itemStyle: { color: "#ff4d4f" } }
+          {
+            value: running,
+            name: "Running",
+            itemStyle: {
+              color: {
+                type: "linear",
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: "#FF8C42" },
+                  { offset: 1, color: "#FF6B35" }
+                ]
+              }
+            }
+          },
+          {
+            value: stopped,
+            name: "Stopped",
+            itemStyle: {
+              color: {
+                type: "linear",
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: "#95a5a6" },
+                  { offset: 1, color: "#7f8c8d" }
+                ]
+              }
+            }
+          }
         ]
       }
     ]
