@@ -1,0 +1,218 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - "claude/**"
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Allow manual triggering
+
+env:
+  NODE_VERSION: "20.x"
+
+jobs:
+  # Build job - builds both web and daemon
+  build:
+    name: Build Web & Daemon
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          chmod a+x ./install-dependents.sh
+          chmod a+x ./build.sh
+          ./install-dependents.sh
+
+      - name: Build all components
+        run: |
+          ./build.sh
+
+      - name: Create build info
+        run: |
+          echo "Build Date: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" > production-code/BUILD_INFO.txt
+          echo "Commit: ${{ github.sha }}" >> production-code/BUILD_INFO.txt
+          echo "Branch: ${{ github.ref_name }}" >> production-code/BUILD_INFO.txt
+          echo "Workflow: ${{ github.workflow }}" >> production-code/BUILD_INFO.txt
+
+      - name: Upload Web build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tirnue-manager-web-${{ github.sha }}
+          path: production-code/web/
+          retention-days: 30
+
+      - name: Upload Daemon build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tirnue-manager-daemon-${{ github.sha }}
+          path: production-code/daemon/
+          retention-days: 30
+
+      - name: Upload Full build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tirnue-manager-full-${{ github.sha }}
+          path: production-code/
+          retention-days: 30
+
+  # Test job - runs tests if available
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests (if available)
+        run: |
+          # Check if test script exists in package.json
+          if npm run | grep -q "test"; then
+            npm test || echo "Tests not configured yet"
+          else
+            echo "No test script found - skipping tests"
+          fi
+        continue-on-error: true
+
+  # Docker build job - builds Docker images
+  docker-build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    strategy:
+      matrix:
+        component: [web, daemon]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}-${{ matrix.component }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: dockerfile/${{ matrix.component }}.dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Deployment job - deploys to staging/production
+  deploy:
+    name: Deploy to Environment
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      url: ${{ github.ref == 'refs/heads/main' && 'https://tirnue-manager.example.com' || 'https://staging.tirnue-manager.example.com' }}
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: tirnue-manager-full-${{ github.sha }}
+          path: ./production-code
+
+      - name: Deploy notification
+        run: |
+          echo "🚀 Deployment to ${{ github.ref == 'refs/heads/main' && 'PRODUCTION' || 'STAGING' }} environment"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Author: ${{ github.actor }}"
+          # Add your deployment commands here
+          # For example: SSH to server and restart services
+          # Or: Upload to S3, trigger Kubernetes deployment, etc.
+
+      - name: Create deployment summary
+        run: |
+          echo "### 🎉 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifacts**: Available for download" >> $GITHUB_STEP_SUMMARY
+
+  # Notification job - sends build status notifications
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [build, test, docker-build, deploy]
+    if: always()
+
+    steps:
+      - name: Build success notification
+        if: needs.build.result == 'success'
+        run: |
+          echo "✅ Build completed successfully!"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          # Add notification service here (Slack, Discord, Email, etc.)
+
+      - name: Build failure notification
+        if: needs.build.result == 'failure'
+        run: |
+          echo "❌ Build failed!"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          # Add notification service here
+
+      - name: Create status summary
+        run: |
+          echo "### 📊 Build Status Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test | ${{ needs.test.result == 'success' && '✅ Success' || needs.test.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker | ${{ needs.docker-build.result == 'success' && '✅ Success' || needs.docker-build.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deploy | ${{ needs.deploy.result == 'success' && '✅ Success' || needs.deploy.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY

@@ -7,7 +7,7 @@ import { originRouterConfig, ROLE } from "@/config/router";
 import {
   AppstoreOutlined,
   ShopOutlined,
-  DashboardOutlined,
+  LineChartOutlined,
   TeamOutlined,
   ClusterOutlined,
   SettingOutlined,
@@ -45,7 +45,8 @@ function getIconForRoute(path: string) {
   const iconMap: Record<string, any> = {
     "/instances": AppstoreOutlined,
     "/market": ShopOutlined,
-    "/overview": DashboardOutlined,
+    "/overview": LineChartOutlined,
+    "/stats": LineChartOutlined,
     "/users": TeamOutlined,
     "/node": ClusterOutlined,
     "/settings": SettingOutlined,
@@ -122,18 +123,17 @@ function toggleSidebar() {
   left: 0;
   top: 0;
   bottom: 0;
-  width: var(--sidebar-width, 260px);
+  width: var(--sidebar-width, 240px);
   background: var(--sidebar-bg, linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%));
   color: var(--sidebar-text, #ffffff);
   display: flex;
   flex-direction: column;
   z-index: 1000;
-  transition: width 0.3s ease;
-  border-radius: 0 24px 24px 0;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 
   &.collapsed {
-    width: 70px;
+    width: 60px;
 
     .sidebar-logo {
       justify-content: center;

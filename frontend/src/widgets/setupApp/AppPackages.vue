@@ -6,7 +6,7 @@ import { getCurrentLang, isCN, t } from "@/lang/i18n";
 import { quickInstallListAddr } from "@/services/apis/instance";
 import { reportErrorMsg } from "@/tools/validator";
 import type { QuickStartPackages } from "@/types";
-import { DatabaseOutlined, DownloadOutlined } from "@ant-design/icons-vue";
+import { DatabaseOutlined, DownloadOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import { Flex, Modal } from "ant-design-vue";
 import Link from "ant-design-vue/es/typography/Link";
 import { computed, onMounted, reactive, ref } from "vue";
@@ -33,6 +33,10 @@ const SEARCH_ALL_KEY = "ALL";
 // Pagination state for better performance
 const currentPage = ref(1);
 const pageSize = ref(24); // Show 24 items per page
+
+// Search query state
+const searchQuery = ref("");
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Search form state for filtering packages
 // Contains language, category, game type, and platform filters with default values
@@ -103,6 +107,18 @@ const getFilteredPackages = (
       matchesCategoryFilter(item),
       matchesPlatformFilter(item)
     ];
+
+    // NEW: Search filter
+    if (searchQuery.value.trim()) {
+      const query = searchQuery.value.toLowerCase();
+      const matchesTitle = item.title?.toLowerCase().includes(query);
+      const matchesDescription = item.description?.toLowerCase().includes(query);
+      const matchesTags = item.tags?.some((tag) => tag.toLowerCase().includes(query));
+
+      if (!matchesTitle && !matchesDescription && !matchesTags) {
+        return false;
+      }
+    }
 
     // Combine base filters with additional custom filters if provided
     const allFilters = additionalFilters ? [additionalFilters(item)] : baseFilters;
@@ -250,11 +266,24 @@ const init = async () => {
 };
 
 const handleReset = () => {
+  searchQuery.value = ""; // Reset search
   searchForm.language = isCN() ? getCurrentLang() : "en_us";
   searchForm.gameType = SEARCH_ALL_KEY;
   searchForm.category = SEARCH_ALL_KEY;
   searchForm.platform = SEARCH_ALL_KEY;
   currentPage.value = 1; // Reset to first page
+};
+
+const handleSearch = () => {
+  currentPage.value = 1; // Reset to first page when searching
+};
+
+const handleSearchChange = () => {
+  // Debounce search for better performance
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {
+    handleSearch();
+  }, 300);
 };
 
 const handleGameTypeChange = () => {
@@ -318,7 +347,7 @@ onMounted(() => {
     </Flex>
   </a-typography-paragraph>
   <!-- Loading state - shows loading spinner while fetching package data -->
-  <a-row v-if="appListLoading" :gutter="[24, 24]" style="height: 100%">
+  <a-row v-if="appListLoading" :gutter="[16, 16]" style="height: 100%">
     <a-col :span="24">
       <div
         style="
@@ -341,6 +370,23 @@ onMounted(() => {
 
   <!-- Main content - package marketplace interface -->
   <a-row v-else :gutter="[16, 16]" style="height: 100%">
+    <!-- Search Bar -->
+    <a-col :span="24">
+      <a-input-search
+        v-model:value="searchQuery"
+        size="large"
+        placeholder="Search templates by name, description, or tags..."
+        :allow-clear="true"
+        @search="handleSearch"
+        @change="handleSearchChange"
+        class="marketplace-search"
+      >
+        <template #prefix>
+          <SearchOutlined style="color: #FF8C42; font-size: 18px" />
+        </template>
+      </a-input-search>
+    </a-col>
+
     <!-- Search filters section -->
     <a-col :span="24" :md="24">
       <a-form
@@ -768,6 +814,42 @@ onMounted(() => {
     box-shadow:
       0 8px 30px rgba(255, 140, 66, 0.6),
       0 0 25px rgba(255, 140, 66, 0.4);
+  }
+}
+
+// Marketplace search styling
+:deep(.marketplace-search) {
+  .ant-input-search-button {
+    background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+    border: none;
+    height: 40px;
+    font-weight: 600;
+
+    &:hover {
+      background: linear-gradient(135deg, #FF6B35 0%, #FF4500 100%);
+      transform: scale(1.02);
+    }
+  }
+
+  .ant-input-affix-wrapper {
+    border: 2px solid rgba(255, 140, 66, 0.3);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+
+    &:hover,
+    &:focus,
+    &:focus-within {
+      border-color: #FF8C42;
+      box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.1);
+    }
+
+    input {
+      font-size: 15px;
+
+      &::placeholder {
+        color: var(--color-gray-7);
+      }
+    }
   }
 }
 </style>

@@ -364,41 +364,31 @@ onMounted(async () => {
     </a-form>
   </a-modal>
 
-  <div style="height: 100%" class="container">
+  <div style="height: 100%" class="user-list-container">
     <a-row :gutter="[24, 24]" style="height: 100%">
       <a-col :span="24">
         <BetweenMenus>
           <template v-if="!isPhone" #left>
-            <a-typography-title class="mb-0" :level="4">
+            <a-typography-title class="mb-0 page-title" :level="4">
               <UserOutlined />
               {{ card.title }} ({{ total }})
             </a-typography-title>
           </template>
           <template #right>
-            <a-button type="default" :loading="getUserInfoLoading" @click="reload">
+            <a-button class="action-btn" :loading="getUserInfoLoading" @click="reload">
               {{ t("TXT_CODE_b76d94e0") }}
             </a-button>
-            <a-dropdown>
-              <template #overlay>
-                <a-menu>
-                  <a-menu-item key="1" @click="handleAddUser">
-                    {{ t("TXT_CODE_e83ffa03") }}
-                  </a-menu-item>
-                  <a-menu-item key="2" @click="handleBatchDelete()">
-                    {{ t("TXT_CODE_ecbd7449") }}
-                  </a-menu-item>
-                </a-menu>
-              </template>
-              <a-button type="primary">
-                {{ t("TXT_CODE_f7084f84") }}
-                <DownOutlined />
-              </a-button>
-            </a-dropdown>
+            <a-button class="action-btn primary-btn" type="primary" @click="handleAddUser">
+              {{ t("TXT_CODE_e83ffa03") }}
+            </a-button>
+            <a-button class="action-btn delete-btn" danger @click="handleBatchDelete()">
+              {{ t("TXT_CODE_ecbd7449") }}
+            </a-button>
           </template>
           <template #center>
             <div class="search-input">
               <a-input-group compact>
-                <a-select v-model:value="currentRole" style="width: 100px" @change="search()">
+                <a-select v-model:value="currentRole" class="role-filter" style="width: 120px" @change="search()">
                   <a-select-option value="">
                     {{ t("TXT_CODE_c48f6f64") }}
                   </a-select-option>
@@ -410,11 +400,12 @@ onMounted(async () => {
                   v-model:value.trim.lazy="operationForm.name"
                   :placeholder="t('TXT_CODE_2471b9c')"
                   allow-clear
-                  style="width: calc(100% - 100px)"
+                  class="search-field"
+                  style="width: calc(100% - 120px)"
                   @change="search()"
                 >
-                  <template #suffix>
-                    <search-outlined />
+                  <template #prefix>
+                    <SearchOutlined style="color: #FF8C42" />
                   </template>
                 </a-input>
               </a-input-group>
@@ -453,25 +444,17 @@ onMounted(async () => {
               >
                 <template #bodyCell="{ column, record }: AntTableCell">
                   <template v-if="column.key === 'action'">
-                    <a-dropdown>
-                      <template #overlay>
-                        <a-menu>
-                          <a-menu-item key="1" @click="handleEditUser(record)">
-                            {{ t("TXT_CODE_236f70aa") }}
-                          </a-menu-item>
-                          <a-menu-item key="2" @click="handleToUserResources(record)">
-                            {{ t("TXT_CODE_4d934e3a") }}
-                          </a-menu-item>
-                          <a-menu-item key="3" @click="showDeleteConfirm(record)">
-                            {{ t("TXT_CODE_ecbd7449") }}
-                          </a-menu-item>
-                        </a-menu>
-                      </template>
-                      <a-button size="large">
-                        {{ t("TXT_CODE_fe731dfc") }}
-                        <DownOutlined />
+                    <a-space>
+                      <a-button class="table-action-btn" size="small" @click="handleEditUser(record)">
+                        {{ t("TXT_CODE_236f70aa") }}
                       </a-button>
-                    </a-dropdown>
+                      <a-button class="table-action-btn" size="small" @click="handleToUserResources(record)">
+                        {{ t("TXT_CODE_4d934e3a") }}
+                      </a-button>
+                      <a-button class="table-action-btn" size="small" danger @click="showDeleteConfirm(record)">
+                        {{ t("TXT_CODE_ecbd7449") }}
+                      </a-button>
+                    </a-space>
                   </template>
                 </template>
               </a-table>
@@ -484,17 +467,96 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
+.user-list-container {
+  padding: 16px;
+}
+
+.page-title {
+  background: linear-gradient(135deg, #FF8C42, #D4AF37);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.action-btn {
+  transition: all 0.2s ease;
+  border-radius: 6px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.2);
+  }
+
+  &.primary-btn {
+    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    border: none;
+
+    &:hover {
+      background: linear-gradient(135deg, #ff9d5c, #dfc051);
+    }
+  }
+
+  &.delete-btn {
+    &:hover {
+      box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
+    }
+  }
+}
+
 .search-input {
   transition: all 0.4s;
   text-align: center;
-  width: 80%;
+  width: 100%;
 
-  &:hover {
-    width: 100%;
+  .role-filter {
+    border-radius: 6px 0 0 6px;
+  }
+
+  .search-field {
+    border-radius: 0 6px 6px 0;
+
+    &:focus {
+      border-color: #FF8C42;
+      box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.1);
+    }
   }
 
   @media (max-width: 992px) {
     width: 100% !important;
+  }
+}
+
+.table-action-btn {
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  font-size: 12px;
+
+  &:hover:not([danger]) {
+    border-color: #FF8C42;
+    color: #FF8C42;
+  }
+}
+
+:deep(.ant-table) {
+  .ant-table-thead > tr > th {
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.05), rgba(212, 175, 55, 0.05));
+    border-bottom: 2px solid rgba(255, 140, 66, 0.2);
+    font-weight: 600;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: rgba(255, 140, 66, 0.03);
+  }
+}
+
+@media (max-width: 768px) {
+  .user-list-container {
+    padding: 12px;
+  }
+
+  .table-action-btn {
+    font-size: 11px;
+    padding: 2px 8px;
   }
 }
 </style>

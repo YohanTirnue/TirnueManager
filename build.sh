@@ -42,6 +42,10 @@ cp -f "${BASE_PATH}/panel/package-lock.json" "${BASE_PATH}/production-code/web/p
 
 mv "${BASE_PATH}"/frontend/dist/* "${BASE_PATH}/production-code/web/public"
 
+# Copy expanded templates for marketplace
+cp -f "${BASE_PATH}/expanded-templates.json" "${BASE_PATH}/production-code/daemon/expanded-templates.json"
+cp -f "${BASE_PATH}/expanded-templates.json" "${BASE_PATH}/production-code/web/expanded-templates.json"
+
 rm -rf "${BASE_PATH}/daemon/dist" "${BASE_PATH}/daemon/production"
 rm -rf "${BASE_PATH}/panel/dist" "${BASE_PATH}/panel/production"
 rm -rf "${BASE_PATH}/frontend/dist"

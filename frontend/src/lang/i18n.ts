@@ -134,8 +134,7 @@ const getInitLanguage = (): string => {
 const isCN = () => {
   return (
     getCurrentLang() === "zh_cn" ||
-    getCurrentLang() === "zh_tw" ||
-    window.navigator.language.includes("zh")
+    getCurrentLang() === "zh_tw"
   );
 };
 

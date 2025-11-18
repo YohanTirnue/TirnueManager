@@ -10,23 +10,51 @@ import { defineConfig } from "vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    sourcemap: true,
-    chunkSizeWarningLimit: 1024,
+    sourcemap: false, // Disable sourcemaps for faster builds
+    chunkSizeWarningLimit: 1500,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+        drop_debugger: true
+      }
+    },
     rollupOptions: {
       output: {
+        // Optimize chunk naming for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks(path) {
+          // Split Ant Design Vue into smaller chunks
+          if (path.includes("node_modules/ant-design-vue/es/table")) {
+            return "ant-table";
+          }
+          if (path.includes("node_modules/ant-design-vue/es/form")) {
+            return "ant-form";
+          }
+          if (path.includes("node_modules/ant-design-vue/es/modal")) {
+            return "ant-modal";
+          }
           if (path.includes("node_modules/ant-design-vue/es")) {
-            return "ant-es";
+            return "ant-components";
           }
           if (path.includes("node_modules/ant-design-vue")) {
-            return "ant";
+            return "ant-core";
           }
+
+          // Split ECharts into separate chunks
           if (path.includes("node_modules/zrender")) {
             return "zrender";
           }
-          if (path.includes("node_modules/echarts")) {
-            return "echart";
+          if (path.includes("node_modules/echarts/lib/chart")) {
+            return "echarts-charts";
           }
+          if (path.includes("node_modules/echarts")) {
+            return "echarts-core";
+          }
+
+          // Other large libraries
           if (path.includes("node_modules/lodash")) {
             return "lodash";
           }
@@ -44,6 +72,25 @@ export default defineConfig({
           }
           if (path.includes("node_modules/htmlparser2")) {
             return "htmlparser2";
+          }
+
+          // Split other vendor code
+          if (path.includes("node_modules/")) {
+            return "vendor";
+          }
+
+          // Split app code by feature
+          if (path.includes("/src/widgets/stats/")) {
+            return "app-stats";
+          }
+          if (path.includes("/src/widgets/setupApp/")) {
+            return "app-setup";
+          }
+          if (path.includes("/src/widgets/instance/")) {
+            return "app-instance";
+          }
+          if (path.includes("/src/widgets/")) {
+            return "app-widgets";
           }
         }
       }

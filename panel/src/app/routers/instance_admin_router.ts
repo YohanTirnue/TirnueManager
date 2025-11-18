@@ -1,6 +1,7 @@
 import Router from "@koa/router";
 import axios from "axios";
 import fs from "fs/promises";
+import path from "path";
 import { MARKET_CACHE_FILE_PATH } from "../const";
 import { ROLE } from "../entity/user";
 import { $t } from "../i18n";
@@ -313,11 +314,39 @@ router.get("/quick_install_list", permission({ level: ROLE.USER }), async (ctx) 
     return;
   }
 
-  // Cache logic implementation
-  const ADDR = systemConfig?.presetPackAddr;
-  const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
+  // Try to use local expanded templates first
+  const LOCAL_TEMPLATES_PATH = path.join(process.cwd(), "expanded-templates.json");
 
   try {
+    // First, try to read local expanded-templates.json
+    try {
+      const localTemplatesData = await fs.readFile(LOCAL_TEMPLATES_PATH, "utf-8");
+      const localTemplates = JSON.parse(localTemplatesData);
+
+      if (localTemplates && localTemplates.templates && localTemplates.templates.length > 0) {
+        // Convert from our format to the expected format
+        ctx.body = {
+          version: localTemplates.version || "1.0.0",
+          packages: localTemplates.templates.map((t: any) => ({
+            ...t,
+            info: t.description,
+            addr: t.targetLink,
+            author: t.author || "Unknown",
+            size: t.size || "Unknown",
+            tar: t.gameType || "Minecraft"
+          }))
+        };
+        logger.info(`Loaded ${localTemplates.templates.length} templates from local expanded-templates.json`);
+        return;
+      }
+    } catch (localError) {
+      logger.warn(`Could not read local templates, falling back to remote: ${localError}`);
+    }
+
+    // Fallback to remote templates with caching
+    const ADDR = systemConfig?.presetPackAddr;
+    const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
+
     // Check if cache file exists and is valid
     try {
       const stats = await fs.stat(MARKET_CACHE_FILE_PATH);
