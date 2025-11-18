@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
 import { originRouterConfig, ROLE } from "@/config/router";
+import { logoutUser } from "@/services/apis/index";
+import { message } from "ant-design-vue";
+import { t } from "@/lang/i18n";
 import {
   AppstoreOutlined,
   ShopOutlined,
@@ -13,7 +16,9 @@ import {
   SettingOutlined,
   UserOutlined,
   MenuFoldOutlined,
-  MenuUnfoldOutlined
+  MenuUnfoldOutlined,
+  LogoutOutlined,
+  ExclamationCircleOutlined
 } from "@ant-design/icons-vue";
 
 const router = useRouter();
@@ -23,6 +28,9 @@ const { containerState } = useLayoutContainerStore();
 
 const userPermission = computed(() => state.userInfo?.permission ?? 0);
 const userName = computed(() => state.userInfo?.userName ?? "Guest");
+
+const showLogoutModal = ref(false);
+const { execute } = logoutUser();
 
 const menuItems = computed(() => {
   return originRouterConfig
@@ -71,6 +79,24 @@ const sidebarCollapsed = computed({
 function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value;
 }
+
+function openLogoutModal() {
+  showLogoutModal.value = true;
+}
+
+function closeLogoutModal() {
+  showLogoutModal.value = false;
+}
+
+async function handleLogout() {
+  try {
+    await execute();
+    message.success(t("TXT_CODE_11673d8c"));
+    setTimeout(() => (window.location.href = "/"), 400);
+  } catch (error) {
+    message.error("Logout failed. Please try again.");
+  }
+}
 </script>
 
 <template>
@@ -83,15 +109,16 @@ function toggleSidebar() {
       <span v-if="!sidebarCollapsed" class="logo-text">Tirnue</span>
     </div>
 
-    <!-- User Profile -->
-    <div class="sidebar-user" v-if="!sidebarCollapsed">
+    <!-- User Profile (Clickable for logout) -->
+    <div class="sidebar-user" :class="{ collapsed: sidebarCollapsed }" @click="openLogoutModal">
       <div class="user-avatar">
         <UserOutlined />
       </div>
-      <div class="user-info">
+      <div v-if="!sidebarCollapsed" class="user-info">
         <div class="user-name">{{ userName }}</div>
         <div class="user-role">{{ userPermission >= ROLE.ADMIN ? "Administrator" : "User" }}</div>
       </div>
+      <LogoutOutlined v-if="!sidebarCollapsed" class="logout-icon" />
     </div>
 
     <!-- Navigation Menu -->
@@ -113,6 +140,26 @@ function toggleSidebar() {
     <div class="sidebar-toggle" @click="toggleSidebar">
       <MenuFoldOutlined v-if="!sidebarCollapsed" />
       <MenuUnfoldOutlined v-else />
+    </div>
+  </div>
+
+  <!-- Custom Logout Modal -->
+  <div v-if="showLogoutModal" class="logout-modal-overlay" @click="closeLogoutModal">
+    <div class="logout-modal" @click.stop>
+      <div class="modal-icon">
+        <ExclamationCircleOutlined />
+      </div>
+      <h2 class="modal-title">{{ t("TXT_CODE_9654b91c") || "Confirm Logout" }}</h2>
+      <p class="modal-message">Are you sure you want to logout from your account?</p>
+      <div class="modal-actions">
+        <button class="modal-btn cancel-btn" @click="closeLogoutModal">
+          Cancel
+        </button>
+        <button class="modal-btn logout-btn" @click="handleLogout">
+          <LogoutOutlined />
+          Logout
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -148,6 +195,11 @@ function toggleSidebar() {
     .sidebar-toggle {
       justify-content: center;
     }
+
+    .sidebar-user {
+      justify-content: center;
+      padding: 14px 10px;
+    }
   }
 }
 
@@ -176,19 +228,34 @@ function toggleSidebar() {
   align-items: center;
   padding: 20px;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.15), rgba(212, 175, 55, 0.15));
   margin: 16px;
   border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 140, 66, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.25), rgba(212, 175, 55, 0.25));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+  }
+
+  &.collapsed {
+    margin: 16px 8px;
+    padding: 12px;
+  }
 
   .user-avatar {
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 20px;
+    flex-shrink: 0;
   }
 
   .user-info {
@@ -203,6 +270,16 @@ function toggleSidebar() {
   .user-role {
     font-size: 12px;
     opacity: 0.7;
+  }
+
+  .logout-icon {
+    font-size: 18px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover .logout-icon {
+    opacity: 1;
   }
 }
 
@@ -262,6 +339,125 @@ function toggleSidebar() {
   }
 }
 
+// Custom Logout Modal
+.logout-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.logout-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.3s ease;
+  text-align: center;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(212, 175, 55, 0.1));
+  border: 3px solid #FF8C42;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: #FF8C42;
+}
+
+.modal-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e1e2e;
+  margin: 0 0 12px 0;
+}
+
+.modal-message {
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 32px 0;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-btn {
+  padding: 14px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  min-width: 140px;
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.cancel-btn {
+  background: #f5f5f5;
+  color: #666;
+
+  &:hover {
+    background: #e8e8e8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  color: white;
+  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(255, 140, 66, 0.4);
+  }
+}
+
 @media (max-width: 992px) {
   .app-sidebar {
     transform: translateX(-100%);
@@ -269,6 +465,15 @@ function toggleSidebar() {
     &.mobile-open {
       transform: translateX(0);
     }
+  }
+
+  .logout-modal {
+    padding: 32px 24px;
+  }
+
+  .modal-btn {
+    padding: 12px 24px;
+    font-size: 15px;
   }
 }
 </style>

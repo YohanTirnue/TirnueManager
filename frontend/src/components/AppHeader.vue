@@ -255,32 +255,6 @@ const appMenus = computed(() => {
       },
       conditions: !containerState.isDesignMode && isAdmin.value,
       onlyPC: true
-    },
-    {
-      title: t("TXT_CODE_8c3164c9"),
-      icon: UserOutlined,
-      click: () => {
-        appTools.showUserInfoDialog = true;
-      },
-      conditions: !containerState.isDesignMode && isLogged.value,
-      onlyPC: false
-    },
-    {
-      title: t("TXT_CODE_2c69ab15"),
-      icon: LogoutOutlined,
-      click: async () => {
-        Modal.confirm({
-          title: t("TXT_CODE_9654b91c"),
-          async onOk() {
-            await execute();
-            message.success(t("TXT_CODE_11673d8c"));
-            setTimeout(() => (window.location.href = "/"), 400);
-          }
-        });
-      },
-      customClass: ["nav-button-danger"],
-      conditions: !containerState.isDesignMode && isLogged.value,
-      onlyPC: false
     }
   ];
 });
