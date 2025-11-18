@@ -618,7 +618,7 @@ onUnmounted(() => {
 }
 
 .stat-card {
-  background: white;
+  background: var(--background-color-white);
   border-radius: 16px;
   padding: 24px;
   display: flex;
@@ -653,7 +653,7 @@ onUnmounted(() => {
 
 .stat-label {
   font-size: 13px;
-  color: #666;
+  color: var(--color-gray-7);
   font-weight: 500;
   margin-bottom: 4px;
 }
@@ -661,7 +661,7 @@ onUnmounted(() => {
 .stat-value {
   font-size: 32px;
   font-weight: 800;
-  color: #333;
+  color: var(--text-color);
   line-height: 1;
   margin-bottom: 4px;
   display: flex;
@@ -677,7 +677,7 @@ onUnmounted(() => {
 
 .stat-subtitle {
   font-size: 12px;
-  color: #999;
+  color: var(--color-gray-6);
 }
 
 // Charts
@@ -731,7 +731,7 @@ onUnmounted(() => {
   justify-content: space-between;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #333;
+  color: var(--text-color);
 }
 
 .resource-value {
@@ -812,7 +812,7 @@ onUnmounted(() => {
 
 .activity-main {
   font-size: 14px;
-  color: #333;
+  color: var(--text-color);
   margin-bottom: 4px;
 
   strong {
@@ -822,7 +822,7 @@ onUnmounted(() => {
 
 .activity-time {
   font-size: 12px;
-  color: #999;
+  color: var(--color-gray-6);
 }
 
 // Responsive
