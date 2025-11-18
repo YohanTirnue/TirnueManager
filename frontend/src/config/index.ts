@@ -30,7 +30,7 @@ import MusicCard from "@/widgets/others/MusicCard.vue";
 import PluginCard from "@/widgets/others/PluginCard.vue";
 import TextCard from "@/widgets/others/TextCard.vue";
 import Page404 from "@/widgets/Page404.vue";
-import DataOverview from "@/widgets/stats/StatsOverview.vue";
+import DataOverview from "@/widgets/stats/StatsOverviewModern.vue";
 import RequestChart from "@/widgets/RequestChart.vue";
 import Settings from "@/widgets/Settings.vue";
 import McPreset from "@/widgets/setupApp/McPreset.vue";

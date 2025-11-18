@@ -46,309 +46,364 @@ const { state: overviewInfo } = useOverviewInfo();
 const cpuChartRef = ref<HTMLDivElement>();
 const memoryChartRef = ref<HTMLDivElement>();
 const instanceChartRef = ref<HTMLDivElement>();
-const activityChartRef = ref<HTMLDivElement>();
+const networkChartRef = ref<HTMLDivElement>();
 
 let cpuChart: echarts.ECharts | null = null;
 let memoryChart: echarts.ECharts | null = null;
 let instanceChart: echarts.ECharts | null = null;
-let activityChart: echarts.ECharts | null = null;
+let networkChart: echarts.ECharts | null = null;
 
-// Mock data for charts (replace with real data)
-const cpuData = ref(Array.from({ length: 24 }, () => Math.random() * 100));
-const memoryData = ref(Array.from({ length: 24 }, () => Math.random() * 100));
-const timeLabels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+// Real-time data tracking with historical values
+const cpuHistory = ref<number[]>([]);
+const memoryHistory = ref<number[]>([]);
+const maxHistoryLength = 20;
 
-// Quick Stats
-const quickStats = computed(() => [
-  {
-    title: "Total Daemons",
-    value: overviewInfo.value?.remote?.length || 0,
-    icon: CloudServerOutlined,
-    color: "#FF8C42",
-    trend: "+5.2%",
-    subtitle: "Active nodes"
-  },
-  {
-    title: "Total Instances",
-    value: overviewInfo.value?.totalInstance || 0,
-    icon: AppstoreOutlined,
-    color: "#D4AF37",
-    trend: "+12.3%",
-    subtitle: "Running servers"
-  },
-  {
-    title: "Running",
-    value: overviewInfo.value?.runningInstance || 0,
-    icon: ThunderboltOutlined,
-    color: "#52c41a",
-    trend: "+8.1%",
-    subtitle: "Active now"
-  },
-  {
-    title: "CPU Usage",
-    value: `${overviewInfo.value?.cpu || 0}%`,
-    icon: UserOutlined,
-    color: "#1890ff",
-    trend: "+3.4%",
-    subtitle: "System load"
-  }
-]);
+// Quick Stats with REAL data
+const quickStats = computed(() => {
+  if (!overviewInfo.value) return [];
 
-// System Resources
+  const { system, remote, totalInstance, runningInstance, cpu, mem } = overviewInfo.value;
+
+  return [
+    {
+      title: "Total Nodes",
+      value: remote?.length || 0,
+      icon: CloudServerOutlined,
+      color: "#FF8C42",
+      subtitle: `${system?.platform || 'Unknown'} ${system?.type || ''}`
+    },
+    {
+      title: "Total Instances",
+      value: totalInstance || 0,
+      icon: AppstoreOutlined,
+      color: "#D4AF37",
+      subtitle: `${runningInstance || 0} running now`
+    },
+    {
+      title: "CPU Usage",
+      value: `${(cpu || 0).toFixed(1)}%`,
+      icon: ThunderboltOutlined,
+      color: cpu > 80 ? "#ff4d4f" : cpu > 50 ? "#faad14" : "#52c41a",
+      subtitle: `Load: ${system?.loadavg?.[0]?.toFixed(2) || 'N/A'}`
+    },
+    {
+      title: "Memory",
+      value: `${(mem || 0).toFixed(1)}%`,
+      icon: DatabaseOutlined,
+      color: mem > 80 ? "#ff4d4f" : mem > 50 ? "#faad14" : "#52c41a",
+      subtitle: `${((system?.totalmem - system?.freemem) / 1024 / 1024 / 1024 || 0).toFixed(1)}GB used`
+    }
+  ];
+});
+
+// System Resources with REAL data
 const systemResources = computed(() => {
   const sys = overviewInfo.value?.system;
+  if (!sys) return { cpu: { usage: 0, cores: 0 }, memory: { used: 0, total: 0, percentage: 0 }, disk: { used: 0, total: 0, percentage: 0 } };
+
+  const totalMem = sys.totalmem / 1024 / 1024 / 1024;
+  const freeMem = sys.freemem / 1024 / 1024 / 1024;
+  const usedMem = totalMem - freeMem;
+
   return {
     cpu: {
       usage: overviewInfo.value?.cpu || 0,
-      cores: 4
+      cores: sys.cpus?.length || 0
     },
     memory: {
-      used: sys ? (sys.totalmem - sys.freemem) / 1024 / 1024 / 1024 : 0,
-      total: sys ? sys.totalmem / 1024 / 1024 / 1024 : 16,
+      used: usedMem,
+      total: totalMem,
       percentage: overviewInfo.value?.mem || 0
     },
     disk: {
       used: 0,
-      total: 100,
+      total: 0,
       percentage: 0
     }
   };
 });
 
-// Recent Activity
-const recentActivity = [
-  { type: "instance", action: "started", name: "Survival Server", time: "2 min ago", status: "success" },
-  { type: "daemon", action: "connected", name: "Node-US-01", time: "5 min ago", status: "success" },
-  { type: "instance", action: "stopped", name: "Creative Build", time: "12 min ago", status: "warning" },
-  { type: "user", action: "logged in", name: "Admin", time: "15 min ago", status: "info" },
-  { type: "instance", action: "started", name: "Minigames Hub", time: "20 min ago", status: "success" }
-];
-
 // Initialize charts
 const initCharts = () => {
+  // Initialize history with current values
+  if (overviewInfo.value) {
+    cpuHistory.value = [overviewInfo.value.cpu || 0];
+    memoryHistory.value = [overviewInfo.value.mem || 0];
+  }
+
   // CPU Chart
   if (cpuChartRef.value) {
     cpuChart = echarts.init(cpuChartRef.value);
-    cpuChart.setOption({
-      tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "cross",
-          label: { backgroundColor: "#6a7985" }
-        }
-      },
-      grid: {
-        left: "3%",
-        right: "4%",
-        bottom: "3%",
-        containLabel: true
-      },
-      xAxis: {
-        type: "category",
-        boundaryGap: false,
-        data: timeLabels
-      },
-      yAxis: {
-        type: "value",
-        max: 100,
-        axisLabel: { formatter: "{value}%" }
-      },
-      series: [
-        {
-          name: "CPU Usage",
-          type: "line",
-          smooth: true,
-          areaStyle: {
-            color: {
-              type: "linear",
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: "rgba(255, 140, 66, 0.4)" },
-                { offset: 1, color: "rgba(255, 140, 66, 0.05)" }
-              ]
-            }
-          },
-          lineStyle: {
-            color: "#FF8C42",
-            width: 3
-          },
-          itemStyle: {
-            color: "#FF8C42"
-          },
-          data: cpuData.value
-        }
-      ]
-    });
+    updateCPUChart();
   }
 
   // Memory Chart
   if (memoryChartRef.value) {
     memoryChart = echarts.init(memoryChartRef.value);
-    memoryChart.setOption({
-      tooltip: {
-        trigger: "axis",
-        axisPointer: { type: "shadow" }
-      },
-      grid: {
-        left: "3%",
-        right: "4%",
-        bottom: "3%",
-        containLabel: true
-      },
-      xAxis: {
-        type: "category",
-        data: timeLabels
-      },
-      yAxis: {
-        type: "value",
-        max: 100,
-        axisLabel: { formatter: "{value}%" }
-      },
-      series: [
-        {
-          name: "Memory Usage",
-          type: "bar",
-          barWidth: "60%",
-          itemStyle: {
-            color: {
-              type: "linear",
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: "#D4AF37" },
-                { offset: 1, color: "rgba(212, 175, 55, 0.5)" }
-              ]
-            },
-            borderRadius: [4, 4, 0, 0]
-          },
-          data: memoryData.value
-        }
-      ]
-    });
+    updateMemoryChart();
   }
 
   // Instance Distribution
   if (instanceChartRef.value) {
     instanceChart = echarts.init(instanceChartRef.value);
-    instanceChart.setOption({
-      tooltip: {
-        trigger: "item",
-        formatter: "{b}: {c} ({d}%)"
-      },
-      series: [
-        {
-          name: "Instances",
-          type: "pie",
-          radius: ["40%", "70%"],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            borderRadius: 8,
-            borderColor: "#fff",
-            borderWidth: 2
-          },
-          label: {
-            show: false
-          },
-          emphasis: {
-            label: {
-              show: true,
-              fontSize: 16,
-              fontWeight: "bold"
-            }
-          },
-          data: [
-            { value: overviewInfo.value?.runningInstance || 0, name: "Running", itemStyle: { color: "#52c41a" } },
-            { value: (overviewInfo.value?.totalInstance || 0) - (overviewInfo.value?.runningInstance || 0), name: "Stopped", itemStyle: { color: "#ff4d4f" } },
-            { value: 0, name: "Sleeping", itemStyle: { color: "#faad14" } }
-          ]
-        }
-      ]
-    });
+    updateInstanceChart();
   }
 
-  // Activity Chart
-  if (activityChartRef.value) {
-    activityChart = echarts.init(activityChartRef.value);
-    const activityData = Array.from({ length: 7 }, () => Math.floor(Math.random() * 50));
-    activityChart.setOption({
-      tooltip: {
-        trigger: "axis"
-      },
-      grid: {
-        left: "3%",
-        right: "4%",
-        bottom: "3%",
-        containLabel: true
-      },
-      xAxis: {
-        type: "category",
-        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-      },
-      yAxis: {
-        type: "value"
-      },
-      series: [
-        {
-          name: "Actions",
-          type: "line",
-          smooth: true,
-          areaStyle: {
-            color: {
-              type: "linear",
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: "rgba(24, 144, 255, 0.4)" },
-                { offset: 1, color: "rgba(24, 144, 255, 0.05)" }
-              ]
-            }
-          },
-          lineStyle: {
-            color: "#1890ff",
-            width: 3
-          },
-          data: activityData
-        }
-      ]
-    });
+  // Network/System Info Chart
+  if (networkChartRef.value) {
+    networkChart = echarts.init(networkChartRef.value);
+    updateNetworkChart();
   }
 };
 
-// Update charts with random data (simulate real-time)
+// Update CPU Chart
+const updateCPUChart = () => {
+  if (!cpuChart || !overviewInfo.value) return;
+
+  const labels = cpuHistory.value.map((_, i) => `${i + 1}`);
+
+  cpuChart.setOption({
+    tooltip: {
+      trigger: "axis",
+      formatter: "{b}: {c}%"
+    },
+    grid: {
+      left: "3%",
+      right: "4%",
+      bottom: "3%",
+      containLabel: true
+    },
+    xAxis: {
+      type: "category",
+      boundaryGap: false,
+      data: labels,
+      show: false
+    },
+    yAxis: {
+      type: "value",
+      max: 100,
+      axisLabel: { formatter: "{value}%" }
+    },
+    series: [
+      {
+        name: "CPU Usage",
+        type: "line",
+        smooth: true,
+        areaStyle: {
+          color: {
+            type: "linear",
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: "rgba(255, 140, 66, 0.4)" },
+              { offset: 1, color: "rgba(255, 140, 66, 0.05)" }
+            ]
+          }
+        },
+        lineStyle: {
+          color: "#FF8C42",
+          width: 3
+        },
+        itemStyle: {
+          color: "#FF8C42"
+        },
+        data: cpuHistory.value
+      }
+    ]
+  });
+};
+
+// Update Memory Chart
+const updateMemoryChart = () => {
+  if (!memoryChart || !overviewInfo.value) return;
+
+  const labels = memoryHistory.value.map((_, i) => `${i + 1}`);
+
+  memoryChart.setOption({
+    tooltip: {
+      trigger: "axis",
+      formatter: "{b}: {c}%"
+    },
+    grid: {
+      left: "3%",
+      right: "4%",
+      bottom: "3%",
+      containLabel: true
+    },
+    xAxis: {
+      type: "category",
+      data: labels,
+      show: false
+    },
+    yAxis: {
+      type: "value",
+      max: 100,
+      axisLabel: { formatter: "{value}%" }
+    },
+    series: [
+      {
+        name: "Memory Usage",
+        type: "bar",
+        barWidth: "60%",
+        itemStyle: {
+          color: {
+            type: "linear",
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: "#D4AF37" },
+              { offset: 1, color: "rgba(212, 175, 55, 0.5)" }
+            ]
+          },
+          borderRadius: [4, 4, 0, 0]
+        },
+        data: memoryHistory.value
+      }
+    ]
+  });
+};
+
+// Update Instance Chart
+const updateInstanceChart = () => {
+  if (!instanceChart || !overviewInfo.value) return;
+
+  const running = overviewInfo.value.runningInstance || 0;
+  const stopped = (overviewInfo.value.totalInstance || 0) - running;
+
+  instanceChart.setOption({
+    tooltip: {
+      trigger: "item",
+      formatter: "{b}: {c} ({d}%)"
+    },
+    legend: {
+      bottom: 10,
+      left: "center"
+    },
+    series: [
+      {
+        name: "Instances",
+        type: "pie",
+        radius: ["40%", "70%"],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 8,
+          borderColor: "#fff",
+          borderWidth: 2
+        },
+        label: {
+          show: false
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 16,
+            fontWeight: "bold"
+          }
+        },
+        data: [
+          { value: running, name: "Running", itemStyle: { color: "#52c41a" } },
+          { value: stopped, name: "Stopped", itemStyle: { color: "#ff4d4f" } }
+        ]
+      }
+    ]
+  });
+};
+
+// Update Network Chart (shows nodes status)
+const updateNetworkChart = () => {
+  if (!networkChart || !overviewInfo.value) return;
+
+  const sys = overviewInfo.value.system;
+  const loadAvg = sys?.loadavg || [0, 0, 0];
+
+  networkChart.setOption({
+    tooltip: {
+      trigger: "axis"
+    },
+    grid: {
+      left: "3%",
+      right: "4%",
+      bottom: "3%",
+      containLabel: true
+    },
+    xAxis: {
+      type: "category",
+      data: ["1 min", "5 min", "15 min"]
+    },
+    yAxis: {
+      type: "value",
+      name: "Load"
+    },
+    series: [
+      {
+        name: "Load Average",
+        type: "line",
+        smooth: true,
+        areaStyle: {
+          color: {
+            type: "linear",
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: "rgba(24, 144, 255, 0.4)" },
+              { offset: 1, color: "rgba(24, 144, 255, 0.05)" }
+            ]
+          }
+        },
+        lineStyle: {
+          color: "#1890ff",
+          width: 3
+        },
+        data: [loadAvg[0], loadAvg[1], loadAvg[2]]
+      }
+    ]
+  });
+};
+
+// Update charts with REAL data
 const updateCharts = () => {
-  cpuData.value.shift();
-  cpuData.value.push(Math.random() * 100);
-  memoryData.value.shift();
-  memoryData.value.push(Math.random() * 100);
+  if (!overviewInfo.value) return;
 
-  cpuChart?.setOption({
-    series: [{ data: cpuData.value }]
-  });
+  // Update CPU history
+  cpuHistory.value.push(overviewInfo.value.cpu || 0);
+  if (cpuHistory.value.length > maxHistoryLength) {
+    cpuHistory.value.shift();
+  }
 
-  memoryChart?.setOption({
-    series: [{ data: memoryData.value }]
-  });
+  // Update Memory history
+  memoryHistory.value.push(overviewInfo.value.mem || 0);
+  if (memoryHistory.value.length > maxHistoryLength) {
+    memoryHistory.value.shift();
+  }
+
+  // Update all charts
+  updateCPUChart();
+  updateMemoryChart();
+  updateInstanceChart();
+  updateNetworkChart();
 };
 
 let updateInterval: number | null = null;
 
 onMounted(() => {
-  initCharts();
-  updateInterval = window.setInterval(updateCharts, 3000);
+  // Wait for data to load before initializing charts
+  setTimeout(() => {
+    initCharts();
+    updateInterval = window.setInterval(updateCharts, 3000);
+  }, 500);
 
   // Handle window resize
   window.addEventListener("resize", () => {
     cpuChart?.resize();
     memoryChart?.resize();
     instanceChart?.resize();
-    activityChart?.resize();
+    networkChart?.resize();
   });
 });
 
@@ -357,7 +412,7 @@ onUnmounted(() => {
   cpuChart?.dispose();
   memoryChart?.dispose();
   instanceChart?.dispose();
-  activityChart?.dispose();
+  networkChart?.dispose();
 });
 </script>
 
@@ -437,13 +492,13 @@ onUnmounted(() => {
         </template>
       </CardPanel>
 
-      <!-- Weekly Activity -->
+      <!-- Load Average -->
       <CardPanel class="chart-card">
         <template #title>
-          <ThunderboltOutlined /> Weekly Activity
+          <ThunderboltOutlined /> System Load Average
         </template>
         <template #body>
-          <div ref="activityChartRef" class="chart"></div>
+          <div ref="networkChartRef" class="chart"></div>
         </template>
       </CardPanel>
     </div>
