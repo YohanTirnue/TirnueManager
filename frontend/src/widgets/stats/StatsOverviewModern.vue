@@ -56,7 +56,7 @@ let networkChart: echarts.ECharts | null = null;
 // Real-time data tracking with historical values
 const cpuHistory = ref<number[]>([]);
 const memoryHistory = ref<number[]>([]);
-const maxHistoryLength = 20;
+const maxHistoryLength = 15; // Reduced for better performance
 
 // Quick Stats with REAL data
 const quickStats = computed(() => {
@@ -163,6 +163,7 @@ const updateCPUChart = () => {
   const labels = cpuHistory.value.map((_, i) => `${i + 1}`);
 
   cpuChart.setOption({
+    animation: false, // Disable animation for better performance
     tooltip: {
       trigger: "axis",
       formatter: "{b}: {c}%"
@@ -189,6 +190,7 @@ const updateCPUChart = () => {
         name: "CPU Usage",
         type: "line",
         smooth: true,
+        animation: false,
         areaStyle: {
           color: {
             type: "linear",
@@ -212,7 +214,7 @@ const updateCPUChart = () => {
         data: cpuHistory.value
       }
     ]
-  });
+  }, { notMerge: false, lazyUpdate: true });
 };
 
 // Update Memory Chart
@@ -222,6 +224,7 @@ const updateMemoryChart = () => {
   const labels = memoryHistory.value.map((_, i) => `${i + 1}`);
 
   memoryChart.setOption({
+    animation: false,
     tooltip: {
       trigger: "axis",
       formatter: "{b}: {c}%"
@@ -247,6 +250,7 @@ const updateMemoryChart = () => {
         name: "Memory Usage",
         type: "bar",
         barWidth: "60%",
+        animation: false,
         itemStyle: {
           color: {
             type: "linear",
@@ -264,7 +268,7 @@ const updateMemoryChart = () => {
         data: memoryHistory.value
       }
     ]
-  });
+  }, { notMerge: false, lazyUpdate: true });
 };
 
 // Update Instance Chart
@@ -275,6 +279,7 @@ const updateInstanceChart = () => {
   const stopped = (overviewInfo.value.totalInstance || 0) - running;
 
   instanceChart.setOption({
+    animation: false,
     tooltip: {
       trigger: "item",
       formatter: "{b}: {c} ({d}%)"
@@ -289,6 +294,7 @@ const updateInstanceChart = () => {
         type: "pie",
         radius: ["40%", "70%"],
         avoidLabelOverlap: false,
+        animation: false,
         itemStyle: {
           borderRadius: 8,
           borderColor: "#fff",
@@ -310,7 +316,7 @@ const updateInstanceChart = () => {
         ]
       }
     ]
-  });
+  }, { notMerge: false, lazyUpdate: true });
 };
 
 // Update Network Chart (shows nodes status)
@@ -321,6 +327,7 @@ const updateNetworkChart = () => {
   const loadAvg = sys?.loadavg || [0, 0, 0];
 
   networkChart.setOption({
+    animation: false,
     tooltip: {
       trigger: "axis"
     },
@@ -343,6 +350,7 @@ const updateNetworkChart = () => {
         name: "Load Average",
         type: "line",
         smooth: true,
+        animation: false,
         areaStyle: {
           color: {
             type: "linear",
@@ -363,7 +371,7 @@ const updateNetworkChart = () => {
         data: [loadAvg[0], loadAvg[1], loadAvg[2]]
       }
     ]
-  });
+  }, { notMerge: false, lazyUpdate: true });
 };
 
 // Update charts with REAL data
@@ -398,12 +406,16 @@ onMounted(() => {
     updateInterval = window.setInterval(updateCharts, 5000);
   }, 500);
 
-  // Handle window resize
+  // Handle window resize with debouncing for better performance
+  let resizeTimeout: number | null = null;
   window.addEventListener("resize", () => {
-    cpuChart?.resize();
-    memoryChart?.resize();
-    instanceChart?.resize();
-    networkChart?.resize();
+    if (resizeTimeout) clearTimeout(resizeTimeout);
+    resizeTimeout = window.setTimeout(() => {
+      cpuChart?.resize();
+      memoryChart?.resize();
+      instanceChart?.resize();
+      networkChart?.resize();
+    }, 150);
   });
 });
 
