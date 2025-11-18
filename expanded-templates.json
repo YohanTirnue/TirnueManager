@@ -1,288 +1,220 @@
 {
-  "version": "1.0.0",
-  "templates": [
+  "version": "2.0.0",
+  "packages": [
     {
-      "id": "velocity-latest",
-      "title": "Velocity Proxy Latest",
-      "description": "Modern, high-performance Minecraft proxy. Supports MC 1.7-1.21.8+",
-      "gameType": "Minecraft",
-      "category": "Proxy",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://api.papermc.io/v2/projects/velocity/versions/3.4.0/builds/latest/downloads/velocity-3.4.0.jar",
-      "image": "https://raw.githubusercontent.com/PaperMC/Velocity/dev/1.1.0/velocity-logo.png",
-      "tags": ["Proxy", "High-Performance", "Latest", "Velocity"],
-      "runtime": "Java 17+",
-      "hardware": "512MB+ RAM",
-      "size": "~10MB",
-      "author": "PaperMC Team",
-      "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xms512M -Xmx512M -XX:+UseG1GC -jar velocity.jar"
-      }
-    },
-    {
-      "id": "bedrock-latest",
-      "title": "Bedrock Dedicated Server",
-      "description": "Official Minecraft Bedrock Edition dedicated server",
-      "gameType": "Minecraft",
-      "category": "Vanilla",
-      "platform": "Windows/Linux",
-      "language": "en_us",
-      "targetLink": "https://minecraft.azureedge.net/bin-win/bedrock-server-latest.zip",
-      "image": "https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/dd/Bedrock_Edition.png",
-      "tags": ["Bedrock", "Official", "Vanilla", "Cross-Platform"],
-      "runtime": "Native",
-      "hardware": "1GB+ RAM",
-      "size": "~50MB",
-      "author": "Mojang Studios",
-      "setupInfo": {
-        "docker": false,
-        "installCommand": "./bedrock_server"
-      }
-    },
-    {
-      "id": "fabric-1.21.10",
-      "title": "Fabric 1.21.10",
-      "description": "Lightweight mod loader for Minecraft 1.21.10",
-      "gameType": "Minecraft",
-      "category": "Modded",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://meta.fabricmc.net/v2/versions/loader/1.21.10/0.16.14/1.0.1/server/jar",
-      "image": "https://fabricmc.net/assets/logo.png",
-      "tags": ["Fabric", "Modded", "1.21.10", "Mod Loader"],
-      "runtime": "Java 21+",
-      "hardware": "2GB+ RAM",
-      "size": "~40MB",
-      "author": "FabricMC",
-      "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xmx2G -jar fabric-server-launch.jar nogui"
-      }
-    },
-    {
-      "id": "paper-geyser-floodgate",
-      "title": "Paper + Geyser + Floodgate",
-      "description": "Paper server with Bedrock cross-play support via Geyser",
-      "gameType": "Minecraft",
-      "category": "Hybrid",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://api.papermc.io/v2/projects/paper/versions/1.21.10/builds/latest/downloads/paper-1.21.10.jar",
-      "image": "https://avatars.githubusercontent.com/u/7608950",
-      "tags": ["Paper", "Geyser", "Bedrock", "Java", "Cross-Play"],
-      "runtime": "Java 21+",
-      "hardware": "3GB+ RAM",
-      "size": "~60MB",
-      "author": "PaperMC + GeyserMC",
-      "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xmx3G -jar paper.jar nogui",
-        "plugins": [
-          "https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot",
-          "https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot"
-        ]
-      }
-    },
-    {
-      "id": "paper-1.21.10",
-      "title": "Paper 1.21.10",
-      "description": "High-performance Minecraft server (Latest)",
-      "gameType": "Minecraft",
-      "category": "Performance",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://api.papermc.io/v2/projects/paper/versions/1.21.10/builds/latest/downloads/paper-1.21.10.jar",
-      "image": "https://avatars.githubusercontent.com/u/7608950",
-      "tags": ["Paper", "Performance", "Latest", "Plugins"],
-      "runtime": "Java 21+",
-      "hardware": "2GB+ RAM",
-      "size": "~45MB",
+      "title": "Paper 1.21.4 (Latest)",
+      "info": "High-performance Minecraft server with plugin support - Latest stable release",
+      "addr": "https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/latest/downloads/paper-1.21.4.jar",
+      "tag": "mc-paper",
       "author": "PaperMC",
+      "size": "45 MB",
+      "tar": "Minecraft",
+      "category": "Performance",
+      "remark": "Recommended for most servers. Includes performance optimizations and extensive plugin support.",
       "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xmx2G -jar paper.jar nogui"
+        "type": "minecraft/java/paper",
+        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true -jar server.jar nogui",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8"
       }
     },
     {
-      "id": "paper-1.20.1",
-      "title": "Paper 1.20.1",
-      "description": "High-performance Minecraft server (Stable)",
-      "gameType": "Minecraft",
-      "category": "Performance",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://api.papermc.io/v2/projects/paper/versions/1.20.1/builds/latest/downloads/paper-1.20.1.jar",
-      "image": "https://avatars.githubusercontent.com/u/7608950",
-      "tags": ["Paper", "Performance", "Stable", "Plugins"],
-      "runtime": "Java 17+",
-      "hardware": "2GB+ RAM",
-      "size": "~45MB",
+      "title": "Paper 1.20.1 (Stable)",
+      "info": "High-performance Minecraft 1.20.1 server - Most popular stable version",
+      "addr": "https://api.papermc.io/v2/projects/paper/versions/1.20.1/builds/latest/downloads/paper-1.20.1.jar",
+      "tag": "mc-paper",
       "author": "PaperMC",
+      "size": "44 MB",
+      "tar": "Minecraft",
+      "category": "Performance",
+      "remark": "Stable 1.20.1 release with excellent plugin compatibility.",
       "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xmx2G -jar paper.jar nogui"
+        "type": "minecraft/java/paper",
+        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar server.jar nogui",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8"
       }
     },
     {
-      "id": "paper-1.19.4",
-      "title": "Paper 1.19.4",
-      "description": "High-performance Minecraft server (1.19.4)",
-      "gameType": "Minecraft",
-      "category": "Performance",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://api.papermc.io/v2/projects/paper/versions/1.19.4/builds/latest/downloads/paper-1.19.4.jar",
-      "image": "https://avatars.githubusercontent.com/u/7608950",
-      "tags": ["Paper", "Performance", "1.19.4", "Plugins"],
-      "runtime": "Java 17+",
-      "hardware": "2GB+ RAM",
-      "size": "~43MB",
-      "author": "PaperMC",
-      "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xmx2G -jar paper.jar nogui"
-      }
-    },
-    {
-      "id": "paper-1.12.2",
-      "title": "Paper 1.12.2",
-      "description": "High-performance Minecraft server (Legacy)",
-      "gameType": "Minecraft",
-      "category": "Performance",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://api.papermc.io/v2/projects/paper/versions/1.12.2/builds/latest/downloads/paper-1.12.2.jar",
-      "image": "https://avatars.githubusercontent.com/u/7608950",
-      "tags": ["Paper", "Legacy", "1.12.2", "Plugins"],
-      "runtime": "Java 8+",
-      "hardware": "1GB+ RAM",
-      "size": "~35MB",
-      "author": "PaperMC",
-      "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xmx1G -jar paper.jar nogui"
-      }
-    },
-    {
-      "id": "purpur-latest",
-      "title": "Purpur Latest",
-      "description": "Feature-rich Paper fork with more customization",
-      "gameType": "Minecraft",
-      "category": "Performance",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://api.purpurmc.org/v2/purpur/1.21.1/latest/download",
-      "image": "https://avatars.githubusercontent.com/u/69305470",
-      "tags": ["Purpur", "Performance", "Custom", "Plugins"],
-      "runtime": "Java 21+",
-      "hardware": "2GB+ RAM",
-      "size": "~47MB",
+      "title": "Purpur 1.21.4 (Latest)",
+      "info": "Feature-rich Paper fork with extensive customization options",
+      "addr": "https://api.purpurmc.org/v2/purpur/1.21.4/latest/download",
+      "tag": "mc-purpur",
       "author": "PurpurMC",
-      "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xmx2G -jar purpur.jar nogui"
-      }
-    },
-    {
-      "id": "folia-latest",
-      "title": "Folia Latest",
-      "description": "Multithreaded Paper fork for massive servers",
-      "gameType": "Minecraft",
+      "size": "47 MB",
+      "tar": "Minecraft",
       "category": "Performance",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://api.papermc.io/v2/projects/folia/versions/1.21.1/builds/latest/downloads/folia-1.21.1.jar",
-      "image": "https://avatars.githubusercontent.com/u/7608950",
-      "tags": ["Folia", "Multithreaded", "Performance", "Experimental"],
-      "runtime": "Java 21+",
-      "hardware": "4GB+ RAM",
-      "size": "~48MB",
+      "remark": "Advanced features and performance tweaks beyond Paper.",
+      "setupInfo": {
+        "type": "minecraft/java/purpur",
+        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar server.jar nogui",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "Folia 1.21.1 (Multithreaded)",
+      "info": "Experimental multithreaded Paper fork for massive player counts",
+      "addr": "https://api.papermc.io/v2/projects/folia/versions/1.21.1/builds/latest/downloads/folia-1.21.1.jar",
+      "tag": "mc-folia",
       "author": "PaperMC",
+      "size": "48 MB",
+      "tar": "Minecraft",
+      "category": "Performance",
+      "remark": "⚠️ Experimental! Not all plugins are compatible. Requires 4GB+ RAM.",
       "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xmx4G -jar folia.jar nogui"
+        "type": "minecraft/java/folia",
+        "startCommand": "java -Xms4G -Xmx8G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar server.jar nogui",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8"
       }
     },
     {
-      "id": "waterfall-latest",
-      "title": "Waterfall Proxy",
-      "description": "BungeeCord fork with improved performance",
-      "gameType": "Minecraft",
-      "category": "Proxy",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://api.papermc.io/v2/projects/waterfall/versions/1.21/builds/latest/downloads/waterfall-1.21.jar",
-      "image": "https://avatars.githubusercontent.com/u/7608950",
-      "tags": ["Waterfall", "Proxy", "BungeeCord", "Network"],
-      "runtime": "Java 17+",
-      "hardware": "512MB+ RAM",
-      "size": "~12MB",
+      "title": "Velocity Proxy (Latest)",
+      "info": "Modern, high-performance Minecraft proxy server supporting 1.7.2 - 1.21.x",
+      "addr": "https://api.papermc.io/v2/projects/velocity/versions/3.4.0-SNAPSHOT/builds/latest/downloads/velocity-3.4.0-SNAPSHOT.jar",
+      "tag": "mc-velocity",
       "author": "PaperMC",
-      "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xmx512M -jar waterfall.jar"
-      }
-    },
-    {
-      "id": "forge-1.20.1",
-      "title": "Forge 1.20.1",
-      "description": "Classic mod loader for Minecraft 1.20.1",
-      "gameType": "Minecraft",
-      "category": "Modded",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.3.0/forge-1.20.1-47.3.0-installer.jar",
-      "image": "https://avatars.githubusercontent.com/u/1390178",
-      "tags": ["Forge", "Modded", "1.20.1", "Classic"],
-      "runtime": "Java 17+",
-      "hardware": "3GB+ RAM",
-      "size": "~50MB",
-      "author": "MinecraftForge",
-      "setupInfo": {
-        "docker": false,
-        "installCommand": "java -jar forge-installer.jar --installServer"
-      }
-    },
-    {
-      "id": "neoforge-latest",
-      "title": "NeoForge Latest",
-      "description": "Modern Forge successor for latest Minecraft",
-      "gameType": "Minecraft",
-      "category": "Modded",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.86/neoforge-21.1.86-installer.jar",
-      "image": "https://avatars.githubusercontent.com/u/125015088",
-      "tags": ["NeoForge", "Modded", "Modern", "Forge"],
-      "runtime": "Java 21+",
-      "hardware": "3GB+ RAM",
-      "size": "~52MB",
-      "author": "NeoForged",
-      "setupInfo": {
-        "docker": false,
-        "installCommand": "java -jar neoforge-installer.jar --installServer"
-      }
-    },
-    {
-      "id": "geyser-standalone",
-      "title": "Geyser Standalone",
-      "description": "Standalone Geyser proxy for Bedrock to Java bridge",
-      "gameType": "Minecraft",
+      "size": "10 MB",
+      "tar": "Minecraft",
       "category": "Proxy",
-      "platform": "All",
-      "language": "en_us",
-      "targetLink": "https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone",
-      "image": "https://avatars.githubusercontent.com/u/53673800",
-      "tags": ["Geyser", "Bedrock", "Java", "Cross-Play", "Standalone"],
-      "runtime": "Java 17+",
-      "hardware": "512MB+ RAM",
-      "size": "~30MB",
+      "remark": "Modern replacement for BungeeCord with better performance and security.",
+      "setupInfo": {
+        "type": "minecraft/java/proxy",
+        "startCommand": "java -Xms512M -Xmx512M -XX:+UseG1GC -XX:G1HeapRegionSize=4M -XX:+UnlockExperimentalVMOptions -XX:+ParallelRefProcEnabled -XX:+AlwaysPreTouch -XX:MaxInlineLevel=15 -jar server.jar",
+        "stopCommand": "end",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "Geyser Standalone (Bedrock Bridge)",
+      "info": "Standalone proxy allowing Bedrock Edition players to join Java servers",
+      "addr": "https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone",
+      "tag": "mc-geyser",
       "author": "GeyserMC",
+      "size": "30 MB",
+      "tar": "Minecraft",
+      "category": "Proxy",
+      "remark": "Enables cross-play between Java and Bedrock editions. Standalone version.",
       "setupInfo": {
-        "docker": false,
-        "installCommand": "java -Xmx512M -jar Geyser-Standalone.jar"
+        "type": "minecraft/java/geyser",
+        "startCommand": "java -Xms512M -Xmx1G -jar Geyser-Standalone.jar",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "Fabric 1.21.4 (Latest)",
+      "info": "Lightweight modding platform for Minecraft 1.21.4",
+      "addr": "https://meta.fabricmc.net/v2/versions/loader/1.21.4/0.16.14/1.0.1/server/jar",
+      "tag": "mc-fabric",
+      "author": "FabricMC",
+      "size": "40 MB",
+      "tar": "Minecraft",
+      "category": "Modded",
+      "remark": "Modern modding framework. Requires Fabric API mod for most mods.",
+      "setupInfo": {
+        "type": "minecraft/java/fabric",
+        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -jar server.jar nogui",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "Forge 1.20.1 (Modded)",
+      "info": "Classic modding platform for Minecraft 1.20.1",
+      "addr": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.3.12/forge-1.20.1-47.3.12-installer.jar",
+      "tag": "mc-forge",
+      "author": "MinecraftForge",
+      "size": "50 MB",
+      "tar": "Minecraft",
+      "category": "Modded",
+      "remark": "Traditional modding platform. Requires running installer first: java -jar forge-installer.jar --installServer",
+      "setupInfo": {
+        "type": "minecraft/java/forge",
+        "startCommand": "@user_jvm_args.txt @libraries/net/minecraftforge/forge/1.20.1-47.3.12/unix_args.txt nogui",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "NeoForge 1.21.1 (Modern Modded)",
+      "info": "Modern Forge successor for Minecraft 1.21.1+",
+      "addr": "https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.86/neoforge-21.1.86-installer.jar",
+      "tag": "mc-neoforge",
+      "author": "NeoForged",
+      "size": "52 MB",
+      "tar": "Minecraft",
+      "category": "Modded",
+      "remark": "Next-generation Forge for modern Minecraft. Requires installer: java -jar neoforge-installer.jar --installServer",
+      "setupInfo": {
+        "type": "minecraft/java/neoforge",
+        "startCommand": "@user_jvm_args.txt @libraries/net/neoforged/neoforge/21.1.86/unix_args.txt nogui",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "Vanilla 1.21.4 (Official)",
+      "info": "Official Minecraft Java Edition server from Mojang",
+      "addr": "https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar",
+      "tag": "mc-vanilla",
+      "author": "Mojang Studios",
+      "size": "52 MB",
+      "tar": "Minecraft",
+      "category": "Vanilla",
+      "remark": "Official unmodified server. No plugins or mods supported.",
+      "setupInfo": {
+        "type": "minecraft/java/vanilla",
+        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -jar server.jar nogui",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "Bedrock Dedicated Server (Latest)",
+      "info": "Official Minecraft Bedrock Edition dedicated server",
+      "addr": "https://minecraft.azureedge.net/bin-linux/bedrock-server-1.21.60.21.zip",
+      "tag": "mc-bedrock",
+      "author": "Mojang Studios",
+      "size": "90 MB",
+      "tar": "Minecraft",
+      "category": "Bedrock",
+      "remark": "Official Bedrock server for mobile and console cross-play. Runs natively (no Java required).",
+      "setupInfo": {
+        "type": "minecraft/bedrock",
+        "startCommand": "LD_LIBRARY_PATH=. ./bedrock_server",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "Waterfall Proxy (Latest)",
+      "info": "BungeeCord fork with improved performance and stability",
+      "addr": "https://api.papermc.io/v2/projects/waterfall/versions/1.21/builds/latest/downloads/waterfall-1.21.jar",
+      "tag": "mc-waterfall",
+      "author": "PaperMC",
+      "size": "12 MB",
+      "tar": "Minecraft",
+      "category": "Proxy",
+      "remark": "Enhanced BungeeCord fork for server networks.",
+      "setupInfo": {
+        "type": "minecraft/java/proxy",
+        "startCommand": "java -Xms512M -Xmx512M -XX:+UseG1GC -jar server.jar",
+        "stopCommand": "end",
+        "ie": "utf-8",
+        "oe": "utf-8"
       }
     }
   ]
