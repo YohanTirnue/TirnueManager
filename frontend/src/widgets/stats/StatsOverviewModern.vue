@@ -605,13 +605,13 @@ onUnmounted(() => {
 // Hero Banner
 .stats-hero {
   background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 50%, #D4AF37 100%);
-  border-radius: 20px;
-  padding: 40px;
-  margin-bottom: 32px;
+  border-radius: 12px;
+  padding: 20px 32px;
+  margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 8px 32px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.2);
   position: relative;
   overflow: hidden;
 
@@ -620,9 +620,9 @@ onUnmounted(() => {
     position: absolute;
     top: -50%;
     right: -10%;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1), transparent);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08), transparent);
     border-radius: 50%;
   }
 }
@@ -703,12 +703,13 @@ onUnmounted(() => {
   height: 64px;
   border-radius: 12px;
   background: linear-gradient(135deg, var(--accent-color), var(--accent-color));
-  opacity: 0.15;
+  background-opacity: 0.15;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
-  color: var(--accent-color);
+  font-size: 36px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .stat-content {

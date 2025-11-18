@@ -130,8 +130,7 @@ function toggleSidebar() {
   flex-direction: column;
   z-index: 1000;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 0 24px 24px 0;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 
   &.collapsed {
     width: 60px;
