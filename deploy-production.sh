@@ -17,7 +17,7 @@ cd /home/mc/TirnueManager
 
 echo -e "${YELLOW}Step 1: Pulling latest changes...${NC}"
 git stash
-git pull origin claude/work-in-progress-01SJEbhyP4sbZS8BPbPrdFGL
+git pull origin claude/fix-vite-config-terser-012wxuxGtpsUgSumB3SP2vSn
 
 echo -e "${YELLOW}Step 2: Building application...${NC}"
 ./build.sh
