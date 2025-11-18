@@ -164,6 +164,21 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
       ]
     },
     {
+      page: "/stats",
+      items: [
+        {
+          id: getRandomId(),
+          meta: {},
+          type: "DataOverview",
+          title: "Statistics Overview",
+          width: 12,
+          description: "System statistics and monitoring dashboard",
+          height: LayoutCardHeight.AUTO,
+          disableDelete: true
+        }
+      ]
+    },
+    {
       page: "/market",
       items: [
         {
