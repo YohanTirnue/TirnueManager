@@ -22,6 +22,11 @@ import {
 } from "@ant-design/icons-vue";
 import { useOverviewInfo } from "@/hooks/useOverviewInfo";
 import CardPanel from "@/components/CardPanel.vue";
+import type { LayoutCard } from "@/types";
+
+defineProps<{
+  card: LayoutCard;
+}>();
 
 // Register ECharts components
 use([

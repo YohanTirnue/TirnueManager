@@ -22,8 +22,8 @@ const createOptions = [
   {
     id: "compressed",
     icon: CloudUploadOutlined,
-    title: "Import Compressed File",
-    description: "Upload and extract a compressed server package (zip, tar.gz)",
+    title: "Import Compressed Package",
+    description: "Automatically create an instance by uploading a server compressed package. Only .zip files are supported. It will be automatically decompressed after upload.",
     color: "#1890ff",
     action: () => {
       closeModal();
@@ -39,8 +39,8 @@ const createOptions = [
   {
     id: "docker",
     icon: ContainerOutlined,
-    title: "Docker Container",
-    description: "Deploy a Dockerized application with container management",
+    title: "Create with Docker Image",
+    description: "Docker needs to be installed in advance. Then, use any image you found on DockerHub to create, install, and start the instance.",
     color: "#0db7ed",
     action: () => {
       closeModal();
@@ -56,8 +56,8 @@ const createOptions = [
   {
     id: "direct",
     icon: SettingOutlined,
-    title: "Direct Configuration",
-    description: "Manually configure startup command and settings",
+    title: "Create Directly",
+    description: "Create an instance directly without uploading any files. Configure it later. This is suitable for experienced users.",
     color: "#52c41a",
     action: () => {
       closeModal();
