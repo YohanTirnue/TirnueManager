@@ -11,6 +11,7 @@
       "tar": "Minecraft",
       "category": "Performance",
       "remark": "Recommended for most servers. Includes performance optimizations and extensive plugin support.",
+      "image": "https://raw.githubusercontent.com/PaperMC/papermc.io/main/public/logo.png",
       "setupInfo": {
         "type": "minecraft/java/paper",
         "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true -jar server.jar nogui",
@@ -29,6 +30,7 @@
       "tar": "Minecraft",
       "category": "Performance",
       "remark": "Stable 1.20.1 release with excellent plugin compatibility.",
+      "image": "https://raw.githubusercontent.com/PaperMC/papermc.io/main/public/logo.png",
       "setupInfo": {
         "type": "minecraft/java/paper",
         "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar server.jar nogui",
@@ -47,6 +49,7 @@
       "tar": "Minecraft",
       "category": "Performance",
       "remark": "Advanced features and performance tweaks beyond Paper.",
+      "image": "https://avatars.githubusercontent.com/u/71507949?s=400",
       "setupInfo": {
         "type": "minecraft/java/purpur",
         "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar server.jar nogui",
@@ -65,6 +68,7 @@
       "tar": "Minecraft",
       "category": "Performance",
       "remark": "⚠️ Experimental! Not all plugins are compatible. Requires 4GB+ RAM.",
+      "image": "https://docs.papermc.io/assets/images/folia-light-2605d9e47facb8d16ebf7833833e8fba.png",
       "setupInfo": {
         "type": "minecraft/java/folia",
         "startCommand": "java -Xms4G -Xmx8G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar server.jar nogui",
@@ -83,6 +87,7 @@
       "tar": "Minecraft",
       "category": "Proxy",
       "remark": "Modern replacement for BungeeCord with better performance and security.",
+      "image": "https://docs.papermc.io/assets/images/velocity-light-e87b4ebf54666da7a804bb5e8013f585.png",
       "setupInfo": {
         "type": "minecraft/java/proxy",
         "startCommand": "java -Xms512M -Xmx512M -XX:+UseG1GC -XX:G1HeapRegionSize=4M -XX:+UnlockExperimentalVMOptions -XX:+ParallelRefProcEnabled -XX:+AlwaysPreTouch -XX:MaxInlineLevel=15 -jar server.jar",
@@ -101,6 +106,7 @@
       "tar": "Minecraft",
       "category": "Proxy",
       "remark": "Enables cross-play between Java and Bedrock editions. Standalone version.",
+      "image": "https://geysermc.org/img/geyser-2.png",
       "setupInfo": {
         "type": "minecraft/java/geyser",
         "startCommand": "java -Xms512M -Xmx1G -jar Geyser-Standalone.jar",
@@ -119,6 +125,7 @@
       "tar": "Minecraft",
       "category": "Modded",
       "remark": "Modern modding framework. Requires Fabric API mod for most mods.",
+      "image": "https://fabricmc.net/assets/logo.png",
       "setupInfo": {
         "type": "minecraft/java/fabric",
         "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -jar server.jar nogui",
@@ -137,6 +144,7 @@
       "tar": "Minecraft",
       "category": "Modded",
       "remark": "Traditional modding platform. Requires running installer first: java -jar forge-installer.jar --installServer",
+      "image": "https://avatars.githubusercontent.com/u/1390178?s=200&v=4",
       "setupInfo": {
         "type": "minecraft/java/forge",
         "startCommand": "@user_jvm_args.txt @libraries/net/minecraftforge/forge/1.20.1-47.3.12/unix_args.txt nogui",
@@ -155,6 +163,7 @@
       "tar": "Minecraft",
       "category": "Modded",
       "remark": "Next-generation Forge for modern Minecraft. Requires installer: java -jar neoforge-installer.jar --installServer",
+      "image": "https://avatars.githubusercontent.com/u/133677734?s=200&v=4",
       "setupInfo": {
         "type": "minecraft/java/neoforge",
         "startCommand": "@user_jvm_args.txt @libraries/net/neoforged/neoforge/21.1.86/unix_args.txt nogui",
@@ -173,6 +182,7 @@
       "tar": "Minecraft",
       "category": "Vanilla",
       "remark": "Official unmodified server. No plugins or mods supported.",
+      "image": "https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/img/minecraft-creeper-face.jpg",
       "setupInfo": {
         "type": "minecraft/java/vanilla",
         "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -jar server.jar nogui",
@@ -191,6 +201,7 @@
       "tar": "Minecraft",
       "category": "Bedrock",
       "remark": "Official Bedrock server for mobile and console cross-play. Runs natively (no Java required).",
+      "image": "https://www.minecraft.net/content/dam/games/minecraft/marketplace/mediablock-buzzybeesupdate.jpg",
       "setupInfo": {
         "type": "minecraft/bedrock",
         "startCommand": "LD_LIBRARY_PATH=. ./bedrock_server",
@@ -209,6 +220,7 @@
       "tar": "Minecraft",
       "category": "Proxy",
       "remark": "Enhanced BungeeCord fork for server networks.",
+      "image": "https://docs.papermc.io/assets/images/waterfall-light-302b00c7e1112e0c4cda3fdb5a0e4158.png",
       "setupInfo": {
         "type": "minecraft/java/proxy",
         "startCommand": "java -Xms512M -Xmx512M -XX:+UseG1GC -jar server.jar",
