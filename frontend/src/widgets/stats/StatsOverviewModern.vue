@@ -395,7 +395,7 @@ onMounted(() => {
   // Wait for data to load before initializing charts
   setTimeout(() => {
     initCharts();
-    updateInterval = window.setInterval(updateCharts, 3000);
+    updateInterval = window.setInterval(updateCharts, 5000);
   }, 500);
 
   // Handle window resize

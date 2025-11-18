@@ -36,7 +36,7 @@ const showCreateModal = ref(false);
 const showCreateForm = ref(false);
 const selectedCategory = ref<string>("all");
 const currentPage = ref(1);
-const pageSize = ref(18); // 3 rows of 6
+const pageSize = ref(12); // 2 rows of 6 - faster loading
 const viewMode = ref<"grid" | "list">("grid");
 
 // Creation form data
@@ -140,8 +140,13 @@ const init = async () => {
   }
 };
 
+// Debounced search for better performance
+let searchTimeout: number | null = null;
 const handleSearch = () => {
-  currentPage.value = 1;
+  if (searchTimeout) clearTimeout(searchTimeout);
+  searchTimeout = window.setTimeout(() => {
+    currentPage.value = 1;
+  }, 300);
 };
 
 const handleCategoryChange = (category: string) => {
