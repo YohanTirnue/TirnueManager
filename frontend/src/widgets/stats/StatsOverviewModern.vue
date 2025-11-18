@@ -65,7 +65,7 @@ const quickStats = computed(() => [
   },
   {
     title: "Total Instances",
-    value: overviewInfo.value?.instance?.total || 0,
+    value: overviewInfo.value?.totalInstance || 0,
     icon: AppstoreOutlined,
     color: "#D4AF37",
     trend: "+12.3%",
@@ -73,39 +73,39 @@ const quickStats = computed(() => [
   },
   {
     title: "Running",
-    value: overviewInfo.value?.instance?.running || 0,
+    value: overviewInfo.value?.runningInstance || 0,
     icon: ThunderboltOutlined,
     color: "#52c41a",
     trend: "+8.1%",
     subtitle: "Active now"
   },
   {
-    title: "Online Users",
-    value: overviewInfo.value?.systemInfo?.users || 0,
+    title: "CPU Usage",
+    value: `${overviewInfo.value?.cpu || 0}%`,
     icon: UserOutlined,
     color: "#1890ff",
     trend: "+3.4%",
-    subtitle: "Connected"
+    subtitle: "System load"
   }
 ]);
 
 // System Resources
 const systemResources = computed(() => {
-  const info = overviewInfo.value?.systemInfo;
+  const sys = overviewInfo.value?.system;
   return {
     cpu: {
-      usage: info?.cpuUsage || 0,
-      cores: info?.cpuCores || 0
+      usage: overviewInfo.value?.cpu || 0,
+      cores: 4
     },
     memory: {
-      used: info?.memoryUsed || 0,
-      total: info?.memoryTotal || 16,
-      percentage: info?.memoryTotal ? ((info?.memoryUsed || 0) / info.memoryTotal) * 100 : 0
+      used: sys ? (sys.totalmem - sys.freemem) / 1024 / 1024 / 1024 : 0,
+      total: sys ? sys.totalmem / 1024 / 1024 / 1024 : 16,
+      percentage: overviewInfo.value?.mem || 0
     },
     disk: {
-      used: info?.diskUsed || 0,
-      total: info?.diskTotal || 100,
-      percentage: info?.diskTotal ? ((info?.diskUsed || 0) / info.diskTotal) * 100 : 0
+      used: 0,
+      total: 100,
+      percentage: 0
     }
   };
 });
@@ -257,9 +257,9 @@ const initCharts = () => {
             }
           },
           data: [
-            { value: overviewInfo.value?.instance?.running || 0, name: "Running", itemStyle: { color: "#52c41a" } },
-            { value: overviewInfo.value?.instance?.stopped || 0, name: "Stopped", itemStyle: { color: "#ff4d4f" } },
-            { value: overviewInfo.value?.instance?.sleeping || 0, name: "Sleeping", itemStyle: { color: "#faad14" } }
+            { value: overviewInfo.value?.runningInstance || 0, name: "Running", itemStyle: { color: "#52c41a" } },
+            { value: (overviewInfo.value?.totalInstance || 0) - (overviewInfo.value?.runningInstance || 0), name: "Stopped", itemStyle: { color: "#ff4d4f" } },
+            { value: 0, name: "Sleeping", itemStyle: { color: "#faad14" } }
           ]
         }
       ]

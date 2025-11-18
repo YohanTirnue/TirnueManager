@@ -169,15 +169,20 @@ const originRouterConfig: RouterConfig[] = [
     }
   },
   {
-    path: "/overview",
-    redirect: "/stats"
-  },
-  {
     path: "/stats",
     name: "Statistics",
     component: LayoutContainer,
     meta: {
       mainMenu: true,
+      permission: ROLE.ADMIN
+    }
+  },
+  {
+    path: "/overview",
+    name: "Overview",
+    component: LayoutContainer,
+    meta: {
+      mainMenu: false,
       permission: ROLE.ADMIN
     }
   },
