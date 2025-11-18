@@ -119,7 +119,42 @@
 
     <script>
       window.closeLoadingContainer = function () {
-        document.getElementById("before-app-mounted").setAttribute("style", "display:none");
+        const loadingContainer = document.getElementById("before-app-mounted");
+        const logoElement = document.querySelector(".logo-center");
+        const loadingText = document.querySelector(".loading-text");
+        const orbitalLoader = document.querySelector(".orbital-loader");
+
+        // Fade out rings and text
+        if (orbitalLoader) {
+          orbitalLoader.querySelectorAll(".orbit-ring").forEach(ring => {
+            ring.style.transition = "opacity 0.5s ease";
+            ring.style.opacity = "0";
+          });
+        }
+        if (loadingText) {
+          loadingText.style.transition = "opacity 0.5s ease";
+          loadingText.style.opacity = "0";
+        }
+
+        // Mark logo for animation to login page
+        if (logoElement) {
+          logoElement.classList.add("animating-to-login");
+        }
+
+        // After fade, hide loading container but keep logo visible
+        setTimeout(() => {
+          loadingContainer.style.background = "transparent";
+          loadingContainer.style.pointerEvents = "none";
+
+          // Signal to login page that animation is ready
+          window.loginAnimationReady = true;
+          window.dispatchEvent(new Event("login-animation-start"));
+
+          // Remove loading container after animation completes
+          setTimeout(() => {
+            loadingContainer.style.display = "none";
+          }, 1500);
+        }, 500);
       };
     </script>
   </head>

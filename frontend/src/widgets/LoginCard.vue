@@ -36,6 +36,11 @@ const { updateUserInfo, isAdmin, state: appConfig } = useAppStateStore();
 const loginStep = ref(0);
 const is2Fa = ref(false);
 
+// Animation states
+const showLogo = ref(false);
+const showBrandName = ref(false);
+const showLoginForm = ref(false);
+
 const handleLogin = async () => {
   if (!formData.username.trim() || !formData.password.trim()) {
     return message.error(t("TXT_CODE_c846074d"));
@@ -94,7 +99,32 @@ const openBuyInstanceDialog = async () => {
 onMounted(async () => {
   await execute();
   if (!appConfig.isInstall) router.push({ path: "/install" });
+
+  // Listen for loading animation completion
+  window.addEventListener("login-animation-start", startLoginAnimation);
+
+  // If already loaded, start animation immediately
+  if ((window as any).loginAnimationReady) {
+    startLoginAnimation();
+  }
 });
+
+const startLoginAnimation = () => {
+  // Step 1: Show logo (it flies in from center)
+  setTimeout(() => {
+    showLogo.value = true;
+  }, 100);
+
+  // Step 2: Pop up "Tirnue" text
+  setTimeout(() => {
+    showBrandName.value = true;
+  }, 800);
+
+  // Step 3: Fade in login form
+  setTimeout(() => {
+    showLoginForm.value = true;
+  }, 1200);
+};
 </script>
 
 <template>
@@ -111,17 +141,28 @@ onMounted(async () => {
       <!-- Left Side - Branding -->
       <div class="brand-section">
         <div class="brand-content">
-          <div class="brand-icon">
-            <RocketOutlined />
+          <!-- Animated Logo from Loading Screen -->
+          <div v-show="showLogo" class="brand-logo-container">
+            <img src="/favicon.png" alt="Tirnue Logo" class="brand-logo" />
           </div>
-          <h1 class="brand-title">
+
+          <!-- Animated Brand Name -->
+          <div v-show="showBrandName" class="brand-name-container">
+            <h1 class="brand-title">Tirnue</h1>
+            <p class="brand-subtitle">
+              An under development panel server
+            </p>
+          </div>
+
+          <!-- Keep original welcome (hidden initially) -->
+          <h1 v-show="false" class="brand-title">
             Welcome to <span class="highlight">Tirnue</span>
           </h1>
-          <p class="brand-subtitle">
+          <p v-show="false" class="brand-subtitle">
             An under development panel server
           </p>
 
-          <div class="features-list">
+          <div v-show="showBrandName" class="features-list">
             <div class="feature-item">
               <ThunderboltOutlined class="feature-icon" />
               <div class="feature-text">
@@ -145,7 +186,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="brand-footer">
+          <div v-show="showBrandName" class="brand-footer">
             <div class="version-badge">v2.0 Beta</div>
           </div>
         </div>
@@ -153,9 +194,9 @@ onMounted(async () => {
 
       <!-- Right Side - Login Form -->
       <div class="form-section">
-        <div class="form-container">
+        <div class="form-container" :class="{ 'form-visible': showLoginForm }">
           <!-- Login Step 0: Form -->
-          <div v-show="loginStep === 0" class="form-content">
+          <div v-show="loginStep === 0 && showLoginForm" class="form-content">
             <div class="form-header">
               <h2>Sign In</h2>
               <p>Enter your credentials to access the panel</p>
@@ -370,8 +411,59 @@ onMounted(async () => {
 .brand-content {
   position: relative;
   z-index: 1;
-  text-align: left;
+  text-align: center;
   max-width: 500px;
+}
+
+// Animated Logo Container
+.brand-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+  animation: logoFlyIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.brand-logo {
+  width: 120px;
+  height: 120px;
+  filter: drop-shadow(0 10px 30px rgba(255, 140, 66, 0.4));
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoFlyIn {
+  from {
+    transform: translate(calc(50vw - 50%), calc(50vh - 50%)) scale(0.4);
+    opacity: 0.8;
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    filter: drop-shadow(0 10px 30px rgba(255, 140, 66, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 15px 40px rgba(255, 140, 66, 0.6));
+  }
+}
+
+// Animated Brand Name
+.brand-name-container {
+  animation: brandNamePopUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes brandNamePopUp {
+  from {
+    transform: translateY(20px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 .brand-icon {
@@ -395,11 +487,15 @@ onMounted(async () => {
 }
 
 .brand-title {
-  font-size: 48px;
+  font-size: 56px;
   font-weight: 800;
-  color: white;
+  background: linear-gradient(135deg, #FF8C42, #D4AF37);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0 0 16px 0;
   line-height: 1.2;
+  letter-spacing: 2px;
 
   .highlight {
     background: linear-gradient(135deg, #FF8C42, #D4AF37);
@@ -421,6 +517,19 @@ onMounted(async () => {
   flex-direction: column;
   gap: 24px;
   margin-bottom: 48px;
+  margin-top: 48px;
+  animation: fadeInUp 0.6s ease 0.3s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .feature-item {
@@ -491,6 +600,14 @@ onMounted(async () => {
 .form-container {
   width: 100%;
   max-width: 420px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &.form-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .form-content {
