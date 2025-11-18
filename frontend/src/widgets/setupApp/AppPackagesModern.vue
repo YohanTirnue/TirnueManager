@@ -153,8 +153,9 @@ onMounted(() => {
       <a-input-search
         v-model:value="searchQuery"
         size="large"
-        placeholder="Search Minecraft, Velocity, Folia, Geyser, Discord bots..."
+        placeholder="Search: Minecraft, Velocity, Folia, Geyser, Purpur, Paper..."
         class="modern-search"
+        allow-clear
         @search="handleSearch"
         @change="handleSearch"
       >
@@ -162,6 +163,10 @@ onMounted(() => {
           <SearchOutlined class="search-icon" />
         </template>
       </a-input-search>
+
+      <div v-if="!appListLoading" class="template-count">
+        Found {{ filteredPackages.length }} templates
+      </div>
     </div>
 
     <!-- Category Pills -->

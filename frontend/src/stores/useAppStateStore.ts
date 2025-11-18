@@ -13,7 +13,7 @@ interface AppStateInfo extends PanelStatus {
 export const useAppStateStore = createGlobalState(() => {
   const { execute: reqUserInfo } = userInfoApi();
 
-  const language = useLocalStorage(LANGUAGE_KEY, toStandardLang(window.navigator.language));
+  const language = useLocalStorage(LANGUAGE_KEY, "en_us");
   const state: AppStateInfo = reactive<AppStateInfo>({
     userInfo: null,
     isInstall: true,
