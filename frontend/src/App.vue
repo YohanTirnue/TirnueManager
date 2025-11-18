@@ -86,7 +86,7 @@ onMounted(async () => {
   background: var(--background-color);
 
   &.with-sidebar {
-    margin-left: var(--sidebar-width, 260px);
+    margin-left: var(--sidebar-width, 240px);
   }
 }
 

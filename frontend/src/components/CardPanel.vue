@@ -48,7 +48,7 @@ const { containerState } = useLayoutContainerStore();
 @import "@/assets/global.scss";
 
 .padding {
-  padding: 20px;
+  padding: 16px;
 }
 
 .card-panel {
@@ -91,8 +91,8 @@ const { containerState } = useLayoutContainerStore();
     justify-content: space-between;
     align-items: center;
     margin-top: -4px;
-    margin-bottom: 12px;
-    padding-bottom: 12px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
     border-bottom: 2px solid var(--card-border-color);
   }
 

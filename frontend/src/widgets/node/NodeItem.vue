@@ -2,6 +2,8 @@
 import CardPanel from "@/components/CardPanel.vue";
 import IconBtn from "@/components/IconBtn.vue";
 import NodeSimpleChart from "@/components/NodeSimpleChart.vue";
+import ResourceProgressBar from "@/components/stats/ResourceProgressBar.vue";
+import StatusDot from "@/components/stats/StatusDot.vue";
 import { GLOBAL_INSTANCE_UUID } from "@/config/const";
 import { useAppRouters } from "@/hooks/useAppRouters";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
@@ -22,7 +24,11 @@ import {
   InfoCircleOutlined,
   LoadingOutlined,
   ReloadOutlined,
-  SettingOutlined
+  SettingOutlined,
+  EyeOutlined,
+  AppstoreOutlined,
+  ThunderboltOutlined,
+  DeleteOutlined
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import { computed, onMounted, ref } from "vue";
@@ -190,78 +196,209 @@ const nodeOperations = computed(() =>
   ])
 );
 
+// Computed properties for modern UI
+const nodeStatus = computed<"online" | "offline" | "slow" | "error">(() => {
+  if (!remoteNode.value?.available) return "offline";
+  if (socketStatus.value === SocketStatus.Error) return "error";
+  if (socketStatus.value === SocketStatus.Connecting) return "slow";
+  if (socketStatus.value === SocketStatus.Connected) return "online";
+  return "offline";
+});
+
+const resourceData = computed(() => {
+  const node = remoteNode.value;
+  if (!node) return null;
+
+  // Parse memory from memText (e.g., "8.5GB / 16GB")
+  const memMatch = node.memText?.match(/([\d.]+)GB\s*\/\s*([\d.]+)GB/);
+  const memUsed = memMatch ? parseFloat(memMatch[1]) : 0;
+  const memTotal = memMatch ? parseFloat(memMatch[2]) : 1;
+
+  // Parse CPU from cpuInfo (e.g., "CPU: 45.2%")
+  const cpuMatch = node.cpuInfo?.match(/([\d.]+)%/);
+  const cpuUsage = cpuMatch ? parseFloat(cpuMatch[1]) : 0;
+
+  return {
+    memory: { used: memUsed, total: memTotal },
+    cpu: { usage: cpuUsage },
+    instances: node.instanceStatus || "0 / 0",
+    ping: node.ping || 0
+  };
+});
+
+const quickActions = computed(() => [
+  {
+    title: t("TXT_CODE_ae533703"), // Files
+    icon: FolderOpenOutlined,
+    color: "#FF8C42",
+    show: remoteNode.value?.available,
+    action: () => {
+      const daemonId = remoteNode.value?.uuid;
+      const instanceId = GLOBAL_INSTANCE_UUID;
+      toPage({
+        path: "/instances/terminal/files",
+        query: { daemonId, instanceId }
+      });
+    }
+  },
+  {
+    title: t("TXT_CODE_524e3036"), // Terminal
+    icon: CodeOutlined,
+    color: "#D4AF37",
+    show: remoteNode.value?.available,
+    action: () => {
+      const daemonId = remoteNode.value?.uuid;
+      const instanceId = GLOBAL_INSTANCE_UUID;
+      toPage({
+        path: "/instances/terminal",
+        query: { daemonId, instanceId }
+      });
+    }
+  },
+  {
+    title: t("TXT_CODE_e6c30866"), // Images
+    icon: BlockOutlined,
+    color: "#52c41a",
+    show: remoteNode.value?.available,
+    action: () => {
+      const daemonId = remoteNode.value?.uuid;
+      toPage({
+        path: "/node/image",
+        query: { daemonId }
+      });
+    }
+  },
+  {
+    title: t("TXT_CODE_f8b28901"), // Reconnect
+    icon: ReloadOutlined,
+    color: "#faad14",
+    show: !remoteNode.value?.available,
+    action: async () => {
+      if (remoteNode.value) {
+        await tryConnectNode(remoteNode.value.uuid);
+      }
+    }
+  }
+]);
+
 onMounted(() => {
   testFrontendSocket(remoteNode.value);
 });
 </script>
 
 <template>
-  <div style="height: 100%" class="container">
-    <CardPanel style="height: 100%">
+  <div style="height: 100%" class="node-item-container">
+    <CardPanel style="height: 100%" class="modern-node-card">
       <template #title>
-        <div class="flex-center">
-          <span :class="{ 'color-danger': !remoteNode?.available }">
-            <CloudServerOutlined />
-            {{ remoteNode?.remarks || remoteNode?.ip }}
-          </span>
+        <div class="node-header">
+          <div class="node-title-section">
+            <CloudServerOutlined class="node-icon" />
+            <div class="node-info">
+              <div class="node-name">{{ remoteNode?.remarks || remoteNode?.ip }}</div>
+              <div class="node-address">{{ remoteNode?.ip }}:{{ remoteNode?.port }}</div>
+            </div>
+          </div>
+          <StatusDot v-if="remoteNode" :status="nodeStatus" :pulse="true" show-label />
         </div>
       </template>
-      <template v-if="remoteNode" #operator>
-        <span
-          v-for="operation in nodeOperations"
-          :key="operation.title"
-          size="default"
-          class="mr-2"
-        >
-          <IconBtn
-            :icon="operation.icon"
-            :title="operation.title"
-            @click="remoteNode && operation.click(remoteNode)"
-          ></IconBtn>
-        </span>
-      </template>
-      <template v-if="remoteNode" #body>
-        <a-row :gutter="[24, 0]" class="mt-2">
-          <a-col
-            v-for="detail in detailList(remoteNode)"
-            :key="detail.title + detail.value"
-            :span="6"
-          >
-            <a-typography-paragraph>
-              <div :title="detail.onlyCopy ? detail.value : ''">
-                {{ detail.title }}
-              </div>
 
-              <div v-if="detail.onlyCopy">
-                <a-typography-text :copyable="{ text: detail.value ?? '' }"></a-typography-text>
-              </div>
-              <div v-else style="font-size: 13px">
-                <a-tooltip v-if="detail.warn && detail.value">
-                  <template #title>
-                    {{ detail.warnText }}
-                  </template>
-                  <span class="color-danger"><InfoCircleOutlined /> {{ detail.value }}</span>
-                </a-tooltip>
-                <span v-else-if="detail.loading">
-                  <div class="flex mt-4">
-                    <LoadingOutlined style="font-size: 18px" />
-                  </div>
-                </span>
-                <span v-else-if="detail.success">
-                  <span class="color-success"><CheckCircleOutlined /> {{ detail.value }}</span>
-                </span>
-                <span v-else style="white-space: pre-wrap">{{
-                  String(detail.value ?? "").trim() ? detail.value : "--"
-                }}</span>
-              </div>
-            </a-typography-paragraph>
-          </a-col>
-        </a-row>
-        <NodeSimpleChart
-          class="mt-24"
-          :cpu-data="remoteNode.cpuChartData ?? []"
-          :mem-data="remoteNode.memChartData ?? []"
-        />
+      <template v-if="remoteNode" #operator>
+        <div class="quick-actions">
+          <a-tooltip
+            v-for="action in quickActions.filter((a) => a.show)"
+            :key="action.title"
+            :title="action.title"
+          >
+            <a-button
+              type="text"
+              class="action-btn"
+              :style="{ color: action.color }"
+              @click="action.action"
+            >
+              <component :is="action.icon" />
+            </a-button>
+          </a-tooltip>
+          <a-tooltip :title="t('TXT_CODE_b5c7b82d')">
+            <a-button
+              type="text"
+              class="action-btn settings-btn"
+              @click="remoteNode && nodeDetailDialog?.openDialog(remoteNode, remoteNode.uuid)"
+            >
+              <SettingOutlined />
+            </a-button>
+          </a-tooltip>
+        </div>
+      </template>
+
+      <template v-if="remoteNode && resourceData" #body>
+        <!-- Resource Bars Section -->
+        <div class="resources-section">
+          <div class="resource-row">
+            <ResourceProgressBar
+              label="Memory Usage"
+              :value="resourceData.memory.used"
+              :max="resourceData.memory.total"
+              unit="GB"
+              color="#FF8C42"
+            />
+          </div>
+          <div class="resource-row">
+            <ResourceProgressBar
+              label="CPU Usage"
+              :value="resourceData.cpu.usage"
+              :max="100"
+              unit="%"
+              color="#D4AF37"
+            />
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-label">
+              <AppstoreOutlined />
+              Instances
+            </div>
+            <div class="stat-value">{{ resourceData.instances }}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">
+              <ThunderboltOutlined />
+              Platform
+            </div>
+            <div class="stat-value">{{ remoteNode.platformText || "--" }}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">
+              <CloudServerOutlined />
+              Version
+            </div>
+            <div class="stat-value" :class="{ 'version-warn': hasVersionUpdate(specifiedDaemonVersion, remoteNode.version) && remoteNode.available }">
+              {{ remoteNode.version || "--" }}
+              <a-tooltip v-if="hasVersionUpdate(specifiedDaemonVersion, remoteNode.version) && remoteNode.available" :title="t('TXT_CODE_e520908a')">
+                <InfoCircleOutlined class="warn-icon" />
+              </a-tooltip>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">
+              <CodeOutlined />
+              Daemon ID
+            </div>
+            <div class="stat-value daemon-id">
+              <a-typography-text :copyable="{ text: remoteNode.uuid ?? '' }" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Chart -->
+        <div class="chart-section">
+          <NodeSimpleChart
+            :cpu-data="remoteNode.cpuChartData ?? []"
+            :mem-data="remoteNode.memChartData ?? []"
+          />
+        </div>
       </template>
     </CardPanel>
   </div>
@@ -269,21 +406,183 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-.search-input {
-  transition: all 0.4s;
-  text-align: center;
-  width: 50%;
+.node-item-container {
+  height: 100%;
 }
 
-@media (max-width: 992px) {
-  .search-input {
-    transition: all 0.4s;
-    text-align: center;
-    width: 100% !important;
+.modern-node-card {
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.02), rgba(212, 175, 55, 0.02));
+  border: 1px solid rgba(255, 140, 66, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    border-color: rgba(255, 140, 66, 0.3);
+    box-shadow: 0 4px 16px rgba(255, 140, 66, 0.15);
   }
 }
 
-.search-input:hover {
+.node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   width: 100%;
+}
+
+.node-title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.node-icon {
+  font-size: 24px;
+  color: #FF8C42;
+}
+
+.node-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.node-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-gray-11);
+}
+
+.node-address {
+  font-size: 12px;
+  color: var(--color-gray-8);
+  font-family: monospace;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.action-btn {
+  font-size: 18px;
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+
+  &:hover {
+    background: rgba(255, 140, 66, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.settings-btn {
+  color: var(--color-gray-8);
+
+  &:hover {
+    color: #FF8C42;
+  }
+}
+
+.resources-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.resource-row {
+  background: rgba(255, 140, 66, 0.03);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 140, 66, 0.1);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  background: var(--color-gray-1);
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-left-color: #FF8C42;
+    background: rgba(255, 140, 66, 0.05);
+  }
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--color-gray-8);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-gray-11);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &.version-warn {
+    color: #faad14;
+  }
+
+  &.daemon-id {
+    font-family: monospace;
+    font-size: 12px;
+  }
+}
+
+.warn-icon {
+  color: #faad14;
+  font-size: 14px;
+}
+
+.chart-section {
+  background: rgba(255, 140, 66, 0.02);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 140, 66, 0.1);
+}
+
+@media (max-width: 992px) {
+  .node-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .action-btn {
+    font-size: 16px;
+    padding: 4px 6px;
+  }
+
+  .node-icon {
+    font-size: 20px;
+  }
 }
 </style>
