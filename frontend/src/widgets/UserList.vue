@@ -2,12 +2,23 @@
 import { ref, computed, onMounted } from "vue";
 import { t } from "@/lang/i18n";
 import { message, Modal, type FormInstance } from "ant-design-vue";
-import { DownOutlined, UserOutlined, SearchOutlined } from "@ant-design/icons-vue";
+import {
+  UserOutlined,
+  SearchOutlined,
+  MoreOutlined,
+  EditOutlined,
+  DatabaseOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  CrownOutlined,
+  TeamOutlined,
+  SafetyOutlined,
+  ClockCircleOutlined
+} from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
 import { throttle } from "lodash";
 import CardPanel from "@/components/CardPanel.vue";
-import BetweenMenus from "@/components/BetweenMenus.vue";
-import { useScreen } from "../hooks/useScreen";
 import { arrayFilter } from "../tools/array";
 import { useAppRouters } from "@/hooks/useAppRouters";
 import {
@@ -19,8 +30,6 @@ import {
 import type { LayoutCard } from "@/types/index";
 import type { BaseUserInfo, EditUserInfo } from "@/types/user";
 import _ from "lodash";
-import type { AntColumnsType, AntTableCell } from "../types/ant";
-import type { Key } from "ant-design-vue/es/_util/type";
 import { PASSWORD_REGEX } from "../tools/validator";
 import { PERMISSION_MAP } from "@/config/const";
 import { reportErrorMsg } from "@/tools/validator";
@@ -39,7 +48,6 @@ interface dataType {
 
 const { execute, isLoading: getUserInfoLoading } = getUserInfo();
 const { toPage } = useAppRouters();
-const { isPhone } = useScreen();
 
 const operationForm = ref({
   name: "",
@@ -47,62 +55,12 @@ const operationForm = ref({
   pageSize: 20
 });
 
-const columns = computed(() => {
-  return arrayFilter<AntColumnsType>([
-    {
-      align: "center",
-      title: "UUID",
-      dataIndex: "uuid",
-      key: "uuid",
-      condition: () => !isPhone.value
-    },
-    {
-      align: "center",
-      title: t("TXT_CODE_eb9fcdad"),
-      dataIndex: "userName",
-      key: "userName",
-      minWidth: 200
-    },
-    {
-      align: "center",
-      title: t("TXT_CODE_511aea70"),
-      dataIndex: "permission",
-      key: "permission",
-      minWidth: 200,
-      customRender: (e: { text: "1" | "10" | "-1" }) => {
-        return PERMISSION_MAP[e.text] || e.text;
-      }
-    },
-    {
-      align: "center",
-      title: t("TXT_CODE_d7ee9ba"),
-      dataIndex: "loginTime",
-      key: "loginTime",
-      minWidth: 200,
-      condition: () => !isPhone.value
-    },
-    {
-      align: "center",
-      title: t("TXT_CODE_c5c56801"),
-      dataIndex: "registerTime",
-      key: "registerTime",
-      minWidth: 200,
-      condition: () => !isPhone.value
-    },
-    {
-      align: "center",
-      title: t("TXT_CODE_fe731dfc"),
-      key: "action",
-      minWidth: 200
-    }
-  ]);
-});
-
 const total = ref(0);
 const data = ref<dataType>();
-const dataSource = computed(() => data?.value?.data);
+const dataSource = computed(() => data?.value?.data || []);
 const selectedUsers = ref<string[]>([]);
 const currentRole = ref("");
+const showActionMenu = ref<string | null>(null);
 
 const handleToUserResources = (user: BaseUserInfo) => {
   toPage({
@@ -111,11 +69,11 @@ const handleToUserResources = (user: BaseUserInfo) => {
       uuid: user.uuid
     }
   });
+  showActionMenu.value = null;
 };
 
-const handleTableChange = (e: { current: number; pageSize: number }) => {
-  operationForm.value.currentPage = e.current;
-  operationForm.value.pageSize = e.pageSize;
+const handleTableChange = (page: number) => {
+  operationForm.value.currentPage = page;
   fetchData();
 };
 
@@ -155,13 +113,22 @@ const deleteUser = async (userList: string[]) => {
 
 const handleDeleteUser = async (user: BaseUserInfo) => {
   await deleteUser([user.uuid]);
+  showActionMenu.value = null;
 };
 
 const handleBatchDelete = async () => {
   if (selectedUsers.value.length === 0) {
     return message.warn(t("TXT_CODE_d78ad17a"));
   }
-  await deleteUser(selectedUsers.value);
+  Modal.confirm({
+    title: "Batch Delete Users",
+    content: `Are you sure you want to delete ${selectedUsers.value.length} user(s)?`,
+    okType: "danger",
+    onOk: async () => {
+      await deleteUser(selectedUsers.value);
+      selectedUsers.value = [];
+    }
+  });
 };
 
 const showDeleteConfirm = (user: BaseUserInfo) => {
@@ -271,7 +238,6 @@ const editUserRules: Record<string, Rule[]> = {
   ]
 };
 
-// Add user
 const handleAddUser = async () => {
   userDialog.value.title = t("TXT_CODE_e83ffa03");
   formData.value = _.cloneDeep(formDataOrigin);
@@ -279,12 +245,12 @@ const handleAddUser = async () => {
   userDialog.value.show();
 };
 
-// Edit user
 const handleEditUser = (user: BaseUserInfo) => {
   userDialog.value.title = t("TXT_CODE_79f9a172");
   formData.value = _.cloneDeep(user);
   isAddMode.value = false;
   userDialog.value.show();
+  showActionMenu.value = null;
 };
 
 const search = throttle(async () => {
@@ -292,12 +258,42 @@ const search = throttle(async () => {
   await fetchData();
 }, 600);
 
+const toggleActionMenu = (uuid: string) => {
+  showActionMenu.value = showActionMenu.value === uuid ? null : uuid;
+};
+
+const getPermissionIcon = (permission: string) => {
+  if (permission === "10") return CrownOutlined;
+  if (permission === "1") return UserOutlined;
+  return TeamOutlined;
+};
+
+const getPermissionColor = (permission: string) => {
+  if (permission === "10") return "#FF8C42";
+  if (permission === "1") return "#52c41a";
+  return "#1890ff";
+};
+
+const toggleUserSelection = (uuid: string) => {
+  const index = selectedUsers.value.indexOf(uuid);
+  if (index > -1) {
+    selectedUsers.value.splice(index, 1);
+  } else {
+    selectedUsers.value.push(uuid);
+  }
+};
+
+const isUserSelected = (uuid: string) => {
+  return selectedUsers.value.includes(uuid);
+};
+
 onMounted(async () => {
   fetchData();
 });
 </script>
 
 <template>
+  <!-- User Dialog Modal -->
   <a-modal
     v-model:open="userDialog.status"
     centered
@@ -364,199 +360,639 @@ onMounted(async () => {
     </a-form>
   </a-modal>
 
-  <div style="height: 100%" class="user-list-container">
-    <a-row :gutter="[24, 24]" style="height: 100%">
-      <a-col :span="24">
-        <BetweenMenus>
-          <template v-if="!isPhone" #left>
-            <a-typography-title class="mb-0 page-title" :level="4">
-              <UserOutlined />
-              {{ card.title }} ({{ total }})
-            </a-typography-title>
-          </template>
-          <template #right>
-            <a-button class="action-btn" :loading="getUserInfoLoading" @click="reload">
-              {{ t("TXT_CODE_b76d94e0") }}
-            </a-button>
-            <a-button class="action-btn primary-btn" type="primary" @click="handleAddUser">
-              {{ t("TXT_CODE_e83ffa03") }}
-            </a-button>
-            <a-button class="action-btn delete-btn" danger @click="handleBatchDelete()">
-              {{ t("TXT_CODE_ecbd7449") }}
-            </a-button>
-          </template>
-          <template #center>
-            <div class="search-input">
-              <a-input-group compact>
-                <a-select v-model:value="currentRole" class="role-filter" style="width: 120px" @change="search()">
-                  <a-select-option value="">
-                    {{ t("TXT_CODE_c48f6f64") }}
-                  </a-select-option>
-                  <a-select-option v-for="(p, i) in PERMISSION_MAP" :key="i" :value="i">
-                    {{ p }}
-                  </a-select-option>
-                </a-select>
-                <a-input
-                  v-model:value.trim.lazy="operationForm.name"
-                  :placeholder="t('TXT_CODE_2471b9c')"
-                  allow-clear
-                  class="search-field"
-                  style="width: calc(100% - 120px)"
-                  @change="search()"
-                >
-                  <template #prefix>
-                    <SearchOutlined style="color: #FF8C42" />
-                  </template>
-                </a-input>
-              </a-input-group>
+  <div class="modern-users-page">
+    <!-- Header Section -->
+    <div class="page-header">
+      <div class="header-left">
+        <div class="title-section">
+          <TeamOutlined class="page-icon" />
+          <div>
+            <h1 class="page-title">{{ card.title }}</h1>
+            <p class="page-subtitle">{{ total }} users registered</p>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="action-button reload-btn" @click="reload" :disabled="getUserInfoLoading">
+          <ReloadOutlined :spin="getUserInfoLoading" />
+          Reload
+        </button>
+        <button class="action-button add-btn" @click="handleAddUser">
+          <PlusOutlined />
+          Add User
+        </button>
+        <button
+          class="action-button delete-btn"
+          @click="handleBatchDelete"
+          :disabled="selectedUsers.length === 0"
+        >
+          <DeleteOutlined />
+          Delete Selected ({{ selectedUsers.length }})
+        </button>
+      </div>
+    </div>
+
+    <!-- Search & Filter Section -->
+    <div class="search-section">
+      <div class="search-container">
+        <SearchOutlined class="search-icon" />
+        <input
+          v-model.trim="operationForm.name"
+          type="text"
+          :placeholder="t('TXT_CODE_2471b9c') || 'Search users...'"
+          class="search-input"
+          @input="search()"
+        />
+      </div>
+      <select v-model="currentRole" class="role-filter" @change="search()">
+        <option value="">{{ t("TXT_CODE_c48f6f64") || "All Roles" }}</option>
+        <option v-for="(p, i) in PERMISSION_MAP" :key="i" :value="i">
+          {{ p }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Users Grid -->
+    <a-spin :spinning="data && data.pageSize == 0">
+      <div class="users-grid">
+        <div
+          v-for="user in dataSource"
+          :key="user.uuid"
+          class="user-card"
+          :class="{ selected: isUserSelected(user.uuid) }"
+        >
+          <!-- Selection Checkbox -->
+          <div class="card-checkbox" @click.stop="toggleUserSelection(user.uuid)">
+            <div class="checkbox" :class="{ checked: isUserSelected(user.uuid) }">
+              <span v-if="isUserSelected(user.uuid)">✓</span>
             </div>
-          </template>
-        </BetweenMenus>
-      </a-col>
-      <a-col :span="24">
-        <CardPanel style="height: 100%">
-          <template #body>
-            <a-spin :spinning="data && data.pageSize == 0">
-              <a-table
-                :row-selection="{
-                  selectedRowKeys: selectedUsers,
-                  onChange: (selectedRowKeys: Key[]) => {
-                    selectedUsers = selectedRowKeys as string[];
-                  }
-                }"
-                :data-source="dataSource"
-                :columns="columns"
-                :preserve-selected-row-keys="true"
-                :row-key="(record: BaseUserInfo) => record.uuid"
-                :pagination="{
-                  current: operationForm.currentPage,
-                  pageSize: operationForm.pageSize,
-                  hideOnSinglePage: false,
-                  total: total,
-                  showSizeChanger: true
-                }"
-                @change="
-                  handleTableChange({
-                    current: $event.current || 0,
-                    pageSize: $event.pageSize || 0
-                  })
-                "
-              >
-                <template #bodyCell="{ column, record }: AntTableCell">
-                  <template v-if="column.key === 'action'">
-                    <a-space>
-                      <a-button class="table-action-btn" size="small" @click="handleEditUser(record)">
-                        {{ t("TXT_CODE_236f70aa") }}
-                      </a-button>
-                      <a-button class="table-action-btn" size="small" @click="handleToUserResources(record)">
-                        {{ t("TXT_CODE_4d934e3a") }}
-                      </a-button>
-                      <a-button class="table-action-btn" size="small" danger @click="showDeleteConfirm(record)">
-                        {{ t("TXT_CODE_ecbd7449") }}
-                      </a-button>
-                    </a-space>
-                  </template>
-                </template>
-              </a-table>
-            </a-spin>
-          </template>
-        </CardPanel>
-      </a-col>
-    </a-row>
+          </div>
+
+          <!-- User Avatar -->
+          <div class="user-avatar" :style="{ borderColor: getPermissionColor(String(user.permission)) }">
+            <component :is="getPermissionIcon(String(user.permission))" />
+          </div>
+
+          <!-- User Info -->
+          <div class="user-info">
+            <h3 class="user-name">{{ user.userName }}</h3>
+            <div class="user-badge" :style="{
+              backgroundColor: `${getPermissionColor(String(user.permission))}15`,
+              color: getPermissionColor(String(user.permission))
+            }">
+              {{ PERMISSION_MAP[user.permission] || user.permission }}
+            </div>
+          </div>
+
+          <!-- User Stats -->
+          <div class="user-stats">
+            <div class="stat-item">
+              <ClockCircleOutlined class="stat-icon" />
+              <div class="stat-content">
+                <span class="stat-label">Last Login</span>
+                <span class="stat-value">{{ user.loginTime || 'Never' }}</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <SafetyOutlined class="stat-icon" />
+              <div class="stat-content">
+                <span class="stat-label">Registered</span>
+                <span class="stat-value">{{ user.registerTime || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- UUID -->
+          <div class="user-uuid">
+            <span class="uuid-label">UUID:</span>
+            <span class="uuid-value">{{ user.uuid }}</span>
+          </div>
+
+          <!-- Action Button -->
+          <div class="action-menu-container">
+            <button class="action-menu-btn" @click.stop="toggleActionMenu(user.uuid)">
+              <MoreOutlined />
+            </button>
+
+            <!-- Action Dropdown -->
+            <div v-if="showActionMenu === user.uuid" class="action-dropdown">
+              <button class="dropdown-item edit-item" @click="handleEditUser(user)">
+                <EditOutlined />
+                {{ t("TXT_CODE_236f70aa") || "Edit" }}
+              </button>
+              <button class="dropdown-item resources-item" @click="handleToUserResources(user)">
+                <DatabaseOutlined />
+                {{ t("TXT_CODE_4d934e3a") || "Resources" }}
+              </button>
+              <button class="dropdown-item delete-item" @click="showDeleteConfirm(user)">
+                <DeleteOutlined />
+                {{ t("TXT_CODE_ecbd7449") || "Delete" }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a-spin>
+
+    <!-- Pagination -->
+    <div class="pagination-container" v-if="total > operationForm.pageSize">
+      <a-pagination
+        v-model:current="operationForm.currentPage"
+        :total="total"
+        :page-size="operationForm.pageSize"
+        :show-size-changer="false"
+        @change="handleTableChange"
+      />
+    </div>
   </div>
+
+  <!-- Click outside to close dropdown -->
+  <div v-if="showActionMenu" class="dropdown-overlay" @click="showActionMenu = null"></div>
 </template>
 
 <style lang="scss" scoped>
-.user-list-container {
-  padding: 16px;
+.modern-users-page {
+  padding: 24px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+// Page Header
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: white;
+  box-shadow: 0 8px 20px rgba(255, 140, 66, 0.3);
 }
 
 .page-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1e1e2e;
+  margin: 0;
   background: linear-gradient(135deg, #FF8C42, #D4AF37);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.action-btn {
-  transition: all 0.2s ease;
-  border-radius: 6px;
+.page-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 4px 0 0 0;
+}
 
-  &:hover {
+.header-right {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
     transform: translateY(-2px);
+  }
+
+  &:not(:disabled):active {
+    transform: translateY(0);
+  }
+}
+
+.reload-btn {
+  background: white;
+  color: #666;
+  border: 2px solid #e8e8e8;
+
+  &:hover:not(:disabled) {
+    border-color: #FF8C42;
+    color: #FF8C42;
     box-shadow: 0 4px 12px rgba(255, 140, 66, 0.2);
   }
+}
 
-  &.primary-btn {
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
-    border: none;
+.add-btn {
+  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  color: white;
+  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
 
-    &:hover {
-      background: linear-gradient(135deg, #ff9d5c, #dfc051);
-    }
+  &:hover:not(:disabled) {
+    box-shadow: 0 6px 24px rgba(255, 140, 66, 0.4);
   }
+}
 
-  &.delete-btn {
-    &:hover {
-      box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
-    }
+.delete-btn {
+  background: #ff4d4f;
+  color: white;
+  box-shadow: 0 4px 16px rgba(255, 77, 79, 0.3);
+
+  &:hover:not(:disabled) {
+    background: #ff7875;
+    box-shadow: 0 6px 24px rgba(255, 77, 79, 0.4);
   }
+}
+
+// Search Section
+.search-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.search-container {
+  flex: 1;
+  position: relative;
+  max-width: 600px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: #FF8C42;
 }
 
 .search-input {
-  transition: all 0.4s;
-  text-align: center;
   width: 100%;
+  padding: 16px 20px 16px 56px;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: white;
 
-  .role-filter {
-    border-radius: 6px 0 0 6px;
+  &:focus {
+    outline: none;
+    border-color: #FF8C42;
+    box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
   }
 
-  .search-field {
-    border-radius: 0 6px 6px 0;
+  &::placeholder {
+    color: #999;
+  }
+}
 
-    &:focus {
-      border-color: #FF8C42;
-      box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.1);
+.role-filter {
+  padding: 16px 20px;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #FF8C42;
+    box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
+  }
+
+  &:hover {
+    border-color: #FF8C42;
+  }
+}
+
+// Users Grid
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.user-card {
+  background: white;
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  border: 2px solid transparent;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  &.selected {
+    border-color: #FF8C42;
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.03), rgba(212, 175, 55, 0.03));
+  }
+}
+
+.card-checkbox {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.checkbox {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e8e8e8;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background: white;
+
+  &.checked {
+    background: linear-gradient(135deg, #FF8C42, #FF6B35);
+    border-color: #FF8C42;
+    color: white;
+  }
+
+  &:hover {
+    border-color: #FF8C42;
+  }
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: white;
+  margin: 0 auto 20px;
+  border: 4px solid;
+  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+}
+
+.user-info {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.user-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e1e2e;
+  margin: 0 0 12px 0;
+}
+
+.user-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.user-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stat-icon {
+  font-size: 20px;
+  color: #FF8C42;
+}
+
+.stat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.user-uuid {
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.uuid-label {
+  color: #999;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.uuid-value {
+  color: #666;
+  font-family: monospace;
+}
+
+// Action Menu
+.action-menu-container {
+  position: relative;
+}
+
+.action-menu-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(212, 175, 55, 0.1));
+  border: 2px solid #FF8C42;
+  border-radius: 12px;
+  color: #FF8C42;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.2), rgba(212, 175, 55, 0.2));
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.action-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 100;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  background: white;
+  color: #333;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &:hover {
+    background: #f8f9fa;
+  }
+
+  &.edit-item:hover {
+    background: rgba(24, 144, 255, 0.1);
+    color: #1890ff;
+  }
+
+  &.resources-item:hover {
+    background: rgba(82, 196, 26, 0.1);
+    color: #52c41a;
+  }
+
+  &.delete-item {
+    color: #ff4d4f;
+
+    &:hover {
+      background: rgba(255, 77, 79, 0.1);
     }
   }
-
-  @media (max-width: 992px) {
-    width: 100% !important;
-  }
 }
 
-.table-action-btn {
-  transition: all 0.2s ease;
-  border-radius: 4px;
-  font-size: 12px;
-
-  &:hover:not([danger]) {
-    border-color: #FF8C42;
-    color: #FF8C42;
-  }
+.dropdown-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
 }
 
-:deep(.ant-table) {
-  .ant-table-thead > tr > th {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.05), rgba(212, 175, 55, 0.05));
-    border-bottom: 2px solid rgba(255, 140, 66, 0.2);
-    font-weight: 600;
-  }
+// Pagination
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
 
-  .ant-table-tbody > tr:hover > td {
-    background: rgba(255, 140, 66, 0.03);
+// Responsive
+@media (max-width: 1400px) {
+  .users-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   }
 }
 
 @media (max-width: 768px) {
-  .user-list-container {
-    padding: 12px;
+  .modern-users-page {
+    padding: 16px;
   }
 
-  .table-action-btn {
-    font-size: 11px;
-    padding: 2px 8px;
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-right {
+    width: 100%;
+
+    .action-button {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+
+  .search-section {
+    flex-direction: column;
+  }
+
+  .users-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .page-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
   }
 }
 </style>
