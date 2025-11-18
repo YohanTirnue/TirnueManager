@@ -143,9 +143,7 @@ const showCardOperator = (card: ILayoutCard) => {
   position: relative;
   animation: scaleAnimation 0.6s ease-in-out;
   min-height: calc(100vh - 70px);
-  margin: auto;
   padding: 24px 32px;
-  max-width: 2400px; // Increased from 1600px to utilize full screen width
   width: 100%;
 }
 
