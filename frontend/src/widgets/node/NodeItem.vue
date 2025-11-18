@@ -221,8 +221,7 @@ const resourceData = computed(() => {
   return {
     memory: { used: memUsed, total: memTotal },
     cpu: { usage: cpuUsage },
-    instances: node.instanceStatus || "0 / 0",
-    ping: node.ping || 0
+    instances: node.instanceStatus || "0 / 0"
   };
 });
 
