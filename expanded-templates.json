@@ -99,7 +99,7 @@
     {
       "title": "Geyser Standalone (Bedrock Bridge)",
       "description": "Standalone proxy allowing Bedrock Edition players to join Java servers",
-      "addr": "https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone",
+      "addr": "https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/Geyser-Standalone.jar",
       "tags": ["mc-geyser"],
       "author": "GeyserMC",
       "size": "30 MB",
@@ -109,7 +109,7 @@
       "image": "https://avatars.githubusercontent.com/u/53838535?s=400",
       "setupInfo": {
         "type": "minecraft/java/geyser",
-        "startCommand": "java -Xms512M -Xmx1G -jar standalone",
+        "startCommand": "java -Xms512M -Xmx1G -jar Geyser-Standalone.jar",
         "stopCommand": "stop",
         "ie": "utf-8",
         "oe": "utf-8"
