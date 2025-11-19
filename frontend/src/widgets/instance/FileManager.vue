@@ -199,7 +199,10 @@ const FileEditorDialog = ref<InstanceType<typeof FileEditor>>();
 const opacity = ref(false);
 const handleDragover = (e: DragEvent) => {
   e.preventDefault();
-  opacity.value = true;
+  // Only show drag overlay if user has upload permission
+  if (canPerformFileAction(instanceId ?? "", "canUploadFiles")) {
+    opacity.value = true;
+  }
 };
 
 const handleDragleave = (e: DragEvent) => {
@@ -209,8 +212,14 @@ const handleDragleave = (e: DragEvent) => {
 
 const handleDrop = (e: DragEvent) => {
   e.preventDefault();
-  const files = e.dataTransfer?.files;
   opacity.value = false;
+
+  // CRITICAL: Check upload permission before processing files
+  if (!canPerformFileAction(instanceId ?? "", "canUploadFiles")) {
+    return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to upload files");
+  }
+
+  const files = e.dataTransfer?.files;
   if (!files) return;
   if (files.length === 0) return;
   let name = "";
