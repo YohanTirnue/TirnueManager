@@ -50,20 +50,6 @@ const skeletonConfigs = [
 <style></style>
 
 <style lang="scss">
-@keyframes scaleAnimation {
-  0% {
-    transform: scale(1);
-  }
-  20% {
-    transform: scale(0.9);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.6);
-    opacity: 0;
-  }
-}
-
 .login-page-container {
   position: fixed;
   left: 0px;

@@ -267,9 +267,15 @@ const handleEditUser = (user: BaseUserInfo) => {
   const clonedUser = _.cloneDeep(user);
 
   // Ensure permissions object exists for backward compatibility
-  // If user doesn't have permissions (old users), initialize with defaults
+  // Merge with defaults to handle both missing and partial permissions objects
   if (!clonedUser.permissions) {
     clonedUser.permissions = _.cloneDeep(formDataOrigin.permissions);
+  } else {
+    // Merge existing permissions with defaults to ensure all fields exist
+    clonedUser.permissions = {
+      ...formDataOrigin.permissions,
+      ...clonedUser.permissions
+    };
   }
 
   formData.value = clonedUser;
