@@ -323,20 +323,13 @@ router.get("/quick_install_list", permission({ level: ROLE.USER }), async (ctx) 
       const localTemplatesData = await fs.readFile(LOCAL_TEMPLATES_PATH, "utf-8");
       const localTemplates = JSON.parse(localTemplatesData);
 
-      if (localTemplates && localTemplates.templates && localTemplates.templates.length > 0) {
-        // Convert from our format to the expected format
+      if (localTemplates && localTemplates.packages && localTemplates.packages.length > 0) {
+        // Use the packages directly if they're already in the correct format
         ctx.body = {
           version: localTemplates.version || "1.0.0",
-          packages: localTemplates.templates.map((t: any) => ({
-            ...t,
-            info: t.description,
-            addr: t.targetLink,
-            author: t.author || "Unknown",
-            size: t.size || "Unknown",
-            tar: t.gameType || "Minecraft"
-          }))
+          packages: localTemplates.packages
         };
-        logger.info(`Loaded ${localTemplates.templates.length} templates from local expanded-templates.json`);
+        logger.info(`Loaded ${localTemplates.packages.length} templates from local expanded-templates.json`);
         return;
       }
     } catch (localError) {
