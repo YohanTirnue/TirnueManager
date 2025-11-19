@@ -514,7 +514,7 @@ onMounted(async () => {
 .modern-users-page {
   padding: 24px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }
 
 // Page Header
@@ -565,7 +565,7 @@ onMounted(async () => {
 
 .page-subtitle {
   font-size: 14px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   margin: 4px 0 0 0;
 }
 
@@ -602,13 +602,14 @@ onMounted(async () => {
 }
 
 .reload-btn {
-  background: white;
-  color: #666;
-  border: 2px solid #e8e8e8;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.1);
 
   &:hover:not(:disabled) {
     border-color: #FF8C42;
     color: #FF8C42;
+    background: rgba(255, 140, 66, 0.1);
     box-shadow: 0 4px 12px rgba(255, 140, 66, 0.2);
   }
 }
@@ -659,42 +660,46 @@ onMounted(async () => {
 .search-input {
   width: 100%;
   padding: 16px 20px 16px 56px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   font-size: 16px;
   transition: all 0.3s ease;
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
 
   &:focus {
     outline: none;
     border-color: #FF8C42;
+    background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
   }
 
   &::placeholder {
-    color: #999;
+    color: rgba(255, 255, 255, 0.4);
   }
 }
 
 .role-filter {
   padding: 16px 20px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   font-size: 15px;
   font-weight: 600;
-  background: white;
-  color: #333;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:focus {
     outline: none;
     border-color: #FF8C42;
+    background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
   }
 
   &:hover {
     border-color: #FF8C42;
+    background: rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -707,22 +712,25 @@ onMounted(async () => {
 }
 
 .user-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 20px;
   padding: 28px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
   position: relative;
-  border: 2px solid transparent;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.2);
+    border-color: rgba(255, 140, 66, 0.3);
+    background: rgba(255, 255, 255, 0.08);
   }
 
   &.selected {
     border-color: #FF8C42;
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.03), rgba(212, 175, 55, 0.03));
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.15), rgba(212, 175, 55, 0.15));
   }
 }
 
@@ -737,13 +745,13 @@ onMounted(async () => {
 .checkbox {
   width: 24px;
   height: 24px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
 
   &.checked {
     background: linear-gradient(135deg, #FF8C42, #FF6B35);
@@ -753,6 +761,7 @@ onMounted(async () => {
 
   &:hover {
     border-color: #FF8C42;
+    background: rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -779,7 +788,7 @@ onMounted(async () => {
 .user-name {
   font-size: 22px;
   font-weight: 700;
-  color: #1e1e2e;
+  color: rgba(255, 255, 255, 0.95);
   margin: 0 0 12px 0;
 }
 
@@ -821,33 +830,34 @@ onMounted(async () => {
 
 .stat-label {
   font-size: 12px;
-  color: #999;
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 600;
 }
 
 .stat-value {
   font-size: 14px;
-  color: #333;
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
 }
 
 .user-uuid {
   padding: 12px;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   margin-bottom: 16px;
   font-size: 12px;
   word-break: break-all;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .uuid-label {
-  color: #999;
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 600;
   margin-right: 8px;
 }
 
 .uuid-value {
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   font-family: monospace;
 }
 
@@ -882,12 +892,14 @@ onMounted(async () => {
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background: white;
+  background: rgba(30, 30, 46, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   z-index: 100;
   animation: slideDown 0.2s ease;
+  backdrop-filter: blur(20px);
 }
 
 @keyframes slideDown {
@@ -905,8 +917,8 @@ onMounted(async () => {
   width: 100%;
   padding: 14px 20px;
   border: none;
-  background: white;
-  color: #333;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -916,24 +928,25 @@ onMounted(async () => {
   gap: 12px;
 
   &:hover {
-    background: #f8f9fa;
+    background: rgba(255, 255, 255, 0.05);
   }
 
   &.edit-item:hover {
-    background: rgba(24, 144, 255, 0.1);
-    color: #1890ff;
+    background: rgba(24, 144, 255, 0.15);
+    color: #4da3ff;
   }
 
   &.resources-item:hover {
-    background: rgba(82, 196, 26, 0.1);
-    color: #52c41a;
+    background: rgba(82, 196, 26, 0.15);
+    color: #73d13d;
   }
 
   &.delete-item {
-    color: #ff4d4f;
+    color: #ff7875;
 
     &:hover {
-      background: rgba(255, 77, 79, 0.1);
+      background: rgba(255, 77, 79, 0.15);
+      color: #ff4d4f;
     }
   }
 }

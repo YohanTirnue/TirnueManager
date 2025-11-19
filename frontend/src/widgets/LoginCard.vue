@@ -309,7 +309,7 @@ const startLoginAnimation = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
 }
 
 // Animated Background
@@ -376,8 +376,8 @@ const startLoginAnimation = () => {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(20px);
   border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 140, 66, 0.15);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
 
@@ -398,7 +398,7 @@ const startLoginAnimation = () => {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255, 140, 66, 0.1), transparent 50%);
+    background: radial-gradient(circle, rgba(255, 140, 66, 0.08), transparent 50%);
     animation: rotate 30s linear infinite;
   }
 }
