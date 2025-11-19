@@ -196,7 +196,22 @@ const formDataOrigin: EditUserInfo = {
   apiKey: "",
   isInit: false,
   secret: "",
-  open2FA: false
+  open2FA: false,
+  permissions: {
+    canUploadFiles: true,
+    canDownloadFiles: true,
+    canDeleteFiles: true,
+    canModifyFiles: true,
+    canAccessConsole: true,
+    canRestartInstances: true,
+    canStopInstances: true,
+    canViewLogs: true,
+    disableRightClick: false,
+    disableKeyboardShortcuts: false,
+    disableTextSelection: false,
+    disableCopy: false,
+    disablePaste: false
+  }
 };
 
 const formRef = ref<FormInstance>();
@@ -344,6 +359,86 @@ onMounted(async () => {
           {{ t("TXT_CODE_6c274bdc") }}
         </a-typography-paragraph>
         <a-input v-else v-model:value="formData.apiKey" :readonly="true" />
+      </a-form-item>
+
+      <!-- Granular Permissions Section -->
+      <a-form-item label="User Permissions" class="permissions-section">
+        <a-typography-paragraph>
+          <a-typography-text type="secondary">
+            Configure specific permissions for this user
+          </a-typography-text>
+        </a-typography-paragraph>
+
+        <div class="permissions-grid">
+          <!-- File Operations -->
+          <div class="permission-category">
+            <h4 class="category-title">
+              <DatabaseOutlined class="category-icon" />
+              File Operations
+            </h4>
+            <div class="permission-items">
+              <a-checkbox v-model:checked="formData.permissions.canUploadFiles">
+                Upload Files
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.canDownloadFiles">
+                Download Files
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.canDeleteFiles">
+                Delete Files
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.canModifyFiles">
+                Modify Files
+              </a-checkbox>
+            </div>
+          </div>
+
+          <!-- Instance Control -->
+          <div class="permission-category">
+            <h4 class="category-title">
+              <DatabaseOutlined class="category-icon" />
+              Instance Control
+            </h4>
+            <div class="permission-items">
+              <a-checkbox v-model:checked="formData.permissions.canAccessConsole">
+                Access Console
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.canRestartInstances">
+                Restart Instances
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.canStopInstances">
+                Stop Instances
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.canViewLogs">
+                View Logs
+              </a-checkbox>
+            </div>
+          </div>
+
+          <!-- Copy & Interaction Restrictions -->
+          <div class="permission-category">
+            <h4 class="category-title">
+              <SafetyOutlined class="category-icon" />
+              Security Restrictions
+            </h4>
+            <div class="permission-items">
+              <a-checkbox v-model:checked="formData.permissions.disableRightClick">
+                Disable Right Click
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.disableKeyboardShortcuts">
+                Disable Keyboard Shortcuts
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.disableTextSelection">
+                Prevent Text Selection
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.disableCopy">
+                Disable Copy
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.disablePaste">
+                Disable Paste
+              </a-checkbox>
+            </div>
+          </div>
+        </div>
       </a-form-item>
 
       <a-form-item v-if="isAddMode" required :label="t('TXT_CODE_ef0ce2e')">
@@ -1002,5 +1097,107 @@ onMounted(async () => {
     height: 50px;
     font-size: 24px;
   }
+}
+
+// Permissions Section Styling
+.permissions-section {
+  :deep(.ant-form-item-label) {
+    label {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+  }
+}
+
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.permission-category {
+  background: var(--card-bottom-background-color);
+  border: 2px solid var(--card-border-color);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba(255, 140, 66, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.15);
+  }
+}
+
+.category-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--card-border-color);
+  background: linear-gradient(135deg, #FF8C42, #D4AF37);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.category-icon {
+  font-size: 18px;
+  color: #FF8C42;
+}
+
+.permission-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  :deep(.ant-checkbox-wrapper) {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 140, 66, 0.08);
+      padding-left: 16px;
+    }
+  }
+
+  :deep(.ant-checkbox) {
+    .ant-checkbox-inner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--card-border-color);
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    &:hover .ant-checkbox-inner {
+      border-color: #FF8C42;
+    }
+
+    &.ant-checkbox-checked {
+      .ant-checkbox-inner {
+        background: linear-gradient(135deg, #FF8C42, #FF6B35);
+        border-color: #FF8C42;
+      }
+
+      &::after {
+        border-color: #FF8C42;
+      }
+    }
+  }
+}
+
+// Make modal wider to accommodate permissions
+:deep(.ant-modal) {
+  max-width: 900px;
 }
 </style>

@@ -1,3 +1,19 @@
+export interface UserPermissions {
+  canUploadFiles: boolean;
+  canDownloadFiles: boolean;
+  canDeleteFiles: boolean;
+  canModifyFiles: boolean;
+  canAccessConsole: boolean;
+  canRestartInstances: boolean;
+  canStopInstances: boolean;
+  canViewLogs: boolean;
+  disableRightClick: boolean;
+  disableKeyboardShortcuts: boolean;
+  disableTextSelection: boolean;
+  disableCopy: boolean;
+  disablePaste: boolean;
+}
+
 export interface UserInstance {
   hostIp: string;
   instanceUuid: string;
@@ -18,6 +34,7 @@ export interface BaseUserInfo {
   isInit: boolean;
   secret: string;
   open2FA: boolean;
+  permissions?: UserPermissions;
 }
 
 export interface EditUserInfo extends BaseUserInfo {
