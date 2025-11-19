@@ -190,31 +190,41 @@ watch(instanceInfo, (cfg, oldCfg) => {
 </script>
 
 <template>
-  <CardPanel class="containerWrapper modern-manager-panel" style="height: 100%">
+  <CardPanel class="containerWrapper ultra-widget-panel" style="height: 100%">
     <template #title>
-      <div class="panel-header">
-        <ControlOutlined class="header-icon" />
-        <span>{{ card.title }}</span>
+      <div class="widget-header">
+        <div class="header-glow"></div>
+        <ControlOutlined class="header-icon-modern" />
+        <span class="header-text-gradient">{{ card.title }}</span>
       </div>
     </template>
     <template #body>
-      <div class="modern-function-grid">
+      <div class="widgets-masonry-grid">
         <div
-          v-for="item in btns"
+          v-for="(item, index) in btns"
           :key="item.title"
-          class="function-card"
+          class="widget-card"
+          :class="`widget-${index % 3}`"
           @click="item.click"
+          :style="{ animationDelay: `${index * 0.05}s` }"
         >
-          <div class="function-icon-wrapper">
-            <component :is="item.icon" class="function-icon" />
+          <div class="widget-ambient-glow"></div>
+          <div class="widget-shine"></div>
+          <div class="widget-icon-bubble">
+            <div class="bubble-orb"></div>
+            <component :is="item.icon" class="widget-icon" />
           </div>
-          <div class="function-content">
-            <h4 class="function-title">{{ item.title }}</h4>
-            <p class="function-action">
-              {{ t("TXT_CODE_6c5985ca") }}
-              <ArrowRightOutlined class="arrow-icon" />
-            </p>
+          <div class="widget-info">
+            <h4 class="widget-title">{{ item.title }}</h4>
+            <div class="widget-cta">
+              <span class="cta-text">{{ t("TXT_CODE_6c5985ca") }}</span>
+              <div class="cta-arrow-wrapper">
+                <ArrowRightOutlined class="cta-arrow" />
+                <ArrowRightOutlined class="cta-arrow cta-arrow-ghost" />
+              </div>
+            </div>
           </div>
+          <div class="widget-corner-accent"></div>
         </div>
       </div>
     </template>
@@ -278,147 +288,309 @@ watch(instanceInfo, (cfg, oldCfg) => {
 </template>
 
 <style lang="scss" scoped>
-.modern-manager-panel {
+// ULTRA MODERN WIDGET DASHBOARD
+.ultra-widget-panel {
   :deep(.card-panel-content) {
     overflow-y: auto;
+    padding: 8px;
   }
 }
 
-.panel-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  .header-icon {
-    font-size: 20px;
-    color: rgba(153, 27, 27, 0.8);
-  }
-}
-
-.modern-function-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  padding: 4px;
-}
-
-.function-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
-  background: var(--background-color-white);
-  border: 2px solid var(--card-border-color);
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 6px var(--card-shadow-color);
+// GRADIENT HEADER
+.widget-header {
   position: relative;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(180deg, rgba(153, 27, 27, 0.8) 0%, rgba(212, 107, 8, 0.8) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
+.header-glow {
+  position: absolute;
+  left: 0;
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(153, 27, 27, 0.3), transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+.header-icon-modern {
+  font-size: 22px;
+  color: rgba(153, 27, 27, 0.9);
+  filter: drop-shadow(0 2px 4px rgba(153, 27, 27, 0.2));
+}
+
+.header-text-gradient {
+  font-weight: 700;
+  background: linear-gradient(135deg, rgba(153, 27, 27, 1) 0%, rgba(212, 107, 8, 1) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 16px;
+  letter-spacing: -0.3px;
+}
+
+// MASONRY WIDGET GRID
+.widgets-masonry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  animation: grid-fade-in 0.6s ease-out;
+}
+
+@keyframes grid-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// WIDGET CARDS - Unique for each
+.widget-card {
+  position: relative;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(153, 27, 27, 0.15);
+  border-radius: 20px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 4px 20px rgba(153, 27, 27, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  animation: widget-entrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 
   &:hover {
-    transform: translateX(4px);
-    box-shadow: 0 6px 16px var(--card-shadow-extend-color);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow:
+      0 16px 40px rgba(153, 27, 27, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
     border-color: rgba(153, 27, 27, 0.3);
 
-    &::before {
-      opacity: 1;
+    .widget-ambient-glow {
+      opacity: 0.8;
+      transform: scale(1.5);
     }
 
-    .function-icon {
-      transform: scale(1.1) rotate(5deg);
-      color: rgba(153, 27, 27, 1);
+    .widget-shine {
+      transform: translateX(200%);
     }
 
-    .arrow-icon {
+    .bubble-orb {
+      transform: scale(1.4);
+      opacity: 0.6;
+    }
+
+    .widget-icon {
+      transform: scale(1.15) rotate(8deg);
+    }
+
+    .cta-arrow {
       transform: translateX(4px);
+    }
+
+    .cta-arrow-ghost {
+      opacity: 1;
+      transform: translateX(8px);
+    }
+
+    .widget-corner-accent {
+      width: 80px;
+      height: 80px;
+      opacity: 0.4;
     }
   }
 
   &:active {
-    transform: translateX(2px);
+    transform: translateY(-4px) scale(0.98);
   }
 }
 
-.function-icon-wrapper {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(153, 27, 27, 0.08) 0%, rgba(212, 107, 8, 0.08) 100%);
+@keyframes widget-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// VARIANT STYLES
+.widget-0 {
+  background: rgba(255, 255, 255, 0.65);
+  .widget-ambient-glow {
+    background: radial-gradient(circle, rgba(153, 27, 27, 0.4), transparent 70%);
+  }
+}
+
+.widget-1 {
+  background: rgba(255, 250, 245, 0.7);
+  .widget-ambient-glow {
+    background: radial-gradient(circle, rgba(212, 107, 8, 0.4), transparent 70%);
+  }
+}
+
+.widget-2 {
+  background: rgba(255, 245, 240, 0.65);
+  .widget-ambient-glow {
+    background: radial-gradient(circle, rgba(180, 67, 67, 0.4), transparent 70%);
+  }
+}
+
+// AMBIENT GLOW EFFECT
+.widget-ambient-glow {
+  position: absolute;
+  top: -40%;
+  right: -40%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(153, 27, 27, 0.3), transparent 70%);
+  filter: blur(40px);
+  opacity: 0;
+  transition: all 0.6s ease;
+  pointer-events: none;
+}
+
+// SHINE EFFECT
+.widget-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-20deg);
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+// ICON BUBBLE
+.widget-icon-bubble {
+  position: relative;
+  width: 68px;
+  height: 68px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid rgba(153, 27, 27, 0.1);
+  margin-bottom: 16px;
 }
 
-.function-icon {
-  font-size: 28px;
-  color: rgba(153, 27, 27, 0.7);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.bubble-orb {
+  position: absolute;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.15) 0%, rgba(212, 107, 8, 0.15) 100%);
+  filter: blur(12px);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.function-content {
-  flex: 1;
-  min-width: 0;
+.widget-icon {
+  position: relative;
+  z-index: 1;
+  font-size: 36px;
+  color: rgba(153, 27, 27, 0.85);
+  filter: drop-shadow(0 4px 8px rgba(153, 27, 27, 0.2));
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.function-title {
-  margin: 0 0 6px 0;
-  font-size: 15px;
-  font-weight: 700;
+// WIDGET INFO
+.widget-info {
+  position: relative;
+  z-index: 1;
+}
+
+.widget-title {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 800;
   color: var(--text-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  letter-spacing: -0.3px;
+  line-height: 1.3;
 }
 
-.function-action {
-  margin: 0;
-  font-size: 13px;
-  color: var(--text-color);
-  opacity: 0.6;
+.widget-cta {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 500;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.arrow-icon {
-  font-size: 12px;
-  transition: transform 0.3s ease;
+.cta-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-color);
+  opacity: 0.7;
 }
 
+.cta-arrow-wrapper {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.cta-arrow {
+  position: absolute;
+  font-size: 14px;
+  color: rgba(153, 27, 27, 0.8);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cta-arrow-ghost {
+  opacity: 0;
+  transform: translateX(0);
+}
+
+// CORNER ACCENT
+.widget-corner-accent {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, transparent 50%, rgba(153, 27, 27, 0.08) 50%);
+  border-radius: 20px 0 20px 0;
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+// RESPONSIVE
 @media (max-width: 992px) {
-  .modern-function-grid {
-    grid-template-columns: 1fr;
+  .widgets-masonry-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 576px) {
-  .function-card {
-    padding: 16px;
+  .widgets-masonry-grid {
+    grid-template-columns: 1fr;
   }
 
-  .function-icon-wrapper {
-    width: 48px;
-    height: 48px;
+  .widget-card {
+    padding: 20px;
   }
 
-  .function-icon {
-    font-size: 24px;
+  .widget-icon-bubble {
+    width: 56px;
+    height: 56px;
+  }
+
+  .bubble-orb {
+    width: 56px;
+    height: 56px;
+  }
+
+  .widget-icon {
+    font-size: 28px;
   }
 }
 </style>

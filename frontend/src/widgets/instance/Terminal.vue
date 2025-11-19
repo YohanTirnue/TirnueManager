@@ -305,116 +305,139 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 </script>
 
 <template>
-  <!-- Terminal Page View - Modern Redesign -->
-  <div v-if="innerTerminalType" class="modern-terminal-layout">
-    <!-- Header Section -->
-    <div class="terminal-header">
-      <div class="instance-info-card">
-        <div class="instance-title-section">
-          <div class="instance-icon-wrapper">
-            <CloudServerOutlined class="instance-icon" />
+  <!-- ULTRA MODERN BENTO GRID + GLASSMORPHISM REDESIGN -->
+  <div v-if="innerTerminalType" class="bento-terminal-container">
+    <!-- Hero Section with Floating Status -->
+    <div class="hero-section">
+      <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
+        <div class="orb-pulse"></div>
+        <div class="orb-ring"></div>
+      </div>
+      <div class="hero-content">
+        <h1 class="instance-hero-title">{{ getInstanceName }}</h1>
+        <div class="hero-meta-chips">
+          <div class="meta-chip chip-status" :class="{ 'chip-active': isRunning, 'chip-busy': isBuys }">
+            <div class="chip-dot"></div>
+            <span>{{ instanceStatusText }}</span>
           </div>
-          <div class="instance-details">
-            <h2 class="instance-name">{{ getInstanceName }}</h2>
-            <div class="instance-meta">
-              <a-badge
-                :status="isRunning ? 'success' : isBuys ? 'processing' : 'default'"
-                :text="instanceStatusText"
-                class="status-badge"
-              />
-              <span v-if="instanceTypeText" class="instance-type">{{ instanceTypeText }}</span>
-              <span v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1" class="watchers">
-                <LaptopOutlined /> {{ instanceInfo?.watcher }}
-              </span>
-            </div>
+          <div v-if="instanceTypeText" class="meta-chip chip-type">
+            <CloudServerOutlined />
+            <span>{{ instanceTypeText }}</span>
           </div>
-        </div>
-
-        <!-- Resource Stats Grid -->
-        <div class="stats-grid" v-if="!isStopped">
-          <div v-for="tag in terminalTopTags" :key="tag.label" class="stat-card">
-            <component :is="tag.icon" class="stat-icon" />
-            <div class="stat-content">
-              <div class="stat-label">{{ tag.label }}</div>
-              <div class="stat-value" :class="`stat-${tag.color}`">{{ tag.value }}</div>
-            </div>
+          <div v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1" class="meta-chip chip-watchers">
+            <LaptopOutlined />
+            <span>{{ instanceInfo?.watcher }} watching</span>
           </div>
         </div>
       </div>
-
-      <!-- Quick Actions Grid -->
-      <div class="actions-grid" v-if="!isPhone">
-        <template v-for="item in quickOperations" :key="item.title">
-          <div
-            v-if="item.noConfirm"
-            class="action-card action-primary"
-            :class="{ 'action-loading': isOpenInstanceLoading }"
-            @click="!isOpenInstanceLoading && item.click()"
-          >
-            <component :is="item.icon" class="action-icon" />
-            <span class="action-label">{{ item.title }}</span>
-          </div>
-          <a-popconfirm
-            v-else
-            :title="t('TXT_CODE_276756b2')"
-            @confirm="item.click"
-          >
-            <div class="action-card action-primary">
-              <component :is="item.icon" class="action-icon" />
-              <span class="action-label">{{ item.title }}</span>
-            </div>
-          </a-popconfirm>
-        </template>
-
-        <template v-for="item in instanceOperations" :key="item.title">
-          <div
-            v-if="item.noConfirm"
-            class="action-card"
-            :class="item.type === 'danger' ? 'action-danger' : ''"
-            @click="item.click"
-          >
-            <component :is="item.icon" class="action-icon" />
-            <span class="action-label">{{ item.title }}</span>
-          </div>
-          <a-popconfirm
-            v-else
-            :title="t('TXT_CODE_276756b2')"
-            @confirm="item.click"
-          >
-            <div
-              class="action-card"
-              :class="item.type === 'danger' ? 'action-danger' : ''"
-            >
-              <component :is="item.icon" class="action-icon" />
-              <span class="action-label">{{ item.title }}</span>
-            </div>
-          </a-popconfirm>
-        </template>
-      </div>
-
-      <!-- Mobile Dropdown -->
-      <a-dropdown v-else>
-        <template #overlay>
-          <a-menu>
-            <a-menu-item
-              v-for="item in [...quickOperations, ...instanceOperations]"
-              :key="item.title"
-              @click="item.click"
-            >
-              <component :is="item.icon" />
-              {{ item.title }}
-            </a-menu-item>
-          </a-menu>
-        </template>
-        <a-button type="primary" size="large" class="mobile-actions-btn">
-          {{ t("TXT_CODE_fe731dfc") }}
-          <DownOutlined />
-        </a-button>
-      </a-dropdown>
     </div>
 
-    <!-- Terminal Core -->
-    <div class="terminal-wrapper-modern">
+    <!-- Bento Grid Layout -->
+    <div class="bento-grid">
+      <!-- Stats Cards in Bento Style -->
+      <div class="bento-stats-container" v-if="!isStopped">
+        <div v-for="(tag, index) in terminalTopTags" :key="tag.label"
+             class="bento-stat-card"
+             :class="`bento-stat-${index}`"
+        >
+          <div class="stat-glow" :class="`glow-${tag.color}`"></div>
+          <component :is="tag.icon" class="bento-stat-icon" />
+          <div class="bento-stat-info">
+            <div class="bento-stat-label">{{ tag.label }}</div>
+            <div class="bento-stat-value" :class="`value-${tag.color}`">{{ tag.value }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Action Bubbles (Glassmorphism) -->
+      <div class="glass-actions-panel" v-if="!isPhone">
+        <div class="actions-grid-modern">
+          <template v-for="item in quickOperations" :key="item.title">
+            <div
+              v-if="item.noConfirm"
+              class="glass-bubble bubble-primary"
+              :class="{ 'bubble-disabled': isOpenInstanceLoading }"
+              @click="!isOpenInstanceLoading && item.click()"
+            >
+              <div class="bubble-glow"></div>
+              <div class="bubble-content">
+                <component :is="item.icon" class="bubble-icon" />
+                <span class="bubble-text">{{ item.title }}</span>
+              </div>
+            </div>
+            <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
+              <div class="glass-bubble bubble-primary">
+                <div class="bubble-glow"></div>
+                <div class="bubble-content">
+                  <component :is="item.icon" class="bubble-icon" />
+                  <span class="bubble-text">{{ item.title }}</span>
+                </div>
+              </div>
+            </a-popconfirm>
+          </template>
+
+          <template v-for="item in instanceOperations" :key="item.title">
+            <div
+              v-if="item.noConfirm"
+              class="glass-bubble"
+              :class="item.type === 'danger' ? 'bubble-danger' : ''"
+              @click="item.click"
+            >
+              <div class="bubble-glow"></div>
+              <div class="bubble-content">
+                <component :is="item.icon" class="bubble-icon" />
+                <span class="bubble-text">{{ item.title }}</span>
+              </div>
+            </div>
+            <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
+              <div class="glass-bubble" :class="item.type === 'danger' ? 'bubble-danger' : ''">
+                <div class="bubble-glow"></div>
+                <div class="bubble-content">
+                  <component :is="item.icon" class="bubble-icon" />
+                  <span class="bubble-text">{{ item.title }}</span>
+                </div>
+              </div>
+            </a-popconfirm>
+          </template>
+        </div>
+      </div>
+
+      <!-- Mobile Actions -->
+      <div class="mobile-glass-actions" v-else>
+        <a-dropdown>
+          <template #overlay>
+            <a-menu class="glass-menu">
+              <a-menu-item
+                v-for="item in [...quickOperations, ...instanceOperations]"
+                :key="item.title"
+                @click="item.click"
+              >
+                <component :is="item.icon" />
+                {{ item.title }}
+              </a-menu-item>
+            </a-menu>
+          </template>
+          <div class="glass-bubble bubble-primary bubble-mobile">
+            <div class="bubble-glow"></div>
+            <div class="bubble-content">
+              <span>{{ t("TXT_CODE_fe731dfc") }}</span>
+              <DownOutlined />
+            </div>
+          </div>
+        </a-dropdown>
+      </div>
+    </div>
+
+    <!-- Terminal in Modern Glass Container -->
+    <div class="glass-terminal-wrapper">
+      <div class="terminal-glass-header">
+        <div class="terminal-dots">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+        </div>
+        <span class="terminal-title">Terminal</span>
+      </div>
       <TerminalCore
         v-if="instanceId && daemonId"
         :use-terminal-hook="terminalHook"
@@ -485,274 +508,544 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   </CardPanel>
 </template>
 
+
 <style lang="scss" scoped>
-// Modern Terminal Layout
-.modern-terminal-layout {
+// ULTRA MODERN BENTO GRID + GLASSMORPHISM DESIGN
+.bento-terminal-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
   height: 100%;
+  padding: 8px;
 }
 
-// Header Section
-.terminal-header {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-// Instance Info Card
-.instance-info-card {
-  background: var(--background-color-white);
-  border: 1px solid var(--card-border-color);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 2px 8px var(--card-shadow-color);
-}
-
-.instance-title-section {
+// HERO SECTION WITH ANIMATED STATUS ORB
+.hero-section {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 24px;
+  padding: 32px 28px;
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.03) 0%, rgba(212, 107, 8, 0.03) 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(153, 27, 27, 0.1);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(153, 27, 27, 0.08), transparent 70%);
+    pointer-events: none;
+  }
 }
 
-.instance-icon-wrapper {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(153, 27, 27, 0.1) 0%, rgba(212, 107, 8, 0.1) 100%);
+// STATUS ORB - Cyberpunk Style Animated Indicator
+.status-orb {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(153, 27, 27, 0.2);
 }
 
-.instance-icon {
-  font-size: 28px;
-  color: rgba(153, 27, 27, 0.8);
+.orb-pulse {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(153, 27, 27, 0.4), rgba(153, 27, 27, 0.1));
+  filter: blur(8px);
+  animation: orb-pulse 2s ease-in-out infinite;
 }
 
-.instance-details {
+.orb-ring {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(153, 27, 27, 0.9), rgba(212, 107, 8, 0.7));
+  box-shadow: 
+    0 0 20px rgba(153, 27, 27, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.orb-running {
+  .orb-pulse {
+    background: radial-gradient(circle, rgba(82, 196, 26, 0.5), rgba(82, 196, 26, 0.1));
+    animation: orb-pulse-green 1.5s ease-in-out infinite;
+  }
+  .orb-ring {
+    background: radial-gradient(circle, #52c41a, #73d13d);
+    box-shadow: 
+      0 0 30px rgba(82, 196, 26, 0.7),
+      inset 0 0 15px rgba(255, 255, 255, 0.3);
+  }
+}
+
+.orb-busy {
+  .orb-pulse {
+    background: radial-gradient(circle, rgba(255, 193, 7, 0.5), rgba(255, 193, 7, 0.1));
+    animation: orb-pulse-yellow 1s ease-in-out infinite;
+  }
+  .orb-ring {
+    background: radial-gradient(circle, #ffc107, #ffeb3b);
+    box-shadow: 
+      0 0 30px rgba(255, 193, 7, 0.7),
+      inset 0 0 15px rgba(255, 255, 255, 0.3);
+  }
+}
+
+.orb-stopped {
+  .orb-pulse {
+    animation: none;
+    opacity: 0.3;
+  }
+  .orb-ring {
+    background: radial-gradient(circle, #666, #888);
+    box-shadow: 
+      0 0 10px rgba(100, 100, 100, 0.3),
+      inset 0 0 5px rgba(255, 255, 255, 0.1);
+  }
+}
+
+@keyframes orb-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 0.3; }
+}
+
+@keyframes orb-pulse-green {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.4); opacity: 0.3; }
+}
+
+@keyframes orb-pulse-yellow {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 0.4; }
+}
+
+// HERO CONTENT
+.hero-content {
   flex: 1;
+  min-width: 0;
 }
 
-.instance-name {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-color);
-  letter-spacing: -0.5px;
+.instance-hero-title {
+  margin: 0 0 12px 0;
+  font-size: 32px;
+  font-weight: 800;
+  background: linear-gradient(135deg, rgba(153, 27, 27, 1) 0%, rgba(212, 107, 8, 1) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
 }
 
-.instance-meta {
+.hero-meta-chips {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-.status-badge {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.instance-type {
-  padding: 4px 12px;
-  background: rgba(153, 27, 27, 0.08);
-  border-radius: 6px;
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(153, 27, 27, 0.2);
+  border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
-  color: rgba(153, 27, 27, 0.9);
-}
-
-.watchers {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   color: var(--text-color);
-  opacity: 0.7;
-  font-size: 14px;
-}
-
-// Stats Grid
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.stat-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: var(--color-gray-2);
-  border-radius: 12px;
-  border: 1px solid var(--color-gray-3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(153, 27, 27, 0.2);
-    box-shadow: 0 2px 6px var(--card-shadow-color);
-  }
-}
-
-.stat-icon {
-  font-size: 24px;
-  color: rgba(153, 27, 27, 0.6);
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--text-color);
-  opacity: 0.6;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.stat-value {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin-top: 4px;
-
-  &.stat-error {
-    color: var(--color-red-6);
-  }
-
-  &.stat-warning {
-    color: var(--color-orange-6);
-  }
-}
-
-// Actions Grid
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.action-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 20px 16px;
-  background: var(--background-color-white);
-  border: 2px solid var(--card-border-color);
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 4px var(--card-shadow-color);
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px var(--card-shadow-extend-color);
-    border-color: rgba(153, 27, 27, 0.4);
-  }
-
-  &:active {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 }
 
-.action-icon {
-  font-size: 32px;
-  color: rgba(153, 27, 27, 0.7);
-  transition: all 0.3s ease;
+.chip-status {
+  position: relative;
 }
 
-.action-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-color);
-  text-align: center;
+.chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(153, 27, 27, 0.6);
 }
 
-.action-primary {
-  background: linear-gradient(135deg, rgba(82, 196, 26, 0.08) 0%, rgba(115, 209, 61, 0.08) 100%);
-  border-color: var(--color-green-4);
+.chip-active .chip-dot {
+  background: #52c41a;
+  box-shadow: 0 0 10px rgba(82, 196, 26, 0.6);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
 
-  .action-icon {
-    color: var(--color-green-6);
-  }
+.chip-busy .chip-dot {
+  background: #ffc107;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.6);
+  animation: dot-pulse 1s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+// BENTO GRID LAYOUT
+.bento-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+// BENTO STATS CARDS
+.bento-stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.bento-stat-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(153, 27, 27, 0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: linear-gradient(135deg, rgba(82, 196, 26, 0.12) 0%, rgba(115, 209, 61, 0.12) 100%);
-    border-color: var(--color-green-6);
-
-    .action-icon {
-      color: var(--color-green-7);
-      transform: scale(1.1);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 8px 24px rgba(153, 27, 27, 0.15),
+      0 0 0 1px rgba(153, 27, 27, 0.1);
+    
+    .bento-stat-icon {
+      transform: scale(1.1) rotate(-5deg);
     }
   }
 }
 
-.action-danger {
+.stat-glow {
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.glow-error {
+  background: radial-gradient(circle, var(--color-red-5), transparent);
+}
+
+.glow-warning {
+  background: radial-gradient(circle, var(--color-orange-5), transparent);
+}
+
+.glow-default {
+  background: radial-gradient(circle, rgba(153, 27, 27, 0.8), transparent);
+}
+
+.bento-stat-icon {
+  font-size: 32px;
+  color: rgba(153, 27, 27, 0.7);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bento-stat-info {
+  flex: 1;
+}
+
+.bento-stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-color);
+  opacity: 0.5;
+  margin-bottom: 4px;
+}
+
+.bento-stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-color);
+  line-height: 1;
+
+  &.value-error {
+    color: var(--color-red-6);
+    text-shadow: 0 0 10px rgba(255, 77, 79, 0.3);
+  }
+
+  &.value-warning {
+    color: var(--color-orange-6);
+    text-shadow: 0 0 10px rgba(250, 173, 20, 0.3);
+  }
+}
+
+// GLASSMORPHISM ACTION BUBBLES
+.glass-actions-panel {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.actions-grid-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.glass-bubble {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 18px;
+  padding: 16px 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 16px rgba(153, 27, 27, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateX(-6px) scale(1.03);
+    box-shadow: 
+      0 12px 32px rgba(153, 27, 27, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    border-color: rgba(153, 27, 27, 0.4);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .bubble-icon {
+      transform: scale(1.2) rotate(5deg);
+    }
+
+    .bubble-glow {
+      opacity: 0.8;
+    }
+  }
+
+  &:active {
+    transform: translateX(-3px) scale(0.98);
+  }
+}
+
+.bubble-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(153, 27, 27, 0.4), transparent 70%);
+  filter: blur(20px);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.bubble-primary {
+  background: rgba(82, 196, 26, 0.15);
+  border-color: rgba(82, 196, 26, 0.3);
+
+  .bubble-icon {
+    color: var(--color-green-7);
+  }
+
+  .bubble-glow {
+    background: radial-gradient(circle, rgba(82, 196, 26, 0.5), transparent 70%);
+  }
+
+  &:hover {
+    background: rgba(82, 196, 26, 0.25);
+    border-color: var(--color-green-6);
+  }
+}
+
+.bubble-danger {
   &:hover {
     border-color: var(--color-red-5);
-
-    .action-icon {
+    
+    .bubble-icon {
       color: var(--color-red-6);
     }
   }
 }
 
-.action-loading {
-  opacity: 0.6;
+.bubble-disabled {
+  opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
+}
 
-  &:hover {
-    transform: none;
+.bubble-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bubble-icon {
+  font-size: 24px;
+  color: rgba(153, 27, 27, 0.8);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bubble-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+.bubble-mobile {
+  width: 100%;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+// GLASS TERMINAL WRAPPER - macOS Style
+.glass-terminal-wrapper {
+  grid-column: 1 / -1;
+  background: rgba(30, 30, 30, 0.95);
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.terminal-glass-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(40, 40, 40, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  
+  &.dot-red {
+    background: linear-gradient(135deg, #ff5f57, #ff3b30);
+  }
+  
+  &.dot-yellow {
+    background: linear-gradient(135deg, #ffbd2e, #ff9500);
+  }
+  
+  &.dot-green {
+    background: linear-gradient(135deg, #28c840, #30d158);
   }
 }
 
-// Terminal Wrapper
-.terminal-wrapper-modern {
-  flex: 1;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px var(--card-shadow-color);
+.terminal-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.3px;
 }
 
-.mobile-actions-btn {
-  width: 100%;
-  margin-top: 12px;
-}
-
-// Responsive
-@media (max-width: 768px) {
-  .stats-grid {
+// MOBILE OPTIMIZATIONS
+@media (max-width: 992px) {
+  .bento-grid {
     grid-template-columns: 1fr;
   }
 
-  .actions-grid {
+  .glass-actions-panel {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .actions-grid-modern {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .instance-icon-wrapper {
-    width: 48px;
-    height: 48px;
-  }
-
-  .instance-icon {
+  .instance-hero-title {
     font-size: 24px;
   }
 
-  .instance-name {
-    font-size: 20px;
+  .hero-section {
+    padding: 24px 20px;
+  }
+
+  .status-orb {
+    width: 56px;
+    height: 56px;
+  }
+
+  .orb-ring,
+  .orb-pulse {
+    width: 40px;
+    height: 40px;
   }
 }
 
+@media (max-width: 576px) {
+  .bento-stats-container {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-grid-modern {
+    grid-template-columns: 1fr;
+  }
+
+  .instance-hero-title {
+    font-size: 20px;
+  }
+
+  .bento-terminal-container {
+    padding: 4px;
+    gap: 16px;
+  }
+}
+
+// ERROR CARD & CONSOLE WRAPPER (Keep existing)
 .error-card {
   position: absolute;
   left: 0;
@@ -761,7 +1054,6 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   top: 0;
   z-index: 10;
   border-radius: 20px;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -782,6 +1074,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
     }
   }
 }
+
 .console-wrapper {
   position: relative;
 
@@ -804,8 +1097,8 @@ const terminalTopTags = computed<TagInfo[]>(() => {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    
     .terminal-container {
-      // min-width: 1200px;
       height: 100%;
     }
 
