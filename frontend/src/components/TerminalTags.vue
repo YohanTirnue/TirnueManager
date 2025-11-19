@@ -33,7 +33,7 @@ defineProps<{
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .container {
   display: flex;
   flex-wrap: wrap;
@@ -45,25 +45,12 @@ defineProps<{
   align-items: center;
   display: flex;
   gap: 6px;
-  border-radius: 8px !important;
-  padding: 6px 14px !important;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px var(--card-shadow-color);
-
-  span {
-    display: inline-flex;
-    align-items: center;
-  }
 }
 
 .tag:hover {
-  box-shadow: 0 4px 8px var(--card-shadow-extend-color);
+  box-shadow: 0 2px 4px 0 var(--card-shadow-color);
   transform: translateY(-1px);
-  border-color: rgba(153, 27, 27, 0.4);
-}
-
-.tag:active {
-  transform: translateY(0);
 }
 </style>
