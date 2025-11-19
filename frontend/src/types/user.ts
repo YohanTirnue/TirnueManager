@@ -10,6 +10,7 @@ export interface UserPermissions {
   canStartInstances: boolean;
   canRestartInstances: boolean;
   canStopInstances: boolean;
+  canTerminateInstances: boolean;
   canViewLogs: boolean;
 
   // Security Restrictions (global to user session)
