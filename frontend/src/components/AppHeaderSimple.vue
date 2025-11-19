@@ -7,21 +7,17 @@ import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
 import { logoutUser } from "@/services/apis/index";
 import {
   BgColorsOutlined,
-  UserOutlined,
-  LogoutOutlined,
   BuildOutlined,
   SaveOutlined,
-  CloseCircleOutlined,
-  MenuOutlined
+  CloseCircleOutlined
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import { useLayoutConfigStore } from "../stores/useLayoutConfig";
 
 const { setTheme } = useAppConfigStore();
-const { isAdmin, state: appState } = useAppStateStore();
+const { isAdmin } = useAppStateStore();
 const { containerState, changeDesignMode } = useLayoutContainerStore();
 const { saveGlobalLayoutConfig, resetGlobalLayoutConfig } = useLayoutConfigStore();
-const { execute } = logoutUser();
 const route = useRoute();
 
 const breadcrumbs = computed(() => {
@@ -38,12 +34,6 @@ const breadcrumbs = computed(() => {
 
 const toggleTheme = () => {
   setTheme(THEME.DARK);
-};
-
-const handleLogout = async () => {
-  await execute({});
-  window.location.href = "/#/login";
-  window.location.reload();
 };
 
 const saveLayout = async () => {
@@ -90,18 +80,6 @@ const resetLayout = async () => {
       <button class="action-btn" @click="toggleTheme" title="Toggle Theme">
         <BgColorsOutlined />
       </button>
-
-      <!-- User Menu -->
-      <div class="user-menu">
-        <UserOutlined class="user-icon" />
-        <span class="user-name">{{ appState.userInfo?.userName }}</span>
-        <div class="user-dropdown">
-          <div class="dropdown-item" @click="handleLogout">
-            <LogoutOutlined />
-            <span>Logout</span>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -180,83 +158,8 @@ const resetLayout = async () => {
   }
 }
 
-.user-menu {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
-  border-radius: 12px;
-  background: var(--background-color);
-  border: 1px solid var(--card-border-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: var(--color-orange-1);
-    border-color: var(--color-orange-4);
-    box-shadow: 0 4px 8px var(--card-shadow-color);
-
-    .user-dropdown {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-  }
-
-  .user-icon {
-    font-size: 20px;
-    color: var(--color-orange-6);
-  }
-
-  .user-name {
-    font-weight: 600;
-    font-size: 14px;
-  }
-}
-
-.user-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  background: var(--background-color-white);
-  border: 1px solid var(--card-border-color);
-  border-radius: 10px;
-  box-shadow: 0 4px 12px var(--card-shadow-color);
-  min-width: 150px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.2s ease;
-}
-
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: var(--color-gray-1);
-  }
-
-  &:first-child {
-    border-radius: 10px 10px 0 0;
-  }
-
-  &:last-child {
-    border-radius: 0 0 10px 10px;
-  }
-}
-
 @media (max-width: 992px) {
   .header-breadcrumbs {
-    display: none;
-  }
-
-  .user-name {
     display: none;
   }
 }
