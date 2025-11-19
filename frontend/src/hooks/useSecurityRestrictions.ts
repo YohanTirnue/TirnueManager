@@ -25,16 +25,21 @@ export function useSecurityRestrictions() {
   // Prevent keyboard shortcuts
   const handleKeyDown = (e: KeyboardEvent) => {
     if (disableKeyboardShortcuts.value) {
-      // Block common shortcuts: Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+S, etc.
-      if (e.ctrlKey || e.metaKey) {
+      const key = e.key.toUpperCase();
+      const hasModifier = e.ctrlKey || e.metaKey;
+
+      // Block data-related shortcuts only (not browser navigation)
+      const blockedKeys = ["C", "V", "X", "A", "S", "P", "F"];
+      if (hasModifier && blockedKeys.includes(key)) {
         e.preventDefault();
         return false;
       }
-      // Also block F12 (DevTools), Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+
+      // Block DevTools access
       if (
         e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key.toUpperCase())) ||
-        (e.ctrlKey && e.key.toUpperCase() === "U")
+        (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(key)) ||
+        (e.ctrlKey && key === "U")
       ) {
         e.preventDefault();
         return false;
