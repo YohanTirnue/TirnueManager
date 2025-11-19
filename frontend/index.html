@@ -115,6 +115,10 @@
         0%, 100% { opacity: 0.6; }
         50% { opacity: 1; }
       }
+
+      .logo-center.animating {
+        animation: none !important;
+      }
     </style>
 
     <script>
@@ -136,24 +140,59 @@
           loadingText.style.opacity = "0";
         }
 
-        // Mark logo for animation to login page
-        if (logoElement) {
-          logoElement.classList.add("animating-to-login");
-        }
-
-        // After fade, hide loading container but keep logo visible
+        // After fade, prepare for logo animation
         setTimeout(() => {
+          // Make background transparent but keep logo visible
           loadingContainer.style.background = "transparent";
           loadingContainer.style.pointerEvents = "none";
 
-          // Signal to login page that animation is ready
-          window.loginAnimationReady = true;
-          window.dispatchEvent(new Event("login-animation-start"));
+          if (logoElement) {
+            // Stop the pulsing animation
+            logoElement.classList.add("animating");
+            logoElement.style.animation = "none";
+            logoElement.style.filter = "drop-shadow(0 0 12px rgba(255, 165, 0, 0.8))";
 
-          // Remove loading container after animation completes
+            // Make logo fixed position so it can move freely
+            const rect = logoElement.getBoundingClientRect();
+            logoElement.style.position = "fixed";
+            logoElement.style.top = rect.top + "px";
+            logoElement.style.left = rect.left + "px";
+            logoElement.style.transform = "translate(-50%, -50%)";
+            logoElement.style.margin = "0";
+            logoElement.style.zIndex = "10000";
+
+            // Calculate target position (left side of screen, centered vertically)
+            // Accounting for the login container layout
+            const targetX = window.innerWidth * 0.25; // 25% from left (middle of left section)
+            const targetY = window.innerHeight * 0.35; // 35% from top
+
+            // Animate to target position
+            setTimeout(() => {
+              logoElement.style.transition = "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)";
+              logoElement.style.top = targetY + "px";
+              logoElement.style.left = targetX + "px";
+              logoElement.style.width = "120px";
+              logoElement.style.height = "120px";
+              logoElement.style.filter = "drop-shadow(0 10px 30px rgba(255, 140, 66, 0.4))";
+            }, 50);
+
+            // Signal login page to show content at the right time
+            setTimeout(() => {
+              window.loginAnimationReady = true;
+              window.dispatchEvent(new Event("login-animation-start"));
+            }, 200);
+
+            // Hide loading logo and show login logo after animation completes
+            setTimeout(() => {
+              logoElement.style.opacity = "0";
+              logoElement.style.transition = "opacity 0.3s ease";
+            }, 850);
+          }
+
+          // Remove loading container after all animations complete
           setTimeout(() => {
             loadingContainer.style.display = "none";
-          }, 1500);
+          }, 2000);
         }, 500);
       };
     </script>

@@ -110,20 +110,20 @@ onMounted(async () => {
 });
 
 const startLoginAnimation = () => {
-  // Step 1: Show logo (it flies in from center)
+  // Step 1: Show logo after loading logo has moved to position and faded
   setTimeout(() => {
     showLogo.value = true;
-  }, 100);
+  }, 650);
 
   // Step 2: Pop up "Tirnue" text
   setTimeout(() => {
     showBrandName.value = true;
-  }, 800);
+  }, 1100);
 
   // Step 3: Fade in login form
   setTimeout(() => {
     showLoginForm.value = true;
-  }, 1200);
+  }, 1500);
 };
 </script>
 
@@ -420,7 +420,7 @@ const startLoginAnimation = () => {
   display: flex;
   justify-content: center;
   margin-bottom: 32px;
-  animation: logoFlyIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: logoFadeIn 0.4s ease forwards;
 }
 
 .brand-logo {
@@ -430,14 +430,14 @@ const startLoginAnimation = () => {
   animation: logoPulse 3s ease-in-out infinite;
 }
 
-@keyframes logoFlyIn {
+@keyframes logoFadeIn {
   from {
-    transform: translate(calc(50vw - 50%), calc(50vh - 50%)) scale(0.4);
-    opacity: 0.8;
+    opacity: 0;
+    transform: scale(0.95);
   }
   to {
-    transform: translate(0, 0) scale(1);
     opacity: 1;
+    transform: scale(1);
   }
 }
 
