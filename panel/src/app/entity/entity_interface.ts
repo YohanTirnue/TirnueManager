@@ -58,6 +58,7 @@ export interface ICompleteUser {
   instances: Array<any>;
   registerTime: string;
   loginTime: string;
+  permissions?: UserPermissions;
 }
 
 type RemoteMappingEntry = {
