@@ -190,30 +190,33 @@ watch(instanceInfo, (cfg, oldCfg) => {
 </script>
 
 <template>
-  <CardPanel class="containerWrapper" style="height: 100%">
-    <template #title>{{ card.title }}</template>
+  <CardPanel class="containerWrapper modern-manager-panel" style="height: 100%">
+    <template #title>
+      <div class="panel-header">
+        <ControlOutlined class="header-icon" />
+        <span>{{ card.title }}</span>
+      </div>
+    </template>
     <template #body>
-      <ResponsiveLayoutGroup class="function-btns-container" :items="btns">
-        <template #default="{ item }">
-          <InnerCard
-            :style="{ height: LayoutCardHeight.MINI }"
-            :icon="item.icon"
-            @click="item.click"
-          >
-            <template #title>
-              {{ item.title }}
-            </template>
-            <template #body>
-              <a href="javascript:void(0);">
-                <span>
-                  {{ t("TXT_CODE_6c5985ca") }}
-                  <ArrowRightOutlined style="font-size: 12px" />
-                </span>
-              </a>
-            </template>
-          </InnerCard>
-        </template>
-      </ResponsiveLayoutGroup>
+      <div class="modern-function-grid">
+        <div
+          v-for="item in btns"
+          :key="item.title"
+          class="function-card"
+          @click="item.click"
+        >
+          <div class="function-icon-wrapper">
+            <component :is="item.icon" class="function-icon" />
+          </div>
+          <div class="function-content">
+            <h4 class="function-title">{{ item.title }}</h4>
+            <p class="function-action">
+              {{ t("TXT_CODE_6c5985ca") }}
+              <ArrowRightOutlined class="arrow-icon" />
+            </p>
+          </div>
+        </div>
+      </div>
     </template>
   </CardPanel>
 
@@ -275,11 +278,147 @@ watch(instanceInfo, (cfg, oldCfg) => {
 </template>
 
 <style lang="scss" scoped>
-.function-btns-container {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+.modern-manager-panel {
+  :deep(.card-panel-content) {
+    overflow-y: auto;
+  }
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .header-icon {
+    font-size: 20px;
+    color: rgba(153, 27, 27, 0.8);
+  }
+}
+
+.modern-function-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 4px;
+}
+
+.function-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--background-color-white);
+  border: 2px solid var(--card-border-color);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px var(--card-shadow-color);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, rgba(153, 27, 27, 0.8) 0%, rgba(212, 107, 8, 0.8) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateX(4px);
+    box-shadow: 0 6px 16px var(--card-shadow-extend-color);
+    border-color: rgba(153, 27, 27, 0.3);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .function-icon {
+      transform: scale(1.1) rotate(5deg);
+      color: rgba(153, 27, 27, 1);
+    }
+
+    .arrow-icon {
+      transform: translateX(4px);
+    }
+  }
+
+  &:active {
+    transform: translateX(2px);
+  }
+}
+
+.function-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.08) 0%, rgba(212, 107, 8, 0.08) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(153, 27, 27, 0.1);
+}
+
+.function-icon {
+  font-size: 28px;
+  color: rgba(153, 27, 27, 0.7);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.function-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.function-title {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.function-action {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-color);
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.arrow-icon {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 992px) {
+  .modern-function-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .function-card {
+    padding: 16px;
+  }
+
+  .function-icon-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+
+  .function-icon {
+    font-size: 24px;
+  }
 }
 </style>

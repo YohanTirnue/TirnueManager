@@ -305,118 +305,124 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 </script>
 
 <template>
-  <!-- Terminal Page View -->
-  <div v-if="innerTerminalType">
-    <div class="mb-24">
-      <BetweenMenus>
-        <template #left>
-          <div class="align-center">
-            <a-typography-title class="mb-0 mr-12" :level="4">
-              <CloudServerOutlined />
-              <span class="ml-6"> {{ getInstanceName }} </span>
-            </a-typography-title>
-            <a-typography-paragraph v-if="!isPhone" class="mb-0 ml-4">
-              <span class="ml-6">
-                <a-tag v-if="isRunning" color="green">
-                  <CheckCircleOutlined />
-                  {{ instanceStatusText }}
-                </a-tag>
-                <a-tag v-else-if="isBuys" color="red">
-                  <LoadingOutlined />
-                  {{ instanceStatusText }}
-                </a-tag>
-                <a-tag v-else-if="instanceStatusText">
-                  <InfoCircleOutlined />
-                  {{ instanceStatusText }}
-                </a-tag>
-              </span>
-
-              <a-tag v-if="instanceTypeText" color="purple"> {{ instanceTypeText }} </a-tag>
-
-              <span
-                v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1 && !isPhone"
-                class="ml-16"
-              >
-                <a-tooltip>
-                  <template #title>
-                    {{ t("TXT_CODE_4a37ec9c") }}
-                  </template>
-                  <LaptopOutlined />
-                </a-tooltip>
-                <span class="ml-6" style="opacity: 0.8">
-                  {{ instanceInfo?.watcher }}
-                </span>
-              </span>
-            </a-typography-paragraph>
+  <!-- Terminal Page View - Modern Redesign -->
+  <div v-if="innerTerminalType" class="modern-terminal-layout">
+    <!-- Header Section -->
+    <div class="terminal-header">
+      <div class="instance-info-card">
+        <div class="instance-title-section">
+          <div class="instance-icon-wrapper">
+            <CloudServerOutlined class="instance-icon" />
           </div>
-        </template>
-        <template #right>
-          <div v-if="!isPhone" class="terminal-action-buttons">
-            <template v-for="item in [...quickOperations, ...instanceOperations]" :key="item.title">
-              <a-button
-                v-if="item.noConfirm"
-                class="modern-action-btn"
-                :class="item.class ? item.class : ''"
-                :type="item.type === 'danger' ? 'default' : 'default'"
-                :danger="item.type === 'danger'"
-                :disabled="isOpenInstanceLoading"
-                size="large"
-                @click="item.click"
-              >
-                <component :is="item.icon" />
-                {{ item.title }}
-              </a-button>
-              <a-popconfirm
-                v-else
-                :key="item.title"
-                :title="t('TXT_CODE_276756b2')"
-                @confirm="item.click"
-              >
-                <a-button
-                  class="modern-action-btn"
-                  :type="item.type === 'danger' ? 'default' : 'default'"
-                  :danger="item.type === 'danger'"
-                  :class="item.class ? item.class : ''"
-                  size="large"
-                >
-                  <component :is="item.icon" />
-                  {{ item.title }}
-                </a-button>
-              </a-popconfirm>
-            </template>
+          <div class="instance-details">
+            <h2 class="instance-name">{{ getInstanceName }}</h2>
+            <div class="instance-meta">
+              <a-badge
+                :status="isRunning ? 'success' : isBuys ? 'processing' : 'default'"
+                :text="instanceStatusText"
+                class="status-badge"
+              />
+              <span v-if="instanceTypeText" class="instance-type">{{ instanceTypeText }}</span>
+              <span v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1" class="watchers">
+                <LaptopOutlined /> {{ instanceInfo?.watcher }}
+              </span>
+            </div>
           </div>
+        </div>
 
-          <a-dropdown v-else>
-            <template #overlay>
-              <a-menu>
-                <a-menu-item
-                  v-for="item in [...quickOperations, ...instanceOperations]"
-                  :key="item.title"
-                  @click="item.click"
-                >
-                  <component :is="item.icon" />
-                  {{ item.title }}
-                </a-menu-item>
-              </a-menu>
-            </template>
-            <a-button type="primary">
-              {{ t("TXT_CODE_fe731dfc") }}
-              <DownOutlined />
-            </a-button>
-          </a-dropdown>
+        <!-- Resource Stats Grid -->
+        <div class="stats-grid" v-if="!isStopped">
+          <div v-for="tag in terminalTopTags" :key="tag.label" class="stat-card">
+            <component :is="tag.icon" class="stat-icon" />
+            <div class="stat-content">
+              <div class="stat-label">{{ tag.label }}</div>
+              <div class="stat-value" :class="`stat-${tag.color}`">{{ tag.value }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions Grid -->
+      <div class="actions-grid" v-if="!isPhone">
+        <template v-for="item in quickOperations" :key="item.title">
+          <div
+            v-if="item.noConfirm"
+            class="action-card action-primary"
+            :class="{ 'action-loading': isOpenInstanceLoading }"
+            @click="!isOpenInstanceLoading && item.click()"
+          >
+            <component :is="item.icon" class="action-icon" />
+            <span class="action-label">{{ item.title }}</span>
+          </div>
+          <a-popconfirm
+            v-else
+            :title="t('TXT_CODE_276756b2')"
+            @confirm="item.click"
+          >
+            <div class="action-card action-primary">
+              <component :is="item.icon" class="action-icon" />
+              <span class="action-label">{{ item.title }}</span>
+            </div>
+          </a-popconfirm>
         </template>
-      </BetweenMenus>
+
+        <template v-for="item in instanceOperations" :key="item.title">
+          <div
+            v-if="item.noConfirm"
+            class="action-card"
+            :class="item.type === 'danger' ? 'action-danger' : ''"
+            @click="item.click"
+          >
+            <component :is="item.icon" class="action-icon" />
+            <span class="action-label">{{ item.title }}</span>
+          </div>
+          <a-popconfirm
+            v-else
+            :title="t('TXT_CODE_276756b2')"
+            @confirm="item.click"
+          >
+            <div
+              class="action-card"
+              :class="item.type === 'danger' ? 'action-danger' : ''"
+            >
+              <component :is="item.icon" class="action-icon" />
+              <span class="action-label">{{ item.title }}</span>
+            </div>
+          </a-popconfirm>
+        </template>
+      </div>
+
+      <!-- Mobile Dropdown -->
+      <a-dropdown v-else>
+        <template #overlay>
+          <a-menu>
+            <a-menu-item
+              v-for="item in [...quickOperations, ...instanceOperations]"
+              :key="item.title"
+              @click="item.click"
+            >
+              <component :is="item.icon" />
+              {{ item.title }}
+            </a-menu-item>
+          </a-menu>
+        </template>
+        <a-button type="primary" size="large" class="mobile-actions-btn">
+          {{ t("TXT_CODE_fe731dfc") }}
+          <DownOutlined />
+        </a-button>
+      </a-dropdown>
     </div>
-    <div class="mb-10 justify-end">
-      <TerminalTags :tags="terminalTopTags" />
+
+    <!-- Terminal Core -->
+    <div class="terminal-wrapper-modern">
+      <TerminalCore
+        v-if="instanceId && daemonId"
+        :use-terminal-hook="terminalHook"
+        :instance-id="instanceId"
+        :daemon-id="daemonId"
+        :height="card.height"
+      />
     </div>
-    <TerminalCore
-      v-if="instanceId && daemonId"
-      :use-terminal-hook="terminalHook"
-      :instance-id="instanceId"
-      :daemon-id="daemonId"
-      :height="card.height"
-    />
   </div>
 
   <!-- Other Page View -->
@@ -480,42 +486,270 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 </template>
 
 <style lang="scss" scoped>
-.terminal-action-buttons {
+// Modern Terminal Layout
+.modern-terminal-layout {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+// Header Section
+.terminal-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// Instance Info Card
+.instance-info-card {
+  background: var(--background-color-white);
+  border: 1px solid var(--card-border-color);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px var(--card-shadow-color);
+}
+
+.instance-title-section {
+  display: flex;
   align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.instance-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.1) 0%, rgba(212, 107, 8, 0.1) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(153, 27, 27, 0.2);
+}
+
+.instance-icon {
+  font-size: 28px;
+  color: rgba(153, 27, 27, 0.8);
+}
+
+.instance-details {
+  flex: 1;
+}
+
+.instance-name {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-color);
+  letter-spacing: -0.5px;
+}
+
+.instance-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
-.modern-action-btn {
-  border-radius: 10px !important;
-  font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px var(--card-shadow-color);
+.status-badge {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.instance-type {
+  padding: 4px 12px;
+  background: rgba(153, 27, 27, 0.08);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(153, 27, 27, 0.9);
+}
+
+.watchers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-color);
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+// Stats Grid
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--color-gray-2);
+  border-radius: 12px;
+  border: 1px solid var(--color-gray-3);
+  transition: all 0.3s ease;
 
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px var(--card-shadow-extend-color);
+    border-color: rgba(153, 27, 27, 0.2);
+    box-shadow: 0 2px 6px var(--card-shadow-color);
+  }
+}
+
+.stat-icon {
+  font-size: 24px;
+  color: rgba(153, 27, 27, 0.6);
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-color);
+  opacity: 0.6;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-top: 4px;
+
+  &.stat-error {
+    color: var(--color-red-6);
+  }
+
+  &.stat-warning {
+    color: var(--color-orange-6);
+  }
+}
+
+// Actions Grid
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 16px;
+  background: var(--background-color-white);
+  border: 2px solid var(--card-border-color);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px var(--card-shadow-color);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px var(--card-shadow-extend-color);
+    border-color: rgba(153, 27, 27, 0.4);
   }
 
   &:active {
-    transform: translateY(0);
+    transform: translateY(-2px);
+  }
+}
+
+.action-icon {
+  font-size: 32px;
+  color: rgba(153, 27, 27, 0.7);
+  transition: all 0.3s ease;
+}
+
+.action-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.action-primary {
+  background: linear-gradient(135deg, rgba(82, 196, 26, 0.08) 0%, rgba(115, 209, 61, 0.08) 100%);
+  border-color: var(--color-green-4);
+
+  .action-icon {
+    color: var(--color-green-6);
   }
 
-  &.button-color-success {
-    background: linear-gradient(135deg, var(--color-green-6) 0%, var(--color-green-5) 100%);
+  &:hover {
+    background: linear-gradient(135deg, rgba(82, 196, 26, 0.12) 0%, rgba(115, 209, 61, 0.12) 100%);
     border-color: var(--color-green-6);
-    color: white;
 
-    &:hover {
-      background: linear-gradient(135deg, var(--color-green-5) 0%, var(--color-green-4) 100%);
-      border-color: var(--color-green-5);
-      color: white;
+    .action-icon {
+      color: var(--color-green-7);
+      transform: scale(1.1);
     }
   }
+}
 
-  &.color-warning:not(:hover) {
+.action-danger {
+  &:hover {
     border-color: var(--color-red-5);
+
+    .action-icon {
+      color: var(--color-red-6);
+    }
+  }
+}
+
+.action-loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+
+  &:hover {
+    transform: none;
+  }
+}
+
+// Terminal Wrapper
+.terminal-wrapper-modern {
+  flex: 1;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px var(--card-shadow-color);
+}
+
+.mobile-actions-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .instance-icon-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+
+  .instance-icon {
+    font-size: 24px;
+  }
+
+  .instance-name {
+    font-size: 20px;
   }
 }
 
