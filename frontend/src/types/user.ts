@@ -1,12 +1,18 @@
 export interface UserPermissions {
+  // File Operations (scoped to assigned instances)
   canUploadFiles: boolean;
   canDownloadFiles: boolean;
   canDeleteFiles: boolean;
   canModifyFiles: boolean;
+
+  // Instance Control (scoped to assigned instances)
   canAccessConsole: boolean;
+  canStartInstances: boolean;
   canRestartInstances: boolean;
   canStopInstances: boolean;
   canViewLogs: boolean;
+
+  // Security Restrictions (global to user session)
   disableRightClick: boolean;
   disableKeyboardShortcuts: boolean;
   disableTextSelection: boolean;

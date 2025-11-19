@@ -203,6 +203,7 @@ const formDataOrigin: EditUserInfo = {
     canDeleteFiles: true,
     canModifyFiles: true,
     canAccessConsole: true,
+    canStartInstances: true,
     canRestartInstances: true,
     canStopInstances: true,
     canViewLogs: true,
@@ -401,6 +402,9 @@ onMounted(async () => {
             <div class="permission-items">
               <a-checkbox v-model:checked="formData.permissions.canAccessConsole">
                 Access Console
+              </a-checkbox>
+              <a-checkbox v-model:checked="formData.permissions.canStartInstances">
+                Start Instances
               </a-checkbox>
               <a-checkbox v-model:checked="formData.permissions.canRestartInstances">
                 Restart Instances
