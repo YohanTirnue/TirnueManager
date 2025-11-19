@@ -46,6 +46,14 @@ mv "${BASE_PATH}"/frontend/dist/* "${BASE_PATH}/production-code/web/public"
 cp -f "${BASE_PATH}/expanded-templates.json" "${BASE_PATH}/production-code/daemon/expanded-templates.json"
 cp -f "${BASE_PATH}/expanded-templates.json" "${BASE_PATH}/production-code/web/expanded-templates.json"
 
+# Copy lib directory with native binaries to daemon
+if [ -d "${BASE_PATH}/daemon/lib" ]; then
+  echo "Copying native binaries from daemon/lib..."
+  cp -r "${BASE_PATH}/daemon/lib" "${BASE_PATH}/production-code/daemon/lib"
+else
+  echo "Warning: daemon/lib directory not found. Native binaries (pty, 7z, file_zip) will be missing!"
+fi
+
 rm -rf "${BASE_PATH}/daemon/dist" "${BASE_PATH}/daemon/production"
 rm -rf "${BASE_PATH}/panel/dist" "${BASE_PATH}/panel/production"
 rm -rf "${BASE_PATH}/frontend/dist"
