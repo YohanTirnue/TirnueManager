@@ -103,6 +103,7 @@ declare module 'vue' {
     NoPreviewCard: typeof import('./src/components/NoPreviewCard.vue')['default']
     OverwriteFilesPopUpContent: typeof import('./src/components/OverwriteFilesPopUpContent.vue')['default']
     Params: typeof import('./src/components/NewCardList/params.vue')['default']
+    PermissionBanner: typeof import('./src/components/PermissionBanner.vue')['default']
     PlaceHolderCard: typeof import('./src/components/PlaceHolderCard.vue')['default']
     QuickStatsCard: typeof import('./src/components/stats/QuickStatsCard.vue')['default']
     RenewalDialog: typeof import('./src/components/fc/RenewalDialog.vue')['default']
