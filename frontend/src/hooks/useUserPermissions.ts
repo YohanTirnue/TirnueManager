@@ -31,18 +31,18 @@ export function useUserPermissions() {
       };
     }
 
-    // Return user's permissions or defaults if not set
+    // Return user's permissions or DENY ALL if not set (fail-closed security)
     return (
       state.userInfo?.permissions ?? {
-        canUploadFiles: true,
-        canDownloadFiles: true,
-        canDeleteFiles: true,
-        canModifyFiles: true,
-        canAccessConsole: true,
-        canStartInstances: true,
-        canRestartInstances: true,
-        canStopInstances: true,
-        canViewLogs: true,
+        canUploadFiles: false,
+        canDownloadFiles: false,
+        canDeleteFiles: false,
+        canModifyFiles: false,
+        canAccessConsole: false,
+        canStartInstances: false,
+        canRestartInstances: false,
+        canStopInstances: false,
+        canViewLogs: false,
         disableRightClick: false,
         disableKeyboardShortcuts: false,
         disableTextSelection: false,
