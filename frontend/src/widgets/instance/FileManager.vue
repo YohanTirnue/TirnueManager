@@ -31,8 +31,10 @@ import {
   PlusOutlined,
   ScissorOutlined,
   SearchOutlined,
-  UploadOutlined
+  UploadOutlined,
+  LeftOutlined
 } from "@ant-design/icons-vue";
+import { router } from "@/config/router";
 import { Modal, type ItemType, type UploadChangeParam, type UploadProps } from "ant-design-vue";
 import dayjs from "dayjs";
 import { computed, h, onMounted, onUnmounted, ref, watch, type CSSProperties } from "vue";
@@ -254,6 +256,16 @@ const handleClickFile = async (file: DataType) => {
   return editFile(file.name);
 };
 
+const backToTerminal = () => {
+  router.push({
+    path: "/instances/terminal",
+    query: {
+      daemonId,
+      instanceId
+    }
+  });
+};
+
 const menuList = (record: DataType) =>
   arrayFilter<ItemType & { style?: CSSProperties }>([
     {
@@ -402,6 +414,11 @@ onUnmounted(() => {
             </a-button>
             <a-button v-else type="default" @click="reloadList()">
               {{ t("TXT_CODE_a53573af") }}
+            </a-button>
+
+            <a-button type="default" @click="backToTerminal()">
+              <LeftOutlined />
+              Back to Terminal
             </a-button>
 
             <a-dropdown v-if="isMultiple">

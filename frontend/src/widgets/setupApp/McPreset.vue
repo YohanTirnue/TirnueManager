@@ -68,7 +68,7 @@ const handleTemplateConfirm = async (instanceName: string, template: QuickStartP
       data: {
         time: Date.now(),
         newInstanceName: instanceName,
-        targetLink: template.targetLink || "",
+        targetLink: template.addr || template.targetLink || "",
         setupInfo: template.setupInfo
       }
     });
