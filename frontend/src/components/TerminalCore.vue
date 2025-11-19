@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import connectErrorImage from "@/assets/daemon_connection_error.png";
 import { useCommandHistory } from "@/hooks/useCommandHistory";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { useXhrPollError } from "@/hooks/useXhrPollError";
 import { t } from "@/lang/i18n";
 import { getInstanceOutputLog } from "@/services/apis/instance";
@@ -20,6 +21,7 @@ const props = defineProps<{
 }>();
 
 const { containerState } = useLayoutContainerStore();
+const { canPerformInstanceAction } = useUserPermissions();
 
 const {
   focusHistoryList,
@@ -87,6 +89,11 @@ events.on("error", (error: Error) => {
 });
 
 events.once("detail", async () => {
+  // CRITICAL: Check if user has permission to view logs before loading
+  if (!canPerformInstanceAction(instanceId ?? "", "canViewLogs")) {
+    return; // Don't load logs if user lacks permission
+  }
+
   try {
     const { value } = await getInstanceOutputLog().execute({
       params: { uuid: instanceId || "", daemonId: daemonId || "" }
