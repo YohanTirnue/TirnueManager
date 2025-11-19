@@ -305,7 +305,7 @@ const menuList = (record: DataType) =>
       key: "unzip",
       icon: h(FileZipOutlined),
       onClick: () => unzipFile(record.name),
-      condition: () => record.type === 1 && isCompressFile(record.name)
+      condition: () => record.type === 1 && isCompressFile(record.name) && canPerformFileAction(instanceId ?? "", "canModifyFiles")
     },
     {
       label: t("TXT_CODE_ad207008"),
@@ -351,7 +351,8 @@ const menuList = (record: DataType) =>
       label: t("TXT_CODE_88122886"),
       key: "zip",
       icon: h(FileZipOutlined),
-      onClick: () => zipFile()
+      onClick: () => zipFile(),
+      condition: () => canPerformFileAction(instanceId ?? "", "canModifyFiles")
     },
     {
       label: t("TXT_CODE_ecbd7449"),
@@ -419,7 +420,7 @@ onUnmounted(() => {
               </a-button>
             </a-upload>
             <a-button
-              v-if="clipboard?.value && clipboard.value.length > 0"
+              v-if="clipboard?.value && clipboard.value.length > 0 && canPerformFileAction(instanceId ?? '', 'canModifyFiles')"
               type="dashed"
               danger
               @click="paste()"
@@ -457,7 +458,7 @@ onUnmounted(() => {
               </a-button>
             </a-dropdown>
 
-            <a-dropdown v-else>
+            <a-dropdown v-else-if="canPerformFileAction(instanceId ?? '', 'canModifyFiles')">
               <template #overlay>
                 <a-menu>
                   <a-menu-item key="newFile" @click="touchFile()">

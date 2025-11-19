@@ -151,6 +151,11 @@ export const useFileManager = (instanceId?: string, daemonId?: string) => {
   };
 
   const touchFile = async (dir?: boolean) => {
+    // CRITICAL: Check modify permission before creating file/folder
+    if (!canPerformFileAction(instanceId ?? "", "canModifyFiles")) {
+      return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to create files or folders");
+    }
+
     clearSelected();
     const dirname = dir
       ? await openDialog(t("TXT_CODE_6215388a"), t("TXT_CODE_1b450b79"))
@@ -193,6 +198,11 @@ export const useFileManager = (instanceId?: string, daemonId?: string) => {
   };
 
   const paste = async () => {
+    // CRITICAL: Check modify permission before paste operation
+    if (!canPerformFileAction(instanceId ?? "", "canModifyFiles")) {
+      return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to paste files");
+    }
+
     if (!clipboard?.value?.type || !clipboard.value.value)
       return reportErrorMsg(t("TXT_CODE_b152cd75"));
     const execute = clipboard.value.type == "copy" ? copyFileApi().execute : moveFileApi().execute;
@@ -219,6 +229,11 @@ export const useFileManager = (instanceId?: string, daemonId?: string) => {
   };
 
   const resetName = async (file: string) => {
+    // CRITICAL: Check modify permission before rename operation
+    if (!canPerformFileAction(instanceId ?? "", "canModifyFiles")) {
+      return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to rename files");
+    }
+
     const newname = await openDialog(t("TXT_CODE_c83551f5"), t("TXT_CODE_a5830778"), file);
     try {
       const { execute } = moveFileApi();
@@ -296,6 +311,11 @@ export const useFileManager = (instanceId?: string, daemonId?: string) => {
   };
 
   const zipFile = async () => {
+    // CRITICAL: Check modify permission before zip operation
+    if (!canPerformFileAction(instanceId ?? "", "canModifyFiles")) {
+      return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to create zip files");
+    }
+
     if (!selectionData.value || selectionData.value.length === 0)
       return reportErrorMsg(t("TXT_CODE_b152cd75"));
     const filename = await openDialog(t("TXT_CODE_f8a15a94"), t("TXT_CODE_366bad15"), "", "zip");
@@ -329,8 +349,13 @@ export const useFileManager = (instanceId?: string, daemonId?: string) => {
   };
 
   const unzipFile = async (name: string) => {
+    // CRITICAL: Check modify permission before unzip operation
+    if (!canPerformFileAction(instanceId ?? "", "canModifyFiles")) {
+      return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to extract files");
+    }
+
     const dirname = await openDialog(t("TXT_CODE_7669fd3f"), "", "", "unzip");
-    const { execute } = compressFileApi();
+    const { execute} = compressFileApi();
     const loadingDialog = await openLoadingDialog(
       t("TXT_CODE_b3825da"),
       t("TXT_CODE_b82225c3"),
@@ -606,6 +631,11 @@ export const useFileManager = (instanceId?: string, daemonId?: string) => {
   });
 
   const changePermission = async (name: string, mode: number) => {
+    // CRITICAL: Check modify permission before changing file permissions
+    if (!canPerformFileAction(instanceId ?? "", "canModifyFiles")) {
+      return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to change file permissions");
+    }
+
     permission.loading = true;
     permission.data = number2permission(mode);
     permission.loading = false;
