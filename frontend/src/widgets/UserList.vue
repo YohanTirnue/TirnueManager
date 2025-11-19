@@ -61,6 +61,7 @@ const dataSource = computed(() => data?.value?.data || []);
 const selectedUsers = ref<string[]>([]);
 const currentRole = ref("");
 const actionModalUser = ref<BaseUserInfo | null>(null);
+const actionModalOpen = ref(false);
 
 const handleToUserResources = (user: BaseUserInfo) => {
   toPage({
@@ -70,6 +71,7 @@ const handleToUserResources = (user: BaseUserInfo) => {
     }
   });
   actionModalUser.value = null;
+  actionModalOpen.value = false;
 };
 
 const handleTableChange = (page: number) => {
@@ -114,6 +116,7 @@ const deleteUser = async (userList: string[]) => {
 const handleDeleteUser = async (user: BaseUserInfo) => {
   await deleteUser([user.uuid]);
   actionModalUser.value = null;
+  actionModalOpen.value = false;
 };
 
 const handleBatchDelete = async () => {
@@ -297,6 +300,7 @@ const handleEditUser = (user: BaseUserInfo) => {
   isAddMode.value = false;
   userDialog.value.show();
   actionModalUser.value = null;
+  actionModalOpen.value = false;
 };
 
 const search = throttle(async () => {
@@ -595,7 +599,7 @@ onMounted(async () => {
 
           <!-- Action Button -->
           <div class="action-menu-container">
-            <button class="action-menu-btn" @click.stop="actionModalUser = user">
+            <button class="action-menu-btn" @click.stop="() => { actionModalUser = user; actionModalOpen = true; }">
               <MoreOutlined />
             </button>
           </div>
@@ -617,7 +621,7 @@ onMounted(async () => {
 
   <!-- Action Modal -->
   <a-modal
-    v-model:open="actionModalUser"
+    v-model:open="actionModalOpen"
     :title="actionModalUser ? `${actionModalUser.userName}` : ''"
     :footer="null"
     centered
