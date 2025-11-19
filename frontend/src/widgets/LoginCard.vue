@@ -590,11 +590,12 @@ const startLoginAnimation = () => {
 
 // Form Section (Right)
 .form-section {
-  background: rgba(255, 255, 255, 0.95);
+  background: linear-gradient(135deg, rgba(30, 30, 46, 0.95) 0%, rgba(45, 45, 68, 0.95) 100%);
   padding: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-left: 1px solid rgba(255, 140, 66, 0.2);
 }
 
 .form-container {
@@ -626,13 +627,16 @@ const startLoginAnimation = () => {
   h2 {
     font-size: 36px;
     font-weight: 800;
-    color: #1e1e2e;
+    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin: 0 0 12px 0;
   }
 
   p {
     font-size: 16px;
-    color: #666;
+    color: rgba(255, 255, 255, 0.7);
     margin: 0;
   }
 }
@@ -657,7 +661,7 @@ const startLoginAnimation = () => {
   label {
     font-size: 14px;
     font-weight: 600;
-    color: #333;
+    color: rgba(255, 255, 255, 0.9);
   }
 }
 
@@ -666,27 +670,43 @@ const startLoginAnimation = () => {
   :deep(.ant-input-password) {
     font-size: 16px;
     padding: 12px 16px;
-    border: 2px solid #e8e8e8;
+    border: 2px solid rgba(255, 140, 66, 0.3);
     border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
     transition: all 0.3s ease;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
 
     &:hover {
       border-color: #FF8C42;
+      background: rgba(255, 255, 255, 0.08);
     }
 
     &:focus {
       border-color: #FF8C42;
-      box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.2);
     }
   }
 
   :deep(.ant-input-prefix) {
     margin-right: 12px;
   }
+
+  :deep(.ant-input-password-icon) {
+    color: rgba(255, 255, 255, 0.6);
+
+    &:hover {
+      color: #FF8C42;
+    }
+  }
 }
 
 .input-icon {
-  color: #999;
+  color: rgba(255, 140, 66, 0.8);
   font-size: 18px;
 }
 
@@ -722,12 +742,14 @@ const startLoginAnimation = () => {
   font-size: 15px;
   font-weight: 600;
   border-radius: 12px;
-  border: 2px solid #e8e8e8;
-  color: #666;
+  border: 2px solid rgba(255, 140, 66, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
 
   &:hover {
     border-color: #FF8C42;
+    background: rgba(255, 140, 66, 0.1);
     color: #FF8C42;
   }
 }
@@ -749,20 +771,23 @@ const startLoginAnimation = () => {
   }
 
   .success-icon {
-    color: #52c41a;
+    color: #D4AF37;
     animation: scaleIn 0.5s ease;
   }
 
   h3 {
     font-size: 28px;
     font-weight: 700;
-    color: #1e1e2e;
+    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin: 0 0 12px 0;
   }
 
   p {
     font-size: 16px;
-    color: #666;
+    color: rgba(255, 255, 255, 0.7);
     margin: 0;
   }
 }
@@ -813,9 +838,9 @@ const startLoginAnimation = () => {
 
 // Override autofill styles
 :deep(input:-webkit-autofill) {
-  -webkit-text-fill-color: #333 !important;
-  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
-  background-color: white !important;
+  -webkit-text-fill-color: white !important;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(30, 30, 46, 0.8) inset !important;
+  background-color: rgba(30, 30, 46, 0.8) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 </style>
