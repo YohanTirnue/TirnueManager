@@ -187,7 +187,7 @@ const startLoginAnimation = () => {
           </div>
 
           <div v-show="showBrandName" class="brand-footer">
-            <div class="version-badge">v2.0 Beta</div>
+            <div class="version-badge">v2.0.1</div>
           </div>
         </div>
       </div>
