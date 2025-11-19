@@ -71,7 +71,7 @@ const availablePermissions = computed(() => {
   if (perms.canRestartInstances) available.push("Restart");
   if (perms.canAccessConsole) available.push("Console");
   if (perms.canViewLogs) available.push("Logs");
-  return available.length > 0 ? available : null;
+  return available.length > 0 ? available : ["Limited Access"];
 });
 
 const operationConfig = {
