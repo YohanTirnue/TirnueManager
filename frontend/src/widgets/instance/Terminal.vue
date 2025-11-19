@@ -307,44 +307,29 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 <template>
   <!-- ULTRA MODERN BENTO GRID + GLASSMORPHISM REDESIGN -->
   <div v-if="innerTerminalType" class="bento-terminal-container">
-    <!-- Hero Section with Floating Status -->
-    <div class="hero-section">
-      <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
-        <div class="orb-pulse"></div>
-        <div class="orb-ring"></div>
-      </div>
-      <div class="hero-content">
-        <h1 class="instance-hero-title">{{ getInstanceName }}</h1>
-        <div class="hero-meta-chips">
-          <div class="meta-chip chip-status" :class="{ 'chip-active': isRunning, 'chip-busy': isBuys }">
-            <div class="chip-dot"></div>
-            <span>{{ instanceStatusText }}</span>
-          </div>
-          <div v-if="instanceTypeText" class="meta-chip chip-type">
-            <CloudServerOutlined />
-            <span>{{ instanceTypeText }}</span>
-          </div>
-          <div v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1" class="meta-chip chip-watchers">
-            <LaptopOutlined />
-            <span>{{ instanceInfo?.watcher }} watching</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Bento Grid Layout -->
     <div class="bento-grid">
-      <!-- Stats Cards in Bento Style -->
-      <div class="bento-stats-container" v-if="!isStopped">
-        <div v-for="(tag, index) in terminalTopTags" :key="tag.label"
-             class="bento-stat-card"
-             :class="`bento-stat-${index}`"
-        >
-          <div class="stat-glow" :class="`glow-${tag.color}`"></div>
-          <component :is="tag.icon" class="bento-stat-icon" />
-          <div class="bento-stat-info">
-            <div class="bento-stat-label">{{ tag.label }}</div>
-            <div class="bento-stat-value" :class="`value-${tag.color}`">{{ tag.value }}</div>
+      <!-- Hero Section with Floating Status -->
+      <div class="hero-section">
+        <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
+          <div class="orb-pulse"></div>
+          <div class="orb-ring"></div>
+        </div>
+        <div class="hero-content">
+          <h1 class="instance-hero-title">{{ getInstanceName }}</h1>
+          <div class="hero-meta-chips">
+            <div class="meta-chip chip-status" :class="{ 'chip-active': isRunning, 'chip-busy': isBuys }">
+              <div class="chip-dot"></div>
+              <span>{{ instanceStatusText }}</span>
+            </div>
+            <div v-if="instanceTypeText" class="meta-chip chip-type">
+              <CloudServerOutlined />
+              <span>{{ instanceTypeText }}</span>
+            </div>
+            <div v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1" class="meta-chip chip-watchers">
+              <LaptopOutlined />
+              <span>{{ instanceInfo?.watcher }} watching</span>
+            </div>
           </div>
         </div>
       </div>
@@ -427,6 +412,21 @@ const terminalTopTags = computed<TagInfo[]>(() => {
             {{ t("TXT_CODE_fe731dfc") }}
           </a-button>
         </a-dropdown>
+      </div>
+
+      <!-- Stats Cards in Bento Style -->
+      <div class="bento-stats-container" v-if="!isStopped">
+        <div v-for="(tag, index) in terminalTopTags" :key="tag.label"
+             class="bento-stat-card"
+             :class="`bento-stat-${index}`"
+        >
+          <div class="stat-glow" :class="`glow-${tag.color}`"></div>
+          <component :is="tag.icon" class="bento-stat-icon" />
+          <div class="bento-stat-info">
+            <div class="bento-stat-label">{{ tag.label }}</div>
+            <div class="bento-stat-value" :class="`value-${tag.color}`">{{ tag.value }}</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -708,8 +708,16 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   gap: 16px;
 }
 
+// HERO SECTION INSIDE GRID
+.hero-section {
+  grid-column: 1;
+  grid-row: 1;
+}
+
 // BENTO STATS CARDS
 .bento-stats-container {
+  grid-column: 1 / -1;
+  grid-row: 2;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
@@ -805,9 +813,10 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 // MODERN ACTION BUTTONS PANEL
 .actions-panel-modern {
   grid-column: 2;
-  grid-row: 1 / 3;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
+  align-self: start;
 }
 
 .action-buttons-grid {
@@ -1023,9 +1032,20 @@ const terminalTopTags = computed<TagInfo[]>(() => {
     grid-template-columns: 1fr;
   }
 
+  .hero-section {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 24px 20px;
+  }
+
   .actions-panel-modern {
     grid-column: 1;
-    grid-row: auto;
+    grid-row: 2;
+  }
+
+  .bento-stats-container {
+    grid-column: 1;
+    grid-row: 3;
   }
 
   .action-buttons-grid {
@@ -1045,10 +1065,6 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
   .instance-hero-title {
     font-size: 24px;
-  }
-
-  .hero-section {
-    padding: 24px 20px;
   }
 
   .status-orb {
