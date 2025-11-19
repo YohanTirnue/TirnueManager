@@ -162,7 +162,22 @@ const userDialog = ref({
             username: formData.value.userName,
             password: formData.value.passWord!,
             permission: formData.value.permission,
-            permissions: formData.value.permissions
+            permissions: formData.value.permissions ?? {
+              canUploadFiles: true,
+              canDownloadFiles: true,
+              canDeleteFiles: true,
+              canModifyFiles: true,
+              canAccessConsole: true,
+              canStartInstances: true,
+              canRestartInstances: true,
+              canStopInstances: true,
+              canViewLogs: true,
+              disableRightClick: false,
+              disableKeyboardShortcuts: false,
+              disableTextSelection: false,
+              disableCopy: false,
+              disablePaste: false
+            }
           }
         });
         message.success(t("TXT_CODE_c855fc29"));

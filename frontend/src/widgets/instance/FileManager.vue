@@ -10,6 +10,7 @@ import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { getCurrentLang, t } from "@/lang/i18n";
 import uploadService from "@/services/uploadService";
 import { arrayFilter } from "@/tools/array";
+import { reportErrorMsg } from "@/tools/validator";
 import { filterFileName, getFileExtName, getFileIcon, isCompressFile } from "@/tools/fileManager";
 import { convertFileSize } from "@/tools/fileSize";
 import type { LayoutCard } from "@/types";
