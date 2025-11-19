@@ -47,7 +47,7 @@ defineProps<{
 }>();
 
 const { isPhone } = useScreen();
-const { userPermissions, isAdmin } = useUserPermissions();
+const { userPermissions, isAdmin, hasInstanceAccess } = useUserPermissions();
 
 const operationForm = ref({
   instanceName: "",
@@ -218,11 +218,21 @@ const canPerformBatchOperation = (action: "start" | "stop" | "restart" | "kill" 
     stop: "canStopInstances",
     restart: "canRestartInstances",
     kill: "canStopInstances", // Kill requires stop permission
-    delete: "canDeleteFiles" // Delete requires file delete permission
+    delete: "canDeleteFiles" // NOTE: Using file delete as proxy for instance delete permission
   } as const;
 
   const requiredPermission = permissionMap[action];
-  return userPermissions.value[requiredPermission];
+
+  // Check if user has the required permission
+  if (!userPermissions.value[requiredPermission]) {
+    return false;
+  }
+
+  // CRITICAL: Check if user has access to ALL selected instances
+  // Without this check, users could operate on instances they don't have access to!
+  return selectedInstance.value.every((instance) =>
+    hasInstanceAccess(instance.instanceUuid)
+  );
 };
 
 const instanceOperations = computed(() => [
