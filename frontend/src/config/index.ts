@@ -522,6 +522,24 @@ export function getLayoutCardPool() {
       description: t("TXT_CODE_9b45858c"),
       height: LayoutCardHeight.BIG,
       category: NEW_CARD_TYPE.COMMON
+    },
+    {
+      id: getRandomId(),
+      permission: ROLE.ADMIN,
+      meta: {},
+      type: "UserAccessSettings",
+      title: t("TXT_CODE_76d20724"),
+      width: 12,
+      description: t("TXT_CODE_4d934e3a"),
+      height: LayoutCardHeight.MEDIUM,
+      category: NEW_CARD_TYPE.OTHER,
+      params: [
+        {
+          field: "uuid",
+          label: t("TXT_CODE_93b4c7ec"),
+          type: "string"
+        }
+      ]
     }
   ];
   return LAYOUT_CARD_POOL;
