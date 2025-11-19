@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { useAppConfigStore, THEME } from "@/stores/useAppConfigStore";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
-import { logoutUser } from "@/services/apis/index";
 import {
-  BgColorsOutlined,
   BuildOutlined,
   SaveOutlined,
   CloseCircleOutlined
@@ -14,7 +11,6 @@ import {
 import { message } from "ant-design-vue";
 import { useLayoutConfigStore } from "../stores/useLayoutConfig";
 
-const { setTheme } = useAppConfigStore();
 const { isAdmin } = useAppStateStore();
 const { containerState, changeDesignMode } = useLayoutContainerStore();
 const { saveGlobalLayoutConfig, resetGlobalLayoutConfig } = useLayoutConfigStore();
@@ -31,10 +27,6 @@ const breadcrumbs = computed(() => {
   arr.push({ name: String(route.name || ""), path: route.path });
   return arr.filter((v) => v.name);
 });
-
-const toggleTheme = () => {
-  setTheme(THEME.DARK);
-};
 
 const saveLayout = async () => {
   await saveGlobalLayoutConfig();
@@ -74,11 +66,6 @@ const resetLayout = async () => {
       </template>
       <button v-else-if="isAdmin" class="action-btn" @click="changeDesignMode(true)" title="Design Mode">
         <BuildOutlined />
-      </button>
-
-      <!-- Theme Toggle -->
-      <button class="action-btn" @click="toggleTheme" title="Toggle Theme">
-        <BgColorsOutlined />
       </button>
     </div>
   </div>
