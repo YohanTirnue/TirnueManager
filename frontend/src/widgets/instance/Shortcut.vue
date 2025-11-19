@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CardPanel from "@/components/CardPanel.vue";
 import { openInstanceTagsEditor, useDeleteInstanceDialog } from "@/components/fc/index";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 import TextContainer from "@/components/TextContainer.vue";
 import { useAppRouters } from "@/hooks/useAppRouters";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
@@ -342,14 +343,11 @@ const instanceOperations = computed(() =>
           </div>
         </div>
 
-        <!-- Permission Notice Banner -->
-        <div v-if="availablePermissions" class="permission-notice">
-          <UserOutlined class="permission-icon" />
-          <div class="permission-text">
-            <span class="permission-label">Your permissions:</span>
-            <span class="permission-list">{{ availablePermissions.join(", ") }}</span>
-          </div>
-        </div>
+        <PermissionBanner
+          type="custom"
+          :customPermissions="availablePermissions || []"
+          theme="orange"
+        />
 
         <div class="action-buttons-grid" :class="{ 'centered-grid': instanceOperations.length <= 3 }">
           <template v-for="item in instanceOperations" :key="item.title">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InnerCard from "@/components/InnerCard.vue";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 import ResponsiveLayoutGroup from "@/components/ResponsiveLayoutGroup.vue";
 import { useAppRouters } from "@/hooks/useAppRouters";
 import {
@@ -214,14 +215,11 @@ watch(instanceInfo, (cfg, oldCfg) => {
       </div>
     </template>
     <template #body>
-      <!-- Permission Notice Banner -->
-      <div v-if="availableManagerPermissions" class="manager-permission-notice">
-        <ControlOutlined class="manager-permission-icon" />
-        <div class="manager-permission-text">
-          <span class="manager-permission-label">Available Features:</span>
-          <span class="manager-permission-list">{{ availableManagerPermissions.join(", ") }}</span>
-        </div>
-      </div>
+      <PermissionBanner
+        type="custom"
+        :customPermissions="availableManagerPermissions || []"
+        theme="gold"
+      />
 
       <div class="manager-buttons-grid" :class="{ 'centered-manager-grid': btns.length <= 3 }">
         <a-button

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BetweenMenus from "@/components/BetweenMenus.vue";
 import CardPanel from "@/components/CardPanel.vue";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { useFileManager } from "@/hooks/useFileManager";
 import { useRightClickMenu } from "@/hooks/useRightClickMenu";
@@ -479,6 +480,9 @@ onUnmounted(() => {
             </div>
           </template>
         </BetweenMenus>
+      </a-col>
+      <a-col :span="24">
+        <PermissionBanner type="file" theme="blue" />
       </a-col>
 
       <a-col :span="24">

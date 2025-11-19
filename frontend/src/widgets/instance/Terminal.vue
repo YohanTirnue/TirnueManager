@@ -2,6 +2,7 @@
 import CardPanel from "@/components/CardPanel.vue";
 import { openMarketDialog, openRenewalDialog } from "@/components/fc";
 import IconBtn from "@/components/IconBtn.vue";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 import TerminalCore from "@/components/TerminalCore.vue";
 import TerminalTags from "@/components/TerminalTags.vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
@@ -312,6 +313,8 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 <template>
   <!-- ULTRA MODERN BENTO GRID + GLASSMORPHISM REDESIGN -->
   <div v-if="innerTerminalType" class="bento-terminal-container">
+    <PermissionBanner type="instance" theme="orange" />
+
     <!-- Bento Grid Layout -->
     <div class="bento-grid">
       <!-- Hero Section with Floating Status -->
@@ -506,6 +509,8 @@ const terminalTopTags = computed<TagInfo[]>(() => {
       </a-dropdown>
     </template>
     <template #body>
+      <PermissionBanner type="instance" theme="orange" />
+
       <div class="mb-6">
         <TerminalTags :tags="terminalTopTags" />
       </div>
