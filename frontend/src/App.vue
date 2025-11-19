@@ -12,10 +12,14 @@ import MyselfInfoDialog from "./components/MyselfInfoDialog.vue";
 import { closeAppLoading } from "./tools/dom";
 import { useLayoutConfigStore } from "./stores/useLayoutConfig";
 import UploadBubble from "@/components/UploadBubble.vue";
+import { useSecurityRestrictions } from "@/hooks/useSecurityRestrictions";
 
 const { isDarkTheme, setBackgroundImage } = useAppConfigStore();
 const { getSettingsConfig, hasBgImage } = useLayoutConfigStore();
 const route = useRoute();
+
+// Apply global security restrictions based on user permissions
+useSecurityRestrictions();
 
 const GLOBAL_COMPONENTS = [InputDialogProvider, MyselfInfoDialog];
 

@@ -8,6 +8,7 @@ import {
   useInstanceInfo
 } from "@/hooks/useInstance";
 import { useServerConfig } from "@/hooks/useServerConfig";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { t } from "@/lang/i18n";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import type { LayoutCard } from "@/types";
@@ -51,6 +52,7 @@ const props = defineProps<{
 }>();
 
 const { isAdmin, state } = useAppStateStore();
+const { hasInstanceAccess } = useUserPermissions();
 
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
 
@@ -113,7 +115,7 @@ const btns = computed(() => {
       click: () => {
         toPage({ path: "/instances/terminal/files" });
       },
-      condition: () => state.settings.canFileManager || isAdmin.value
+      condition: () => (state.settings.canFileManager || isAdmin.value) && hasInstanceAccess(instanceId ?? "")
     },
     {
       title: t("TXT_CODE_40241d8e"),

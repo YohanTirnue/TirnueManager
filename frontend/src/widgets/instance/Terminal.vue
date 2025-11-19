@@ -7,6 +7,7 @@ import TerminalTags from "@/components/TerminalTags.vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { INSTANCE_TYPE_TRANSLATION, verifyEULA } from "@/hooks/useInstance";
 import { useScreen } from "@/hooks/useScreen";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { t } from "@/lang/i18n";
 import {
   killInstance,
@@ -53,6 +54,7 @@ const props = defineProps<{
 const { isPhone } = useScreen();
 const { state, isAdmin } = useAppStateStore();
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
+const { canPerformInstanceAction } = useUserPermissions();
 
 // The `useTerminal` is shared by this component and `TerminalCore`.
 // Please do not initialize `useTerminal` in this component; all initialization logic should be placed in its child component `TerminalCore.vue`.
@@ -74,6 +76,9 @@ const viewType = getMetaOrRouteValue("viewType", false);
 const innerTerminalType = computed(() => props.card.width === 12 && viewType === "inner");
 const instanceTypeText = computed(
   () => INSTANCE_TYPE_TRANSLATION[instanceInfo.value?.config.type ?? -1]
+);
+const hasConsoleAccess = computed(() =>
+  canPerformInstanceAction(instanceId ?? "", "canAccessConsole")
 );
 
 const { execute: requestOpenInstance, isLoading: isOpenInstanceLoading } = openInstance();
@@ -441,12 +446,17 @@ const terminalTopTags = computed<TagInfo[]>(() => {
         <span class="terminal-title">Terminal</span>
       </div>
       <TerminalCore
-        v-if="instanceId && daemonId"
+        v-if="instanceId && daemonId && hasConsoleAccess"
         :use-terminal-hook="terminalHook"
         :instance-id="instanceId"
         :daemon-id="daemonId"
         :height="card.height"
       />
+      <div v-else-if="!hasConsoleAccess" style="padding: 40px; text-align: center; color: var(--color-red-5);">
+        <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
+        <h3>Access Denied</h3>
+        <p>You do not have permission to access the console for this instance.</p>
+      </div>
     </div>
   </div>
 
@@ -500,12 +510,17 @@ const terminalTopTags = computed<TagInfo[]>(() => {
         <TerminalTags :tags="terminalTopTags" />
       </div>
       <TerminalCore
-        v-if="instanceId && daemonId"
+        v-if="instanceId && daemonId && hasConsoleAccess"
         :use-terminal-hook="terminalHook"
         :instance-id="instanceId"
         :daemon-id="daemonId"
         :height="card.height"
       />
+      <div v-else-if="!hasConsoleAccess" style="padding: 40px; text-align: center; color: var(--color-red-5);">
+        <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
+        <h3>Access Denied</h3>
+        <p>You do not have permission to access the console for this instance.</p>
+      </div>
     </template>
   </CardPanel>
 </template>

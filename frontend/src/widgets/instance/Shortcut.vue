@@ -5,6 +5,7 @@ import TextContainer from "@/components/TextContainer.vue";
 import { useAppRouters } from "@/hooks/useAppRouters";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { useInstanceInfo, verifyEULA } from "@/hooks/useInstance";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { t } from "@/lang/i18n";
 import {
   killInstance,
@@ -56,6 +57,8 @@ const { statusText, isRunning, isStopped, instanceTypeText, instanceInfo } = use
   autoRefresh: props.targetInstanceInfo ? false : true,
   instanceInfo: props.targetInstanceInfo ? ref(props.targetInstanceInfo) : undefined
 });
+
+const { canPerformInstanceAction } = useUserPermissions();
 
 const operationConfig = {
   params: {
@@ -136,7 +139,7 @@ const instanceOperations = computed(() =>
       },
       loading: openLoading.value,
       disabled: containerState.isDesignMode,
-      condition: () => isStopped.value
+      condition: () => isStopped.value && canPerformInstanceAction(instanceId ?? "", "canStartInstances")
     },
     {
       title: t("TXT_CODE_b1dedda3"),
@@ -154,7 +157,7 @@ const instanceOperations = computed(() =>
       },
       loading: stopLoading.value,
       disabled: containerState.isDesignMode,
-      condition: () => isRunning.value
+      condition: () => isRunning.value && canPerformInstanceAction(instanceId ?? "", "canStopInstances")
     },
     {
       title: t("TXT_CODE_47dcfa5"),
@@ -171,7 +174,7 @@ const instanceOperations = computed(() =>
       },
       loading: restartLoading.value,
       disabled: containerState.isDesignMode,
-      condition: () => isRunning.value
+      condition: () => isRunning.value && canPerformInstanceAction(instanceId ?? "", "canRestartInstances")
     },
     {
       title: t("TXT_CODE_40ca4f2"),

@@ -5,6 +5,7 @@ import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { useFileManager } from "@/hooks/useFileManager";
 import { useRightClickMenu } from "@/hooks/useRightClickMenu";
 import { useScreen } from "@/hooks/useScreen";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { getCurrentLang, t } from "@/lang/i18n";
 import uploadService from "@/services/uploadService";
 import { arrayFilter } from "@/tools/array";
@@ -49,6 +50,7 @@ const instanceId = getMetaOrRouteValue("instanceId");
 const daemonId = getMetaOrRouteValue("daemonId");
 
 const { isPhone } = useScreen();
+const { canPerformFileAction } = useUserPermissions();
 
 const {
   dialog,
@@ -286,7 +288,7 @@ const menuList = (record: DataType) =>
           onClick: () => touchFile()
         }
       ],
-      condition: () => !isMultiple.value
+      condition: () => !isMultiple.value && canPerformFileAction(instanceId ?? "", "canModifyFiles")
     },
     {
       label: t("TXT_CODE_a64f3007"),
@@ -300,14 +302,14 @@ const menuList = (record: DataType) =>
       key: "edit",
       icon: h(EditOutlined),
       onClick: () => editFile(record.name),
-      condition: () => !isMultiple.value && record.type === 1
+      condition: () => !isMultiple.value && record.type === 1 && canPerformFileAction(instanceId ?? "", "canModifyFiles")
     },
     {
       label: t("TXT_CODE_65b21404"),
       key: "download",
       icon: h(DownloadOutlined),
       onClick: () => downloadFile(record.name),
-      condition: () => !isMultiple.value && record.type === 1
+      condition: () => !isMultiple.value && record.type === 1 && canPerformFileAction(instanceId ?? "", "canDownloadFiles")
     },
     {
       label: t("TXT_CODE_46c4169b"),
@@ -326,14 +328,14 @@ const menuList = (record: DataType) =>
       key: "rename",
       icon: h(FormOutlined),
       onClick: () => resetName(record.name),
-      condition: () => !isMultiple.value
+      condition: () => !isMultiple.value && canPerformFileAction(instanceId ?? "", "canModifyFiles")
     },
     {
       label: t("TXT_CODE_16853efe"),
       key: "changePermission",
       icon: h(KeyOutlined),
       onClick: () => changePermission(record.name, record.mode),
-      condition: () => !isMultiple.value && fileStatus.value?.platform !== "win32"
+      condition: () => !isMultiple.value && fileStatus.value?.platform !== "win32" && canPerformFileAction(instanceId ?? "", "canModifyFiles")
     },
     {
       label: t("TXT_CODE_88122886"),
@@ -348,7 +350,8 @@ const menuList = (record: DataType) =>
       style: {
         color: "var(--color-red-5)"
       },
-      onClick: () => deleteFile(record.name)
+      onClick: () => deleteFile(record.name),
+      condition: () => canPerformFileAction(instanceId ?? "", "canDeleteFiles")
     }
   ]);
 
@@ -393,6 +396,7 @@ onUnmounted(() => {
             </a-typography-text>
 
             <a-upload
+              v-if="canPerformFileAction(instanceId ?? '', 'canUploadFiles')"
               v-model:file-list="fileList"
               :before-upload="() => false"
               multiple
