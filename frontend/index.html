@@ -152,25 +152,49 @@
             logoElement.style.animation = "none";
             logoElement.style.filter = "drop-shadow(0 0 12px rgba(255, 165, 0, 0.8))";
 
-            // Make logo fixed position so it can move freely
-            const rect = logoElement.getBoundingClientRect();
+            // MATHEMATICAL APPROACH: Use pure transform-based animation
+            // Current state: logo is centered at 50vw, 50vh using translate(-50%, -50%)
+            // Target state: logo should be at 25vw, 35vh (still centered on that point)
+
+            // Get current viewport dimensions
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            // Current center position (in viewport coordinates)
+            const currentX = vw * 0.5;  // 50vw
+            const currentY = vh * 0.5;  // 50vh
+
+            // Target center position
+            const targetX = vw * 0.25;  // 25vw (middle of left section)
+            const targetY = vh * 0.35;  // 35vh (upper-middle)
+
+            // Calculate the translation needed (in pixels)
+            const deltaX = targetX - currentX;  // Will be negative (move left)
+            const deltaY = targetY - currentY;  // Will be negative (move up)
+
+            // Convert logo to fixed positioning to break out of container
             logoElement.style.position = "fixed";
-            logoElement.style.top = rect.top + "px";
-            logoElement.style.left = rect.left + "px";
-            logoElement.style.transform = "translate(-50%, -50%)";
+            logoElement.style.top = "50%";
+            logoElement.style.left = "50%";
             logoElement.style.margin = "0";
             logoElement.style.zIndex = "10000";
 
-            // Calculate target position (left side of screen, centered vertically)
-            // Accounting for the login container layout
-            const targetX = window.innerWidth * 0.25; // 25% from left (middle of left section)
-            const targetY = window.innerHeight * 0.35; // 35% from top
+            // Start with current transform (centered)
+            logoElement.style.transform = "translate(-50%, -50%)";
 
-            // Animate to target position
+            // Force a reflow to ensure the position change is applied
+            logoElement.offsetHeight;
+
+            // Animate to target position using pure transform
             setTimeout(() => {
               logoElement.style.transition = "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)";
-              logoElement.style.top = targetY + "px";
-              logoElement.style.left = targetX + "px";
+
+              // Apply translation: translate(horizontal, vertical)
+              // We need to move deltaX pixels horizontally and deltaY pixels vertically
+              // While keeping the element centered on that point (-50%, -50%)
+              logoElement.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px))`;
+
+              // Scale up to final size
               logoElement.style.width = "120px";
               logoElement.style.height = "120px";
               logoElement.style.filter = "drop-shadow(0 10px 30px rgba(255, 140, 66, 0.4))";
