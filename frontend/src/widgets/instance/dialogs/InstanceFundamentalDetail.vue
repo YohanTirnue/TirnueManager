@@ -126,10 +126,11 @@ defineExpose({
     :title="t('TXT_CODE_aac98b2a')"
     :confirm-loading="isLoading"
     :ok-text="t('TXT_CODE_abfe9512')"
+    class="modern-instance-dialog"
     @ok="submit"
   >
-    <div class="dialog-overflow-container">
-      <a-typography-paragraph>
+    <div class="dialog-overflow-container modern-dialog-content">
+      <a-typography-paragraph class="dialog-intro">
         <a-typography-text type="secondary">
           {{ t("TXT_CODE_66f38b2e") }}
         </a-typography-text>
@@ -274,9 +275,62 @@ defineExpose({
   </a-modal>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .two-line-height {
   display: block;
   height: 44px;
+}
+
+.modern-dialog-content {
+  .dialog-intro {
+    padding: 12px 16px;
+    background: var(--color-gray-2);
+    border-radius: 8px;
+    border-left: 3px solid #1890ff;
+    margin-bottom: 24px;
+  }
+
+  :deep(.ant-form-item) {
+    margin-bottom: 24px;
+  }
+
+  :deep(.ant-typography-title) {
+    margin-bottom: 8px !important;
+    font-weight: 600;
+  }
+
+  :deep(.ant-input),
+  :deep(.ant-select-selector),
+  :deep(.ant-picker),
+  :deep(.ant-input-textarea) {
+    border-radius: 6px;
+  }
+
+  :deep(.ant-btn) {
+    border-radius: 6px;
+    font-weight: 500;
+  }
+}
+
+:deep(.modern-instance-dialog .ant-modal-header) {
+  border-bottom: 1px solid var(--color-gray-4);
+  padding: 20px 24px;
+}
+
+:deep(.modern-instance-dialog .ant-modal-title) {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+:deep(.modern-instance-dialog .ant-modal-footer) {
+  border-top: 1px solid var(--color-gray-4);
+  padding: 16px 24px;
+
+  .ant-btn {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 8px 20px;
+    height: auto;
+  }
 }
 </style>

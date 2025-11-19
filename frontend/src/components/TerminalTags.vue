@@ -33,21 +33,37 @@ defineProps<{
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .container {
   display: flex;
   flex-wrap: wrap;
   justify-content: end;
   align-items: center;
 }
+
 .tag {
   align-items: center;
   display: flex;
-  gap: 4px;
+  gap: 6px;
+  border-radius: 8px !important;
+  padding: 6px 14px !important;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  span {
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 .tag:hover {
-  box-shadow: 0 2px 4px 0 var(--card-shadow-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
   border: 1px solid var(--color-blue-5);
+}
+
+.tag:active {
+  transform: translateY(0);
 }
 </style>

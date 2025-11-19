@@ -281,5 +281,14 @@ watch(instanceInfo, (cfg, oldCfg) => {
   bottom: 0;
   left: 0;
   right: 0;
+  padding: 4px;
+  gap: 12px;
+}
+
+:deep(.inner-card-container) {
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 </style>

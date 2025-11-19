@@ -351,14 +351,16 @@ const terminalTopTags = computed<TagInfo[]>(() => {
           </div>
         </template>
         <template #right>
-          <div v-if="!isPhone">
+          <div v-if="!isPhone" class="terminal-action-buttons">
             <template v-for="item in [...quickOperations, ...instanceOperations]" :key="item.title">
               <a-button
                 v-if="item.noConfirm"
-                class="ml-8"
+                class="modern-action-btn"
                 :class="item.class ? item.class : ''"
+                :type="item.type === 'danger' ? 'default' : 'default'"
                 :danger="item.type === 'danger'"
                 :disabled="isOpenInstanceLoading"
+                size="large"
                 @click="item.click"
               >
                 <component :is="item.icon" />
@@ -371,9 +373,11 @@ const terminalTopTags = computed<TagInfo[]>(() => {
                 @confirm="item.click"
               >
                 <a-button
-                  class="ml-8"
+                  class="modern-action-btn"
+                  :type="item.type === 'danger' ? 'default' : 'default'"
                   :danger="item.type === 'danger'"
                   :class="item.class ? item.class : ''"
+                  size="large"
                 >
                   <component :is="item.icon" />
                   {{ item.title }}
@@ -476,6 +480,45 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 </template>
 
 <style lang="scss" scoped>
+.terminal-action-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.modern-action-btn {
+  border-radius: 8px !important;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &.button-color-success {
+    background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+    border-color: #52c41a;
+    color: white;
+
+    &:hover {
+      background: linear-gradient(135deg, #73d13d 0%, #95de64 100%);
+      border-color: #73d13d;
+      color: white;
+    }
+  }
+
+  &.color-warning:not(:hover) {
+    border-color: #ff4d4f;
+  }
+}
+
 .error-card {
   position: absolute;
   left: 0;
