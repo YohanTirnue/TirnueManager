@@ -22,6 +22,7 @@ import BetweenMenus from "@/components/BetweenMenus.vue";
 import { router } from "@/config/router";
 import { useInstanceTagSearch, useInstanceTagTips } from "@/hooks/useInstanceTag";
 import { useScreen } from "@/hooks/useScreen";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { remoteInstances, remoteNodeList } from "@/services/apis";
 import {
   batchDelete,
@@ -46,6 +47,8 @@ defineProps<{
 }>();
 
 const { isPhone } = useScreen();
+const { userPermissions, isAdmin } = useUserPermissions();
+
 const operationForm = ref({
   instanceName: "",
   currentPage: 1,
@@ -206,43 +209,71 @@ const exitMultipleMode = () => {
   selectedInstance.value = [];
 };
 
-const instanceOperations = [
+// Check if user can perform operations on ALL selected instances
+const canPerformBatchOperation = (action: "start" | "stop" | "restart" | "kill" | "delete") => {
+  if (isAdmin.value) return true;
+
+  const permissionMap = {
+    start: "canStartInstances",
+    stop: "canStopInstances",
+    restart: "canRestartInstances",
+    kill: "canStopInstances", // Kill requires stop permission
+    delete: "canDeleteFiles" // Delete requires file delete permission
+  } as const;
+
+  const requiredPermission = permissionMap[action];
+  return userPermissions.value[requiredPermission];
+};
+
+const instanceOperations = computed(() => [
   {
     title: t("TXT_CODE_57245e94"),
     icon: PlayCircleOutlined,
-    click: () => batchOperation("start")
+    click: () => batchOperation("start"),
+    disabled: !canPerformBatchOperation("start")
   },
   {
     title: t("TXT_CODE_b1dedda3"),
     icon: PauseCircleOutlined,
-    click: () => batchOperation("stop")
+    click: () => batchOperation("stop"),
+    disabled: !canPerformBatchOperation("stop")
   },
   {
     title: t("TXT_CODE_47dcfa5"),
     icon: RedoOutlined,
-    click: () => batchOperation("restart")
+    click: () => batchOperation("restart"),
+    disabled: !canPerformBatchOperation("restart")
   },
   {
     title: t("TXT_CODE_7b67813a"),
     icon: CloseOutlined,
     click: () => {
       batchOperation("kill");
-    }
+    },
+    disabled: !canPerformBatchOperation("kill")
   },
   {
     title: t("TXT_CODE_ecbd7449"),
     icon: DeleteOutlined,
-    click: () => batchDeleteInstance(false)
+    click: () => batchDeleteInstance(false),
+    disabled: !canPerformBatchOperation("delete")
   },
   {
     title: t("TXT_CODE_9ef27367"),
     icon: WarningOutlined,
-    click: () => batchDeleteInstance(true)
+    click: () => batchDeleteInstance(true),
+    disabled: !canPerformBatchOperation("delete")
   }
-];
+]);
 
 const batchOperation = async (actName: "start" | "stop" | "kill" | "restart") => {
   if (selectedInstance.value.length === 0) return reportErrorMsg(t("TXT_CODE_a0a77be5"));
+
+  // Permission check
+  if (!canPerformBatchOperation(actName)) {
+    return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to perform this operation");
+  }
+
   const operationMap = {
     start: async () => exec(batchStart().execute, t("TXT_CODE_2b5fd76e")),
     stop: async () => exec(batchStop().execute, t("TXT_CODE_4822a21")),
@@ -277,6 +308,12 @@ const batchOperation = async (actName: "start" | "stop" | "kill" | "restart") =>
 
 const batchDeleteInstance = async (deleteFile: boolean) => {
   if (selectedInstance.value.length === 0) return reportErrorMsg(t("TXT_CODE_a0a77be5"));
+
+  // Permission check
+  if (!canPerformBatchOperation("delete")) {
+    return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to delete instances");
+  }
+
   const { execute, state } = batchDelete();
   const uuids: string[] = [];
   const paths: string[] = [];
@@ -449,6 +486,7 @@ onMounted(async () => {
                     <a-menu-item
                       v-for="item in instanceOperations"
                       :key="item.title"
+                      :disabled="item.disabled"
                       @click="item.click"
                     >
                       <component :is="item.icon" />

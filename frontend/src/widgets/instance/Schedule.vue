@@ -14,22 +14,38 @@ import NewSchedule from "@/widgets/instance/dialogs/NewSchedule.vue";
 import type { AntColumnsType } from "../../types/ant";
 import { useScreen } from "@/hooks/useScreen";
 import { useSchedule } from "@/hooks/useSchedule";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { padZero } from "@/tools/common";
+import { reportErrorMsg } from "@/tools/validator";
 
 const props = defineProps<{
   card: LayoutCard;
 }>();
 
 const { isPhone } = useScreen();
+const { hasInstanceAccess, isAdmin } = useUserPermissions();
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
 const instanceId = getMetaOrRouteValue("instanceId");
 const daemonId = getMetaOrRouteValue("daemonId");
 const { toPage } = useAppRouters();
 const newScheduleDialog = ref<InstanceType<typeof NewSchedule>>();
-const { getScheduleList, schedules, scheduleListLoading, deleteSchedule } = useSchedule(
+const { getScheduleList, schedules, scheduleListLoading, deleteSchedule: deleteScheduleOriginal } = useSchedule(
   String(instanceId),
   String(daemonId)
 );
+
+// Wrapper for deleteSchedule with permission check
+const deleteSchedule = async (name: string) => {
+  if (!hasInstanceAccess(instanceId ?? "")) {
+    return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to manage schedules");
+  }
+  await deleteScheduleOriginal(name);
+};
+
+// Check if user can manage schedules for this instance
+const canManageSchedules = () => {
+  return isAdmin.value || hasInstanceAccess(instanceId ?? "");
+};
 
 const timeRender = (text: string, schedule: Schedule) => {
   const formatFunctions = {
@@ -148,7 +164,11 @@ onMounted(async () => {
             <a-button @click="refresh">
               {{ t("TXT_CODE_b76d94e0") }}
             </a-button>
-            <a-button type="primary" @click="newScheduleDialog?.openDialog()">
+            <a-button
+              type="primary"
+              :disabled="!canManageSchedules()"
+              @click="newScheduleDialog?.openDialog()"
+            >
               {{ t("TXT_CODE_1644b775") }}
             </a-button>
           </template>
@@ -174,6 +194,7 @@ onMounted(async () => {
                     <a-button
                       class="mr-8"
                       size="large"
+                      :disabled="!canManageSchedules()"
                       @click="newScheduleDialog?.openDialog(record as Schedule)"
                     >
                       {{ t("TXT_CODE_ad207008") }}
@@ -183,7 +204,7 @@ onMounted(async () => {
                       :title="t('TXT_CODE_6ff0668f')"
                       @confirm="deleteSchedule(record.name)"
                     >
-                      <a-button danger size="large">
+                      <a-button danger size="large" :disabled="!canManageSchedules()">
                         {{ t("TXT_CODE_ecbd7449") }}
                         <DeleteOutlined />
                       </a-button>

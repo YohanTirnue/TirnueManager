@@ -14,6 +14,7 @@ import PermissionBanner from "@/components/PermissionBanner.vue";
 import configComponent from "@/components/InstanceConfigEditor.vue";
 import FileEditor from "./dialogs/FileEditor.vue";
 import { useKeyboardEvents } from "@/hooks/useKeyboardEvents";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { reportErrorMsg } from "@/tools/validator";
 
 const props = defineProps<{
@@ -21,6 +22,7 @@ const props = defineProps<{
 }>();
 
 const { isPhone } = useScreen();
+const { canPerformFileAction } = useUserPermissions();
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
 const instanceId = getMetaOrRouteValue("instanceId");
 const daemonId = getMetaOrRouteValue("daemonId");
@@ -68,6 +70,11 @@ const {
   isLoading: updateConfigFileLoading
 } = updateConfigFile();
 const save = async () => {
+  // Permission check
+  if (!canPerformFileAction(instanceId ?? "", "canModifyFiles")) {
+    return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to modify config files");
+  }
+
   const config_ = { ...configFile.value };
   if (configPath == "server.properties" && type && type.startsWith("minecraft/java")) {
     for (const key in configFile) {
@@ -103,6 +110,11 @@ const { removeKeydownListener, startKeydownListener } = useKeyboardEvents(
 
 const FileEditorDialog = ref<InstanceType<typeof FileEditor>>();
 const toEditRawFile = async () => {
+  // Permission check
+  if (!canPerformFileAction(instanceId ?? "", "canModifyFiles")) {
+    return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to edit config files");
+  }
+
   try {
     removeKeydownListener();
     await FileEditorDialog.value?.openDialog(configPath ?? "", configName ?? "");
@@ -133,13 +145,22 @@ onMounted(async () => {
             </a-button>
           </template>
           <template #right>
-            <a-button type="primary" :loading="updateConfigFileLoading" @click="save">
+            <a-button
+              type="primary"
+              :loading="updateConfigFileLoading"
+              :disabled="!canPerformFileAction(instanceId ?? '', 'canModifyFiles')"
+              @click="save"
+            >
               {{ t("TXT_CODE_abfe9512") }}
             </a-button>
             <a-button :loading="getConfigFileLoading" @click="refresh()">
               {{ t("TXT_CODE_b76d94e0") }}
             </a-button>
-            <a-button type="dashed" @click="toEditRawFile">
+            <a-button
+              type="dashed"
+              :disabled="!canPerformFileAction(instanceId ?? '', 'canModifyFiles')"
+              @click="toEditRawFile"
+            >
               {{ t("TXT_CODE_1f61e5a3") }}
             </a-button>
           </template>

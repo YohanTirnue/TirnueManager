@@ -6,6 +6,7 @@ import { useAppRouters } from "@/hooks/useAppRouters";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { getInstanceConfigByType, type InstanceConfigs } from "@/hooks/useInstance";
 import { useScreen } from "@/hooks/useScreen";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { t } from "@/lang/i18n";
 import { getConfigFileList } from "@/services/apis/instance";
 import { reportErrorMsg } from "@/tools/validator";
@@ -18,6 +19,7 @@ const props = defineProps<{
 }>();
 
 const { isPhone } = useScreen();
+const { canPerformFileAction } = useUserPermissions();
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
 const instanceId = getMetaOrRouteValue("instanceId");
 const daemonId = getMetaOrRouteValue("daemonId");
@@ -137,7 +139,11 @@ onMounted(async () => {
                     </template>
                   </a-list-item-meta>
                   <template #actions>
-                    <a-button size="middle" @click="toEdit(item.redirect, item.path, item.type)">
+                    <a-button
+                      size="middle"
+                      :disabled="!canPerformFileAction(instanceId ?? '', 'canModifyFiles')"
+                      @click="toEdit(item.redirect, item.path, item.type)"
+                    >
                       {{ t("TXT_CODE_ad207008") }}
                     </a-button>
                   </template>
