@@ -173,15 +173,15 @@ const startLoginAnimation = () => {
             <div class="feature-item">
               <CloudServerOutlined class="feature-icon" />
               <div class="feature-text">
-                <h3>Game Server Management</h3>
-                <p>Full control over your game servers</p>
+                <h3>Full Control</h3>
+                <p>Manage your game servers with ease</p>
               </div>
             </div>
             <div class="feature-item">
               <RocketOutlined class="feature-icon" />
               <div class="feature-text">
-                <h3>Customer Portal</h3>
-                <p>Empower your customers to manage their own servers</p>
+                <h3>Simple & Powerful</h3>
+                <p>Everything you need, nothing you don't</p>
               </div>
             </div>
           </div>
