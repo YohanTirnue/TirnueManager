@@ -38,6 +38,10 @@ class UploadManager {
     return undefined;
   }
 
+  getAllKeys(): string[] {
+    return Array.from(this.uploads.keys());
+  }
+
   async clearExpired(): Promise<void> {
     const now = Date.now();
     for (const [key, writer] of this.uploads.entries()) {

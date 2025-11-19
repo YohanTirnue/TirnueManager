@@ -35,6 +35,9 @@ export async function uploadFileCheckMiddleware(ctx: Context, next: () => Promis
       if (pieceWriter || uploadMission) {
         return await next();
       } else {
+        logger.warn(`Upload denied: No valid upload task found for key: ${uploadKey}`);
+        logger.warn(`Piece writer exists: ${!!pieceWriter}, Upload mission exists: ${!!uploadMission}`);
+        logger.warn(`Available upload IDs: ${Array.from(uploadManager.getAllKeys()).join(", ")}`);
         throw error;
       }
     }
