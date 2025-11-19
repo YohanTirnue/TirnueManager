@@ -986,14 +986,16 @@ onMounted(async () => {
   font-size: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 140, 66, 0.1);
 
   &:hover {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.2), rgba(212, 175, 55, 0.2));
-    transform: scale(1.05);
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.25), rgba(212, 175, 55, 0.25));
+    box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+    border-color: #FF6B35;
   }
 
   &:active {
-    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(255, 140, 66, 0.2);
   }
 }
 
