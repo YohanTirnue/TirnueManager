@@ -59,110 +59,126 @@ onMounted(async () => {
 
 <template>
   <!-- eslint-disable vue/html-indent -->
-  <CardPanel class="containerWrapper" style="height: 100%">
+  <CardPanel class="containerWrapper modern-info-panel" style="height: 100%">
     <template #title>
       {{ card.title }}
     </template>
     <template #body>
-      <a-typography-paragraph>
-        {{ t("TXT_CODE_7ec9c59c") }}{{ getInstanceName }}
-      </a-typography-paragraph>
-      <a-typography-paragraph>
-        <div class="flex flex-wrap instance-tag">
-          <!-- instance status -->
-          <a-tag v-if="isRunning" color="green" class="tag">
+      <!-- Instance Header -->
+      <div class="info-header">
+        <h3 class="instance-name">{{ getInstanceName }}</h3>
+        <div class="instance-tags">
+          <a-tag v-if="isRunning" color="green" class="modern-tag">
             <CheckCircleOutlined />
             {{ statusText }}
           </a-tag>
-          <a-tag v-else-if="isStopped" class="tag">
+          <a-tag v-else-if="isStopped" class="modern-tag">
             <ExclamationCircleOutlined />
             {{ statusText }}
           </a-tag>
-          <a-tag v-else class="tag" color="pink">
+          <a-tag v-else class="modern-tag" color="pink">
             {{ statusText }}
           </a-tag>
-
-          <!-- instance type -->
-          <a-tag class="tag" color="purple"> {{ instanceTypeText }}</a-tag>
-
-          <a-tag color="purple" class="tag">
+          <a-tag class="modern-tag" color="purple">{{ instanceTypeText }}</a-tag>
+          <a-tag color="purple" class="modern-tag">
             {{ t("TXT_CODE_ad30f3c5") }}{{ instanceInfo?.started }}
           </a-tag>
-
-          <!-- real tags -->
-          <a-tag v-for="tag in instanceInfo?.config.tag" :key="tag" class="tag" color="blue">
+          <a-tag v-for="tag in instanceInfo?.config.tag" :key="tag" class="modern-tag" color="blue">
             {{ tag }}
           </a-tag>
         </div>
-      </a-typography-paragraph>
+      </div>
 
-      <a-typography-paragraph v-if="instanceGameServerInfo">
-        <span>{{ t("TXT_CODE_855c4a1c") }}</span>
-        <span>{{ instanceGameServerInfo.players }}</span>
-      </a-typography-paragraph>
-      <a-typography-paragraph v-if="instanceGameServerInfo">
-        <span>
-          {{ t("TXT_CODE_e260a220") }}
-        </span>
-        <span>
-          {{ instanceGameServerInfo.version }}
-        </span>
-      </a-typography-paragraph>
+      <!-- Game Server Info (if applicable) -->
+      <div v-if="instanceGameServerInfo" class="game-server-section">
+        <div class="info-card">
+          <div class="info-label">{{ t("TXT_CODE_855c4a1c") }}</div>
+          <div class="info-value">{{ instanceGameServerInfo.players }}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">{{ t("TXT_CODE_e260a220") }}</div>
+          <div class="info-value">{{ instanceGameServerInfo.version }}</div>
+        </div>
+      </div>
 
-      <template v-if="instanceInfo?.config.processType === 'docker'">
-        <a-typography-paragraph>
-          {{ t("TXT_CODE_4f917a65") }}
-          <a href="javascript:;" @click="DockerInfoDialog?.openDialog()">
-            {{ t("TXT_CODE_530f5951") }}
-          </a>
-        </a-typography-paragraph>
-      </template>
+      <!-- Docker Info -->
+      <div v-if="instanceInfo?.config.processType === 'docker'" class="docker-section">
+        <div class="info-card clickable" @click="DockerInfoDialog?.openDialog()">
+          <div class="info-label">{{ t("TXT_CODE_4f917a65") }}</div>
+          <a href="javascript:;" class="info-link">{{ t("TXT_CODE_530f5951") }}</a>
+        </div>
+      </div>
 
-      <a-typography-paragraph v-if="Number(instanceInfo?.info?.allocatedPorts?.length) > 0">
-        {{ t("TXT_CODE_2e4469f6") }}
-        <div style="padding: 10px 0px 0px 16px">
+      <!-- Allocated Ports -->
+      <div v-if="Number(instanceInfo?.info?.allocatedPorts?.length) > 0" class="ports-section">
+        <div class="section-title">{{ t("TXT_CODE_2e4469f6") }}</div>
+        <div class="ports-grid">
           <div
             v-for="(item, index) in instanceInfo?.info?.allocatedPorts"
             :key="index"
-            class="mb-4"
+            class="port-card"
           >
-            <span>
-              <a-tag color="green">{{ item.protocol.toUpperCase() }}</a-tag>
-            </span>
-            <a-tag>
-              <span>{{ t("TXT_CODE_8dfc41ef") }}: {{ item.host }}</span>
-              <span class="ml-4"> {{ t("TXT_CODE_8f8103b7") }}: {{ item.container }} </span>
-            </a-tag>
+            <a-tag color="green" class="protocol-tag">{{ item.protocol.toUpperCase() }}</a-tag>
+            <div class="port-info">
+              <span class="port-label">{{ t("TXT_CODE_8dfc41ef") }}:</span>
+              <span class="port-value">{{ item.host }}</span>
+            </div>
+            <div class="port-info">
+              <span class="port-label">{{ t("TXT_CODE_8f8103b7") }}:</span>
+              <span class="port-value">{{ item.container }}</span>
+            </div>
           </div>
         </div>
-      </a-typography-paragraph>
+      </div>
 
-      <a-typography-paragraph>
-        <span>{{ t("TXT_CODE_ae747cc0") }}</span>
-        <span>{{ parseTimestamp(instanceInfo?.config.endTime) || t("TXT_CODE_e3a77a77") }}</span>
-      </a-typography-paragraph>
-      <a-typography-paragraph v-if="!instanceGameServerInfo">
-        {{ t("TXT_CODE_8b8e08a6") }}{{ parseTimestamp(instanceInfo?.config.createDatetime) }}
-      </a-typography-paragraph>
-      <a-typography-paragraph>
-        {{ t("TXT_CODE_46f575ae") }}{{ parseTimestamp(instanceInfo?.config.lastDatetime) }}
-      </a-typography-paragraph>
-      <a-typography-paragraph v-if="!instanceGameServerInfo">
-        <span>{{ t("TXT_CODE_cec321b4") }}{{ instanceInfo?.config.oe.toUpperCase() }} </span>
-        <span class="ml-6">
-          {{ t("TXT_CODE_400a4210") }}{{ instanceInfo?.config.ie.toUpperCase() }}
-        </span>
-      </a-typography-paragraph>
-      <a-typography-paragraph>
-        <a-typography-text :title="instanceInfo?.instanceUuid">
-          {{ t("TXT_CODE_30051f9b") }}
-        </a-typography-text>
-        <a-typography-text :copyable="{ text: instanceInfo?.instanceUuid }"> </a-typography-text>
-        <a-typography-text class="ml-20" :title="daemonId">
-          {{ t("TXT_CODE_5f2d2e30") }}
-        </a-typography-text>
-        <a-typography-text :copyable="{ text: daemonId }"> </a-typography-text>
-      </a-typography-paragraph>
+      <!-- Instance Details Grid -->
+      <div class="details-grid">
+        <div class="info-card">
+          <div class="info-label">{{ t("TXT_CODE_ae747cc0") }}</div>
+          <div class="info-value">{{ parseTimestamp(instanceInfo?.config.endTime) || t("TXT_CODE_e3a77a77") }}</div>
+        </div>
+
+        <div v-if="!instanceGameServerInfo" class="info-card">
+          <div class="info-label">{{ t("TXT_CODE_8b8e08a6") }}</div>
+          <div class="info-value">{{ parseTimestamp(instanceInfo?.config.createDatetime) }}</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-label">{{ t("TXT_CODE_46f575ae") }}</div>
+          <div class="info-value">{{ parseTimestamp(instanceInfo?.config.lastDatetime) }}</div>
+        </div>
+
+        <div v-if="!instanceGameServerInfo" class="info-card encoding-card">
+          <div class="encoding-group">
+            <div class="info-label">{{ t("TXT_CODE_cec321b4") }}</div>
+            <div class="info-value">{{ instanceInfo?.config.oe.toUpperCase() }}</div>
+          </div>
+          <div class="encoding-group">
+            <div class="info-label">{{ t("TXT_CODE_400a4210") }}</div>
+            <div class="info-value">{{ instanceInfo?.config.ie.toUpperCase() }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IDs Section -->
+      <div class="ids-section">
+        <div class="id-card">
+          <div class="id-label">{{ t("TXT_CODE_30051f9b") }}</div>
+          <div class="id-value">
+            <a-typography-text :copyable="{ text: instanceInfo?.instanceUuid }">
+              {{ instanceInfo?.instanceUuid }}
+            </a-typography-text>
+          </div>
+        </div>
+        <div class="id-card">
+          <div class="id-label">{{ t("TXT_CODE_5f2d2e30") }}</div>
+          <div class="id-value">
+            <a-typography-text :copyable="{ text: daemonId }">
+              {{ daemonId }}
+            </a-typography-text>
+          </div>
+        </div>
+      </div>
     </template>
   </CardPanel>
 
@@ -170,11 +186,262 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
-.instance-tag {
-  margin-left: -4px;
-  margin-right: -4px;
-  .tag {
-    margin: 4px;
+// MODERN INFO PANEL
+.modern-info-panel {
+  :deep(.card-panel-content) {
+    overflow-y: auto;
+    padding: 12px;
+  }
+}
+
+// INSTANCE HEADER
+.info-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(153, 27, 27, 0.1);
+}
+
+.instance-name {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, rgba(153, 27, 27, 1) 0%, rgba(212, 107, 8, 1) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.instance-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.modern-tag {
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 4px 12px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// INFO CARD BASE
+.info-card {
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 250, 245, 0.95) 100%);
+  border: 1.5px solid rgba(153, 27, 27, 0.15);
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(153, 27, 27, 0.06);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(153, 27, 27, 0.12);
+    border-color: rgba(153, 27, 27, 0.25);
+  }
+
+  &.clickable {
+    cursor: pointer;
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+.info-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(153, 27, 27, 0.6);
+  margin-bottom: 6px;
+}
+
+.info-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(153, 27, 27, 0.95);
+  line-height: 1.4;
+}
+
+.info-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(153, 27, 27, 0.8);
+  text-decoration: underline;
+
+  &:hover {
+    color: rgba(153, 27, 27, 1);
+  }
+}
+
+// GAME SERVER SECTION
+.game-server-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+// DOCKER SECTION
+.docker-section {
+  margin-bottom: 16px;
+}
+
+// PORTS SECTION
+.ports-section {
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(153, 27, 27, 0.8);
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+.ports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.port-card {
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid rgba(153, 27, 27, 0.12);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(153, 27, 27, 0.1);
+    border-color: rgba(153, 27, 27, 0.2);
+  }
+}
+
+.protocol-tag {
+  align-self: flex-start;
+  font-weight: 700;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+.port-info {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.port-label {
+  font-weight: 600;
+  color: rgba(153, 27, 27, 0.6);
+}
+
+.port-value {
+  font-weight: 700;
+  color: rgba(153, 27, 27, 0.95);
+}
+
+// DETAILS GRID
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.encoding-card {
+  display: flex;
+  gap: 16px;
+}
+
+.encoding-group {
+  flex: 1;
+}
+
+// IDS SECTION
+.ids-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.id-card {
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(255, 250, 245, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border: 1.5px solid rgba(153, 27, 27, 0.15);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba(153, 27, 27, 0.25);
+    box-shadow: 0 3px 10px rgba(153, 27, 27, 0.1);
+  }
+}
+
+.id-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(153, 27, 27, 0.6);
+  margin-bottom: 6px;
+}
+
+.id-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(153, 27, 27, 0.85);
+  font-family: monospace;
+  word-break: break-all;
+
+  :deep(.ant-typography) {
+    color: rgba(153, 27, 27, 0.85);
+  }
+}
+
+// RESPONSIVE
+@media (max-width: 992px) {
+  .details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ids-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .instance-name {
+    font-size: 18px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .game-server-section {
+    grid-template-columns: 1fr;
+  }
+
+  .encoding-card {
+    flex-direction: column;
+    gap: 12px;
   }
 }
 </style>
