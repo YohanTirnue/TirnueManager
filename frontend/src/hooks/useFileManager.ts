@@ -18,6 +18,7 @@ import uploadService from "@/services/uploadService";
 import { number2permission, permission2number } from "@/tools/permission";
 import { mapDaemonAddress, parseForwardAddress, type RemoteMappingEntry } from "@/tools/protocol";
 import { reportErrorMsg } from "@/tools/validator";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import type {
   Breadcrumb,
   DataType,
@@ -42,6 +43,8 @@ export function getFileConfigAddr(config: { addr: string; remoteMappings?: Remot
 }
 
 export const useFileManager = (instanceId?: string, daemonId?: string) => {
+  const { canPerformFileAction } = useUserPermissions();
+
   const dataSource = ref<DataType[]>();
   const fileStatus = ref<FileStatus>();
   const selectedRowKeys = ref<Key[]>([]);
@@ -520,6 +523,11 @@ export const useFileManager = (instanceId?: string, daemonId?: string) => {
   };
 
   const downloadFile = async (fileName: string) => {
+    // CRITICAL: Check download permission before processing
+    if (!canPerformFileAction(instanceId ?? "", "canDownloadFiles")) {
+      return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to download files");
+    }
+
     const link = await getFileLink(fileName);
     if (!link) throw new Error(t("TXT_CODE_6d772765"));
     window.open(link);
