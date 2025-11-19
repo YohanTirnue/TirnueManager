@@ -493,45 +493,55 @@ defineExpose({
             </a-form-item>
           </a-col>
         </a-row>
-        <a-row v-if="activeKey === TabSettings.Docker" :gutter="20">
-          <a-col :xs="24" :lg="24" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5">
-                <safety-outlined v-if="isDockerMode" style="color: #52c41a; margin-right: 8px" />
-                <warning-outlined v-else style="color: #ff4d4f; margin-right: 8px" />
-                {{ t("TXT_CODE_61a8296e") }}
-                <a-tag :color="isDockerMode ? 'success' : 'error'" style="margin-left: 12px">
-                  {{ isDockerMode ? 'ENABLED' : 'DISABLED' }}
-                </a-tag>
-              </a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_2b221e02')" placement="top">
-                  <a-typography-text
-                    type="secondary"
-                    :class="[!isPhone && 'two-line-height', 'typography-text-ellipsis']"
+        <a-row v-if="activeKey === TabSettings.Docker" :gutter="[16, 16]">
+          <!-- Protection Status Section Card -->
+          <a-col :span="24">
+            <div class="protection-section-card" :class="{ active: isDockerMode }">
+              <div class="protection-header-row">
+                <div class="protection-info">
+                  <div class="protection-title-group">
+                    <span class="protection-icon-wrapper" :class="{ active: isDockerMode }">
+                      <safety-outlined v-if="isDockerMode" />
+                      <warning-outlined v-else />
+                    </span>
+                    <div>
+                      <h3 class="protection-title">Container Protection</h3>
+                      <p class="protection-subtitle">
+                        {{ isDockerMode ? 'Instance runs in an isolated Docker container' : 'Instance runs directly on host system' }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="protection-details">
+                    <div v-if="isDockerMode" class="status-benefits">
+                      <span class="benefit-item">✓ File System Isolation</span>
+                      <span class="benefit-item">✓ Process Isolation</span>
+                      <span class="benefit-item">✓ Resource Limits</span>
+                      <span class="benefit-item">~1-3% overhead</span>
+                    </div>
+                    <div v-else class="status-warnings">
+                      <span class="warning-item">⚠ Host filesystem accessible</span>
+                      <span class="warning-item">⚠ SSH keys accessible</span>
+                      <span class="warning-item">Only for trusted instances!</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="protection-toggle-section">
+                  <a-tag :color="isDockerMode ? 'success' : 'error'" class="status-tag">
+                    {{ isDockerMode ? 'ENABLED' : 'DISABLED' }}
+                  </a-tag>
+                  <a-switch
+                    v-model:checked="options.config.processType"
+                    :disabled="isGlobalTerminal"
+                    checked-value="docker"
+                    un-checked-value="general"
+                    size="large"
                   >
-                    {{ t("TXT_CODE_2b221e02") }}
-                    <br />
-                    <strong v-if="isDockerMode" style="color: #52c41a">
-                      ✓ Protects against malicious plugins • ~1-3% overhead • Blocks host file access
-                    </strong>
-                    <strong v-else style="color: #ff4d4f">
-                      ⚠ No protection • Plugins can access SSH keys and system files • Only for trusted instances
-                    </strong>
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-switch
-                v-model:checked="options.config.processType"
-                :disabled="isGlobalTerminal"
-                checked-value="docker"
-                un-checked-value="general"
-                size="large"
-              >
-                <template #checkedChildren><check-outlined /></template>
-                <template #unCheckedChildren><close-outlined /></template>
-              </a-switch>
-            </a-form-item>
+                    <template #checkedChildren><check-outlined /></template>
+                    <template #unCheckedChildren><close-outlined /></template>
+                  </a-switch>
+                </div>
+              </div>
+            </div>
           </a-col>
           <template v-if="isDockerMode">
             <a-col v-if="options.imageSelectMethod === 'SELECT'" :xs="24" :lg="16" :offset="0">
@@ -894,5 +904,139 @@ defineExpose({
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+/* Modern Settings Section Card (2024 Pattern) */
+.protection-section-card {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.protection-section-card.active {
+  border-color: #52c41a;
+  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.1);
+}
+
+.protection-section-card:not(.active) {
+  border-color: #ff4d4f;
+  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.1);
+}
+
+.protection-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.protection-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.protection-title-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.protection-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 20px;
+  transition: all 0.3s ease;
+}
+
+.protection-icon-wrapper.active {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.protection-icon-wrapper:not(.active) {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+
+.protection-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.protection-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.protection-details {
+  margin-left: 52px;
+}
+
+.status-benefits,
+.status-warnings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.benefit-item {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #f6ffed;
+  color: #52c41a;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.warning-item {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #fff1f0;
+  color: #ff4d4f;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.protection-toggle-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.status-tag {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .protection-header-row {
+    flex-direction: column;
+  }
+
+  .protection-toggle-section {
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .protection-details {
+    margin-left: 0;
+  }
 }
 </style>
