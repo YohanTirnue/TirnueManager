@@ -349,64 +349,67 @@ const terminalTopTags = computed<TagInfo[]>(() => {
         </div>
       </div>
 
-      <!-- Floating Action Bubbles (Glassmorphism) -->
-      <div class="glass-actions-panel" v-if="!isPhone">
-        <div class="actions-grid-modern">
+      <!-- Modern Action Buttons Panel -->
+      <div class="actions-panel-modern" v-if="!isPhone">
+        <div class="action-buttons-grid">
           <template v-for="item in quickOperations" :key="item.title">
-            <div
+            <a-button
               v-if="item.noConfirm"
-              class="glass-bubble bubble-primary"
-              :class="{ 'bubble-disabled': isOpenInstanceLoading }"
+              size="large"
+              class="modern-action-btn btn-primary-gradient"
+              :class="{ 'btn-disabled': isOpenInstanceLoading }"
+              :disabled="isOpenInstanceLoading"
               @click="!isOpenInstanceLoading && item.click()"
             >
-              <div class="bubble-glow"></div>
-              <div class="bubble-content">
-                <component :is="item.icon" class="bubble-icon" />
-                <span class="bubble-text">{{ item.title }}</span>
-              </div>
-            </div>
+              <template #icon>
+                <component :is="item.icon" />
+              </template>
+              {{ item.title }}
+            </a-button>
             <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
-              <div class="glass-bubble bubble-primary">
-                <div class="bubble-glow"></div>
-                <div class="bubble-content">
-                  <component :is="item.icon" class="bubble-icon" />
-                  <span class="bubble-text">{{ item.title }}</span>
-                </div>
-              </div>
+              <a-button size="large" class="modern-action-btn btn-primary-gradient">
+                <template #icon>
+                  <component :is="item.icon" />
+                </template>
+                {{ item.title }}
+              </a-button>
             </a-popconfirm>
           </template>
 
           <template v-for="item in instanceOperations" :key="item.title">
-            <div
+            <a-button
               v-if="item.noConfirm"
-              class="glass-bubble"
-              :class="item.type === 'danger' ? 'bubble-danger' : ''"
+              size="large"
+              class="modern-action-btn"
+              :class="item.type === 'danger' ? 'btn-danger-gradient' : 'btn-default-modern'"
               @click="item.click"
             >
-              <div class="bubble-glow"></div>
-              <div class="bubble-content">
-                <component :is="item.icon" class="bubble-icon" />
-                <span class="bubble-text">{{ item.title }}</span>
-              </div>
-            </div>
+              <template #icon>
+                <component :is="item.icon" />
+              </template>
+              {{ item.title }}
+            </a-button>
             <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
-              <div class="glass-bubble" :class="item.type === 'danger' ? 'bubble-danger' : ''">
-                <div class="bubble-glow"></div>
-                <div class="bubble-content">
-                  <component :is="item.icon" class="bubble-icon" />
-                  <span class="bubble-text">{{ item.title }}</span>
-                </div>
-              </div>
+              <a-button
+                size="large"
+                class="modern-action-btn"
+                :class="item.type === 'danger' ? 'btn-danger-gradient' : 'btn-default-modern'"
+              >
+                <template #icon>
+                  <component :is="item.icon" />
+                </template>
+                {{ item.title }}
+              </a-button>
             </a-popconfirm>
           </template>
         </div>
       </div>
 
       <!-- Mobile Actions -->
-      <div class="mobile-glass-actions" v-else>
+      <div class="mobile-actions-modern" v-else>
         <a-dropdown>
           <template #overlay>
-            <a-menu class="glass-menu">
+            <a-menu>
               <a-menu-item
                 v-for="item in [...quickOperations, ...instanceOperations]"
                 :key="item.title"
@@ -417,13 +420,12 @@ const terminalTopTags = computed<TagInfo[]>(() => {
               </a-menu-item>
             </a-menu>
           </template>
-          <div class="glass-bubble bubble-primary bubble-mobile">
-            <div class="bubble-glow"></div>
-            <div class="bubble-content">
-              <span>{{ t("TXT_CODE_fe731dfc") }}</span>
+          <a-button size="large" class="modern-action-btn btn-primary-gradient mobile-dropdown-btn">
+            <template #icon>
               <DownOutlined />
-            </div>
-          </div>
+            </template>
+            {{ t("TXT_CODE_fe731dfc") }}
+          </a-button>
         </a-dropdown>
       </div>
     </div>
@@ -800,140 +802,153 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   }
 }
 
-// GLASSMORPHISM ACTION BUBBLES
-.glass-actions-panel {
+// MODERN ACTION BUTTONS PANEL
+.actions-panel-modern {
   grid-column: 2;
   grid-row: 1 / 3;
-}
-
-.actions-grid-modern {
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
-.glass-bubble {
+.action-buttons-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.modern-action-btn {
   position: relative;
-  cursor: pointer;
+  width: 100%;
+  height: auto;
+  min-height: 56px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 14px;
+  border: 2px solid transparent;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 18px;
-  padding: 16px 20px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 4px 16px rgba(153, 27, 27, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  :deep(.anticon) {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+  }
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
     opacity: 0;
     transition: opacity 0.3s ease;
   }
 
   &:hover {
-    transform: translateX(-6px) scale(1.03);
-    box-shadow: 
-      0 12px 32px rgba(153, 27, 27, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    border-color: rgba(153, 27, 27, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 
     &::before {
       opacity: 1;
     }
 
-    .bubble-icon {
-      transform: scale(1.2) rotate(5deg);
-    }
-
-    .bubble-glow {
-      opacity: 0.8;
+    :deep(.anticon) {
+      transform: scale(1.15);
     }
   }
 
   &:active {
-    transform: translateX(-3px) scale(0.98);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 }
 
-.bubble-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, rgba(153, 27, 27, 0.4), transparent 70%);
-  filter: blur(20px);
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-}
+.btn-primary-gradient {
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.9) 0%, rgba(212, 107, 8, 0.9) 100%);
+  border-color: rgba(153, 27, 27, 0.3);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 
-.bubble-primary {
-  background: rgba(82, 196, 26, 0.15);
-  border-color: rgba(82, 196, 26, 0.3);
-
-  .bubble-icon {
-    color: var(--color-green-7);
+  &:hover {
+    background: linear-gradient(135deg, rgba(153, 27, 27, 1) 0%, rgba(212, 107, 8, 1) 100%);
+    border-color: rgba(153, 27, 27, 0.5);
+    color: #fff;
   }
 
-  .bubble-glow {
-    background: radial-gradient(circle, rgba(82, 196, 26, 0.5), transparent 70%);
+  &:active,
+  &:focus {
+    background: linear-gradient(135deg, rgba(153, 27, 27, 1) 0%, rgba(212, 107, 8, 1) 100%);
+    color: #fff;
+  }
+}
+
+.btn-danger-gradient {
+  background: linear-gradient(135deg, rgba(255, 77, 79, 0.15) 0%, rgba(245, 34, 45, 0.15) 100%);
+  border-color: rgba(255, 77, 79, 0.3);
+  color: var(--color-red-6);
+  font-weight: 700;
+
+  :deep(.anticon) {
+    color: var(--color-red-6);
   }
 
   &:hover {
-    background: rgba(82, 196, 26, 0.25);
-    border-color: var(--color-green-6);
-  }
-}
-
-.bubble-danger {
-  &:hover {
+    background: linear-gradient(135deg, rgba(255, 77, 79, 0.25) 0%, rgba(245, 34, 45, 0.25) 100%);
     border-color: var(--color-red-5);
-    
-    .bubble-icon {
-      color: var(--color-red-6);
+    color: var(--color-red-7);
+
+    :deep(.anticon) {
+      color: var(--color-red-7);
     }
   }
+
+  &:active,
+  &:focus {
+    background: linear-gradient(135deg, rgba(255, 77, 79, 0.25) 0%, rgba(245, 34, 45, 0.25) 100%);
+    color: var(--color-red-7);
+  }
 }
 
-.bubble-disabled {
+.btn-default-modern {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(153, 27, 27, 0.2);
+  color: rgba(153, 27, 27, 0.9);
+  font-weight: 700;
+
+  :deep(.anticon) {
+    color: rgba(153, 27, 27, 0.8);
+  }
+
+  &:hover {
+    background: rgba(255, 250, 245, 1);
+    border-color: rgba(153, 27, 27, 0.4);
+    color: rgba(153, 27, 27, 1);
+
+    :deep(.anticon) {
+      color: rgba(153, 27, 27, 1);
+    }
+  }
+
+  &:active,
+  &:focus {
+    background: rgba(255, 250, 245, 1);
+    color: rgba(153, 27, 27, 1);
+  }
+}
+
+.btn-disabled {
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
 }
 
-.bubble-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.bubble-icon {
-  font-size: 24px;
-  color: rgba(153, 27, 27, 0.8);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.bubble-text {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-color);
-  white-space: nowrap;
-}
-
-.bubble-mobile {
-  width: 100%;
-  justify-content: center;
+.mobile-actions-modern {
+  grid-column: 1;
   margin-top: 16px;
+
+  .mobile-dropdown-btn {
+    width: 100%;
+  }
 }
 
 // GLASS TERMINAL WRAPPER - macOS Style
@@ -996,14 +1011,20 @@ const terminalTopTags = computed<TagInfo[]>(() => {
     grid-template-columns: 1fr;
   }
 
-  .glass-actions-panel {
+  .actions-panel-modern {
     grid-column: 1;
     grid-row: auto;
   }
 
-  .actions-grid-modern {
+  .action-buttons-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .modern-action-btn {
+    min-height: 52px;
+    font-size: 14px;
   }
 
   .instance-hero-title {
@@ -1031,8 +1052,13 @@ const terminalTopTags = computed<TagInfo[]>(() => {
     grid-template-columns: 1fr;
   }
 
-  .actions-grid-modern {
+  .action-buttons-grid {
     grid-template-columns: 1fr;
+  }
+
+  .modern-action-btn {
+    min-height: 48px;
+    font-size: 13px;
   }
 
   .instance-hero-title {
