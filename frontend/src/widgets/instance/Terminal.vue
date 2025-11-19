@@ -488,14 +488,14 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 }
 
 .modern-action-btn {
-  border-radius: 8px !important;
+  border-radius: 10px !important;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px var(--card-shadow-color);
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 12px var(--card-shadow-extend-color);
   }
 
   &:active {
@@ -503,19 +503,19 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   }
 
   &.button-color-success {
-    background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
-    border-color: #52c41a;
+    background: linear-gradient(135deg, var(--color-green-6) 0%, var(--color-green-5) 100%);
+    border-color: var(--color-green-6);
     color: white;
 
     &:hover {
-      background: linear-gradient(135deg, #73d13d 0%, #95de64 100%);
-      border-color: #73d13d;
+      background: linear-gradient(135deg, var(--color-green-5) 0%, var(--color-green-4) 100%);
+      border-color: var(--color-green-5);
       color: white;
     }
   }
 
   &.color-warning:not(:hover) {
-    border-color: #ff4d4f;
+    border-color: var(--color-red-5);
   }
 }
 

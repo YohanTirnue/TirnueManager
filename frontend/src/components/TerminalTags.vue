@@ -49,7 +49,7 @@ defineProps<{
   padding: 6px 14px !important;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px var(--card-shadow-color);
 
   span {
     display: inline-flex;
@@ -58,9 +58,9 @@ defineProps<{
 }
 
 .tag:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 8px var(--card-shadow-extend-color);
   transform: translateY(-1px);
-  border: 1px solid var(--color-blue-5);
+  border-color: rgba(153, 27, 27, 0.4);
 }
 
 .tag:active {

@@ -286,7 +286,7 @@ defineExpose({
     padding: 12px 16px;
     background: var(--color-gray-2);
     border-radius: 8px;
-    border-left: 3px solid #1890ff;
+    border-left: 3px solid rgba(153, 27, 27, 0.8);
     margin-bottom: 24px;
   }
 
@@ -303,14 +303,15 @@ defineExpose({
   :deep(.ant-select-selector),
   :deep(.ant-picker),
   :deep(.ant-input-textarea) {
-    border-radius: 6px;
+    border-radius: 8px;
   }
 
   :deep(.ant-btn) {
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 500;
   }
 }
+
 
 :deep(.modern-instance-dialog .ant-modal-header) {
   border-bottom: 1px solid var(--color-gray-4);
@@ -327,7 +328,7 @@ defineExpose({
   padding: 16px 24px;
 
   .ant-btn {
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 500;
     padding: 8px 20px;
     height: auto;

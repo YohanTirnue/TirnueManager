@@ -32,20 +32,20 @@ const props = defineProps<{
   font-size: 48px;
   bottom: 12px;
   color: var(--color-gray-12);
-  opacity: 0.06;
+  opacity: 0.05;
   transition: all 0.3s ease;
 }
 
 .inner-card-wrapper {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--color-gray-3);
-  background: linear-gradient(135deg, var(--color-gray-1) 0%, var(--color-gray-2) 100%);
+  border: 1px solid var(--card-border-color);
+  background: var(--background-color-white);
   padding: 16px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px var(--card-shadow-color);
 
   &::before {
     content: '';
@@ -54,15 +54,15 @@ const props = defineProps<{
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #1890ff 0%, #52c41a 100%);
+    background: linear-gradient(90deg, rgba(153, 27, 27, 0.8) 0%, rgba(212, 107, 8, 0.8) 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
   }
 }
 
 .inner-card-wrapper:hover {
-  border: 1px solid var(--color-gray-6);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border-color: rgba(153, 27, 27, 0.3);
+  box-shadow: 0 6px 16px var(--card-shadow-extend-color);
   transform: translateY(-2px);
 
   &::before {
@@ -70,13 +70,13 @@ const props = defineProps<{
   }
 
   .bg-icon {
-    opacity: 0.1;
+    opacity: 0.08;
     transform: scale(1.05);
   }
 }
 
 .inner-card-wrapper:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px var(--card-shadow-color);
 }
 </style>
