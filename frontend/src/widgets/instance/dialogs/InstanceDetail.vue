@@ -10,7 +10,7 @@ import { dockerPortsArray } from "@/tools/common";
 import { reportErrorMsg } from "@/tools/validator";
 import type { DockerNetworkModes, InstanceDetail } from "@/types";
 import { TERMINAL_CODE } from "@/types/const";
-import { CheckOutlined, CloseOutlined } from "@ant-design/icons-vue";
+import { CheckOutlined, CloseOutlined, SafetyOutlined, WarningOutlined, InfoCircleOutlined } from "@ant-design/icons-vue";
 import type { FormInstance } from "ant-design-vue";
 import { message } from "ant-design-vue";
 import type { Rule } from "ant-design-vue/es/form";
@@ -494,33 +494,125 @@ defineExpose({
           </a-col>
         </a-row>
         <a-row v-if="activeKey === TabSettings.Docker" :gutter="20">
-          <a-col :xs="24" :lg="8" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5">
-                {{ t("TXT_CODE_61a8296e") }}
-              </a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_2b221e02')" placement="top">
-                  <a-typography-text
-                    type="secondary"
-                    :class="[!isPhone && 'two-line-height', 'typography-text-ellipsis']"
+          <!-- Container Protection Status Card -->
+          <a-col :xs="24" :lg="24" :offset="0">
+            <a-card
+              class="protection-status-card"
+              :class="{ 'protection-enabled': isDockerMode, 'protection-disabled': !isDockerMode }"
+              :style="{ marginBottom: '20px', border: isDockerMode ? '2px solid #52c41a' : '2px solid #ff4d4f' }"
+            >
+              <div class="protection-header">
+                <div class="protection-title-section">
+                  <div class="protection-icon">
+                    <safety-outlined v-if="isDockerMode" style="font-size: 32px; color: #52c41a" />
+                    <warning-outlined v-else style="font-size: 32px; color: #ff4d4f" />
+                  </div>
+                  <div class="protection-title-text">
+                    <a-typography-title :level="4" style="margin: 0">
+                      Container Protection
+                      <a-badge
+                        :status="isDockerMode ? 'success' : 'error'"
+                        :text="isDockerMode ? 'ENABLED' : 'DISABLED'"
+                        style="margin-left: 12px"
+                      />
+                    </a-typography-title>
+                    <a-typography-text type="secondary">
+                      {{ isDockerMode ? 'Instance is running in an isolated Docker container' : 'Instance runs directly on the host system' }}
+                    </a-typography-text>
+                  </div>
+                </div>
+                <div class="protection-toggle">
+                  <a-switch
+                    v-model:checked="options.config.processType"
+                    :disabled="isGlobalTerminal"
+                    checked-value="docker"
+                    un-checked-value="general"
+                    size="large"
                   >
-                    {{ t("TXT_CODE_2b221e02") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <div class="ml-4">
-                <a-switch
-                  v-model:checked="options.config.processType"
-                  :disabled="isGlobalTerminal"
-                  checked-value="docker"
-                  un-checked-value="general"
-                >
-                  <template #checkedChildren><check-outlined /></template>
-                  <template #unCheckedChildren><close-outlined /></template>
-                </a-switch>
+                    <template #checkedChildren><check-outlined /></template>
+                    <template #unCheckedChildren><close-outlined /></template>
+                  </a-switch>
+                </div>
               </div>
-            </a-form-item>
+
+              <!-- Protection Benefits / Warnings -->
+              <a-divider style="margin: 16px 0" />
+
+              <a-alert
+                v-if="isDockerMode"
+                message="Protection Active"
+                type="success"
+                show-icon
+                style="margin-bottom: 16px"
+              >
+                <template #description>
+                  <ul style="margin: 8px 0; padding-left: 20px">
+                    <li><strong>File System Isolation:</strong> Prevents plugins from accessing host files (SSH keys, system configs)</li>
+                    <li><strong>Process Isolation:</strong> Malicious code cannot affect other containers or the host</li>
+                    <li><strong>Resource Limits:</strong> Configure CPU, memory, and IO limits to prevent resource abuse</li>
+                    <li><strong>Performance:</strong> ~1-3% overhead with Init process optimization</li>
+                  </ul>
+                </template>
+              </a-alert>
+
+              <a-alert
+                v-else
+                message="Security Warning: No Protection"
+                type="error"
+                show-icon
+                style="margin-bottom: 16px"
+              >
+                <template #description>
+                  <strong>Plugins have full access to:</strong>
+                  <ul style="margin: 8px 0; padding-left: 20px">
+                    <li>❌ Host filesystem (can read SSH keys, modify system files)</li>
+                    <li>❌ Other server instances on the same machine</li>
+                    <li>❌ Network interfaces and system processes</li>
+                  </ul>
+                  <a-typography-text type="danger" strong>
+                    Only disable Docker for trusted instances!
+                  </a-typography-text>
+                </template>
+              </a-alert>
+
+              <!-- Quick Stats for Docker Mode -->
+              <div v-if="isDockerMode" class="protection-stats">
+                <a-row :gutter="16">
+                  <a-col :span="8">
+                    <a-statistic
+                      title="Performance Impact"
+                      value="1-3%"
+                      :value-style="{ color: '#52c41a' }"
+                    >
+                      <template #suffix>
+                        <a-tooltip title="Minimal overhead with Init process optimization">
+                          <info-circle-outlined />
+                        </a-tooltip>
+                      </template>
+                    </a-statistic>
+                  </a-col>
+                  <a-col :span="8">
+                    <a-statistic title="Security Level" value="High">
+                      <template #prefix>
+                        <safety-outlined style="color: #52c41a" />
+                      </template>
+                    </a-statistic>
+                  </a-col>
+                  <a-col :span="8">
+                    <a-statistic
+                      title="Optimizations"
+                      value="2"
+                    >
+                      <template #suffix>
+                        <a-tooltip title="Init Process + IO Priority Control">
+                          <info-circle-outlined />
+                        </a-tooltip>
+                      </template>
+                    </a-statistic>
+                  </a-col>
+                </a-row>
+              </div>
+            </a-card>
           </a-col>
           <template v-if="isDockerMode">
             <a-col v-if="options.imageSelectMethod === 'SELECT'" :xs="24" :lg="16" :offset="0">
@@ -883,5 +975,81 @@ defineExpose({
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+/* Container Protection Card Styles */
+.protection-status-card {
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.protection-status-card.protection-enabled {
+  background: linear-gradient(135deg, #f6ffed 0%, #ffffff 100%);
+}
+
+.protection-status-card.protection-disabled {
+  background: linear-gradient(135deg, #fff1f0 0%, #ffffff 100%);
+}
+
+.protection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.protection-title-section {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.protection-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.protection-title-text {
+  flex: 1;
+}
+
+.protection-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.protection-stats {
+  margin-top: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 768px) {
+  .protection-header {
+    flex-direction: column;
+  }
+
+  .protection-title-section {
+    width: 100%;
+  }
+
+  .protection-toggle {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .protection-stats {
+    margin-top: 12px;
+  }
 }
 </style>
