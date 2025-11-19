@@ -57,9 +57,8 @@ onMounted(async () => {
 
       <!-- Main Content Area -->
       <div class="main-content-wrapper" :class="{ 'with-sidebar': route.path !== '/login' && route.path !== '/install' }">
-        <!-- Use simplified header when sidebar is shown, full header for login/install -->
+        <!-- Only show header when NOT on login/install pages -->
         <AppHeaderSimple v-if="route.path !== '/login' && route.path !== '/install'" />
-        <AppHeader v-else />
         <RouterView :key="$route.fullPath" />
         <UploadBubble />
       </div>
