@@ -244,6 +244,11 @@ export const useFileManager = (instanceId?: string, daemonId?: string) => {
   };
 
   const deleteFile = async (file?: string) => {
+    // CRITICAL: Check delete permission before processing
+    if (!canPerformFileAction(instanceId ?? "", "canDeleteFiles")) {
+      return reportErrorMsg(t("TXT_CODE_c9c42155") || "You don't have permission to delete files");
+    }
+
     const { execute } = deleteFileApi();
     const useDeleteFileApi = async (files: string[]) => {
       try {
