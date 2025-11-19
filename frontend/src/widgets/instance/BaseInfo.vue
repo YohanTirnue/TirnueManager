@@ -60,29 +60,10 @@ onMounted(async () => {
 <template>
   <!-- eslint-disable vue/html-indent -->
   <CardPanel class="containerWrapper modern-info-panel" style="height: 100%">
+    <template #title>
+      {{ card.title }}
+    </template>
     <template #body>
-      <!-- Instance Header -->
-      <div class="info-header">
-        <h3 class="instance-name">{{ getInstanceName }}</h3>
-        <div class="instance-tags">
-          <a-tag v-if="isRunning" color="green" class="modern-tag">
-            <CheckCircleOutlined />
-            {{ statusText }}
-          </a-tag>
-          <a-tag v-else-if="isStopped" class="modern-tag">
-            <ExclamationCircleOutlined />
-            {{ statusText }}
-          </a-tag>
-          <a-tag v-else class="modern-tag" color="pink">
-            {{ statusText }}
-          </a-tag>
-          <a-tag class="modern-tag" color="purple">{{ instanceTypeText }}</a-tag>
-          <a-tag v-for="tag in instanceInfo?.config.tag" :key="tag" class="modern-tag" color="blue">
-            {{ tag }}
-          </a-tag>
-        </div>
-      </div>
-
       <!-- Game Server Info (if applicable) -->
       <div v-if="instanceGameServerInfo" class="game-server-section">
         <div class="info-card">
