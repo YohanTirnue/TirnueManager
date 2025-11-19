@@ -1016,7 +1016,7 @@ onMounted(async () => {
 
 .action-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 2px);
   left: 0;
   right: 0;
   background: var(--background-color-white);
@@ -1026,6 +1026,17 @@ onMounted(async () => {
   overflow: hidden;
   z-index: 100;
   animation: slideDown 0.2s ease;
+
+  // Bridge the gap to prevent cursor flickering
+  &::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    cursor: pointer;
+  }
 }
 
 @keyframes slideDown {
