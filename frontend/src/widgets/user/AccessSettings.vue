@@ -53,8 +53,13 @@ const assignApp = async () => {
     const selectedInstances = await useSelectInstances(dataSource.value);
     let warningInstances: string[] = [];
     for (const instance of selectedInstances || []) {
-      if (typeof instance.config?.docker?.image == "string" && !instance.config?.docker?.image)
+      // Warn if instance is not protected by Docker container
+      if (
+        instance.config?.processType !== "docker" ||
+        !instance.config?.docker?.image
+      ) {
         warningInstances.push(instance.nickname);
+      }
     }
     if (warningInstances.length > 0) {
       const component = (
