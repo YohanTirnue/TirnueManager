@@ -1,5 +1,4 @@
 const path = require("path");
-const nodeExternals = require("webpack-node-externals");
 
 /**
  * @type {import('webpack').Configuration}
@@ -25,7 +24,8 @@ module.exports = {
     moduleIds: "named"
   },
   externalsPresets: { node: true },
-  externals: [nodeExternals()],
+  // Bundle ALL dependencies instead of externalizing them
+  // This allows daemon to run without node_modules directory
   output: {
     filename: "app.js",
     path: path.resolve(__dirname, "production")
