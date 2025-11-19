@@ -269,11 +269,11 @@ const handleEditUser = (user: BaseUserInfo) => {
   // Ensure permissions object exists for backward compatibility
   // Merge with defaults to handle both missing and partial permissions objects
   if (!clonedUser.permissions) {
-    clonedUser.permissions = _.cloneDeep(formDataOrigin.permissions);
+    clonedUser.permissions = _.cloneDeep(formDataOrigin.permissions!);
   } else {
     // Merge existing permissions with defaults to ensure all fields exist
     clonedUser.permissions = {
-      ...formDataOrigin.permissions,
+      ...formDataOrigin.permissions!,
       ...clonedUser.permissions
     };
   }
@@ -393,16 +393,16 @@ onMounted(async () => {
               File Operations
             </h4>
             <div class="permission-items">
-              <a-checkbox v-model:checked="formData.permissions.canUploadFiles">
+              <a-checkbox v-model:checked="formData.permissions!.canUploadFiles">
                 Upload Files
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.canDownloadFiles">
+              <a-checkbox v-model:checked="formData.permissions!.canDownloadFiles">
                 Download Files
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.canDeleteFiles">
+              <a-checkbox v-model:checked="formData.permissions!.canDeleteFiles">
                 Delete Files
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.canModifyFiles">
+              <a-checkbox v-model:checked="formData.permissions!.canModifyFiles">
                 Modify Files
               </a-checkbox>
             </div>
@@ -415,19 +415,19 @@ onMounted(async () => {
               Instance Control
             </h4>
             <div class="permission-items">
-              <a-checkbox v-model:checked="formData.permissions.canAccessConsole">
+              <a-checkbox v-model:checked="formData.permissions!.canAccessConsole">
                 Access Console
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.canStartInstances">
+              <a-checkbox v-model:checked="formData.permissions!.canStartInstances">
                 Start Instances
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.canRestartInstances">
+              <a-checkbox v-model:checked="formData.permissions!.canRestartInstances">
                 Restart Instances
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.canStopInstances">
+              <a-checkbox v-model:checked="formData.permissions!.canStopInstances">
                 Stop Instances
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.canViewLogs">
+              <a-checkbox v-model:checked="formData.permissions!.canViewLogs">
                 View Logs
               </a-checkbox>
             </div>
@@ -440,19 +440,19 @@ onMounted(async () => {
               Security Restrictions
             </h4>
             <div class="permission-items">
-              <a-checkbox v-model:checked="formData.permissions.disableRightClick">
+              <a-checkbox v-model:checked="formData.permissions!.disableRightClick">
                 Disable Right Click
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.disableKeyboardShortcuts">
+              <a-checkbox v-model:checked="formData.permissions!.disableKeyboardShortcuts">
                 Disable Keyboard Shortcuts
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.disableTextSelection">
+              <a-checkbox v-model:checked="formData.permissions!.disableTextSelection">
                 Prevent Text Selection
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.disableCopy">
+              <a-checkbox v-model:checked="formData.permissions!.disableCopy">
                 Disable Copy
               </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions.disablePaste">
+              <a-checkbox v-model:checked="formData.permissions!.disablePaste">
                 Disable Paste
               </a-checkbox>
             </div>
