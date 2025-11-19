@@ -60,7 +60,7 @@ const data = ref<dataType>();
 const dataSource = computed(() => data?.value?.data || []);
 const selectedUsers = ref<string[]>([]);
 const currentRole = ref("");
-const showActionMenu = ref<string | null>(null);
+const actionModalUser = ref<BaseUserInfo | null>(null);
 
 const handleToUserResources = (user: BaseUserInfo) => {
   toPage({
@@ -69,7 +69,7 @@ const handleToUserResources = (user: BaseUserInfo) => {
       uuid: user.uuid
     }
   });
-  showActionMenu.value = null;
+  actionModalUser.value = null;
 };
 
 const handleTableChange = (page: number) => {
@@ -113,7 +113,7 @@ const deleteUser = async (userList: string[]) => {
 
 const handleDeleteUser = async (user: BaseUserInfo) => {
   await deleteUser([user.uuid]);
-  showActionMenu.value = null;
+  actionModalUser.value = null;
 };
 
 const handleBatchDelete = async () => {
@@ -296,17 +296,13 @@ const handleEditUser = (user: BaseUserInfo) => {
   formData.value = clonedUser;
   isAddMode.value = false;
   userDialog.value.show();
-  showActionMenu.value = null;
+  actionModalUser.value = null;
 };
 
 const search = throttle(async () => {
   operationForm.value.currentPage = 1;
   await fetchData();
 }, 600);
-
-const toggleActionMenu = (uuid: string) => {
-  showActionMenu.value = showActionMenu.value === uuid ? null : uuid;
-};
 
 const getPermissionIcon = (permission: string) => {
   if (permission === "10") return CrownOutlined;
@@ -599,25 +595,9 @@ onMounted(async () => {
 
           <!-- Action Button -->
           <div class="action-menu-container">
-            <button class="action-menu-btn" @click.stop="toggleActionMenu(user.uuid)">
+            <button class="action-menu-btn" @click.stop="actionModalUser = user">
               <MoreOutlined />
             </button>
-
-            <!-- Action Dropdown -->
-            <div v-if="showActionMenu === user.uuid" class="action-dropdown">
-              <button class="dropdown-item edit-item" @click="handleEditUser(user)">
-                <EditOutlined />
-                {{ t("TXT_CODE_236f70aa") || "Edit" }}
-              </button>
-              <button class="dropdown-item resources-item" @click="handleToUserResources(user)">
-                <DatabaseOutlined />
-                {{ t("TXT_CODE_4d934e3a") || "Resources" }}
-              </button>
-              <button class="dropdown-item delete-item" @click="showDeleteConfirm(user)">
-                <DeleteOutlined />
-                {{ t("TXT_CODE_ecbd7449") || "Delete" }}
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -635,8 +615,31 @@ onMounted(async () => {
     </div>
   </div>
 
-  <!-- Click outside to close dropdown -->
-  <div v-if="showActionMenu" class="dropdown-overlay" @click="showActionMenu = null"></div>
+  <!-- Action Modal -->
+  <a-modal
+    v-model:open="actionModalUser"
+    :title="actionModalUser ? `${actionModalUser.userName}` : ''"
+    :footer="null"
+    centered
+    width="400px"
+  >
+    <div v-if="actionModalUser" class="action-modal-content">
+      <button class="action-modal-btn edit-btn" @click="handleEditUser(actionModalUser)">
+        <EditOutlined class="action-icon" />
+        <span>{{ t("TXT_CODE_236f70aa") || "Edit User" }}</span>
+      </button>
+
+      <button class="action-modal-btn resources-btn" @click="handleToUserResources(actionModalUser)">
+        <DatabaseOutlined class="action-icon" />
+        <span>{{ t("TXT_CODE_4d934e3a") || "Manage Resources" }}</span>
+      </button>
+
+      <button class="action-modal-btn delete-btn" @click="showDeleteConfirm(actionModalUser)">
+        <DeleteOutlined class="action-icon" />
+        <span>{{ t("TXT_CODE_ecbd7449") || "Delete User" }}</span>
+      </button>
+    </div>
+  </a-modal>
 </template>
 
 <style lang="scss" scoped>
@@ -1014,84 +1017,71 @@ onMounted(async () => {
   }
 }
 
-.action-dropdown {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 0;
-  right: 0;
-  background: var(--background-color-white);
-  border: 2px solid var(--card-border-color);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px var(--card-shadow-extend-color);
-  overflow: hidden;
-  z-index: 100;
-  animation: slideDown 0.2s ease;
-
-  // Bridge the gap to prevent cursor flickering
-  &::before {
-    content: '';
-    position: absolute;
-    top: -4px;
-    left: 0;
-    right: 0;
-    height: 6px;
-    cursor: pointer;
-  }
+// Action Modal
+.action-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dropdown-item {
+.action-modal-btn {
   width: 100%;
-  padding: 14px 20px;
-  border: none;
+  padding: 16px 20px;
+  border: 2px solid;
+  border-radius: 12px;
   background: transparent;
-  color: var(--text-color);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 12px;
 
-  &:hover {
-    background: rgba(255, 140, 66, 0.08);
+  .action-icon {
+    font-size: 20px;
   }
 
-  &.edit-item:hover {
-    background: rgba(24, 144, 255, 0.12);
+  &.edit-btn {
+    border-color: rgba(24, 144, 255, 0.3);
     color: var(--color-blue-6);
+
+    &:hover {
+      background: rgba(24, 144, 255, 0.12);
+      border-color: var(--color-blue-6);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
+    }
   }
 
-  &.resources-item:hover {
-    background: rgba(82, 196, 26, 0.12);
+  &.resources-btn {
+    border-color: rgba(82, 196, 26, 0.3);
     color: var(--color-green-6);
+
+    &:hover {
+      background: rgba(82, 196, 26, 0.12);
+      border-color: var(--color-green-6);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(82, 196, 26, 0.2);
+    }
   }
 
-  &.delete-item {
-    color: var(--color-red-5);
+  &.delete-btn {
+    border-color: rgba(255, 77, 79, 0.3);
+    color: var(--color-red-6);
 
     &:hover {
       background: rgba(255, 77, 79, 0.12);
-      color: var(--color-red-6);
+      border-color: var(--color-red-6);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 77, 79, 0.2);
     }
   }
-}
 
-.dropdown-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 99;
+  &:active {
+    transform: translateY(0);
+  }
 }
 
 // Pagination
