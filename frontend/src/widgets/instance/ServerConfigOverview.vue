@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import CardPanel from "@/components/CardPanel.vue";
+import BetweenMenus from "@/components/BetweenMenus.vue";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 import { useAppRouters } from "@/hooks/useAppRouters";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { getInstanceConfigByType, type InstanceConfigs } from "@/hooks/useInstance";
@@ -105,7 +107,9 @@ onMounted(async () => {
           </template>
         </BetweenMenus>
       </a-col>
-
+      <a-col :span="24">
+        <PermissionBanner type="file" theme="blue" />
+      </a-col>
       <a-col :span="24">
         <CardPanel style="height: 100%">
           <template #body>

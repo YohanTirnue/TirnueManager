@@ -2,6 +2,7 @@
 import { useInstanceInfo } from "@/hooks/useInstance";
 import { t } from "@/lang/i18n";
 import type { LayoutCard } from "@/types";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 import { CheckCircleOutlined, ExclamationCircleOutlined } from "@ant-design/icons-vue";
 import { computed, onMounted, ref } from "vue";
 import { GLOBAL_INSTANCE_NAME } from "../../config/const";
@@ -64,6 +65,8 @@ onMounted(async () => {
       {{ card.title }}
     </template>
     <template #body>
+      <PermissionBanner type="instance" theme="orange" />
+
       <!-- Game Server Info (if applicable) -->
       <div v-if="instanceGameServerInfo" class="game-server-section">
         <div class="info-card">

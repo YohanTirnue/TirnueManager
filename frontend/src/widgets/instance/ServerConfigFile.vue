@@ -9,6 +9,8 @@ import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { useAppRouters } from "@/hooks/useAppRouters";
 import { toUnicode } from "@/tools/common";
 import Loading from "@/components/Loading.vue";
+import BetweenMenus from "@/components/BetweenMenus.vue";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 import configComponent from "@/components/InstanceConfigEditor.vue";
 import FileEditor from "./dialogs/FileEditor.vue";
 import { useKeyboardEvents } from "@/hooks/useKeyboardEvents";
@@ -142,6 +144,9 @@ onMounted(async () => {
             </a-button>
           </template>
         </BetweenMenus>
+      </a-col>
+      <a-col v-if="!isFailure" :span="24">
+        <PermissionBanner type="file" theme="blue" />
       </a-col>
 
       <configComponent

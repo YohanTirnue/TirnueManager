@@ -6,6 +6,7 @@ import { userInfoApi } from "@/services/apis/index";
 import { useRouter } from "vue-router";
 import { INSTANCE_STATUS, INSTANCE_STATUS_CODE } from "@/types/const";
 import { parseTimestamp } from "../tools/time";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 
 defineProps<{
   card: LayoutCard;
@@ -78,6 +79,7 @@ onMounted(() => {
   <CardPanel>
     <template #title>{{ card.title }}</template>
     <template #body>
+      <PermissionBanner type="instance" theme="orange" />
       <a-table
         :data-source="state?.instances"
         :columns="columns"

@@ -39,6 +39,7 @@ import { useInstanceMoreDetail } from "../hooks/useInstance";
 import { computeNodeName } from "../tools/nodes";
 import type { NodeStatus } from "../types/index";
 import Shortcut from "./instance/Shortcut.vue";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 
 defineProps<{
   card: LayoutCard;
@@ -420,6 +421,9 @@ onMounted(async () => {
             </div>
           </template>
         </BetweenMenus>
+      </a-col>
+      <a-col :span="24">
+        <PermissionBanner type="instance" theme="orange" />
       </a-col>
       <a-col :span="24">
         <BetweenMenus>

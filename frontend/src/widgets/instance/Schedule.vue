@@ -5,6 +5,7 @@ import { message } from "ant-design-vue";
 import { DeleteOutlined, EditOutlined, FieldTimeOutlined } from "@ant-design/icons-vue";
 import CardPanel from "@/components/CardPanel.vue";
 import BetweenMenus from "@/components/BetweenMenus.vue";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { useAppRouters } from "@/hooks/useAppRouters";
 import type { LayoutCard, Schedule } from "@/types/index";
@@ -152,6 +153,9 @@ onMounted(async () => {
             </a-button>
           </template>
         </BetweenMenus>
+      </a-col>
+      <a-col :span="24">
+        <PermissionBanner type="instance" theme="orange" />
       </a-col>
       <a-col :span="24">
         <CardPanel style="height: 100%">
