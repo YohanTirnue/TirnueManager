@@ -230,7 +230,12 @@ class UploadTask {
     this.onProgress(0);
 
     if (!isStopping && this.retries < 3) {
-      this.start(); // async
+      // Exponential backoff: 1s, 2s, 4s delays before retrying
+      const retryDelay = Math.pow(2, this.retries - 1) * 1000;
+      console.log(`Retrying upload in ${retryDelay}ms (attempt ${this.retries + 1}/3)`);
+      setTimeout(() => {
+        this.start(); // async
+      }, retryDelay);
     } else {
       uploadService.update();
       console.error(
