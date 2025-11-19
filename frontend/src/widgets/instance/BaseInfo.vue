@@ -198,19 +198,19 @@ onMounted(async () => {
 .info-header {
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 2px solid rgba(250, 140, 22, 0.3);
+  border-bottom: 2px solid rgba(255, 140, 66, 0.4);
 }
 
 .instance-name {
   margin: 0 0 12px 0;
   font-size: 20px;
   font-weight: 800;
-  background: linear-gradient(135deg, #fa8c16 0%, #faad14 100%);
+  background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .instance-tags {
@@ -234,17 +234,17 @@ onMounted(async () => {
 // INFO CARD BASE
 .info-card {
   padding: 14px 16px;
-  background: linear-gradient(135deg, rgba(80, 15, 15, 0.75) 0%, rgba(127, 29, 29, 0.75) 100%);
-  border: 1.5px solid rgba(250, 140, 22, 0.25);
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(40, 40, 40, 0.85) 100%);
+  border: 1.5px solid rgba(255, 140, 66, 0.3);
   border-radius: 10px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(250, 140, 22, 0.25);
-    border-color: rgba(250, 140, 22, 0.4);
-    background: linear-gradient(135deg, rgba(80, 15, 15, 0.9) 0%, rgba(127, 29, 29, 0.9) 100%);
+    box-shadow: 0 5px 15px rgba(255, 140, 66, 0.25);
+    border-color: rgba(255, 140, 66, 0.5);
+    background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
   }
 
   &.clickable {
@@ -261,26 +261,26 @@ onMounted(async () => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: rgba(250, 173, 20, 0.7);
+  color: rgba(255, 140, 66, 0.7);
   margin-bottom: 6px;
 }
 
 .info-value {
   font-size: 15px;
   font-weight: 700;
-  color: #ffc53d;
+  color: #D4AF37;
   line-height: 1.4;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .info-link {
   font-size: 14px;
   font-weight: 600;
-  color: #fa8c16;
+  color: #FF8C42;
   text-decoration: underline;
 
   &:hover {
-    color: #ffa940;
+    color: #FF9C52;
   }
 }
 
@@ -305,10 +305,10 @@ onMounted(async () => {
 .section-title {
   font-size: 13px;
   font-weight: 700;
-  color: #fa8c16;
+  color: #FF8C42;
   margin-bottom: 10px;
   padding-left: 4px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .ports-grid {
@@ -319,8 +319,8 @@ onMounted(async () => {
 
 .port-card {
   padding: 12px 14px;
-  background: linear-gradient(135deg, rgba(80, 15, 15, 0.7) 0%, rgba(127, 29, 29, 0.7) 100%);
-  border: 1.5px solid rgba(250, 140, 22, 0.25);
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.8) 0%, rgba(40, 40, 40, 0.8) 100%);
+  border: 1.5px solid rgba(255, 140, 66, 0.3);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -329,9 +329,9 @@ onMounted(async () => {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(250, 140, 22, 0.2);
-    border-color: rgba(250, 140, 22, 0.4);
-    background: linear-gradient(135deg, rgba(80, 15, 15, 0.85) 0%, rgba(127, 29, 29, 0.85) 100%);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+    border-color: rgba(255, 140, 66, 0.5);
+    background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
   }
 }
 
@@ -350,13 +350,13 @@ onMounted(async () => {
 
 .port-label {
   font-weight: 600;
-  color: rgba(250, 173, 20, 0.7);
+  color: rgba(255, 140, 66, 0.7);
 }
 
 .port-value {
   font-weight: 700;
-  color: #ffc53d;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  color: #D4AF37;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 // DETAILS GRID
@@ -385,15 +385,15 @@ onMounted(async () => {
 
 .id-card {
   padding: 12px 14px;
-  background: linear-gradient(135deg, rgba(80, 15, 15, 0.7) 0%, rgba(127, 29, 29, 0.7) 100%);
-  border: 1.5px solid rgba(250, 140, 22, 0.25);
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.8) 0%, rgba(40, 40, 40, 0.8) 100%);
+  border: 1.5px solid rgba(255, 140, 66, 0.3);
   border-radius: 10px;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(250, 140, 22, 0.4);
-    box-shadow: 0 4px 12px rgba(250, 140, 22, 0.2);
-    background: linear-gradient(135deg, rgba(80, 15, 15, 0.85) 0%, rgba(127, 29, 29, 0.85) 100%);
+    border-color: rgba(255, 140, 66, 0.5);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+    background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
   }
 }
 
@@ -402,20 +402,20 @@ onMounted(async () => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: rgba(250, 173, 20, 0.7);
+  color: rgba(255, 140, 66, 0.7);
   margin-bottom: 6px;
 }
 
 .id-value {
   font-size: 13px;
   font-weight: 600;
-  color: #faad14;
+  color: #D4AF37;
   font-family: monospace;
   word-break: break-all;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 
   :deep(.ant-typography) {
-    color: #faad14;
+    color: #D4AF37;
   }
 }
 

@@ -345,29 +345,29 @@ watch(instanceInfo, (cfg, oldCfg) => {
   height: auto;
   min-height: 72px;
   padding: 16px 18px;
-  background: linear-gradient(135deg, rgba(80, 15, 15, 0.85) 0%, rgba(127, 29, 29, 0.85) 100%);
-  border: 2px solid rgba(250, 140, 22, 0.3);
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
+  border: 2px solid rgba(255, 140, 66, 0.4);
   border-radius: 14px;
   text-align: left;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   animation: btn-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(250, 140, 22, 0.1) 0%, rgba(212, 107, 8, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
   }
 
   &:hover {
     transform: translateY(-4px);
-    border-color: rgba(250, 140, 22, 0.5);
-    box-shadow: 0 8px 24px rgba(250, 140, 22, 0.3);
-    background: linear-gradient(135deg, rgba(80, 15, 15, 1) 0%, rgba(127, 29, 29, 1) 100%);
+    border-color: rgba(255, 140, 66, 0.6);
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.3);
+    background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
 
     &::before {
       opacity: 1;
@@ -382,7 +382,7 @@ watch(instanceInfo, (cfg, oldCfg) => {
     }
 
     .btn-title {
-      color: #ffc53d;
+      color: #FFD700;
     }
   }
 
@@ -412,15 +412,15 @@ watch(instanceInfo, (cfg, oldCfg) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(250, 140, 22, 0.2) 0%, rgba(212, 107, 8, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.2) 0%, rgba(255, 107, 53, 0.2) 100%);
   border-radius: 12px;
-  border: 1.5px solid rgba(250, 140, 22, 0.4);
+  border: 1.5px solid rgba(255, 140, 66, 0.5);
   transition: all 0.3s ease;
 }
 
 .btn-icon {
   font-size: 26px;
-  color: #fa8c16;
+  color: #FF8C42;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -436,24 +436,24 @@ watch(instanceInfo, (cfg, oldCfg) => {
 .btn-title {
   font-size: 15px;
   font-weight: 700;
-  color: #faad14;
+  color: #D4AF37;
   letter-spacing: -0.2px;
   line-height: 1.3;
   transition: color 0.3s ease;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .btn-subtitle {
   font-size: 12px;
   font-weight: 600;
-  color: rgba(250, 173, 20, 0.6);
+  color: rgba(212, 175, 55, 0.6);
   letter-spacing: 0.2px;
 }
 
 // BUTTON ARROW
 .btn-arrow {
   font-size: 16px;
-  color: #fa8c16;
+  color: #FF8C42;
   flex-shrink: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

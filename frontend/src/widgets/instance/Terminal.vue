@@ -883,20 +883,20 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 }
 
 .btn-primary-gradient {
-  background: linear-gradient(135deg, #fa8c16 0%, #d46b08 100%);
-  border-color: rgba(250, 140, 22, 0.4);
+  background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+  border-color: rgba(255, 140, 66, 0.5);
   color: #fff;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 
   &:hover {
-    background: linear-gradient(135deg, #ff9c2e 0%, #e67910 100%);
-    border-color: rgba(250, 140, 22, 0.6);
+    background: linear-gradient(135deg, #FF9C52 0%, #FF7B45 100%);
+    border-color: rgba(255, 140, 66, 0.7);
     color: #fff;
   }
 
   &:active,
   &:focus {
-    background: linear-gradient(135deg, #fa8c16 0%, #d46b08 100%);
+    background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
     color: #fff;
   }
 }
@@ -930,30 +930,30 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 }
 
 .btn-default-modern {
-  background: linear-gradient(135deg, rgba(80, 15, 15, 0.85) 0%, rgba(127, 29, 29, 0.85) 100%);
-  border-color: rgba(250, 173, 20, 0.3);
-  color: #faad14;
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
+  border-color: rgba(255, 140, 66, 0.4);
+  color: #D4AF37;
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 
   :deep(.anticon) {
-    color: #faad14;
+    color: #D4AF37;
   }
 
   &:hover {
-    background: linear-gradient(135deg, rgba(80, 15, 15, 1) 0%, rgba(127, 29, 29, 1) 100%);
-    border-color: rgba(250, 173, 20, 0.5);
-    color: #ffc53d;
+    background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
+    border-color: rgba(255, 140, 66, 0.6);
+    color: #FFD700;
 
     :deep(.anticon) {
-      color: #ffc53d;
+      color: #FFD700;
     }
   }
 
   &:active,
   &:focus {
-    background: linear-gradient(135deg, rgba(80, 15, 15, 0.85) 0%, rgba(127, 29, 29, 0.85) 100%);
-    color: #faad14;
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
+    color: #D4AF37;
   }
 }
 
