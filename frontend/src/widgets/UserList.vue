@@ -1158,16 +1158,25 @@ onMounted(async () => {
 
 .permissions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin-top: 16px;
+
+  // Responsive layout for smaller screens
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .permission-category {
   background: var(--card-bottom-background-color);
   border: 2px solid var(--card-border-color);
   border-radius: 12px;
-  padding: 16px;
+  padding: 14px;
   transition: all 0.3s ease;
 
   &:hover {
@@ -1183,8 +1192,8 @@ onMounted(async () => {
   gap: 8px;
   font-size: 15px;
   font-weight: 700;
-  margin: 0 0 12px 0;
-  padding-bottom: 12px;
+  margin: 0 0 10px 0;
+  padding-bottom: 10px;
   border-bottom: 2px solid var(--card-border-color);
   background: linear-gradient(135deg, #FF8C42, #D4AF37);
   -webkit-background-clip: text;
@@ -1200,19 +1209,19 @@ onMounted(async () => {
 .permission-items {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 
   :deep(.ant-checkbox-wrapper) {
     font-size: 14px;
     font-weight: 500;
     color: var(--text-color);
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 8px;
     transition: all 0.2s ease;
 
     &:hover {
       background: rgba(255, 140, 66, 0.08);
-      padding-left: 16px;
+      padding-left: 14px;
     }
   }
 
@@ -1242,8 +1251,9 @@ onMounted(async () => {
   }
 }
 
-// Make modal wider to accommodate permissions
+// Make modal wider to accommodate permissions (landscape layout)
 :deep(.ant-modal) {
-  max-width: 900px;
+  max-width: 1400px;
+  width: 95% !important;
 }
 </style>
