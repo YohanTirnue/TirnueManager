@@ -174,29 +174,16 @@ export class SetupDockerContainer extends AsyncTask {
         return {
           Type: "bind",
           Source: hostPath,
-          Target: instance.parseTextParams(v.containerPath),
-          Consistency: "delegated" // Performance: container writes are cached, ~10-30% faster IO
+          Target: instance.parseTextParams(v.containerPath)
         };
       }) || [];
     if (workingDir && cwd) {
       mounts.push({
         Type: "bind",
         Source: cwd,
-        Target: instance.parseTextParams(workingDir),
-        Consistency: "delegated" // Performance: container writes are cached, ~10-30% faster IO
+        Target: instance.parseTextParams(workingDir)
       });
     }
-
-    // PERFORMANCE OPTIMIZATION: tmpfs for /tmp (RAM-based, 10-100x faster than disk)
-    // Stores temporary files in RAM instead of disk - huge speed boost for plugins that write temp files
-    mounts.push({
-      Type: "tmpfs",
-      Target: "/tmp",
-      TmpfsOptions: {
-        SizeBytes: 256 * 1024 * 1024, // 256 MB RAM for temp files
-        Mode: 0o1777 // rwxrwxrwt (sticky bit like normal /tmp)
-      }
-    });
 
     logger.info("----------------");
     logger.info(`[SetupDockerContainer]`);
@@ -214,7 +201,7 @@ export class SetupDockerContainer extends AsyncTask {
       } MB`
     );
     logger.info(`IO_WEIGHT: ${blkioWeight || "--"} (10-1000, higher = more IO bandwidth)`);
-    logger.info(`PERFORMANCE: tmpfs /tmp (256MB RAM), ShmSize 512MB, delegated mounts, init enabled`);
+    logger.info(`INIT: enabled (proper signal handling and zombie process reaping)`);
     logger.info(`TYPE: Docker Container`);
     logger.info("----------------");
 
@@ -272,18 +259,7 @@ export class SetupDockerContainer extends AsyncTask {
         PortBindings: publicPortArray,
         NetworkMode: dockerConfig.networkMode,
         Mounts: mounts,
-        // PERFORMANCE: Increase shared memory from default 64MB to 512MB
-        // Helps with inter-process communication, some plugins use this
-        ShmSize: 512 * 1024 * 1024,
-        // PERFORMANCE: Limit log size to prevent disk bloat slowing down container
-        LogConfig: {
-          Type: "json-file",
-          Config: {
-            "max-size": "10m", // Max 10MB per log file
-            "max-file": "3" // Keep 3 rotated files = 30MB total
-          }
-        },
-        // PERFORMANCE: Better process management, prevents zombie processes
+        // PERFORMANCE: Enable init process for proper signal handling and zombie process reaping
         Init: true
       },
       NetworkingConfig: {
