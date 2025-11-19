@@ -58,7 +58,20 @@ const { statusText, isRunning, isStopped, instanceTypeText, instanceInfo } = use
   instanceInfo: props.targetInstanceInfo ? ref(props.targetInstanceInfo) : undefined
 });
 
-const { canPerformInstanceAction } = useUserPermissions();
+const { canPerformInstanceAction, userPermissions, isAdmin } = useUserPermissions();
+
+// Get user's available instance permissions
+const availablePermissions = computed(() => {
+  if (isAdmin.value) return null; // Admins don't need permission notices
+  const perms = userPermissions.value;
+  const available = [];
+  if (perms.canStartInstances) available.push("Start");
+  if (perms.canStopInstances) available.push("Stop");
+  if (perms.canRestartInstances) available.push("Restart");
+  if (perms.canAccessConsole) available.push("Console");
+  if (perms.canViewLogs) available.push("Logs");
+  return available.length > 0 ? available : null;
+});
 
 const operationConfig = {
   params: {
@@ -329,7 +342,16 @@ const instanceOperations = computed(() =>
           </div>
         </div>
 
-        <div class="action-buttons-grid">
+        <!-- Permission Notice Banner -->
+        <div v-if="availablePermissions" class="permission-notice">
+          <UserOutlined class="permission-icon" />
+          <div class="permission-text">
+            <span class="permission-label">Your permissions:</span>
+            <span class="permission-list">{{ availablePermissions.join(", ") }}</span>
+          </div>
+        </div>
+
+        <div class="action-buttons-grid" :class="{ 'centered-grid': instanceOperations.length <= 3 }">
           <template v-for="item in instanceOperations" :key="item.title">
             <div v-if="!item.area" class="action-btn-wrapper">
               <a-button
@@ -462,6 +484,45 @@ const instanceOperations = computed(() =>
   }
 }
 
+// Permission Notice Banner
+.permission-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
+  border: 2px solid rgba(255, 140, 66, 0.25);
+  border-radius: 10px;
+  margin-top: 16px;
+
+  .permission-icon {
+    font-size: 20px;
+    color: #FF8C42;
+    flex-shrink: 0;
+  }
+
+  .permission-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .permission-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #FF8C42;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .permission-list {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-gray-10);
+  }
+}
+
 // MASSIVE Action Buttons Grid - The Main Feature!
 .action-buttons-grid {
   display: grid;
@@ -469,6 +530,14 @@ const instanceOperations = computed(() =>
   gap: 12px;
   padding-top: 16px;
   border-top: 2px solid rgba(255, 140, 66, 0.15);
+
+  // Center buttons when there are 3 or fewer
+  &.centered-grid {
+    justify-content: center;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 200px));
+    max-width: 700px;
+    margin: 0 auto;
+  }
 }
 
 .action-btn-wrapper {
