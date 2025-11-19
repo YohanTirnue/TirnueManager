@@ -223,6 +223,7 @@ declare global {
     size: string;
     hardware: string;
     remark: string;
+    addr?: string;
     targetLink?: string;
     author: string;
     setupInfo?: IJsonData;
