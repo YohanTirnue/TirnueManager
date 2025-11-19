@@ -526,7 +526,7 @@ defineExpose({
                   </div>
                 </div>
                 <div class="protection-toggle-section">
-                  <a-tag :color="isDockerMode ? 'success' : 'error'" class="status-tag">
+                  <a-tag :color="isDockerMode ? 'orange' : 'default'" class="status-tag">
                     {{ isDockerMode ? 'ENABLED' : 'DISABLED' }}
                   </a-tag>
                   <a-switch
@@ -906,133 +906,152 @@ defineExpose({
   max-width: 100%;
 }
 
-/* Modern Settings Section Card (2024 Pattern) */
+/* Modern Settings Card - ORANGE GOLD BLACK THEME ONLY */
 .protection-section-card {
-  background: #ffffff;
-  border: 1px solid #f0f0f0;
-  border-radius: 8px;
-  padding: 20px;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  border: 2px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 24px;
   transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .protection-section-card.active {
-  border-color: #52c41a;
-  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.1);
+  border-color: #ff8c00; /* ORANGE */
+  box-shadow: 0 4px 16px rgba(255, 140, 0, 0.2);
 }
 
 .protection-section-card:not(.active) {
-  border-color: #ff4d4f;
-  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.1);
+  border-color: #666666;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .protection-header-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
+  align-items: center; /* OCD: Perfect vertical center */
+  gap: 24px; /* OCD: 24px consistent */
 }
 
 .protection-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px; /* OCD: 8px multiples */
 }
 
 .protection-title-group {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center; /* OCD: Icon and text perfectly aligned */
+  gap: 16px; /* OCD: 16px gap */
 }
 
 .protection-icon-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 48px; /* OCD: 48x48 perfect square */
+  height: 48px;
   border-radius: 8px;
-  font-size: 20px;
+  font-size: 24px;
   transition: all 0.3s ease;
+  flex-shrink: 0; /* OCD: Never shrinks */
 }
 
 .protection-icon-wrapper.active {
-  background: #f6ffed;
-  color: #52c41a;
+  background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%); /* ORANGE gradient */
+  color: #000000; /* BLACK icon */
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
 }
 
 .protection-icon-wrapper:not(.active) {
-  background: #fff1f0;
-  color: #ff4d4f;
+  background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+  color: #999999;
 }
 
 .protection-title {
   margin: 0;
-  font-size: 16px;
+  padding: 0;
+  font-size: 18px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.85);
+  color: #ffd700; /* GOLD */
+  line-height: 1.4;
 }
 
 .protection-subtitle {
-  margin: 4px 0 0 0;
+  margin: 0;
+  padding: 0;
   font-size: 14px;
-  color: rgba(0, 0, 0, 0.45);
+  color: #999999;
+  line-height: 1.4;
 }
 
 .protection-details {
-  margin-left: 52px;
+  margin-left: 64px; /* OCD: 48px icon + 16px gap = 64px */
 }
 
 .status-benefits,
 .status-warnings {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px; /* OCD: 8px consistent gap */
+  align-items: center;
 }
 
 .benefit-item {
-  display: inline-block;
-  padding: 4px 12px;
-  background: #f6ffed;
-  color: #52c41a;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px; /* OCD: 6px vertical, 12px horizontal */
+  background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%); /* ORANGE */
+  color: #000000; /* BLACK text */
+  border-radius: 6px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .warning-item {
-  display: inline-block;
-  padding: 4px 12px;
-  background: #fff1f0;
-  color: #ff4d4f;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px; /* OCD: Same as benefit */
+  background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%);
+  color: #ffd700; /* GOLD text */
+  border-radius: 6px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .protection-toggle-section {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  justify-content: center; /* OCD: Vertically centered */
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .status-tag {
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 @media (max-width: 768px) {
   .protection-header-row {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .protection-toggle-section {
-    align-items: flex-start;
+    align-items: center;
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
+    padding-top: 8px;
   }
 
   .protection-details {
