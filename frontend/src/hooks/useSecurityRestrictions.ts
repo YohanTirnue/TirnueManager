@@ -114,13 +114,10 @@ export function useSecurityRestrictions() {
     }
   };
 
-  // Watch for permission changes and update restrictions
-  watch(
-    [disableRightClick, disableKeyboardShortcuts, disableTextSelection, disableCopy, disablePaste],
-    () => {
-      applyTextSelectionCSS();
-    }
-  );
+  // Watch for text selection permission changes and update CSS
+  watch(disableTextSelection, () => {
+    applyTextSelectionCSS();
+  });
 
   onMounted(() => {
     setupListeners();
