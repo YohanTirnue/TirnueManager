@@ -21,6 +21,13 @@ export function initKoa() {
       jsonLimit: "10mb",
       onError(err, ctx) {
         logger.error("koaBody Lib Error:", err);
+        logger.error("koaBody error details:", {
+          url: ctx.url,
+          method: ctx.method,
+          contentType: ctx.request.headers["content-type"],
+          error: err.message,
+          stack: err.stack
+        });
       }
     })
   );

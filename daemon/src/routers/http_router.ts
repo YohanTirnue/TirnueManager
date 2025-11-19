@@ -190,12 +190,22 @@ router.post("/upload-new/:key", async (ctx) => {
 router.post("/upload-piece/:id", async (ctx) => {
   const id = String(ctx.params.id);
   const offset = Number(ctx.query.offset);
+
+  // Debug logging
+  logger.info(`Upload piece request for ID: ${id}, offset: ${offset}`);
+  logger.info(`Content-Type: ${ctx.request.headers["content-type"]}`);
+  logger.info(`ctx.request.files exists: ${!!ctx.request.files}`);
+  logger.info(`ctx.request.files content: ${JSON.stringify(Object.keys(ctx.request.files || {}))}`);
+
   const tmpFiles = ctx.request.files?.file;
 
   try {
     if (!tmpFiles) {
+      logger.error(`No file found in upload piece request for ID: ${id}`);
+      logger.error(`Available fields in ctx.request.files: ${JSON.stringify(Object.keys(ctx.request.files || {}))}`);
       ctx.body = "Access denied: No file found";
       ctx.status = 500;
+      return; // FIX: Added missing return
     }
 
     let uploadedFile: formidable.File;
