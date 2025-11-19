@@ -161,7 +161,8 @@ const userDialog = ref({
           data: {
             username: formData.value.userName,
             password: formData.value.passWord!,
-            permission: formData.value.permission
+            permission: formData.value.permission,
+            permissions: formData.value.permissions
           }
         });
         message.success(t("TXT_CODE_c855fc29"));
@@ -263,7 +264,15 @@ const handleAddUser = async () => {
 
 const handleEditUser = (user: BaseUserInfo) => {
   userDialog.value.title = t("TXT_CODE_79f9a172");
-  formData.value = _.cloneDeep(user);
+  const clonedUser = _.cloneDeep(user);
+
+  // Ensure permissions object exists for backward compatibility
+  // If user doesn't have permissions (old users), initialize with defaults
+  if (!clonedUser.permissions) {
+    clonedUser.permissions = _.cloneDeep(formDataOrigin.permissions);
+  }
+
+  formData.value = clonedUser;
   isAddMode.value = false;
   userDialog.value.show();
   showActionMenu.value = null;
