@@ -142,12 +142,12 @@ const startLoginAnimation = () => {
       <div class="brand-section">
         <div class="brand-content">
           <!-- Animated Logo from Loading Screen -->
-          <div v-show="showLogo" class="brand-logo-container">
+          <div class="brand-logo-container" :class="{ show: showLogo }">
             <img src="/favicon.png" alt="Tirnue Logo" class="brand-logo" />
           </div>
 
           <!-- Animated Brand Name -->
-          <div v-show="showBrandName" class="brand-name-container">
+          <div class="brand-name-container" :class="{ show: showBrandName }">
             <h1 class="brand-title">Tirnue</h1>
             <p class="brand-subtitle">
               An under development panel server
@@ -162,7 +162,7 @@ const startLoginAnimation = () => {
             An under development panel server
           </p>
 
-          <div v-show="showBrandName" class="features-list">
+          <div class="features-list" :class="{ show: showBrandName }">
             <div class="feature-item">
               <ThunderboltOutlined class="feature-icon" />
               <div class="feature-text">
@@ -281,14 +281,14 @@ const startLoginAnimation = () => {
           </div>
 
           <!-- Login Step 1: Loading -->
-          <div v-show="loginStep === 1" class="status-screen">
+          <div v-show="loginStep === 1" class="status-screen" :class="{ show: loginStep === 1 }">
             <LoadingOutlined class="status-icon loading-icon" />
             <h3>Authenticating...</h3>
             <p>Please wait while we verify your credentials</p>
           </div>
 
           <!-- Login Step 2+: Success -->
-          <div v-show="loginStep >= 2" class="status-screen">
+          <div v-show="loginStep >= 2" class="status-screen" :class="{ show: loginStep >= 2 }">
             <CheckCircleOutlined class="status-icon success-icon" />
             <h3>Login Successful!</h3>
             <p>Redirecting to dashboard...</p>
@@ -309,10 +309,10 @@ const startLoginAnimation = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+  background: #0a0a0a;
 }
 
-// Animated Background
+// Animated Background - Simplified and optimized
 .background-gradient {
   position: absolute;
   inset: 0;
@@ -323,9 +323,10 @@ const startLoginAnimation = () => {
 .gradient-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.5;
-  animation: float 20s infinite ease-in-out;
+  filter: blur(100px);
+  opacity: 0.25;
+  will-change: opacity;
+  transition: opacity 2s ease;
 
   &.orb-1 {
     width: 500px;
@@ -333,7 +334,6 @@ const startLoginAnimation = () => {
     background: radial-gradient(circle, #FF8C42, transparent);
     top: -10%;
     left: -10%;
-    animation-delay: 0s;
   }
 
   &.orb-2 {
@@ -342,7 +342,6 @@ const startLoginAnimation = () => {
     background: radial-gradient(circle, #D4AF37, transparent);
     bottom: -10%;
     right: -10%;
-    animation-delay: 7s;
   }
 
   &.orb-3 {
@@ -352,15 +351,7 @@ const startLoginAnimation = () => {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    animation-delay: 14s;
   }
-}
-
-@keyframes float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(50px, 50px) scale(1.1); }
-  50% { transform: translate(-30px, 80px) scale(0.9); }
-  75% { transform: translate(70px, -40px) scale(1.05); }
 }
 
 // Main Container
@@ -373,39 +364,23 @@ const startLoginAnimation = () => {
   max-width: 1400px;
   height: 90vh;
   max-height: 800px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(10, 10, 10, 0.85);
   backdrop-filter: blur(20px);
   border-radius: 24px;
-  border: 1px solid rgba(255, 140, 66, 0.15);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 140, 66, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   overflow: hidden;
 }
 
 // Brand Section (Left)
 .brand-section {
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(212, 175, 55, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.08) 0%, rgba(212, 175, 55, 0.08) 100%);
   padding: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 140, 66, 0.08), transparent 50%);
-    animation: rotate 30s linear infinite;
-  }
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 
 .brand-content {
@@ -415,54 +390,37 @@ const startLoginAnimation = () => {
   max-width: 500px;
 }
 
-// Animated Logo Container
+// Animated Logo Container - Simplified to blur transition only
 .brand-logo-container {
   display: flex;
   justify-content: center;
   margin-bottom: 32px;
-  animation: logoFadeIn 0.4s ease forwards;
+  opacity: 0;
+  filter: blur(10px);
+  transition: opacity 0.6s ease, filter 0.6s ease;
+
+  // Will be shown via inline style or class
+  &.show {
+    opacity: 1;
+    filter: blur(0);
+  }
 }
 
 .brand-logo {
   width: 120px;
   height: 120px;
-  filter: drop-shadow(0 10px 30px rgba(255, 140, 66, 0.4));
-  animation: logoPulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 10px 25px rgba(255, 140, 66, 0.3));
 }
 
-@keyframes logoFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes logoPulse {
-  0%, 100% {
-    filter: drop-shadow(0 10px 30px rgba(255, 140, 66, 0.4));
-  }
-  50% {
-    filter: drop-shadow(0 15px 40px rgba(255, 140, 66, 0.6));
-  }
-}
-
-// Animated Brand Name
+// Animated Brand Name - Simplified to blur transition only
 .brand-name-container {
-  animation: brandNamePopUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
+  opacity: 0;
+  filter: blur(10px);
+  transition: opacity 0.6s ease, filter 0.6s ease;
 
-@keyframes brandNamePopUp {
-  from {
-    transform: translateY(20px) scale(0.9);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0) scale(1);
+  &.show {
     opacity: 1;
+    filter: blur(0);
   }
 }
 
@@ -477,13 +435,7 @@ const startLoginAnimation = () => {
   font-size: 48px;
   color: white;
   margin-bottom: 32px;
-  box-shadow: 0 10px 30px rgba(255, 140, 66, 0.3);
-  animation: pulse-icon 3s ease-in-out infinite;
-}
-
-@keyframes pulse-icon {
-  0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(255, 140, 66, 0.3); }
-  50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(255, 140, 66, 0.5); }
+  box-shadow: 0 10px 25px rgba(255, 140, 66, 0.25);
 }
 
 .brand-title {
@@ -507,7 +459,7 @@ const startLoginAnimation = () => {
 
 .brand-subtitle {
   font-size: 20px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 48px;
   font-weight: 400;
 }
@@ -518,17 +470,13 @@ const startLoginAnimation = () => {
   gap: 24px;
   margin-bottom: 48px;
   margin-top: 48px;
-  animation: fadeInUp 0.6s ease 0.3s both;
-}
+  opacity: 0;
+  filter: blur(10px);
+  transition: opacity 0.6s ease 0.3s, filter 0.6s ease 0.3s;
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
+  &.show {
     opacity: 1;
-    transform: translateY(0);
+    filter: blur(0);
   }
 }
 
@@ -537,15 +485,15 @@ const startLoginAnimation = () => {
   align-items: flex-start;
   gap: 16px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(10, 10, 10, 0.6);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 140, 66, 0.15);
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(20, 20, 20, 0.8);
     transform: translateX(8px);
-    border-color: rgba(255, 140, 66, 0.3);
+    border-color: rgba(255, 140, 66, 0.4);
   }
 }
 
@@ -590,7 +538,7 @@ const startLoginAnimation = () => {
 
 // Form Section (Right)
 .form-section {
-  background: linear-gradient(135deg, rgba(30, 30, 46, 0.95) 0%, rgba(45, 45, 68, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%);
   padding: 60px;
   display: flex;
   align-items: center;
@@ -602,22 +550,18 @@ const startLoginAnimation = () => {
   width: 100%;
   max-width: 420px;
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: blur(10px);
+  transition: opacity 0.6s ease, filter 0.6s ease;
 
   &.form-visible {
     opacity: 1;
-    transform: translateY(0);
+    filter: blur(0);
   }
 }
 
 .form-content {
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  opacity: 1;
+  filter: blur(0);
 }
 
 .form-header {
@@ -667,28 +611,31 @@ const startLoginAnimation = () => {
 
 .modern-input {
   :deep(.ant-input),
-  :deep(.ant-input-password) {
-    font-size: 16px;
-    padding: 12px 16px;
-    border: 2px solid rgba(255, 140, 66, 0.3);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    transition: all 0.3s ease;
+  :deep(.ant-input-password),
+  :deep(.ant-input-affix-wrapper) {
+    font-size: 16px !important;
+    padding: 12px 16px !important;
+    border: 2px solid rgba(255, 140, 66, 0.25) !important;
+    border-radius: 12px !important;
+    background: rgba(10, 10, 10, 0.7) !important;
+    color: white !important;
+    transition: all 0.3s ease !important;
+    height: auto !important;
+    line-height: 1.5 !important;
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.35) !important;
     }
 
     &:hover {
-      border-color: #FF8C42;
-      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 140, 66, 0.5) !important;
+      background: rgba(15, 15, 15, 0.8) !important;
     }
 
-    &:focus {
-      border-color: #FF8C42;
-      background: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.2);
+    &:focus, &:focus-within {
+      border-color: #FF8C42 !important;
+      background: rgba(20, 20, 20, 0.9) !important;
+      box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15) !important;
     }
   }
 
@@ -696,11 +643,15 @@ const startLoginAnimation = () => {
     margin-right: 12px;
   }
 
+  :deep(.ant-input-suffix) {
+    margin-left: 12px;
+  }
+
   :deep(.ant-input-password-icon) {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 140, 66, 0.6) !important;
 
     &:hover {
-      color: #FF8C42;
+      color: #FF8C42 !important;
     }
   }
 }
@@ -758,7 +709,14 @@ const startLoginAnimation = () => {
 .status-screen {
   text-align: center;
   padding: 60px 20px;
-  animation: fadeIn 0.5s ease;
+  opacity: 0;
+  filter: blur(10px);
+  transition: opacity 0.5s ease, filter 0.5s ease;
+
+  &.show {
+    opacity: 1;
+    filter: blur(0);
+  }
 
   .status-icon {
     font-size: 80px;
@@ -767,12 +725,16 @@ const startLoginAnimation = () => {
 
   .loading-icon {
     color: #FF8C42;
-    animation: spin 1s linear infinite;
+    opacity: 1;
+    filter: blur(0);
+    transition: opacity 0.4s ease, filter 0.4s ease;
   }
 
   .success-icon {
     color: #D4AF37;
-    animation: scaleIn 0.5s ease;
+    opacity: 1;
+    filter: blur(0);
+    transition: opacity 0.4s ease, filter 0.4s ease;
   }
 
   h3 {
@@ -787,19 +749,9 @@ const startLoginAnimation = () => {
 
   p {
     font-size: 16px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.6);
     margin: 0;
   }
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
 }
 
 // Responsive Design
@@ -839,8 +791,8 @@ const startLoginAnimation = () => {
 // Override autofill styles
 :deep(input:-webkit-autofill) {
   -webkit-text-fill-color: white !important;
-  -webkit-box-shadow: 0 0 0px 1000px rgba(30, 30, 46, 0.8) inset !important;
-  background-color: rgba(30, 30, 46, 0.8) !important;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(10, 10, 10, 0.9) inset !important;
+  background-color: rgba(10, 10, 10, 0.9) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 </style>
