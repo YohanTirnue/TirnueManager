@@ -1,9 +1,11 @@
 import { GLOBAL_INSTANCE_NAME } from "@/config/const";
 import { useCommandHistory } from "@/hooks/useCommandHistory";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { t } from "@/lang/i18n";
 import { setUpTerminalStreamChannel } from "@/services/apis/instance";
 import { useLayoutConfigStore } from "@/stores/useLayoutConfig";
 import { mapDaemonAddress, parseForwardAddress } from "@/tools/protocol";
+import { reportErrorMsg } from "@/tools/validator";
 import type { InstanceDetail } from "@/types";
 import { INSTANCE_STATUS_CODE } from "@/types/const";
 import type { DefaultEventsMap } from "@socket.io/component-emitter";
@@ -58,6 +60,7 @@ export type UseTerminalHook = ReturnType<typeof useTerminal>;
 
 export function useTerminal() {
   const { hasBgImage } = useLayoutConfigStore();
+  const { canPerformInstanceAction } = useUserPermissions();
 
   const events = new EventEmitter();
   let socket: Socket<DefaultEventsMap, DefaultEventsMap> | undefined;
@@ -82,6 +85,13 @@ export function useTerminal() {
   };
 
   const execute = async (config: UseTerminalParams) => {
+    // CRITICAL: Check console access permission before establishing connection
+    if (!canPerformInstanceAction(config.instanceId, "canAccessConsole")) {
+      const error = new Error(t("TXT_CODE_c9c42155") || "You don't have permission to access the console");
+      events.emit("error", error);
+      return reportErrorMsg(error.message);
+    }
+
     isReady.value = false;
 
     if (socket) {
