@@ -635,41 +635,43 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 }
 
 .instance-hero-title {
-  margin: 0 0 12px 0;
-  font-size: 32px;
+  margin: 0 0 16px 0;
+  font-size: 40px;
   font-weight: 800;
-  background: linear-gradient(135deg, rgba(153, 27, 27, 1) 0%, rgba(212, 107, 8, 1) 100%);
+  background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: -1px;
+  filter: drop-shadow(0 2px 8px rgba(255, 140, 66, 0.3));
 }
 
 .hero-meta-chips {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .meta-chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(153, 27, 27, 0.2);
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
+  gap: 10px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.75) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 140, 66, 0.3);
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--text-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    border-color: rgba(255, 140, 66, 0.5);
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.25);
   }
 }
 
@@ -678,10 +680,10 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 }
 
 .chip-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: rgba(153, 27, 27, 0.6);
+  background: #999;
 }
 
 .chip-active .chip-dot {

@@ -60,9 +60,6 @@ onMounted(async () => {
 <template>
   <!-- eslint-disable vue/html-indent -->
   <CardPanel class="containerWrapper modern-info-panel" style="height: 100%">
-    <template #title>
-      {{ card.title }}
-    </template>
     <template #body>
       <!-- Instance Header -->
       <div class="info-header">
@@ -80,9 +77,6 @@ onMounted(async () => {
             {{ statusText }}
           </a-tag>
           <a-tag class="modern-tag" color="purple">{{ instanceTypeText }}</a-tag>
-          <a-tag color="purple" class="modern-tag">
-            {{ t("TXT_CODE_ad30f3c5") }}{{ instanceInfo?.started }}
-          </a-tag>
           <a-tag v-for="tag in instanceInfo?.config.tag" :key="tag" class="modern-tag" color="blue">
             {{ tag }}
           </a-tag>
