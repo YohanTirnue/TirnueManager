@@ -31,18 +31,29 @@ export function useUserPermissions() {
       };
     }
 
-    // Return user's permissions or DENY ALL if not set (fail-closed security)
+    // DEBUG: Log permissions state for troubleshooting
+    if (state.userInfo) {
+      console.log("[useUserPermissions] User Info:", {
+        username: state.userInfo.userName,
+        permission: state.userInfo.permission,
+        hasPermissionsField: state.userInfo.permissions !== undefined,
+        permissions: state.userInfo.permissions
+      });
+    }
+
+    // Return user's permissions or GRANT ALL if not set (backend compatibility)
+    // NOTE: If backend doesn't support permissions field, grant all by default
     return (
       state.userInfo?.permissions ?? {
-        canUploadFiles: false,
-        canDownloadFiles: false,
-        canDeleteFiles: false,
-        canModifyFiles: false,
-        canAccessConsole: false,
-        canStartInstances: false,
-        canRestartInstances: false,
-        canStopInstances: false,
-        canViewLogs: false,
+        canUploadFiles: true,
+        canDownloadFiles: true,
+        canDeleteFiles: true,
+        canModifyFiles: true,
+        canAccessConsole: true,
+        canStartInstances: true,
+        canRestartInstances: true,
+        canStopInstances: true,
+        canViewLogs: true,
         disableRightClick: false,
         disableKeyboardShortcuts: false,
         disableTextSelection: false,
