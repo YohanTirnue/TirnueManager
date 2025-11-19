@@ -1,4 +1,5 @@
 const path = require("path");
+const nodeExternals = require("webpack-node-externals");
 
 /**
  * @type {import('webpack').Configuration}
@@ -12,10 +13,6 @@ module.exports = {
         test: /\.ts/,
         use: "ts-loader",
         exclude: /node_modules/
-      },
-      {
-        test: /\.node$/,
-        use: "node-loader"
       }
     ]
   },
@@ -28,11 +25,7 @@ module.exports = {
     moduleIds: "named"
   },
   externalsPresets: { node: true },
-  // Bundle ALL dependencies except native modules
-  externals: {
-    'bufferutil': 'commonjs bufferutil',
-    'utf-8-validate': 'commonjs utf-8-validate'
-  },
+  externals: [nodeExternals()],
   output: {
     filename: "app.js",
     path: path.resolve(__dirname, "production")

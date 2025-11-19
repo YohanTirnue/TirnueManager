@@ -16,8 +16,8 @@ export function initKoa() {
       multipart: true,
       formidable: {
         maxFileSize: 1024 * 1024 * 100, // 100MB
-        maxFiles: 1,
-        enabledPlugins: [] // Disable formidable plugins to fix webpack bundling issue
+        maxFiles: 1
+        // Note: enabledPlugins is omitted to use default plugins which webpack can bundle properly
       },
       jsonLimit: "10mb",
       onError(err, ctx) {

@@ -4,6 +4,7 @@ import fs from "fs-extra";
 import path from "path";
 import FileWriter from "../entity/file_writer";
 import { $t } from "../i18n";
+import logger from "../service/log";
 import { missionPassport } from "../service/mission_passport";
 import FileManager from "../service/system_file";
 import InstanceSubsystem from "../service/system_instance";
