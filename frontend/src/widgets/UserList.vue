@@ -514,7 +514,7 @@ onMounted(async () => {
 .modern-users-page {
   padding: 24px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: var(--background-color);
 }
 
 // Page Header
@@ -555,7 +555,6 @@ onMounted(async () => {
 .page-title {
   font-size: 32px;
   font-weight: 800;
-  color: #1e1e2e;
   margin: 0;
   background: linear-gradient(135deg, #FF8C42, #D4AF37);
   -webkit-background-clip: text;
@@ -565,7 +564,7 @@ onMounted(async () => {
 
 .page-subtitle {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-gray-7);
   margin: 4px 0 0 0;
 }
 
@@ -602,9 +601,9 @@ onMounted(async () => {
 }
 
 .reload-btn {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.8);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: var(--background-color-white);
+  color: var(--text-color);
+  border: 2px solid var(--card-border-color);
 
   &:hover:not(:disabled) {
     border-color: #FF8C42;
@@ -625,12 +624,12 @@ onMounted(async () => {
 }
 
 .delete-btn {
-  background: #ff4d4f;
+  background: var(--color-red-5);
   color: white;
   box-shadow: 0 4px 16px rgba(255, 77, 79, 0.3);
 
   &:hover:not(:disabled) {
-    background: #ff7875;
+    background: var(--color-red-4);
     box-shadow: 0 6px 24px rgba(255, 77, 79, 0.4);
   }
 }
@@ -660,46 +659,45 @@ onMounted(async () => {
 .search-input {
   width: 100%;
   padding: 16px 20px 16px 56px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--card-border-color);
   border-radius: 12px;
   font-size: 16px;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
+  background: var(--background-color-white);
+  color: var(--text-color);
 
   &:focus {
     outline: none;
     border-color: #FF8C42;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--background-color-white);
     box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
   }
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--color-gray-7);
   }
 }
 
 .role-filter {
   padding: 16px 20px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--card-border-color);
   border-radius: 12px;
   font-size: 15px;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--background-color-white);
+  color: var(--text-color);
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:focus {
     outline: none;
     border-color: #FF8C42;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--background-color-white);
     box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
   }
 
   &:hover {
     border-color: #FF8C42;
-    background: rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -712,25 +710,23 @@ onMounted(async () => {
 }
 
 .user-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--background-color-white);
   border-radius: 20px;
   padding: 28px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px var(--card-shadow-color);
   transition: all 0.3s ease;
   position: relative;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  border: 2px solid var(--card-border-color);
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.2);
-    border-color: rgba(255, 140, 66, 0.3);
-    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.25);
+    border-color: rgba(255, 140, 66, 0.5);
   }
 
   &.selected {
     border-color: #FF8C42;
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.15), rgba(212, 175, 55, 0.15));
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
   }
 }
 
@@ -745,13 +741,13 @@ onMounted(async () => {
 .checkbox {
   width: 24px;
   height: 24px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid var(--card-border-color);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--background-color);
 
   &.checked {
     background: linear-gradient(135deg, #FF8C42, #FF6B35);
@@ -761,7 +757,6 @@ onMounted(async () => {
 
   &:hover {
     border-color: #FF8C42;
-    background: rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -788,7 +783,7 @@ onMounted(async () => {
 .user-name {
   font-size: 22px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-color);
   margin: 0 0 12px 0;
 }
 
@@ -806,8 +801,9 @@ onMounted(async () => {
   gap: 12px;
   margin-bottom: 20px;
   padding: 16px;
-  background: #f8f9fa;
+  background: var(--card-bottom-background-color);
   border-radius: 12px;
+  border: 1px solid var(--card-border-color);
 }
 
 .stat-item {
@@ -830,34 +826,34 @@ onMounted(async () => {
 
 .stat-label {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-gray-7);
   font-weight: 600;
 }
 
 .stat-value {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-color);
   font-weight: 500;
 }
 
 .user-uuid {
   padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--background-color);
   border-radius: 8px;
   margin-bottom: 16px;
   font-size: 12px;
   word-break: break-all;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--card-border-color);
 }
 
 .uuid-label {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-gray-7);
   font-weight: 600;
   margin-right: 8px;
 }
 
 .uuid-value {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-color);
   font-family: monospace;
 }
 
@@ -892,14 +888,13 @@ onMounted(async () => {
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background: rgba(30, 30, 46, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--background-color-white);
+  border: 2px solid var(--card-border-color);
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 24px var(--card-shadow-extend-color);
   overflow: hidden;
   z-index: 100;
   animation: slideDown 0.2s ease;
-  backdrop-filter: blur(20px);
 }
 
 @keyframes slideDown {
@@ -918,7 +913,7 @@ onMounted(async () => {
   padding: 14px 20px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-color);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -928,25 +923,25 @@ onMounted(async () => {
   gap: 12px;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 140, 66, 0.08);
   }
 
   &.edit-item:hover {
-    background: rgba(24, 144, 255, 0.15);
-    color: #4da3ff;
+    background: rgba(24, 144, 255, 0.12);
+    color: var(--color-blue-6);
   }
 
   &.resources-item:hover {
-    background: rgba(82, 196, 26, 0.15);
-    color: #73d13d;
+    background: rgba(82, 196, 26, 0.12);
+    color: var(--color-green-6);
   }
 
   &.delete-item {
-    color: #ff7875;
+    color: var(--color-red-5);
 
     &:hover {
-      background: rgba(255, 77, 79, 0.15);
-      color: #ff4d4f;
+      background: rgba(255, 77, 79, 0.12);
+      color: var(--color-red-6);
     }
   }
 }
