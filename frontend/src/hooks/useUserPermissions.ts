@@ -112,6 +112,7 @@ export function useUserPermissions() {
   return {
     // Raw permissions object
     userPermissions,
+    isAdmin,
 
     // Individual permission checks
     canUploadFiles,
