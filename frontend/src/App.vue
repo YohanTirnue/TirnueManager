@@ -13,6 +13,7 @@ import { closeAppLoading } from "./tools/dom";
 import { useLayoutConfigStore } from "./stores/useLayoutConfig";
 import UploadBubble from "@/components/UploadBubble.vue";
 import { useSecurityRestrictions } from "@/hooks/useSecurityRestrictions";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 
 const { isDarkTheme, setBackgroundImage } = useAppConfigStore();
 const { getSettingsConfig, hasBgImage } = useLayoutConfigStore();
@@ -63,6 +64,12 @@ onMounted(async () => {
       <div class="main-content-wrapper" :class="{ 'with-sidebar': route.path !== '/login' && route.path !== '/install' }">
         <!-- Only show header when NOT on login/install pages -->
         <AppHeaderSimple v-if="route.path !== '/login' && route.path !== '/install'" />
+
+        <!-- Security Restrictions Banner (displays when any restriction is active) -->
+        <div v-if="route.path !== '/login' && route.path !== '/install'" class="security-banner-container">
+          <PermissionBanner type="security" theme="red" />
+        </div>
+
         <RouterView :key="$route.fullPath" />
         <UploadBubble />
       </div>
@@ -93,9 +100,20 @@ onMounted(async () => {
   }
 }
 
+.security-banner-container {
+  padding: 16px 24px 0 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 @media (max-width: 992px) {
   .main-content-wrapper.with-sidebar {
     margin-left: 0;
+  }
+
+  .security-banner-container {
+    padding: 12px 16px 0 16px;
   }
 }
 </style>
