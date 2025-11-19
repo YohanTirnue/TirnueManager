@@ -50,6 +50,7 @@ class UserSubsystem {
     if (config.secret != null) instance.secret = String(config.secret);
     if (config.open2FA != null) instance.open2FA = Boolean(config.open2FA);
     if (config.instances) this.setUserInstances(uuid, config.instances);
+    if (config.permissions != null) instance.permissions = config.permissions;
     if (config.passWord) {
       instance.passWordType = UserPassWordType.bcrypt;
       instance.passWord = bcrypt.hashSync(config.passWord, 10);

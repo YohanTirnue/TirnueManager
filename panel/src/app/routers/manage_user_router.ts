@@ -20,6 +20,7 @@ router.post(
     const userName = String(ctx.request.body.username);
     const passWord = String(ctx.request.body.password);
     const permission = Number(ctx.request.body.permission);
+    const permissions = ctx.request.body.permissions;
     if (!userSystem.validatePassword(passWord))
       throw new Error($t("TXT_CODE_router.user.invalidPassword"));
     if (userSystem.existUserName(userName))
@@ -29,7 +30,8 @@ router.post(
       operator_name: ctx.session?.["userName"],
       target_user_name: userName
     });
-    ctx.body = await register(ctx, userName, passWord, permission);
+    const result = await register(ctx, userName, passWord, permission, permissions);
+    ctx.body = result;
   }
 );
 

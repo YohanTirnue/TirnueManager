@@ -116,7 +116,8 @@ export async function register(
   ctx: Koa.ParameterizedContext,
   userName: string,
   passWord: string,
-  permission: number
+  permission: number,
+  permissions?: any
 ) {
   let f = true;
   // Check for duplicate usernames.
@@ -128,7 +129,8 @@ export async function register(
     const { uuid } = await userSystem.create({
       userName,
       passWord,
-      permission
+      permission,
+      permissions
     });
 
     return {

@@ -1,4 +1,4 @@
-import { IUser } from "./entity_interface";
+import { IUser, UserPermissions } from "./entity_interface";
 
 export enum UserPassWordType {
   md5 = 0,
@@ -25,6 +25,7 @@ export class User implements IUser {
   isInit: boolean = false;
   secret = "";
   open2FA = false;
+  permissions?: UserPermissions;
 }
 
 export enum ROLE {

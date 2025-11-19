@@ -13,6 +13,28 @@ export interface IRequestPacket {
   data: any;
 }
 
+export interface UserPermissions {
+  // File Operations (scoped to assigned instances)
+  canUploadFiles: boolean;
+  canDownloadFiles: boolean;
+  canDeleteFiles: boolean;
+  canModifyFiles: boolean;
+
+  // Instance Control (scoped to assigned instances)
+  canAccessConsole: boolean;
+  canStartInstances: boolean;
+  canRestartInstances: boolean;
+  canStopInstances: boolean;
+  canViewLogs: boolean;
+
+  // Security Restrictions (global to user session)
+  disableRightClick: boolean;
+  disableKeyboardShortcuts: boolean;
+  disableTextSelection: boolean;
+  disableCopy: boolean;
+  disablePaste: boolean;
+}
+
 export interface IUser {
   uuid?: string;
   userName?: string;
@@ -26,6 +48,7 @@ export interface IUser {
   passWordType?: number;
   secret?: string;
   open2FA?: boolean;
+  permissions?: UserPermissions;
 }
 
 export interface ICompleteUser {
