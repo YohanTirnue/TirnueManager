@@ -140,6 +140,16 @@ export class SetupDockerContainer extends AsyncTask {
     )
       memorySwappiness = dockerConfig.memorySwappiness;
 
+    // IO bandwidth limiting (disk read/write)
+    // Uses BlkioWeight for relative IO priority (10-1000, default 500)
+    // Higher values = more IO bandwidth allocated to this container
+    let blkioWeight: number | undefined = undefined;
+    if (typeof dockerConfig.io === "number" && dockerConfig.io > 0) {
+      // Convert io value (intended as MB/s) to relative weight (10-1000)
+      // Scale: 0-100 MB/s maps to 10-1000 weight
+      blkioWeight = Math.min(1000, Math.max(10, Math.floor(dockerConfig.io * 10)));
+    }
+
     // container name check
     let containerName = dockerConfig.containerName || `MCSM-${instance.instanceUuid.slice(0, 6)}`;
     if (containerName && (containerName.length > 64 || containerName.length < 2)) {
@@ -190,6 +200,7 @@ export class SetupDockerContainer extends AsyncTask {
         memorySwap ? (memorySwap / 1024 / 1024).toFixed(2) : "--"
       } MB`
     );
+    logger.info(`IO_WEIGHT: ${blkioWeight || "--"} (10-1000, higher = more IO bandwidth)`);
     logger.info(`TYPE: Docker Container`);
     logger.info("----------------");
 
@@ -239,6 +250,7 @@ export class SetupDockerContainer extends AsyncTask {
         Memory: maxMemory,
         MemorySwap: memorySwap,
         MemorySwappiness: memorySwappiness,
+        BlkioWeight: blkioWeight,
         AutoRemove: true,
         CpusetCpus: cpusetCpus,
         CpuPeriod: cpuPeriod,
