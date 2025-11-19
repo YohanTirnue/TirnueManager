@@ -24,8 +24,11 @@ module.exports = {
     moduleIds: "named"
   },
   externalsPresets: { node: true },
-  // Bundle ALL dependencies instead of externalizing them
-  // This allows panel to run without node_modules directory
+  // Bundle ALL dependencies except native modules
+  externals: {
+    'bufferutil': 'commonjs bufferutil',
+    'utf-8-validate': 'commonjs utf-8-validate'
+  },
   output: {
     filename: "app.js",
     path: path.resolve(__dirname, "production")
