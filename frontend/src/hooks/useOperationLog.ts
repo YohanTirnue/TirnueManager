@@ -62,7 +62,7 @@ const renderMap: OperationRenderer = {
     data: [
       item.operator_name || item.operation_id,
       item.instance_name || item.instance_id,
-      item.file
+      item.file || ""
     ]
   }),
   instance_file_download: (item) => ({
