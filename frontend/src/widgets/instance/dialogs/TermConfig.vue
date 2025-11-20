@@ -58,99 +58,263 @@ defineExpose({
   <a-modal
     v-model:open="open"
     centered
-    width="auto"
+    :width="isPhone ? '100%' : '900px'"
     :title="t('TXT_CODE_d23631cb')"
     :confirm-loading="isLoading"
     :ok-text="t('TXT_CODE_abfe9512')"
     @ok="submit"
   >
     <a-form v-if="options" layout="vertical">
-      <a-row :gutter="[24, 24]">
-        <a-col :xs="24" :md="12" :offset="0">
-          <a-form-item>
-            <a-typography-title :level="5">{{ t("TXT_CODE_ef650d57") }}</a-typography-title>
-            <a-typography-paragraph>
-              <a-typography-text type="secondary">
-                {{ t("TXT_CODE_feeea328") }}
-                <br />
-                {{ t("TXT_CODE_d6e7f572") }}
-              </a-typography-text>
-            </a-typography-paragraph>
-            <a-switch v-model:checked="options.config.terminalOption.pty" />
-          </a-form-item>
+      <!-- Terminal Mode Card - LANDSCAPE -->
+      <div class="term-settings-card">
+        <div class="term-settings-row">
+          <div class="term-settings-title-section">
+            <h4 class="term-settings-title">Terminal Mode</h4>
+            <p class="term-settings-subtitle">Configure terminal emulation and display</p>
+          </div>
+          <div class="term-settings-controls">
+            <div class="term-control-item">
+              <div class="term-control-label">
+                <span class="term-label-text">{{ t("TXT_CODE_ef650d57") }}</span>
+                <span class="term-label-hint">{{ t("TXT_CODE_feeea328") }}</span>
+              </div>
+              <a-switch v-model:checked="options.config.terminalOption.pty" size="default" />
+            </div>
+            <div class="term-control-item">
+              <div class="term-control-label">
+                <span class="term-label-text">{{ t("TXT_CODE_e1a3b150") }}</span>
+                <span class="term-label-hint">{{ t("TXT_CODE_6a515e35") }}</span>
+              </div>
+              <a-switch v-model:checked="options.config.terminalOption.haveColor" size="default" />
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <a-form-item>
-            <a-typography-title :level="5">{{ t("TXT_CODE_e1a3b150") }}</a-typography-title>
-            <a-typography-paragraph>
-              <a-typography-text type="secondary">
-                {{ t("TXT_CODE_6a515e35") }}
-                <br />
-                {{ t("TXT_CODE_1295831e") }}
-              </a-typography-text>
-            </a-typography-paragraph>
-            <a-switch v-model:checked="options.config.terminalOption.haveColor" />
-          </a-form-item>
+      <!-- Encoding & Control Card - LANDSCAPE -->
+      <div class="term-settings-card">
+        <div class="term-settings-row">
+          <div class="term-settings-title-section">
+            <h4 class="term-settings-title">Encoding & Control</h4>
+            <p class="term-settings-subtitle">Character encoding and command settings</p>
+          </div>
+          <div class="term-settings-controls">
+            <div class="term-control-item">
+              <div class="term-control-label">
+                <span class="term-label-text">{{ t("TXT_CODE_b91a94f9") }}</span>
+                <span class="term-label-hint">{{ t("TXT_CODE_5b2daea0") }}</span>
+              </div>
+              <a-select
+                v-model:value="options.config.crlf"
+                :placeholder="t('TXT_CODE_3bb646e4')"
+                style="width: 140px"
+              >
+                <a-select-option :value="1">{{ t("TXT_CODE_365aabd4") }}</a-select-option>
+                <a-select-option :value="2">{{ t("TXT_CODE_20cec54") }}</a-select-option>
+              </a-select>
+            </div>
+            <div class="term-control-item">
+              <div class="term-control-label">
+                <span class="term-label-text">{{ t("TXT_CODE_11cfe3a1") }}</span>
+                <span class="term-label-hint">{{ t("TXT_CODE_7ec7ccb8") }}</span>
+              </div>
+              <a-input
+                v-model:value="options.config.stopCommand"
+                style="width: 140px"
+                :placeholder="'^C'"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <a-form-item>
-            <a-typography-title :level="5">{{ t("TXT_CODE_b91a94f9") }}</a-typography-title>
-            <a-typography-paragraph>
-              <a-typography-text type="secondary">
-                {{ t("TXT_CODE_5b2daea0") }}
-                <br />
-                {{ t("TXT_CODE_b94f13ce") }}
-              </a-typography-text>
-            </a-typography-paragraph>
-            <a-select
-              v-model:value="options.config.crlf"
-              :placeholder="t('TXT_CODE_3bb646e4')"
-              :style="'width: ' + (isPhone ? '100%' : '220px')"
-            >
-              <a-select-option :value="1"> {{ t("TXT_CODE_365aabd4") }}</a-select-option>
-              <a-select-option :value="2">{{ t("TXT_CODE_20cec54") }}</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :md="12" :offset="0">
-          <a-form-item>
-            <a-typography-title :level="5">{{ t("TXT_CODE_11cfe3a1") }}</a-typography-title>
-            <a-typography-paragraph>
-              <a-typography-text type="secondary">
-                {{ t("TXT_CODE_7ec7ccb8") }}
-              </a-typography-text>
-            </a-typography-paragraph>
-            <a-input
-              v-model:value="options.config.stopCommand"
-              :style="'width: ' + (isPhone ? '100%' : '220px')"
-            />
-          </a-form-item>
-
-          <a-form-item>
-            <a-typography-title :level="5">{{ t("TXT_CODE_449d1581") }}</a-typography-title>
-            <a-typography-paragraph>
-              <a-typography-text type="secondary">
-                {{ t("TXT_CODE_d16d82ab") }}
-              </a-typography-text>
-            </a-typography-paragraph>
-            <a-select
-              v-model:value="options.config.ie"
-              class="mr-10 mb-20"
-              :placeholder="t('TXT_CODE_bd2559f3')"
-              :style="'width: ' + (isPhone ? '100%' : '220px')"
-            >
-              <a-select-option v-for="item in TERMINAL_CODE" :key="item" :value="item">
-              </a-select-option>
-            </a-select>
-            <a-select
-              v-model:value="options.config.oe"
-              :placeholder="t('TXT_CODE_6e96b2a9')"
-              :style="'width: ' + (isPhone ? '100%' : '220px')"
-            >
-              <a-select-option v-for="item in TERMINAL_CODE" :key="item" :value="item">
-              </a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-      </a-row>
+      <!-- Character Encoding Card - LANDSCAPE -->
+      <div class="term-settings-card">
+        <div class="term-settings-row">
+          <div class="term-settings-title-section">
+            <h4 class="term-settings-title">Character Encoding</h4>
+            <p class="term-settings-subtitle">Input and output encoding formats</p>
+          </div>
+          <div class="term-settings-controls">
+            <div class="term-control-item">
+              <div class="term-control-label">
+                <span class="term-label-text">{{ t("TXT_CODE_449d1581") }}</span>
+                <span class="term-label-hint">{{ t("TXT_CODE_d16d82ab") }}</span>
+              </div>
+              <div class="term-encoding-group">
+                <a-select
+                  v-model:value="options.config.ie"
+                  :placeholder="t('TXT_CODE_bd2559f3')"
+                  style="width: 120px"
+                >
+                  <a-select-option v-for="item in TERMINAL_CODE" :key="item" :value="item">
+                  </a-select-option>
+                </a-select>
+                <a-select
+                  v-model:value="options.config.oe"
+                  :placeholder="t('TXT_CODE_6e96b2a9')"
+                  style="width: 120px"
+                >
+                  <a-select-option v-for="item in TERMINAL_CODE" :key="item" :value="item">
+                  </a-select-option>
+                </a-select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </a-form>
   </a-modal>
 </template>
+
+<style scoped lang="scss">
+/* LANDSCAPE Terminal Settings Cards - ORANGE GOLD BLACK THEME */
+.term-settings-card {
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  border: 2px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 24px; /* OCD: 24px all around */
+  margin-bottom: 16px; /* OCD: 16px between cards */
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #ff8c00; /* ORANGE on hover */
+    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.15);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.term-settings-row {
+  display: flex;
+  align-items: center; /* OCD: Vertically centered */
+  gap: 32px; /* OCD: 32px between title and controls */
+  justify-content: space-between;
+}
+
+.term-settings-title-section {
+  flex: 0 0 240px; /* OCD: Fixed 240px width */
+  min-width: 240px;
+}
+
+.term-settings-title {
+  margin: 0 0 4px 0; /* OCD: 4px gap */
+  padding: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffd700; /* GOLD */
+  line-height: 1.4;
+}
+
+.term-settings-subtitle {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: #999999;
+  line-height: 1.4;
+}
+
+.term-settings-controls {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px; /* OCD: 24px between controls */
+  align-items: center;
+}
+
+.term-control-item {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* OCD: 16px between label and control */
+}
+
+.term-control-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* OCD: 4px between text and hint */
+  min-width: 160px;
+}
+
+.term-label-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.term-label-hint {
+  font-size: 12px;
+  color: #666666;
+  line-height: 1.2;
+}
+
+.term-encoding-group {
+  display: flex;
+  gap: 8px; /* OCD: 8px between selects */
+  align-items: center;
+}
+
+/* RESPONSIVE: Stack vertically on mobile */
+@media (max-width: 768px) {
+  .term-settings-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px; /* OCD: Tighter gap on mobile */
+  }
+
+  .term-settings-title-section {
+    flex: none;
+    min-width: 0;
+  }
+
+  .term-settings-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px; /* OCD: Consistent mobile gap */
+  }
+
+  .term-control-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px; /* OCD: Tighter mobile gap */
+  }
+
+  .term-control-label {
+    min-width: 0;
+  }
+
+  .term-encoding-group {
+    flex-direction: column;
+    gap: 8px;
+
+    .ant-select {
+      width: 100% !important;
+    }
+  }
+}
+
+/* Customize Ant Design components to match theme */
+:deep(.ant-switch-checked) {
+  background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%); /* ORANGE */
+}
+
+:deep(.ant-select:not(.ant-select-disabled):hover .ant-select-selector) {
+  border-color: #ff8c00; /* ORANGE */
+}
+
+:deep(.ant-select-focused:not(.ant-select-disabled).ant-select .ant-select-selector) {
+  border-color: #ff8c00; /* ORANGE */
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+}
+
+:deep(.ant-input:hover) {
+  border-color: #ff8c00; /* ORANGE */
+}
+
+:deep(.ant-input:focus) {
+  border-color: #ff8c00; /* ORANGE */
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+}
+</style>
