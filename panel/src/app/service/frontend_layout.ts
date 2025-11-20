@@ -244,6 +244,15 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
           width: 12,
           height: LayoutCardHeight.SMALL,
           disableDelete: true
+        },
+        {
+          id: getRandomId(),
+          meta: {},
+          type: "InstanceOperationLogs",
+          title: "Operation Logs",
+          width: 12,
+          height: LayoutCardHeight.MEDIUM,
+          disableDelete: true
         }
       ]
     },
