@@ -6,14 +6,17 @@ import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
 import {
   BuildOutlined,
   SaveOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  BulbOutlined
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import { useLayoutConfigStore } from "../stores/useLayoutConfig";
+import { useAppConfigStore, THEME } from "@/stores/useAppConfigStore";
 
 const { isAdmin } = useAppStateStore();
 const { containerState, changeDesignMode } = useLayoutContainerStore();
 const { saveGlobalLayoutConfig, resetGlobalLayoutConfig } = useLayoutConfigStore();
+const { setTheme, getTheme } = useAppConfigStore();
 const route = useRoute();
 
 const breadcrumbs = computed(() => {
@@ -38,6 +41,12 @@ const resetLayout = async () => {
   message.success("Layout reset!");
   window.location.reload();
 };
+
+const toggleTheme = () => {
+  const currentTheme = getTheme();
+  const newTheme = currentTheme === THEME.DARK ? THEME.LIGHT : THEME.DARK;
+  setTheme(newTheme);
+};
 </script>
 
 <template>
@@ -52,6 +61,11 @@ const resetLayout = async () => {
 
     <!-- Right Actions -->
     <div class="header-actions">
+      <!-- Theme Toggle (Always visible) -->
+      <button class="action-btn" @click="toggleTheme" title="Toggle Light/Dark Mode">
+        <BulbOutlined />
+      </button>
+
       <!-- Design Mode Tools (Admin Only) -->
       <template v-if="isAdmin && containerState.isDesignMode">
         <button class="action-btn" @click="saveLayout" title="Save Layout">

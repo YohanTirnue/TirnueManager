@@ -425,13 +425,13 @@ watch(instanceInfo, (cfg, oldCfg) => {
   height: auto;
   min-height: 72px;
   padding: 16px 18px;
-  background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
-  border: 2px solid rgba(255, 140, 66, 0.4);
+  background: var(--theme-card-bg);
+  border: 2px solid var(--theme-card-border);
   border-radius: 14px;
   text-align: left;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px var(--theme-shadow);
   animation: btn-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 
   &::before {
@@ -445,9 +445,9 @@ watch(instanceInfo, (cfg, oldCfg) => {
 
   &:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 140, 66, 0.6);
-    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.3);
-    background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
+    border-color: var(--theme-card-border-hover);
+    box-shadow: 0 8px 24px var(--theme-shadow-hover);
+    background: var(--theme-card-bg-hover);
 
     &::before {
       opacity: 1;
@@ -462,13 +462,13 @@ watch(instanceInfo, (cfg, oldCfg) => {
     }
 
     .btn-title {
-      color: #FFD700;
+      color: var(--theme-title-color);
     }
   }
 
   &:active {
     transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 14px var(--theme-shadow);
   }
 }
 
@@ -500,7 +500,7 @@ watch(instanceInfo, (cfg, oldCfg) => {
 
 .btn-icon {
   font-size: 26px;
-  color: #FF8C42;
+  color: var(--theme-card-border-hover);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -516,7 +516,7 @@ watch(instanceInfo, (cfg, oldCfg) => {
 .btn-title {
   font-size: 15px;
   font-weight: 700;
-  color: #D4AF37;
+  color: var(--theme-title-color);
   letter-spacing: -0.2px;
   line-height: 1.3;
   transition: color 0.3s ease;
@@ -526,14 +526,14 @@ watch(instanceInfo, (cfg, oldCfg) => {
 .btn-subtitle {
   font-size: 12px;
   font-weight: 600;
-  color: rgba(212, 175, 55, 0.6);
+  color: var(--theme-subtitle-color);
   letter-spacing: 0.2px;
 }
 
 // BUTTON ARROW
 .btn-arrow {
   font-size: 16px;
-  color: #FF8C42;
+  color: var(--theme-card-border-hover);
   flex-shrink: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

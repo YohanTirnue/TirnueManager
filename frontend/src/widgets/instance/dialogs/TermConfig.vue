@@ -170,16 +170,17 @@ defineExpose({
 <style scoped lang="scss">
 /* LANDSCAPE Terminal Settings Cards - ORANGE GOLD BLACK THEME */
 .term-settings-card {
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-  border: 2px solid #2a2a2a;
+  background: var(--theme-card-bg);
+  border: 2px solid var(--theme-card-border);
   border-radius: 12px;
   padding: 24px; /* OCD: 24px all around */
   margin-bottom: 16px; /* OCD: 16px between cards */
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: #ff8c00; /* ORANGE on hover */
-    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.15);
+    border-color: var(--theme-card-border-hover);
+    background: var(--theme-card-bg-hover);
+    box-shadow: 0 4px 16px var(--theme-shadow-hover);
   }
 
   &:last-child {
@@ -204,7 +205,7 @@ defineExpose({
   padding: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #ffd700; /* GOLD */
+  color: var(--theme-title-color);
   line-height: 1.4;
 }
 
@@ -212,7 +213,7 @@ defineExpose({
   margin: 0;
   padding: 0;
   font-size: 13px;
-  color: #999999;
+  color: var(--theme-subtitle-color);
   line-height: 1.4;
 }
 
@@ -240,13 +241,13 @@ defineExpose({
 .term-label-text {
   font-size: 14px;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--theme-label-color);
   line-height: 1.2;
 }
 
 .term-label-hint {
   font-size: 12px;
-  color: #666666;
+  color: var(--theme-hint-color);
   line-height: 1.2;
 }
 
@@ -297,24 +298,24 @@ defineExpose({
 
 /* Customize Ant Design components to match theme */
 :deep(.ant-switch-checked) {
-  background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%); /* ORANGE */
+  background: var(--theme-card-border-hover);
 }
 
 :deep(.ant-select:not(.ant-select-disabled):hover .ant-select-selector) {
-  border-color: #ff8c00; /* ORANGE */
+  border-color: var(--theme-card-border-hover);
 }
 
 :deep(.ant-select-focused:not(.ant-select-disabled).ant-select .ant-select-selector) {
-  border-color: #ff8c00; /* ORANGE */
-  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+  border-color: var(--theme-card-border-hover);
+  box-shadow: 0 0 0 2px var(--theme-focus-shadow);
 }
 
 :deep(.ant-input:hover) {
-  border-color: #ff8c00; /* ORANGE */
+  border-color: var(--theme-card-border-hover);
 }
 
 :deep(.ant-input:focus) {
-  border-color: #ff8c00; /* ORANGE */
-  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+  border-color: var(--theme-card-border-hover);
+  box-shadow: 0 0 0 2px var(--theme-focus-shadow);
 }
 </style>
