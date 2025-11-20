@@ -398,6 +398,7 @@ onMounted(() => {
   gap: 6px;
   color: rgba(255, 255, 255, 0.7);
   font-size: 11px;
+  white-space: nowrap;
 }
 
 .user-cell {
@@ -406,6 +407,7 @@ onMounted(() => {
   gap: 6px;
   color: #d4af37;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .details-cell {
@@ -470,29 +472,29 @@ onMounted(() => {
   }
 
   .logs-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
     :deep(.ant-table) {
+      min-width: 500px;
+
       .ant-table-thead > tr > th,
       .ant-table-tbody > tr > td {
-        padding: 6px 8px;
+        padding: 8px 10px;
         font-size: 11px;
-      }
-
-      // Hide Time column on mobile, show in details
-      .ant-table-thead > tr > th:first-child,
-      .ant-table-tbody > tr > td:first-child {
-        display: none;
+        white-space: nowrap;
       }
     }
   }
 
   .time-cell,
   .user-cell {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .details-cell {
-    max-width: 120px;
-    font-size: 10px;
+    max-width: 150px;
+    font-size: 11px;
   }
 
   .pagination-section {
@@ -507,16 +509,18 @@ onMounted(() => {
 @media (max-width: 480px) {
   .logs-table-wrapper {
     :deep(.ant-table) {
+      min-width: 450px;
+
       .ant-table-thead > tr > th,
       .ant-table-tbody > tr > td {
-        padding: 4px 6px;
+        padding: 6px 8px;
         font-size: 10px;
       }
     }
   }
 
   .details-cell {
-    max-width: 80px;
+    max-width: 120px;
   }
 }
 </style>
