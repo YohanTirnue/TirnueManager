@@ -104,6 +104,14 @@ router.put(
         chmod,
         deep
       });
+      operationLogger.log("instance_file_chmod", {
+        operator_ip: ctx.ip,
+        operator_name: ctx.session?.["userName"],
+        instance_id: instanceUuid,
+        daemon_id: daemonId,
+        target,
+        chmod
+      });
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -126,6 +134,13 @@ router.post(
         target,
         instanceUuid
       });
+      operationLogger.log("instance_file_touch", {
+        operator_ip: ctx.ip,
+        operator_name: ctx.session?.["userName"],
+        instance_id: instanceUuid,
+        daemon_id: daemonId,
+        target
+      });
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -147,6 +162,13 @@ router.post(
       const result = await new RemoteRequest(remoteService).request("file/mkdir", {
         target,
         instanceUuid
+      });
+      operationLogger.log("instance_file_mkdir", {
+        operator_ip: ctx.ip,
+        operator_name: ctx.session?.["userName"],
+        instance_id: instanceUuid,
+        daemon_id: daemonId,
+        target
       });
       ctx.body = result;
     } catch (err) {
@@ -205,6 +227,12 @@ router.post(
         instanceUuid,
         targets
       });
+      operationLogger.log("instance_file_copy", {
+        operator_ip: ctx.ip,
+        operator_name: ctx.session?.["userName"],
+        instance_id: instanceUuid,
+        daemon_id: daemonId
+      });
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -226,6 +254,12 @@ router.put(
       const result = await new RemoteRequest(remoteService).request("file/move", {
         instanceUuid,
         targets
+      });
+      operationLogger.log("instance_file_move", {
+        operator_ip: ctx.ip,
+        operator_name: ctx.session?.["userName"],
+        instance_id: instanceUuid,
+        daemon_id: daemonId
       });
       ctx.body = result;
     } catch (err) {
@@ -291,6 +325,13 @@ router.post(
         },
         0
       );
+      operationLogger.log("instance_file_compress", {
+        operator_ip: ctx.ip,
+        operator_name: ctx.session?.["userName"],
+        instance_id: instanceUuid,
+        daemon_id: daemonId,
+        source
+      });
       ctx.body = res;
     } catch (err) {
       ctx.body = err;

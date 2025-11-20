@@ -11,6 +11,12 @@ export enum OperationLoggerAction {
   InstanceFileUpdate = "instance_file_update",
   InstanceFileDownload = "instance_file_download",
   InstanceFileDelete = "instance_file_delete",
+  InstanceFileCopy = "instance_file_copy",
+  InstanceFileMove = "instance_file_move",
+  InstanceFileChmod = "instance_file_chmod",
+  InstanceFileMkdir = "instance_file_mkdir",
+  InstanceFileCompress = "instance_file_compress",
+  InstanceFileTouch = "instance_file_touch",
   InstanceTaskCreate = "instance_task_create",
   InstanceTaskDelete = "instance_task_delete",
   DaemonCreate = "daemon_create",
@@ -92,6 +98,37 @@ export type InstanceFileDeleteOptions = {
   file: string;
 } & InstanceGeneralOptions;
 
+export type InstanceFileCopyOptions = {
+  type: "instance_file_copy";
+  targets?: string[];
+} & InstanceGeneralOptions;
+
+export type InstanceFileMoveOptions = {
+  type: "instance_file_move";
+  targets?: string[];
+} & InstanceGeneralOptions;
+
+export type InstanceFileChmodOptions = {
+  type: "instance_file_chmod";
+  target?: string;
+  chmod?: number;
+} & InstanceGeneralOptions;
+
+export type InstanceFileMkdirOptions = {
+  type: "instance_file_mkdir";
+  target?: string;
+} & InstanceGeneralOptions;
+
+export type InstanceFileCompressOptions = {
+  type: "instance_file_compress";
+  source?: string;
+} & InstanceGeneralOptions;
+
+export type InstanceFileTouchOptions = {
+  type: "instance_file_touch";
+  target?: string;
+} & InstanceGeneralOptions;
+
 export type InstanceTaskCreateOptions = {
   type: "instance_task_create";
   task_name: string;
@@ -170,6 +207,12 @@ export type OperationLoggerItem =
   | InstanceFileUpdateOptions
   | InstanceFileDownloadOptions
   | InstanceFileDeleteOptions
+  | InstanceFileCopyOptions
+  | InstanceFileMoveOptions
+  | InstanceFileChmodOptions
+  | InstanceFileMkdirOptions
+  | InstanceFileCompressOptions
+  | InstanceFileTouchOptions
   | InstanceTaskCreateOptions
   | InstanceTaskDeleteOptions
   | DaemonCreateOptions

@@ -581,4 +581,26 @@ router.post(
   }
 );
 
+// [Low-level Permission]
+// Get instance operation logs
+router.get(
+  "/operation_logs",
+  permission({ level: ROLE.USER, speedLimit: false }),
+  validator({ query: { daemonId: String, uuid: String } }),
+  async (ctx) => {
+    try {
+      const instanceUuid = String(ctx.query.uuid);
+      const limit = +(ctx?.query?.limit || 50);
+      if (limit < 1 || limit > 200) {
+        ctx.body = { error: "limit must be between 1 and 200" };
+        return;
+      }
+      const logs = await operationLogger.getByInstance(instanceUuid, limit);
+      ctx.body = logs;
+    } catch (err) {
+      ctx.body = err;
+    }
+  }
+);
+
 export default router;

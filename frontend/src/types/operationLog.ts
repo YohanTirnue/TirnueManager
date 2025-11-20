@@ -64,6 +64,35 @@ export type InstanceFileDeleteOptions = {
   file: string;
 } & InstanceGeneralOptions;
 
+export type InstanceFileCopyOptions = {
+  type: "instance_file_copy";
+} & InstanceGeneralOptions;
+
+export type InstanceFileMoveOptions = {
+  type: "instance_file_move";
+} & InstanceGeneralOptions;
+
+export type InstanceFileChmodOptions = {
+  type: "instance_file_chmod";
+  target?: string;
+  chmod?: number;
+} & InstanceGeneralOptions;
+
+export type InstanceFileMkdirOptions = {
+  type: "instance_file_mkdir";
+  target?: string;
+} & InstanceGeneralOptions;
+
+export type InstanceFileCompressOptions = {
+  type: "instance_file_compress";
+  source?: string;
+} & InstanceGeneralOptions;
+
+export type InstanceFileTouchOptions = {
+  type: "instance_file_touch";
+  target?: string;
+} & InstanceGeneralOptions;
+
 export type InstanceTaskCreateOptions = {
   type: "instance_task_create";
   task_name: string;
@@ -112,6 +141,22 @@ export type SystemConfigChangeOptions = {
   type: "system_config_change";
 } & GlobalGeneralOptions;
 
+export type SubUserCreateOptions = {
+  type: "sub_user_create";
+  target_user_name: string;
+} & GlobalGeneralOptions;
+
+export type SubUserUpdateOptions = {
+  type: "sub_user_update";
+  target_user_uuid: string;
+} & GlobalGeneralOptions;
+
+export type SubUserDeleteOptions = {
+  type: "sub_user_delete";
+  target_user_name: string;
+  target_user_uuid: string;
+} & GlobalGeneralOptions;
+
 export type OperationLoggerItem =
   | InstanceStartOptions
   | InstanceStopOptions
@@ -125,6 +170,12 @@ export type OperationLoggerItem =
   | InstanceFileUpdateOptions
   | InstanceFileDownloadOptions
   | InstanceFileDeleteOptions
+  | InstanceFileCopyOptions
+  | InstanceFileMoveOptions
+  | InstanceFileChmodOptions
+  | InstanceFileMkdirOptions
+  | InstanceFileCompressOptions
+  | InstanceFileTouchOptions
   | InstanceTaskCreateOptions
   | InstanceTaskDeleteOptions
   | DaemonCreateOptions
@@ -134,4 +185,7 @@ export type OperationLoggerItem =
   | UserDeleteOptions
   | UserConfigChangeOptions
   | UserLoginOptions
-  | SystemConfigChangeOptions;
+  | SystemConfigChangeOptions
+  | SubUserCreateOptions
+  | SubUserUpdateOptions
+  | SubUserDeleteOptions;

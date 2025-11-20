@@ -81,6 +81,30 @@ const renderMap: OperationRenderer = {
       item.file
     ]
   }),
+  instance_file_copy: (item) => ({
+    text: "<<user>> copied files in instance <<instance>>",
+    data: [item.operator_name || item.operation_id, item.instance_name || item.instance_id]
+  }),
+  instance_file_move: (item) => ({
+    text: "<<user>> moved files in instance <<instance>>",
+    data: [item.operator_name || item.operation_id, item.instance_name || item.instance_id]
+  }),
+  instance_file_chmod: (item) => ({
+    text: "<<user>> changed permissions in instance <<instance>>",
+    data: [item.operator_name || item.operation_id, item.instance_name || item.instance_id]
+  }),
+  instance_file_mkdir: (item) => ({
+    text: "<<user>> created directory in instance <<instance>>",
+    data: [item.operator_name || item.operation_id, item.instance_name || item.instance_id]
+  }),
+  instance_file_compress: (item) => ({
+    text: "<<user>> compressed files in instance <<instance>>",
+    data: [item.operator_name || item.operation_id, item.instance_name || item.instance_id]
+  }),
+  instance_file_touch: (item) => ({
+    text: "<<user>> created file in instance <<instance>>",
+    data: [item.operator_name || item.operation_id, item.instance_name || item.instance_id]
+  }),
   instance_task_create: (item) => ({
     text: t("TXT_CODE_5ddb00f2"),
     data: [
@@ -131,6 +155,18 @@ const renderMap: OperationRenderer = {
   system_config_change: (item) => ({
     text: t("TXT_CODE_d6312bd5"),
     data: [item.operator_name || item.operation_id]
+  }),
+  sub_user_create: (item) => ({
+    text: "<<user>> created sub-user <<target>>",
+    data: [item.operator_name || item.operation_id, item.target_user_name]
+  }),
+  sub_user_update: (item) => ({
+    text: "<<user>> updated sub-user <<target>>",
+    data: [item.operator_name || item.operation_id, item.target_user_uuid]
+  }),
+  sub_user_delete: (item) => ({
+    text: "<<user>> deleted sub-user <<target>>",
+    data: [item.operator_name || item.operation_id, item.target_user_name]
   })
 };
 
