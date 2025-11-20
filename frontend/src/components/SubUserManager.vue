@@ -339,6 +339,13 @@ const handleSubmit = async () => {
         show-icon
         style="margin-bottom: 16px"
       />
+      <a-alert
+        v-if="!canAddMore && isAdmin"
+        type="info"
+        :message="`All parent users have reached the maximum of ${MAX_SUB_USERS} sub-users for this instance`"
+        show-icon
+        style="margin-bottom: 16px"
+      />
 
       <a-button
         type="primary"
