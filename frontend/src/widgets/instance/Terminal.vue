@@ -516,7 +516,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 // ROW 1: TOP BAR - Header | Stats | Buttons
 .top-bar {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: auto 1fr auto;
   gap: 20px;
   align-items: center;
   padding: 16px 24px;
@@ -564,11 +564,12 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 12px 20px;
   background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(35, 35, 35, 0.9) 100%);
   border-radius: 10px;
   border: 1px solid rgba(255, 140, 66, 0.25);
-  min-width: 200px;
+  justify-self: center;
+  align-self: center;
 }
 
 .stats-title {
@@ -661,42 +662,63 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 .buttons-section {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 
   :deep(.icon-btn) {
     background: linear-gradient(135deg, rgba(255, 140, 66, 0.2) 0%, rgba(212, 175, 55, 0.2) 100%);
-    border: 1px solid rgba(255, 140, 66, 0.5);
+    border: 2px solid rgba(255, 140, 66, 0.5);
     color: #D4AF37;
-    border-radius: 8px;
-    padding: 8px 12px;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 16px;
     transition: all 0.3s ease;
-    box-shadow: 0 0 10px rgba(255, 140, 66, 0.2);
+    box-shadow: 0 0 12px rgba(255, 140, 66, 0.3);
 
     &:hover {
       background: linear-gradient(135deg, rgba(255, 140, 66, 0.4) 0%, rgba(212, 175, 55, 0.4) 100%);
       border-color: #FF8C42;
-      box-shadow: 0 0 20px rgba(255, 140, 66, 0.4);
+      box-shadow: 0 0 25px rgba(255, 140, 66, 0.5);
       transform: translateY(-2px);
     }
 
     .anticon {
       color: #FF8C42;
+      font-size: 18px;
     }
   }
 
+  // Green for Start button
   :deep(.button-color-success .icon-btn) {
-    background: linear-gradient(135deg, rgba(82, 196, 26, 0.2) 0%, rgba(115, 209, 61, 0.2) 100%);
-    border-color: rgba(82, 196, 26, 0.5);
-    box-shadow: 0 0 10px rgba(82, 196, 26, 0.2);
+    background: linear-gradient(135deg, rgba(82, 196, 26, 0.3) 0%, rgba(115, 209, 61, 0.3) 100%);
+    border-color: rgba(82, 196, 26, 0.6);
+    box-shadow: 0 0 12px rgba(82, 196, 26, 0.3);
 
     &:hover {
-      background: linear-gradient(135deg, rgba(82, 196, 26, 0.4) 0%, rgba(115, 209, 61, 0.4) 100%);
+      background: linear-gradient(135deg, rgba(82, 196, 26, 0.5) 0%, rgba(115, 209, 61, 0.5) 100%);
       border-color: #52c41a;
-      box-shadow: 0 0 20px rgba(82, 196, 26, 0.4);
+      box-shadow: 0 0 25px rgba(82, 196, 26, 0.5);
     }
 
     .anticon {
       color: #52c41a;
+    }
+  }
+
+  // Red for Stop/Danger button
+  :deep([danger="true"] .icon-btn),
+  :deep(.ant-btn-dangerous .icon-btn) {
+    background: linear-gradient(135deg, rgba(255, 77, 79, 0.3) 0%, rgba(207, 19, 34, 0.3) 100%);
+    border-color: rgba(255, 77, 79, 0.6);
+    box-shadow: 0 0 12px rgba(255, 77, 79, 0.3);
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(255, 77, 79, 0.5) 0%, rgba(207, 19, 34, 0.5) 100%);
+      border-color: #ff4d4f;
+      box-shadow: 0 0 25px rgba(255, 77, 79, 0.5);
+    }
+
+    .anticon {
+      color: #ff4d4f;
     }
   }
 }
