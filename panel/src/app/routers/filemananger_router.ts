@@ -418,7 +418,7 @@ router.all(
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId,
-        file: fileName || uploadDir
+        file: fileName ? `${uploadDir}/${fileName}` : uploadDir
       }, "info", isAdmin);
       ctx.body = {
         password,
