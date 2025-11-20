@@ -165,16 +165,13 @@ const quickOperations = computed(() =>
         danger: true
       },
       condition: () => isRunning.value
-    }
-  ])
-);
-const instanceOperations = computed(() =>
-  arrayFilter([
+    },
     {
       title: t("TXT_CODE_47dcfa5"),
       icon: RedoOutlined,
       type: "default",
       noConfirm: false,
+      class: "button-color-warning",
       click: async () => {
         try {
           await restartInstance().execute({
@@ -188,7 +185,11 @@ const instanceOperations = computed(() =>
         }
       },
       condition: () => isRunning.value
-    },
+    }
+  ])
+);
+const instanceOperations = computed(() =>
+  arrayFilter([
     {
       title: t("TXT_CODE_7b67813a"),
       icon: CloseOutlined,
@@ -705,6 +706,25 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
     :deep(.anticon) {
       color: #ff4d4f !important;
+    }
+  }
+
+  // Orange Restart button
+  &.button-color-warning {
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
+    border-color: rgba(255, 140, 66, 0.6) !important;
+    color: #FF8C42 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 140, 66, 0.3) !important;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(255, 140, 66, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
+      border-color: #FF8C42 !important;
+      color: #FFA366 !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 140, 66, 0.5) !important;
+    }
+
+    :deep(.anticon) {
+      color: #FF8C42 !important;
     }
   }
 }
