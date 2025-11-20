@@ -293,8 +293,8 @@ onMounted(() => {
           <div class="node-title-section">
             <CloudServerOutlined class="node-icon" />
             <div class="node-info">
-              <div class="node-name">{{ remoteNode?.remarks || remoteNode?.ip }}</div>
-              <div class="node-address">{{ remoteNode?.ip }}:{{ remoteNode?.port }}</div>
+              <div class="node-name">{{ remoteNode?.remarks || remoteNode?.ip || 'Unknown' }}</div>
+              <div class="node-address">{{ remoteNode?.ip || 'unknown' }}:{{ remoteNode?.port || '?' }}</div>
             </div>
           </div>
           <StatusDot v-if="remoteNode" :status="nodeStatus" :pulse="true" show-label />
