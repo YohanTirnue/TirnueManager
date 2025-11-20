@@ -274,8 +274,7 @@ const originRouterConfig: RouterConfig[] = [
     component: LayoutContainer,
     meta: {
       permission: ROLE.USER,
-      mainMenu: true,
-      onlyDisplayEditMode: true
+      mainMenu: true
     }
   },
   {
@@ -284,7 +283,7 @@ const originRouterConfig: RouterConfig[] = [
     component: LayoutContainer,
     meta: {
       permission: ROLE.USER,
-      mainMenu: false
+      mainMenu: true
     }
   },
   {
@@ -293,7 +292,7 @@ const originRouterConfig: RouterConfig[] = [
     component: LayoutContainer,
     meta: {
       permission: ROLE.USER,
-      mainMenu: false
+      mainMenu: true
     }
   },
   {
@@ -302,7 +301,7 @@ const originRouterConfig: RouterConfig[] = [
     component: LayoutContainer,
     meta: {
       permission: ROLE.USER,
-      mainMenu: false
+      mainMenu: true
     }
   },
   {

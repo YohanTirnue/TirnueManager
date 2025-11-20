@@ -18,7 +18,10 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  WalletOutlined,
+  CustomerServiceOutlined,
+  IdcardOutlined
 } from "@ant-design/icons-vue";
 
 const router = useRouter();
@@ -65,7 +68,10 @@ function getIconForRoute(path: string) {
     "/users": TeamOutlined,
     "/node": ClusterOutlined,
     "/settings": SettingOutlined,
-    "/customer": UserOutlined
+    "/customer": AppstoreOutlined,
+    "/account": IdcardOutlined,
+    "/billing": WalletOutlined,
+    "/support": CustomerServiceOutlined
   };
   return iconMap[path] || AppstoreOutlined;
 }
