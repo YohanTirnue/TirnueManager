@@ -93,9 +93,9 @@ const openDialog = (data?: ComputedNodeInfo, uuid?: string) => {
     dialog.uuid = uuid;
     dialog.data = {
       ...data,
-      ...data.config,
-      port: data.port, // connection port
-      daemonPort: data.config.port, // listen port
+      ...(data.config || {}),
+      port: data.port || 24444, // connection port
+      daemonPort: data.config?.port || 24444, // listen port
       apiKey: "",
       remoteMappings: data.remoteMappings ?? [],
     };
