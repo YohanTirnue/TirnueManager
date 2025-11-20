@@ -34,7 +34,11 @@ router.get(
     let subUsers;
     if (isTopPermissionByUuid(userUuid)) {
       const teams = subUserService.getInstanceTeam(String(instanceUuid), String(daemonId));
-      subUsers = teams.flatMap((team) => team.subUsers);
+      // Flatten teams to get all sub-users
+      subUsers = [];
+      for (const team of teams) {
+        subUsers.push(...team.subUsers);
+      }
     } else {
       subUsers = subUserService.getSubUsers(
         userUuid,
@@ -44,7 +48,7 @@ router.get(
     }
 
     // Remove sensitive data
-    const sanitizedSubUsers = subUsers.map((user) => ({
+    const sanitizedSubUsers = subUsers.map((user: any) => ({
       uuid: user.uuid,
       userName: user.userName,
       registerTime: user.registerTime,
@@ -188,11 +192,13 @@ router.put(
     const subUser = userSystem.getInstance(String(subUserUuid));
     if (!subUser || !subUser.isSubUser) {
       ctx.throw(404, "Sub-user not found");
+      return;
     }
 
     // Allow if user is admin OR if user is the parent
     if (!isTopPermissionByUuid(userUuid) && subUser.parentUserId !== userUuid) {
       ctx.throw(403, "You do not have permission to modify this sub-user");
+      return;
     }
 
     try {
@@ -222,6 +228,7 @@ router.del(
     const subUser = userSystem.getInstance(String(subUserUuid));
     if (!subUser || !subUser.isSubUser) {
       ctx.throw(404, "Sub-user not found");
+      return;
     }
 
     const subUserName = subUser.userName || "Unknown";
@@ -229,6 +236,7 @@ router.del(
     // Allow if user is admin OR if user is the parent
     if (!isTopPermissionByUuid(userUuid) && subUser.parentUserId !== userUuid) {
       ctx.throw(403, "You do not have permission to delete this sub-user");
+      return;
     }
 
     try {

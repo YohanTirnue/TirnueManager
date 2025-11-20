@@ -20,6 +20,9 @@ export enum OperationLoggerAction {
   UserDelete = "user_delete",
   UserConfigChange = "user_config_change",
   UserLogin = "user_login",
+  SubUserCreate = "sub_user_create",
+  SubUserUpdate = "sub_user_update",
+  SubUserDelete = "sub_user_delete",
   SystemConfigChange = "system_config_change"
 }
 
@@ -133,6 +136,23 @@ export type UserLoginOptions = {
   login_result: boolean;
 } & GlobalGeneralOptions;
 
+export type SubUserCreateOptions = {
+  type: "sub_user_create";
+  target_user_name: string;
+  instance_uuid?: string;
+} & GlobalGeneralOptions;
+
+export type SubUserUpdateOptions = {
+  type: "sub_user_update";
+  target_user_uuid: string;
+} & GlobalGeneralOptions;
+
+export type SubUserDeleteOptions = {
+  type: "sub_user_delete";
+  target_user_name: string;
+  target_user_uuid: string;
+} & GlobalGeneralOptions;
+
 export type SystemConfigChangeOptions = {
   type: "system_config_change";
 } & GlobalGeneralOptions;
@@ -159,6 +179,9 @@ export type OperationLoggerItem =
   | UserDeleteOptions
   | UserConfigChangeOptions
   | UserLoginOptions
+  | SubUserCreateOptions
+  | SubUserUpdateOptions
+  | SubUserDeleteOptions
   | SystemConfigChangeOptions;
 
 export type OperationLoggerItemPayload = {
