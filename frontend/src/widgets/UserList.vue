@@ -433,7 +433,7 @@ onMounted(async () => {
       <!-- User Permissions Card - FULLY HORIZONTAL 4-COLUMN GRID -->
       <div class="user-settings-card">
         <div class="permissions-header">
-          <h4 class="permissions-main-title">User Permissions</h4>
+          <h4 class="permissions-main-title">Access Control & Security</h4>
           <p class="permissions-main-subtitle">Configure specific permissions for this user</p>
         </div>
         <div class="permissions-landscape-grid-4col">
