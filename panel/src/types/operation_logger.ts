@@ -37,7 +37,7 @@ export type GlobalGeneralOptions = {
   operation_id: string;
   operation_time: string;
   operation_level: "info" | "warning" | "error";
-  operator_ip: string;
+  operator_ip?: string;
   operator_name?: string;
 };
 
