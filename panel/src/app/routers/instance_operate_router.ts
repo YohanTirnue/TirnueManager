@@ -49,7 +49,6 @@ router.all(
       operationLogger.log("instance_start", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
       }, "info", isAdmin);
@@ -82,7 +81,6 @@ router.all(
       operationLogger.log("instance_stop", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
       }, "info", isAdmin);
@@ -114,7 +112,6 @@ router.all(
       operationLogger.log("instance_command", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         command: command
       }, "info", isAdmin);
@@ -140,7 +137,6 @@ router.post(
       operationLogger.log("instance_command", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         command: command
       }, "info", isAdmin);
@@ -169,7 +165,6 @@ router.all(
       operationLogger.log("instance_restart", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
       }, "info", isAdmin);
@@ -198,7 +193,6 @@ router.all(
       operationLogger.log("instance_kill", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
       }, "warning", isAdmin);
@@ -526,7 +520,6 @@ router.put(
       operationLogger.log("instance_config_change", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"]
       }, "info", isAdmin);
       ctx.body = true;
