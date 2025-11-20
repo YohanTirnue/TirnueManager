@@ -164,7 +164,7 @@ router.post(
         operator_ip: ctx.ip,
         operator_name: String(ctx.session?.["userName"] || ""),
         target_user_name: subUser.userName,
-        instance_uuid: instanceUuid
+        instance_uuid: String(instanceUuid)
       });
 
       ctx.body = {
