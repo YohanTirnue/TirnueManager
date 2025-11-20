@@ -1,20 +1,27 @@
 <script setup lang="ts">
 import { t } from "@/lang/i18n";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
+import { h } from "vue";
 import type { LayoutCard } from "@/types";
 import { userInfoApi } from "@/services/apis/index";
 import { useRouter } from "vue-router";
 import { INSTANCE_STATUS, INSTANCE_STATUS_CODE } from "@/types/const";
 import { parseTimestamp } from "../tools/time";
 import PermissionBanner from "@/components/PermissionBanner.vue";
+import SubUserManager from "@/components/SubUserManager.vue";
+import { TeamOutlined } from "@ant-design/icons-vue";
+import { useAppStateStore } from "@/stores/useAppState";
 
 defineProps<{
   card: LayoutCard;
 }>();
 
 const router = useRouter();
+const appStateStore = useAppStateStore();
 
 const { execute, state } = userInfoApi();
+const subUserManagerVisible = ref(false);
+const selectedInstance = ref({ daemonId: "", instanceUuid: "" });
 
 const columns = [
   {
@@ -70,6 +77,17 @@ const operate = (daemonId: string, instanceId: string) => {
   });
 };
 
+const openSubUserManager = (daemonId: string, instanceUuid: string) => {
+  selectedInstance.value = { daemonId, instanceUuid };
+  subUserManagerVisible.value = true;
+};
+
+const canManageSubUsers = () => {
+  const userInfo = appStateStore.state.userInfo;
+  // Only regular users (not admins, not sub-users) can manage sub-users
+  return userInfo && userInfo.permission === 1 && !userInfo.isSubUser;
+};
+
 onMounted(() => {
   getInstanceList();
 });
@@ -88,15 +106,32 @@ onMounted(() => {
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operate'">
-            <a-button
-              :disabled="record.status === INSTANCE_STATUS_CODE.BUSY"
-              @click="operate(record.daemonId, record.instanceUuid)"
-            >
-              {{ t("TXT_CODE_aa43b248") }}
-            </a-button>
+            <a-space>
+              <a-button
+                :disabled="record.status === INSTANCE_STATUS_CODE.BUSY"
+                @click="operate(record.daemonId, record.instanceUuid)"
+              >
+                {{ t("TXT_CODE_aa43b248") }}
+              </a-button>
+              <a-button
+                v-if="canManageSubUsers()"
+                :icon="h(TeamOutlined)"
+                @click="openSubUserManager(record.daemonId, record.instanceUuid)"
+              >
+                Manage Sub-Users
+              </a-button>
+            </a-space>
           </template>
         </template>
       </a-table>
     </template>
   </CardPanel>
+
+  <!-- Sub-User Manager Modal -->
+  <SubUserManager
+    v-model:visible="subUserManagerVisible"
+    :daemon-id="selectedInstance.daemonId"
+    :instance-uuid="selectedInstance.instanceUuid"
+    @refresh="getInstanceList"
+  />
 </template>

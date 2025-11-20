@@ -31,3 +31,24 @@ export function isHaveInstanceByUuid(uuid: string, daemonId: string, instanceUui
 export function getUserByUserName(userName: string) {
   return userSystem.getUserByUserName(userName);
 }
+
+/**
+ * Check if user can manage sub-users for a specific instance
+ * Requirements: User must have the instance AND not be a sub-user themselves
+ */
+export function canManageSubUsers(user: User, daemonId: string, instanceUuid: string): boolean {
+  // Admins cannot create sub-users (they manage instances directly)
+  if (isTopPermission(user)) return false;
+
+  // Sub-users cannot create sub-users
+  if (user.isSubUser) return false;
+
+  // Must have access to the instance
+  return isHaveInstance(user, daemonId, instanceUuid);
+}
+
+export function canManageSubUsersByUuid(uuid: string, daemonId: string, instanceUuid: string): boolean {
+  const user = userSystem.getInstance(uuid);
+  if (!user) return false;
+  return canManageSubUsers(user, daemonId, instanceUuid);
+}

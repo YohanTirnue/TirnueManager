@@ -50,6 +50,9 @@ export interface IUser {
   secret?: string;
   open2FA?: boolean;
   permissions?: UserPermissions;
+  isSubUser?: boolean;
+  parentUserId?: string;
+  subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string }>;
 }
 
 export interface ICompleteUser {
@@ -60,6 +63,9 @@ export interface ICompleteUser {
   registerTime: string;
   loginTime: string;
   permissions?: UserPermissions;
+  isSubUser?: boolean;
+  parentUserId?: string;
+  subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string }>;
 }
 
 type RemoteMappingEntry = {

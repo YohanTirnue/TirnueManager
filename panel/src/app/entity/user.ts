@@ -26,6 +26,11 @@ export class User implements IUser {
   secret = "";
   open2FA = false;
   permissions?: UserPermissions;
+
+  // Sub-user management fields
+  isSubUser: boolean = false;
+  parentUserId?: string;
+  subUsers: Array<{ uuid: string; instanceUuid: string; daemonId: string }> = [];
 }
 
 export enum ROLE {

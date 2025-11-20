@@ -257,3 +257,75 @@ export const connectNode = useDefineApi<
   url: "/api/service/link_remote_service",
   method: "GET"
 });
+
+// Sub-User Management APIs
+export const getSubUsers = useDefineApi<
+  {
+    params: {
+      daemonId: string;
+      instanceUuid: string;
+    };
+  },
+  any[]
+>({
+  url: "/api/sub-users",
+  method: "GET"
+});
+
+export const getInstanceTeams = useDefineApi<
+  {
+    params: {
+      daemonId: string;
+      instanceUuid: string;
+    };
+  },
+  any[]
+>({
+  url: "/api/sub-users/teams",
+  method: "GET"
+});
+
+export const createSubUser = useDefineApi<
+  {
+    params: {
+      daemonId: string;
+      instanceUuid: string;
+    };
+    data: {
+      userName: string;
+      passWord: string;
+      permissions?: UserPermissions;
+    };
+  },
+  any
+>({
+  url: "/api/sub-users",
+  method: "POST"
+});
+
+export const updateSubUserPermissions = useDefineApi<
+  {
+    params: {
+      subUserUuid: string;
+    };
+    data: {
+      permissions: UserPermissions;
+    };
+  },
+  any
+>({
+  url: "/api/sub-users/:subUserUuid",
+  method: "PUT"
+});
+
+export const deleteSubUser = useDefineApi<
+  {
+    params: {
+      subUserUuid: string;
+    };
+  },
+  any
+>({
+  url: "/api/sub-users/:subUserUuid",
+  method: "DELETE"
+});

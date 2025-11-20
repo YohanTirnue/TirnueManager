@@ -649,6 +649,18 @@ onMounted(async () => {
             </div>
           </div>
 
+          <!-- Sub-Users Badge (if any) -->
+          <div v-if="user.subUsers && user.subUsers.length > 0" class="sub-users-badge">
+            <TeamOutlined style="margin-right: 4px" />
+            <span>{{ user.subUsers.length }} Sub-User{{ user.subUsers.length > 1 ? 's' : '' }}</span>
+          </div>
+
+          <!-- Parent User Badge (if sub-user) -->
+          <div v-if="user.isSubUser" class="parent-user-badge">
+            <UserOutlined style="margin-right: 4px" />
+            <span>Sub-User</span>
+          </div>
+
           <!-- UUID -->
           <div class="user-uuid">
             <span class="uuid-label">UUID:</span>
@@ -1626,5 +1638,29 @@ onMounted(async () => {
     background: var(--theme-card-border-hover);
     border-color: var(--theme-card-border-hover);
   }
+}
+
+/* Sub-User Badges */
+.sub-users-badge,
+.parent-user-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.sub-users-badge {
+  background: rgba(24, 144, 255, 0.1);
+  color: #1890ff;
+  border: 1px solid rgba(24, 144, 255, 0.3);
+}
+
+.parent-user-badge {
+  background: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+  border: 1px solid rgba(82, 196, 26, 0.3);
 }
 </style>
