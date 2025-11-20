@@ -214,7 +214,7 @@ const getStatusIcon = (status: INSTANCE_STATUS_CODE) => {
   }
 };
 
-const getServerIcon = (type: string) => {
+const getServerIcon = (type?: string) => {
   const typeLower = type?.toLowerCase() || '';
   if (typeLower.includes('minecraft')) return RocketOutlined;
   if (typeLower.includes('docker')) return DatabaseOutlined;
@@ -223,7 +223,7 @@ const getServerIcon = (type: string) => {
   return CloudServerOutlined;
 };
 
-const getServerTypeColor = (type: string) => {
+const getServerTypeColor = (type?: string) => {
   const typeLower = type?.toLowerCase() || '';
   if (typeLower.includes('minecraft')) return { bg: 'rgba(139, 195, 74, 0.15)', color: '#8bc34a' };
   if (typeLower.includes('docker')) return { bg: 'rgba(33, 150, 243, 0.15)', color: '#2196f3' };
