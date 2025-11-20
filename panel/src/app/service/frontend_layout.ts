@@ -507,50 +507,6 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
       items: [
         {
           id: getRandomId(),
-          type: "UserStatusBlock",
-          title: t("TXT_CODE_7411336e"),
-          meta: {
-            type: "instance_all"
-          },
-          width: 3,
-          height: LayoutCardHeight.SMALL,
-          disableDelete: true
-        },
-        {
-          id: getRandomId(),
-          type: "UserStatusBlock",
-          title: t("TXT_CODE_f912fadc"),
-          meta: {
-            type: "instance_running"
-          },
-          width: 3,
-          height: LayoutCardHeight.SMALL,
-          disableDelete: true
-        },
-        {
-          id: getRandomId(),
-          type: "UserStatusBlock",
-          title: t("TXT_CODE_15f2e564"),
-          meta: {
-            type: "instance_stop"
-          },
-          width: 3,
-          height: LayoutCardHeight.SMALL,
-          disableDelete: true
-        },
-        {
-          id: getRandomId(),
-          type: "UserStatusBlock",
-          title: t("TXT_CODE_342a04a9"),
-          meta: {
-            type: "instance_error"
-          },
-          width: 3,
-          height: LayoutCardHeight.SMALL,
-          disableDelete: true
-        },
-        {
-          id: getRandomId(),
           type: "UserInstanceList",
           title: t("TXT_CODE_d655beec"),
           meta: {
