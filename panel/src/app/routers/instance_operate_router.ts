@@ -132,9 +132,9 @@ router.post(
   validator({ query: { daemonId: String, uuid: String }, body: { command: String } }),
   async (ctx) => {
     try {
-      const daemonId = String(ctx.query.daemonId);
-      const instanceUuid = String(ctx.query.uuid);
-      const command = String(ctx.request.body.command);
+      const daemonId = String(ctx.query.daemonId || "");
+      const instanceUuid = String(ctx.query.uuid || "");
+      const command = String(ctx.request.body.command || "");
       const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_command", {
         daemon_id: daemonId,
