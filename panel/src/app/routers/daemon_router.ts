@@ -93,8 +93,8 @@ router.get(
           page: 1,
           pageSize: 1000, // Get all from each daemon
           condition: {
-            instanceName,
-            status,
+            instanceName: instanceName || undefined,
+            status: status || undefined,
             tag: tagList.length > 0 ? tagList : null
           }
         });
@@ -102,9 +102,9 @@ router.get(
         // Add daemon info to each instance
         for (const instance of result.data || []) {
           instance.daemonId = remoteService.uuid;
-          instance.daemonRemarks = remoteService.config.remarks;
-          instance.daemonIp = remoteService.config.ip;
-          instance.daemonPort = remoteService.config.port;
+          instance.daemonRemarks = remoteService.config?.remarks || "";
+          instance.daemonIp = remoteService.config?.ip || "unknown";
+          instance.daemonPort = remoteService.config?.port || 0;
           allInstances.push(instance);
         }
 

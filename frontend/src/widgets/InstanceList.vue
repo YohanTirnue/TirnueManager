@@ -627,7 +627,7 @@ onMounted(async () => {
                 :card="card"
                 :target-instance-info="item"
                 :target-daemon-id="showAllDaemons ? (item as any).daemonId : currentRemoteNode?.uuid"
-                :daemon-name="showAllDaemons ? ((item as any).daemonRemarks || `${(item as any).daemonIp}:${(item as any).daemonPort || 'unknown'}`) : undefined"
+                :daemon-name="showAllDaemons ? ((item as any).daemonRemarks || `${(item as any).daemonIp || 'unknown'}:${(item as any).daemonPort || '?'}`) : undefined"
                 @click="handleSelectInstance(item)"
                 @refresh-list="initInstancesData()"
               />
