@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InnerCard from "@/components/InnerCard.vue";
+import PermissionBanner from "@/components/PermissionBanner.vue";
 import ResponsiveLayoutGroup from "@/components/ResponsiveLayoutGroup.vue";
 import { useAppRouters } from "@/hooks/useAppRouters";
 import {
@@ -55,6 +56,19 @@ const { isAdmin, state } = useAppStateStore();
 const { hasInstanceAccess, userPermissions } = useUserPermissions();
 
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
+
+// Get user's available management permissions
+const availableManagerPermissions = computed(() => {
+  if (isAdmin.value) return null; // Admins don't need permission notices
+  const perms = userPermissions.value;
+  const available = [];
+  if (perms.canUploadFiles || perms.canDownloadFiles || perms.canDeleteFiles || perms.canModifyFiles) {
+    available.push("File Manager");
+  }
+  if (perms.canAccessConsole) available.push("Console");
+  if (hasInstanceAccess(instanceId ?? "")) available.push("Manage Settings");
+  return available.length > 0 ? available : ["Limited Access"];
+});
 
 const instanceId = getMetaOrRouteValue("instanceId");
 const daemonId = getMetaOrRouteValue("daemonId");
@@ -212,6 +226,12 @@ watch(instanceInfo, (cfg, oldCfg) => {
       </div>
     </template>
     <template #body>
+      <PermissionBanner
+        type="custom"
+        :customPermissions="availableManagerPermissions || []"
+        theme="gold"
+      />
+
       <div class="manager-buttons-grid" :class="{ 'centered-manager-grid': btns.length <= 3 }">
         <a-button
           v-for="(item, index) in btns"
@@ -333,6 +353,45 @@ watch(instanceInfo, (cfg, oldCfg) => {
   background-clip: text;
   font-size: 16px;
   letter-spacing: -0.3px;
+}
+
+// Manager Permission Notice Banner
+.manager-permission-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.08), rgba(212, 107, 8, 0.08));
+  border: 2px solid rgba(153, 27, 27, 0.25);
+  border-radius: 12px;
+  margin-bottom: 16px;
+
+  .manager-permission-icon {
+    font-size: 22px;
+    color: rgba(153, 27, 27, 0.9);
+    flex-shrink: 0;
+  }
+
+  .manager-permission-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .manager-permission-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(153, 27, 27, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .manager-permission-list {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-gray-10);
+  }
 }
 
 // MODERN MANAGER BUTTONS GRID
