@@ -348,6 +348,7 @@ onMounted(async () => {
     :destroy-on-close="true"
     :title="userDialog.title"
     :confirm-loading="userDialog.confirmBtnLoading"
+    :width="1000"
     @ok="userDialog.resolve()"
   >
     <a-form
@@ -356,141 +357,178 @@ onMounted(async () => {
       :model="formData"
       layout="vertical"
     >
-      <a-form-item required name="permission" :label="t('TXT_CODE_511aea70')">
-        <a-typography-paragraph>
-          <a-typography-text type="secondary">
-            {{ t("TXT_CODE_21b8b71a") }}
-          </a-typography-text>
-        </a-typography-paragraph>
-        <a-select v-model:value="formData.permission">
-          <a-select-option v-for="(item, key, i) in PERMISSION_MAP" :key="i" :value="Number(key)">
-            {{ item }}
-          </a-select-option>
-        </a-select>
-      </a-form-item>
-
-      <a-form-item required name="userName" :label="t('TXT_CODE_eb9fcdad')">
-        <a-typography-paragraph>
-          <a-typography-text type="secondary">
-            {{ t("TXT_CODE_1987587b") }}
-          </a-typography-text>
-        </a-typography-paragraph>
-        <a-input v-model:value="formData.userName" :placeholder="t('TXT_CODE_4ea93630')" />
-      </a-form-item>
-
-      <a-form-item :required="isAddMode" name="passWord" :label="t('TXT_CODE_551b0348')">
-        <a-typography-paragraph>
-          <a-typography-text type="secondary">
-            {{ !isAddMode ? t("TXT_CODE_af1f921d") : t("TXT_CODE_1f2062c7") }}
-          </a-typography-text>
-        </a-typography-paragraph>
-        <a-input v-model:value="formData.passWord" :placeholder="t('TXT_CODE_4ea93630')" />
-      </a-form-item>
-
-      <a-form-item v-if="!isAddMode" label="APIKEY">
-        <a-typography-paragraph v-if="!formData.apiKey">
-          {{ t("TXT_CODE_6c274bdc") }}
-        </a-typography-paragraph>
-        <a-input v-else v-model:value="formData.apiKey" :readonly="true" />
-      </a-form-item>
-
-      <!-- Granular Permissions Section -->
-      <a-form-item label="User Permissions" class="permissions-section">
-        <a-typography-paragraph>
-          <a-typography-text type="secondary">
-            Configure specific permissions for this user
-          </a-typography-text>
-        </a-typography-paragraph>
-
-        <div class="permissions-grid">
-          <!-- File Operations -->
-          <div class="permission-category">
-            <h4 class="category-title">
-              <DatabaseOutlined class="category-icon" />
-              File Operations
-            </h4>
-            <div class="permission-items">
-              <a-checkbox v-model:checked="formData.permissions!.canUploadFiles">
-                Upload Files
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.canDownloadFiles">
-                Download Files
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.canDeleteFiles">
-                Delete Files
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.canModifyFiles">
-                Modify Files
-              </a-checkbox>
-            </div>
+      <!-- Info Card - LANDSCAPE -->
+      <div class="user-info-card">
+        <div class="user-info-row">
+          <div class="user-info-icon">👤</div>
+          <div class="user-info-content">
+            <p class="user-info-text">{{ t("TXT_CODE_21b8b71a") }}</p>
           </div>
+        </div>
+      </div>
 
-          <!-- Instance Control -->
-          <div class="permission-category">
-            <h4 class="category-title">
-              <DatabaseOutlined class="category-icon" />
-              Instance Control
-            </h4>
-            <div class="permission-items">
-              <a-checkbox v-model:checked="formData.permissions!.canAccessConsole">
-                Access Console
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.canStartInstances">
-                Start Instances
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.canRestartInstances">
-                Restart Instances
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.canStopInstances">
-                Stop Instances
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.canTerminateInstances">
-                Terminate Instances
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.canViewLogs">
-                View Logs
-              </a-checkbox>
-            </div>
+      <!-- Basic Information Card - LANDSCAPE -->
+      <div class="user-settings-card">
+        <div class="user-settings-row">
+          <div class="user-settings-title-section">
+            <h4 class="user-settings-title">Basic Information</h4>
+            <p class="user-settings-subtitle">Account credentials and access level</p>
           </div>
+          <div class="user-settings-controls">
+            <a-form-item required name="permission" class="user-form-item">
+              <div class="user-control-label">
+                <span class="user-label-text required">{{ t("TXT_CODE_511aea70") }}</span>
+              </div>
+              <a-select v-model:value="formData.permission" style="width: 200px">
+                <a-select-option v-for="(item, key, i) in PERMISSION_MAP" :key="i" :value="Number(key)">
+                  {{ item }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item required name="userName" class="user-form-item">
+              <div class="user-control-label">
+                <span class="user-label-text required">{{ t("TXT_CODE_eb9fcdad") }}</span>
+                <span class="user-label-hint">{{ t("TXT_CODE_1987587b") }}</span>
+              </div>
+              <a-input
+                v-model:value="formData.userName"
+                :placeholder="t('TXT_CODE_4ea93630')"
+                style="width: 240px"
+              />
+            </a-form-item>
+            <a-form-item :required="isAddMode" name="passWord" class="user-form-item">
+              <div class="user-control-label">
+                <span class="user-label-text" :class="{ required: isAddMode }">{{ t("TXT_CODE_551b0348") }}</span>
+                <span class="user-label-hint">{{ !isAddMode ? t("TXT_CODE_af1f921d") : t("TXT_CODE_1f2062c7") }}</span>
+              </div>
+              <a-input
+                v-model:value="formData.passWord"
+                :placeholder="t('TXT_CODE_4ea93630')"
+                style="width: 240px"
+              />
+            </a-form-item>
+          </div>
+        </div>
+      </div>
 
-          <!-- Copy & Interaction Restrictions -->
-          <div class="permission-category">
-            <h4 class="category-title">
-              <SafetyOutlined class="category-icon" />
-              Security Restrictions
-            </h4>
-            <div class="permission-items">
-              <a-checkbox v-model:checked="formData.permissions!.disableRightClick">
-                Disable Right Click
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.disableKeyboardShortcuts">
-                Disable Keyboard Shortcuts
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.disableTextSelection">
-                Prevent Text Selection
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.disableCopy">
-                Disable Copy
-              </a-checkbox>
-              <a-checkbox v-model:checked="formData.permissions!.disablePaste">
-                Disable Paste
-              </a-checkbox>
+      <!-- APIKEY Card - LANDSCAPE (Edit Mode Only) -->
+      <div v-if="!isAddMode" class="user-settings-card">
+        <div class="user-settings-row">
+          <div class="user-settings-title-section">
+            <h4 class="user-settings-title">APIKEY</h4>
+            <p class="user-settings-subtitle">API authentication key for this user</p>
+          </div>
+          <div class="user-settings-controls">
+            <a-form-item class="user-form-item-full">
+              <a-typography-paragraph v-if="!formData.apiKey" class="user-apikey-empty">
+                {{ t("TXT_CODE_6c274bdc") }}
+              </a-typography-paragraph>
+              <a-input v-else v-model:value="formData.apiKey" :readonly="true" />
+            </a-form-item>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Permissions Card - LANDSCAPE -->
+      <div class="user-settings-card">
+        <div class="user-settings-row user-settings-column">
+          <div class="user-settings-title-section">
+            <h4 class="user-settings-title">User Permissions</h4>
+            <p class="user-settings-subtitle">Configure specific permissions for this user</p>
+          </div>
+          <div class="permissions-landscape-grid">
+            <!-- File Operations -->
+            <div class="permission-category-landscape">
+              <h4 class="category-title-landscape">
+                <DatabaseOutlined class="category-icon-landscape" />
+                File Operations
+              </h4>
+              <div class="permission-items-landscape">
+                <a-checkbox v-model:checked="formData.permissions!.canUploadFiles">
+                  Upload Files
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canDownloadFiles">
+                  Download Files
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canDeleteFiles">
+                  Delete Files
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canModifyFiles">
+                  Modify Files
+                </a-checkbox>
+              </div>
+            </div>
+
+            <!-- Instance Control -->
+            <div class="permission-category-landscape">
+              <h4 class="category-title-landscape">
+                <DatabaseOutlined class="category-icon-landscape" />
+                Instance Control
+              </h4>
+              <div class="permission-items-landscape">
+                <a-checkbox v-model:checked="formData.permissions!.canAccessConsole">
+                  Access Console
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canStartInstances">
+                  Start Instances
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canRestartInstances">
+                  Restart Instances
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canStopInstances">
+                  Stop Instances
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canTerminateInstances">
+                  Terminate Instances
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canViewLogs">
+                  View Logs
+                </a-checkbox>
+              </div>
+            </div>
+
+            <!-- Security Restrictions -->
+            <div class="permission-category-landscape">
+              <h4 class="category-title-landscape">
+                <SafetyOutlined class="category-icon-landscape" />
+                Security Restrictions
+              </h4>
+              <div class="permission-items-landscape">
+                <a-checkbox v-model:checked="formData.permissions!.disableRightClick">
+                  Disable Right Click
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.disableKeyboardShortcuts">
+                  Disable Keyboard Shortcuts
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.disableTextSelection">
+                  Prevent Text Selection
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.disableCopy">
+                  Disable Copy
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.disablePaste">
+                  Disable Paste
+                </a-checkbox>
+              </div>
             </div>
           </div>
         </div>
-      </a-form-item>
+      </div>
 
-      <a-form-item v-if="isAddMode" required :label="t('TXT_CODE_ef0ce2e')">
-        <a-typography-paragraph>
-          <a-typography-text type="secondary">
-            {{ t("TXT_CODE_9e9d3767") }}
-            <br />
-            <a href="https://docs.mcsmanager.com/" target="_blank">
-              {{ t("TXT_CODE_b01f8383") }}
-            </a>
-          </a-typography-text>
-        </a-typography-paragraph>
-      </a-form-item>
+      <!-- Documentation Notice (Add Mode Only) -->
+      <div v-if="isAddMode" class="user-info-card">
+        <div class="user-info-row">
+          <div class="user-info-content">
+            <p class="user-info-text">
+              {{ t("TXT_CODE_9e9d3767") }}
+              <br />
+              <a href="https://docs.mcsmanager.com/" target="_blank" class="user-info-link">
+                {{ t("TXT_CODE_b01f8383") }}
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
     </a-form>
   </a-modal>
 
@@ -1255,5 +1293,256 @@ onMounted(async () => {
 :deep(.ant-modal) {
   max-width: 1400px;
   width: 95% !important;
+}
+
+/* LANDSCAPE User Permission Cards - ORANGE GOLD BLACK THEME */
+.user-info-card {
+  background: linear-gradient(135deg, #1a1a00 0%, #2a2200 100%);
+  border: 2px solid #ff8c00;
+  border-radius: 12px;
+  padding: 16px; /* OCD: 16px all around */
+  margin-bottom: 16px; /* OCD: 16px between cards */
+}
+
+.user-info-row {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* OCD: 16px gap */
+}
+
+.user-info-icon {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.user-info-content {
+  flex: 1;
+}
+
+.user-info-text {
+  margin: 0 0 4px 0;
+  padding: 0;
+  font-size: 13px;
+  color: #ffd700; /* GOLD */
+  line-height: 1.4;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.user-info-link {
+  color: #ff8c00; /* ORANGE */
+  text-decoration: underline;
+
+  &:hover {
+    color: #ffa500; /* Lighter ORANGE */
+  }
+}
+
+.user-settings-card {
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  border: 2px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 24px; /* OCD: 24px all around */
+  margin-bottom: 16px; /* OCD: 16px between cards */
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #ff8c00; /* ORANGE on hover */
+    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.15);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.user-settings-row {
+  display: flex;
+  align-items: center; /* OCD: Vertically centered */
+  gap: 32px; /* OCD: 32px between sections */
+  justify-content: space-between;
+}
+
+.user-settings-column {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px; /* OCD: 16px for vertical */
+}
+
+.user-settings-title-section {
+  flex: 0 0 240px; /* OCD: Fixed 240px width */
+  min-width: 240px;
+}
+
+.user-settings-title {
+  margin: 0 0 4px 0; /* OCD: 4px gap */
+  padding: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffd700; /* GOLD */
+  line-height: 1.4;
+}
+
+.user-settings-subtitle {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: #999999;
+  line-height: 1.4;
+}
+
+.user-settings-controls {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px; /* OCD: 24px between controls */
+  align-items: flex-start;
+}
+
+.user-form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* OCD: 8px between label and input */
+  margin-bottom: 0 !important;
+}
+
+.user-form-item-full {
+  width: 100%;
+  margin-bottom: 0 !important;
+}
+
+.user-control-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* OCD: 4px between text and hint */
+}
+
+.user-label-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.2;
+
+  &.required::after {
+    content: " *";
+    color: #ff8c00; /* ORANGE asterisk */
+  }
+}
+
+.user-label-hint {
+  font-size: 12px;
+  color: #666666;
+  line-height: 1.2;
+}
+
+.user-apikey-empty {
+  margin: 0;
+  color: #999999;
+  font-style: italic;
+}
+
+/* Permissions Grid - Three columns landscape */
+.permissions-landscape-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px; /* OCD: 16px between columns */
+  width: 100%;
+  margin-top: 8px; /* OCD: 8px top margin */
+}
+
+.permission-category-landscape {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  border: 1px solid #2a2a2a;
+  border-radius: 8px; /* OCD: 8px radius */
+  padding: 16px; /* OCD: 16px padding */
+}
+
+.category-title-landscape {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* OCD: 8px gap */
+  margin: 0 0 12px 0; /* OCD: 12px bottom margin */
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffd700; /* GOLD */
+  line-height: 1.2;
+}
+
+.category-icon-landscape {
+  font-size: 16px;
+  color: #ff8c00; /* ORANGE */
+}
+
+.permission-items-landscape {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* OCD: 8px between checkboxes */
+}
+
+/* RESPONSIVE: Stack vertically on mobile */
+@media (max-width: 992px) {
+  .user-settings-row:not(.user-settings-column) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px; /* OCD: Tighter gap on mobile */
+  }
+
+  .user-settings-title-section {
+    flex: none;
+    min-width: 0;
+  }
+
+  .user-settings-controls {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .user-form-item {
+    width: 100%;
+  }
+
+  .user-form-item input,
+  .user-form-item .ant-select {
+    width: 100% !important;
+  }
+
+  .permissions-landscape-grid {
+    grid-template-columns: 1fr; /* Single column on mobile */
+    gap: 12px; /* OCD: 12px gap on mobile */
+  }
+}
+
+/* Customize Ant Design for ORANGE GOLD BLACK theme */
+:deep(.user-settings-card) {
+  .ant-input:hover,
+  .ant-input:focus {
+    border-color: #ff8c00; /* ORANGE */
+  }
+
+  .ant-input:focus {
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+  }
+
+  .ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+  .ant-select-focused:not(.ant-select-disabled).ant-select .ant-select-selector {
+    border-color: #ff8c00; /* ORANGE */
+  }
+
+  .ant-select-focused:not(.ant-select-disabled).ant-select .ant-select-selector {
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+  }
+
+  .ant-checkbox-wrapper:hover .ant-checkbox-inner {
+    border-color: #ff8c00; /* ORANGE */
+  }
+
+  .ant-checkbox-checked .ant-checkbox-inner {
+    background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%); /* ORANGE */
+    border-color: #ff8c00;
+  }
 }
 </style>
