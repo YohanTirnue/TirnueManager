@@ -233,25 +233,7 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
           type: "Terminal",
           title: t("TXT_CODE_4ccdd3a0"),
           width: 12,
-          height: LayoutCardHeight.BIG,
-          disableDelete: true
-        },
-
-        {
-          id: getRandomId(),
-          meta: {},
-          type: "InstanceBaseInfo",
-          title: t("TXT_CODE_eadb4f60"),
-          width: 4,
-          height: LayoutCardHeight.SMALL
-        },
-        {
-          id: getRandomId(),
-          meta: {},
-          type: "InstanceManagerBtns",
-          title: t("TXT_CODE_efd37c48"),
-          width: 8,
-          height: LayoutCardHeight.SMALL,
+          height: LayoutCardHeight.AUTO,
           disableDelete: true
         }
       ]
