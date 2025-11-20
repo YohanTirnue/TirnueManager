@@ -331,8 +331,8 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 </script>
 
 <template>
-  <!-- COMPACT 3-ROW LAYOUT -->
-  <div v-if="innerTerminalType" class="compact-terminal-container">
+  <!-- COMPACT 3-ROW LAYOUT (Default View) -->
+  <div class="compact-terminal-container">
     <PermissionBanner type="instance" theme="orange" />
 
     <!-- ROW 1: Header | Basic Info | Buttons -->
@@ -472,72 +472,6 @@ const terminalTopTags = computed<TagInfo[]>(() => {
       </div>
     </div>
   </div>
-
-  <!-- Other Page View -->
-  <CardPanel v-else class="containerWrapper" style="height: 100%">
-    <template #title>
-      <CloudServerOutlined />
-      <span class="ml-8"> {{ getInstanceName }} </span>
-      <span class="ml-8">
-        <a-tag v-if="isRunning" color="green">
-          <CheckCircleOutlined />
-          {{ instanceStatusText }}
-        </a-tag>
-        <a-tag v-else-if="isBuys" color="red">
-          <LoadingOutlined />
-          {{ instanceStatusText }}
-        </a-tag>
-        <a-tag v-else>
-          <InfoCircleOutlined />
-          {{ instanceStatusText }}
-        </a-tag>
-        <a-tag color="purple"> {{ instanceTypeText }} </a-tag>
-      </span>
-    </template>
-    <template #operator>
-      <span
-        v-for="item in quickOperations"
-        :key="item.title"
-        size="default"
-        class="mr-2"
-        v-bind="item.props"
-      >
-        <IconBtn :icon="item.icon" :title="item.title" @click="item.click"></IconBtn>
-      </span>
-      <a-dropdown>
-        <template #overlay>
-          <a-menu>
-            <a-menu-item v-for="item in instanceOperations" :key="item.title" @click="item.click">
-              <component :is="item.icon"></component>
-              <span>&nbsp;{{ item.title }}</span>
-            </a-menu-item>
-          </a-menu>
-        </template>
-        <span size="default" type="primary">
-          <IconBtn :icon="DownOutlined" :title="t('TXT_CODE_fe731dfc')"></IconBtn>
-        </span>
-      </a-dropdown>
-    </template>
-    <template #body>
-      <PermissionBanner type="instance" theme="orange" />
-
-      <div class="mb-6">
-        <TerminalTags :tags="terminalTopTags" />
-      </div>
-      <TerminalCore
-        v-if="instanceId && daemonId && hasConsoleAccess"
-        :use-terminal-hook="terminalHook"
-        :instance-id="instanceId"
-        :daemon-id="daemonId"
-        :height="card.height"
-      />
-      <div v-else-if="!hasConsoleAccess" style="padding: 40px; text-align: center; color: var(--color-red-5);">
-        <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
-        <h3>Access Denied</h3>
-        <p>You do not have permission to access the console for this instance.</p>
-      </div>
-    </template>
-  </CardPanel>
 
   <!-- Sub-User Manager Modal -->
   <SubUserManager
