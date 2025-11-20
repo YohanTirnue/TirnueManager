@@ -17,7 +17,7 @@ class OperationLogger {
   #bufferSize: number;
   #flushTimer: NodeJS.Timeout | null = null;
 
-  constructor(bufferSize = 20) {
+  constructor(bufferSize = 5) {
     this.#storage = new JsonlStorageSubsystem("/operation_logs", 200);
     this.#instanceStorage = new JsonlStorageSubsystem("/operation_logs/instances", 1000);
     this.#buffer = new Map();
@@ -177,7 +177,7 @@ class OperationLogger {
       for (const instanceId of emptyInstances) {
         this.#instanceBuffers.delete(instanceId);
       }
-    }, 5000);
+    }, 2000); // Flush every 2 seconds for better persistence
   }
 
   public stopFlushTimer() {
