@@ -4,7 +4,7 @@ import validator from "../middleware/validator";
 import RemoteServiceSubsystem from "../service/remote_service";
 import RemoteRequest from "../service/remote_command";
 import { getUserUuid } from "../service/passport_service";
-import { isHaveInstanceByUuid } from "../service/permission_service";
+import { isHaveInstanceByUuid, isTopPermissionByUuid } from "../service/permission_service";
 import { FILENAME_BLACKLIST } from "../const";
 import { $t } from "../i18n";
 import { ROLE } from "../entity/user";
@@ -68,13 +68,14 @@ router.post(
         if (name.includes(ch)) throw new Error($t("TXT_CODE_router.schedule.invalidName"));
       });
 
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_task_create", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId,
         task_name: name
-      });
+      }, "info", isAdmin);
 
       ctx.body = await new RemoteRequest(RemoteServiceSubsystem.getInstance(daemonId)).request(
         "schedule/register",
@@ -106,13 +107,14 @@ router.delete(
       const instanceUuid = String(ctx.query.uuid);
       const name = String(ctx.query.task_name);
 
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_task_delete", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId,
         task_name: name
-      });
+      }, "info", isAdmin);
 
       ctx.body = await new RemoteRequest(RemoteServiceSubsystem.getInstance(daemonId)).request(
         "schedule/delete",
