@@ -463,7 +463,7 @@ router.put(
       let advancedConfig = {};
       advancedConfig = checkInstanceAdvancedParams(config, isTopPermission);
 
-      new RemoteRequest(remoteService).request("instance/update", {
+      await new RemoteRequest(remoteService).request("instance/update", {
         instanceUuid,
         config: {
           pingConfig: !isEmpty(config.pingConfig) ? pingConfig : null,
@@ -482,6 +482,12 @@ router.put(
           fileCode,
           ...advancedConfig
         }
+      });
+      operationLogger.log("instance_config_change", {
+        daemon_id: daemonId,
+        instance_id: instanceUuid,
+        operator_ip: ctx.ip,
+        operator_name: ctx.session?.["userName"]
       });
       ctx.body = true;
     } catch (err) {
