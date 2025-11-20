@@ -10,7 +10,7 @@ import { parseTimestamp } from "../tools/time";
 import PermissionBanner from "@/components/PermissionBanner.vue";
 import SubUserManager from "@/components/SubUserManager.vue";
 import { TeamOutlined } from "@ant-design/icons-vue";
-import { useAppStateStore } from "@/stores/useAppState";
+import { useAppStateStore } from "@/stores/useAppStateStore";
 
 defineProps<{
   card: LayoutCard;

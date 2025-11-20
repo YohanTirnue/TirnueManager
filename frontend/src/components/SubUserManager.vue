@@ -20,7 +20,7 @@ import {
   deleteSubUser,
   getParentUsers
 } from "@/services/apis";
-import { useAppStateStore } from "@/stores/useAppState";
+import { useAppStateStore } from "@/stores/useAppStateStore";
 import _ from "lodash";
 
 interface SubUser {
