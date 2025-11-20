@@ -129,7 +129,21 @@ export class SubUserService {
       instances: [{ instanceUuid, daemonId }]
     });
 
-    // Update parent's subUsers array
+    // Update parent's subUsers array with race condition protection
+    // Re-check count to prevent concurrent creation bypassing limit
+    const currentCount = parentUser.subUsers.filter(
+      (su) => su.instanceUuid === instanceUuid && su.daemonId === daemonId
+    ).length;
+
+    if (currentCount >= MAX_SUB_USERS_PER_INSTANCE) {
+      // Race condition detected: another request created a sub-user
+      // Delete the sub-user we just created and throw error
+      await userSystem.deleteInstance(subUser.uuid);
+      throw new Error(
+        `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+      );
+    }
+
     parentUser.subUsers.push({
       uuid: subUser.uuid,
       instanceUuid,

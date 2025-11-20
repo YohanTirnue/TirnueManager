@@ -4,6 +4,7 @@ import permission from "../middleware/permission";
 import validator from "../middleware/validator";
 import { register } from "../service/passport_service";
 import userSystem from "../service/user_service";
+import subUserService from "../service/sub_user_service";
 import { $t } from "../i18n";
 import { ROLE } from "../entity/user";
 import { operationLogger } from "../service/operation_logger";
@@ -50,6 +51,14 @@ router.del("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Parameterized
         },
         "warning"
       );
+
+      // If this is a parent user, delete all their sub-users first
+      if (user && !user.isSubUser && user.subUsers && user.subUsers.length > 0) {
+        for (const subUserRef of user.subUsers) {
+          await userSystem.deleteInstance(subUserRef.uuid);
+        }
+      }
+
       await userSystem.deleteInstance(iterator);
     }
     ctx.body = true;
