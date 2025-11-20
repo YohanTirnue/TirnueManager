@@ -234,7 +234,8 @@ const handleEditSubUser = (subUser: SubUser) => {
     passWord: "",
     permissions: subUser.permissions
       ? { ...defaultPermissions, ...subUser.permissions }
-      : _.cloneDeep(defaultPermissions)
+      : _.cloneDeep(defaultPermissions),
+    parentUuid: ""
   };
   dialogVisible.value = true;
 };

@@ -51,6 +51,9 @@ export interface BaseUserInfo {
   secret: string;
   open2FA: boolean;
   permissions?: UserPermissions;
+  isSubUser?: boolean;
+  parentUserId?: string;
+  subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string }>;
 }
 
 export interface EditUserInfo extends BaseUserInfo {
