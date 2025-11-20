@@ -60,6 +60,25 @@ const isAdmin = computed(() => {
   return userInfo && userInfo.permission === 10;
 });
 
+const availableParents = computed(() => {
+  if (!isAdmin.value) return [];
+
+  // Count sub-users per parent
+  const subUserCounts = new Map<string, number>();
+  for (const subUser of subUsers.value) {
+    if (subUser.parentUserId) {
+      const count = subUserCounts.get(subUser.parentUserId) || 0;
+      subUserCounts.set(subUser.parentUserId, count + 1);
+    }
+  }
+
+  // Filter parents who have < 3 sub-users
+  return parentUsers.value.filter((parent) => {
+    const count = subUserCounts.get(parent.uuid) || 0;
+    return count < MAX_SUB_USERS;
+  });
+});
+
 const defaultPermissions: UserPermissions = {
   canUploadFiles: true,
   canDownloadFiles: true,
@@ -94,9 +113,9 @@ const formData = ref({
 });
 
 const canAddMore = computed(() => {
-  // For admins, always allow if there are parent users available
+  // For admins, check if there are any available parent slots
   if (isAdmin.value) {
-    return parentUsers.value.length > 0;
+    return availableParents.value.length > 0;
   }
   // For regular users, check their own sub-user count
   return subUsers.value.length < MAX_SUB_USERS;
@@ -134,12 +153,13 @@ const formRules: Record<string, Rule[]> = {
 
 watch(
   () => props.visible,
-  (newVal) => {
+  async (newVal) => {
     if (newVal) {
-      fetchSubUsers();
       if (isAdmin.value) {
-        fetchParentUsers();
+        // Fetch parent users first so map building has the data
+        await fetchParentUsers();
       }
+      await fetchSubUsers();
     }
   }
 );
@@ -402,17 +422,20 @@ const handleSubmit = async () => {
         >
           <a-select
             v-model:value="formData.parentUuid"
-            placeholder="Select parent user"
+            placeholder="Select parent user with available slots"
             style="width: 100%"
           >
             <a-select-option
-              v-for="parent in parentUsers"
+              v-for="parent in availableParents"
               :key="parent.uuid"
               :value="parent.uuid"
             >
               {{ parent.userName }}
             </a-select-option>
           </a-select>
+          <div v-if="availableParents.length === 0" style="color: #ff4d4f; margin-top: 8px">
+            All parent users have reached the maximum of {{ MAX_SUB_USERS }} sub-users
+          </div>
         </a-form-item>
 
         <a-form-item v-if="!isEditMode" name="userName" label="Username">

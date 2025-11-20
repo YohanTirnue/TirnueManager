@@ -136,8 +136,11 @@ router.post(
 
     // Determine the parent: if admin and parentUuid provided, use it; otherwise use current user
     let actualParentUuid = userUuid;
-    if (isTopPermissionByUuid(userUuid) && parentUuid) {
-      // Admin can create sub-users for other parents
+    if (isTopPermissionByUuid(userUuid)) {
+      // Admins must specify a parent user
+      if (!parentUuid) {
+        ctx.throw(400, "Admin must specify parentUuid when creating sub-users");
+      }
       actualParentUuid = String(parentUuid);
     }
 
@@ -251,44 +254,6 @@ router.del(
     } catch (error: any) {
       ctx.throw(403, error.message);
     }
-  }
-);
-
-// Admin endpoint: Delete sub-user by admin
-router.del(
-  "/admin/:subUserUuid",
-  permission({ level: ROLE.ADMIN }),
-  async (ctx: Koa.ParameterizedContext) => {
-    const { subUserUuid } = ctx.params;
-    const subUser = userSystem.getInstance(String(subUserUuid));
-
-    if (!subUser || !subUser.isSubUser) {
-      ctx.throw(404, "Sub-user not found");
-    }
-
-    const parentUser = subUser.parentUserId
-      ? userSystem.getInstance(subUser.parentUserId)
-      : null;
-
-    if (parentUser) {
-      await subUserService.deleteSubUser(subUser.parentUserId, String(subUserUuid));
-    } else {
-      // Orphaned sub-user, delete directly
-      await userSystem.deleteInstance(String(subUserUuid));
-    }
-
-    operationLogger.log(
-      "sub_user_admin_delete",
-      {
-        operator_ip: ctx.ip,
-        operator_name: ctx.session?.["userName"],
-        target_user_name: subUser.userName,
-        target_user_uuid: subUserUuid
-      },
-      "warning"
-    );
-
-    ctx.body = { success: true };
   }
 );
 
