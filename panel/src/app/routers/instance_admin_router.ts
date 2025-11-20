@@ -64,7 +64,7 @@ router.post(
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result.nickname
-      });
+      }, "info", true);
     } catch (err) {
       ctx.body = err;
     }
@@ -93,7 +93,7 @@ router.post(
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result.nickname
-      });
+      }, "info", true);
       // Send a cross-end file upload task to the daemon
       const addr = remoteService.config.fullAddr;
       const remoteMappings = remoteService.config.getConvertedRemoteMappings();
@@ -140,7 +140,7 @@ router.put(
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: config.nickname
-      });
+      }, "info", true);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -190,8 +190,11 @@ router.delete(
             operator_name: ctx.session?.["userName"],
             instance_name: e.nickname
           },
-          "error"
+          "error",
+          true
         );
+        // Clean up instance-specific logs
+        operationLogger.deleteInstanceLogs(e.instanceUuid);
       });
       ctx.body = result;
     } catch (err) {
@@ -219,7 +222,7 @@ router.post("/multi_open", permission({ level: ROLE.ADMIN }), async (ctx) => {
               operator_ip: ctx.ip,
               operator_name: ctx.session?.["userName"],
               instance_name: instance.nickname
-            });
+            }, "info", true);
           });
         })
         .catch(() => {});
@@ -249,7 +252,7 @@ router.post("/multi_stop", permission({ level: ROLE.ADMIN }), async (ctx) => {
               operator_ip: ctx.ip,
               operator_name: ctx.session?.["userName"],
               instance_name: instance.nickname
-            });
+            }, "info", true);
           });
         })
         .catch(() => {});
@@ -277,7 +280,7 @@ router.post("/multi_kill", permission({ level: ROLE.ADMIN }), async (ctx) => {
               operator_ip: ctx.ip,
               operator_name: ctx.session?.["userName"],
               instance_name: instance.nickname
-            });
+            }, true);
           });
         })
         .catch((err) => {});
@@ -305,7 +308,7 @@ router.post("/multi_restart", permission({ level: ROLE.ADMIN }), async (ctx) => 
               operator_ip: ctx.ip,
               operator_name: ctx.session?.["userName"],
               instance_name: instance.nickname
-            });
+            }, "info", true);
           });
         })
         .catch((err) => {});

@@ -37,6 +37,9 @@ export interface UserInstance {
   daemonId: string;
   status: number;
   config?: IGlobalInstanceConfig;
+  processType?: string;
+  lastDatetime?: number;
+  endTime?: number;
 }
 
 export interface BaseUserInfo {

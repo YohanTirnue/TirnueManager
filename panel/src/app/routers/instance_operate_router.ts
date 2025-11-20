@@ -14,6 +14,7 @@ import { isHaveInstanceByUuid, isTopPermissionByUuid } from "../service/permissi
 import RemoteRequest, { RemoteRequestTimeoutError } from "../service/remote_command";
 import RemoteServiceSubsystem from "../service/remote_service";
 import { systemConfig } from "../setting";
+import userSystem from "../service/user_service";
 
 const router = new Router({ prefix: "/protected_instance" });
 
@@ -44,13 +45,13 @@ router.all(
       const result = await new RemoteRequest(remoteService).request("instance/open", {
         instanceUuids: [instanceUuid]
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_start", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       if (err instanceof RemoteRequestTimeoutError) {
@@ -76,13 +77,13 @@ router.all(
       const result = await new RemoteRequest(remoteService).request("instance/stop", {
         instanceUuids: [instanceUuid]
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_stop", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -107,7 +108,39 @@ router.all(
         instanceUuid,
         command
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      operationLogger.log("instance_command", {
+        daemon_id: daemonId,
+        instance_id: instanceUuid,
+        operator_name: ctx.session?.["userName"],
+        command: command
+      }, "info", isAdmin);
       ctx.body = result;
+    } catch (err) {
+      ctx.body = err;
+    }
+  }
+);
+
+// [Low-level Permission]
+// Log command without executing (for WebSocket commands that are already executed via stream)
+router.post(
+  "/command_log",
+  permission({ level: ROLE.USER }),
+  validator({ query: { daemonId: String, uuid: String }, body: { command: String } }),
+  async (ctx) => {
+    try {
+      const daemonId = String(ctx.query.daemonId || "");
+      const instanceUuid = String(ctx.query.uuid || "");
+      const command = String(ctx.request.body.command || "");
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      operationLogger.log("instance_command", {
+        daemon_id: daemonId,
+        instance_id: instanceUuid,
+        operator_name: ctx.session?.["userName"],
+        command: command
+      }, "info", isAdmin);
+      ctx.body = true;
     } catch (err) {
       ctx.body = err;
     }
@@ -128,13 +161,13 @@ router.all(
       const result = await new RemoteRequest(remoteService).request("instance/restart", {
         instanceUuids: [instanceUuid]
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_restart", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -156,13 +189,13 @@ router.all(
       const result = await new RemoteRequest(remoteService).request("instance/kill", {
         instanceUuids: [instanceUuid]
       });
-      operationLogger.warning("instance_kill", {
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      operationLogger.log("instance_kill", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
-        operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
-      });
+      }, "warning", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -401,8 +434,8 @@ router.put(
     try {
       // Here is the low-privileged user configuration setting interface,
       // in order to prevent data injection, a layer of filtering must be performed
-      const daemonId = toText(ctx.query.daemonId);
-      const instanceUuid = toText(ctx.query.uuid);
+      const daemonId = String(ctx.query.daemonId);
+      const instanceUuid = String(ctx.query.uuid);
       const config = ctx.request.body;
 
       let instanceTags: string[] | null = null;
@@ -463,7 +496,7 @@ router.put(
       let advancedConfig = {};
       advancedConfig = checkInstanceAdvancedParams(config, isTopPermission);
 
-      new RemoteRequest(remoteService).request("instance/update", {
+      await new RemoteRequest(remoteService).request("instance/update", {
         instanceUuid,
         config: {
           pingConfig: !isEmpty(config.pingConfig) ? pingConfig : null,
@@ -483,6 +516,12 @@ router.put(
           ...advancedConfig
         }
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      operationLogger.log("instance_config_change", {
+        daemon_id: daemonId,
+        instance_id: instanceUuid,
+        operator_name: ctx.session?.["userName"]
+      }, "info", isAdmin);
       ctx.body = true;
     } catch (err) {
       ctx.body = err;
@@ -575,6 +614,49 @@ router.post(
         parameter: targetPresetConfig
       });
       ctx.body = true;
+    } catch (err) {
+      ctx.body = err;
+    }
+  }
+);
+
+// [Low-level Permission]
+// Get instance operation logs
+router.get(
+  "/operation_logs",
+  permission({ level: ROLE.USER, speedLimit: false }),
+  validator({ query: { daemonId: String, uuid: String } }),
+  async (ctx) => {
+    try {
+      const userUuid = getUserUuid(ctx);
+      const user = userSystem.getInstance(userUuid);
+
+      // Sub-users can NEVER view operation logs
+      if (user?.isSubUser) {
+        ctx.status = 403;
+        ctx.body = $t("TXT_CODE_permission.forbiddenInstance");
+        return;
+      }
+
+      // For non-admin users, check canViewLogs permission (defaults to true if not set)
+      if (!isTopPermissionByUuid(userUuid)) {
+        const canViewLogs = user?.permissions?.canViewLogs ?? true;
+        if (!canViewLogs) {
+          ctx.status = 403;
+          ctx.body = $t("TXT_CODE_permission.forbiddenInstance");
+          return;
+        }
+      }
+
+      // Admins and regular users can view logs for their instances
+      const instanceUuid = String(ctx.query.uuid);
+      const limit = +(ctx?.query?.limit || 50);
+      if (limit < 1 || limit > 200) {
+        ctx.body = { error: "limit must be between 1 and 200" };
+        return;
+      }
+      const logs = await operationLogger.getByInstance(instanceUuid, limit);
+      ctx.body = logs;
     } catch (err) {
       ctx.body = err;
     }

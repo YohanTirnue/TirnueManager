@@ -236,22 +236,22 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
           height: LayoutCardHeight.BIG,
           disableDelete: true
         },
-
-        {
-          id: getRandomId(),
-          meta: {},
-          type: "InstanceBaseInfo",
-          title: t("TXT_CODE_eadb4f60"),
-          width: 4,
-          height: LayoutCardHeight.SMALL
-        },
         {
           id: getRandomId(),
           meta: {},
           type: "InstanceManagerBtns",
           title: t("TXT_CODE_efd37c48"),
-          width: 8,
+          width: 12,
           height: LayoutCardHeight.SMALL,
+          disableDelete: true
+        },
+        {
+          id: getRandomId(),
+          meta: {},
+          type: "InstanceOperationLogs",
+          title: "Operation Logs",
+          width: 12,
+          height: LayoutCardHeight.MEDIUM,
           disableDelete: true
         }
       ]
@@ -507,54 +507,61 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
       items: [
         {
           id: getRandomId(),
-          type: "UserStatusBlock",
-          title: t("TXT_CODE_7411336e"),
-          meta: {
-            type: "instance_all"
-          },
-          width: 3,
-          height: LayoutCardHeight.SMALL,
-          disableDelete: true
-        },
-        {
-          id: getRandomId(),
-          type: "UserStatusBlock",
-          title: t("TXT_CODE_f912fadc"),
-          meta: {
-            type: "instance_running"
-          },
-          width: 3,
-          height: LayoutCardHeight.SMALL,
-          disableDelete: true
-        },
-        {
-          id: getRandomId(),
-          type: "UserStatusBlock",
-          title: t("TXT_CODE_15f2e564"),
-          meta: {
-            type: "instance_stop"
-          },
-          width: 3,
-          height: LayoutCardHeight.SMALL,
-          disableDelete: true
-        },
-        {
-          id: getRandomId(),
-          type: "UserStatusBlock",
-          title: t("TXT_CODE_342a04a9"),
-          meta: {
-            type: "instance_error"
-          },
-          width: 3,
-          height: LayoutCardHeight.SMALL,
-          disableDelete: true
-        },
-        {
-          id: getRandomId(),
           type: "UserInstanceList",
           title: t("TXT_CODE_d655beec"),
           meta: {
             type: "instance_error"
+          },
+          width: 12,
+          height: LayoutCardHeight.AUTO,
+          disableDelete: true
+        }
+      ]
+    },
+    {
+      page: "/account",
+      items: [
+        {
+          id: getRandomId(),
+          type: "UnderDevelopment",
+          title: "Account Settings",
+          meta: {
+            title: "Account Settings",
+            description: "Manage your profile, security settings, and preferences. This feature is coming soon!"
+          },
+          width: 12,
+          height: LayoutCardHeight.AUTO,
+          disableDelete: true
+        }
+      ]
+    },
+    {
+      page: "/billing",
+      items: [
+        {
+          id: getRandomId(),
+          type: "UnderDevelopment",
+          title: "Billing & Invoices",
+          meta: {
+            title: "Billing & Invoices",
+            description: "View invoices, manage payment methods, and check your balance. This feature is coming soon!"
+          },
+          width: 12,
+          height: LayoutCardHeight.AUTO,
+          disableDelete: true
+        }
+      ]
+    },
+    {
+      page: "/support",
+      items: [
+        {
+          id: getRandomId(),
+          type: "UnderDevelopment",
+          title: "Support Center",
+          meta: {
+            title: "Support Center",
+            description: "Create support tickets and get help from our team. This feature is coming soon!"
           },
           width: 12,
           height: LayoutCardHeight.AUTO,

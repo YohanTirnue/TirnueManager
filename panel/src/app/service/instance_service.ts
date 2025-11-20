@@ -136,6 +136,9 @@ export async function getInstancesByUuid(
     open2FA: user.open2FA,
     secret: user.secret,
     permissions: user.permissions,
+    isSubUser: user.isSubUser,
+    parentUserId: user.parentUserId,
+    subUsers: user.subUsers,
     token: ""
   };
 }

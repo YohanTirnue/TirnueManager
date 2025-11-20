@@ -57,20 +57,24 @@ onMounted(async () => {
   <AppConfigProvider :has-bg-image="hasBgImage">
     <!-- App Container with Sidebar -->
     <div class="global-app-container">
-      <!-- Show sidebar for logged-in pages (not login/install) -->
-      <AppSidebar v-if="route.path !== '/login' && route.path !== '/install'" />
+      <!-- Show sidebar for logged-in pages (not login/install/welcome) -->
+      <AppSidebar v-if="route.path !== '/login' && route.path !== '/install' && route.path !== '/welcome'" />
 
       <!-- Main Content Area -->
-      <div class="main-content-wrapper" :class="{ 'with-sidebar': route.path !== '/login' && route.path !== '/install' }">
-        <!-- Only show header when NOT on login/install pages -->
-        <AppHeaderSimple v-if="route.path !== '/login' && route.path !== '/install'" />
+      <div class="main-content-wrapper" :class="{ 'with-sidebar': route.path !== '/login' && route.path !== '/install' && route.path !== '/welcome' }">
+        <!-- Only show header when NOT on login/install/welcome pages -->
+        <AppHeaderSimple v-if="route.path !== '/login' && route.path !== '/install' && route.path !== '/welcome'" />
 
         <!-- Security Restrictions Banner (displays when any restriction is active) -->
-        <div v-if="route.path !== '/login' && route.path !== '/install'" class="security-banner-container">
+        <div v-if="route.path !== '/login' && route.path !== '/install' && route.path !== '/welcome'" class="security-banner-container">
           <PermissionBanner type="security" theme="red" />
         </div>
 
-        <RouterView :key="$route.fullPath" />
+        <router-view v-slot="{ Component }">
+          <transition name="page-fade" mode="out-in">
+            <component :is="Component" :key="$route.fullPath" />
+          </transition>
+        </router-view>
         <UploadBubble />
       </div>
     </div>
@@ -115,5 +119,24 @@ onMounted(async () => {
   .security-banner-container {
     padding: 12px 16px 0 16px;
   }
+}
+
+</style>
+
+<style lang="scss">
+// Page transition animations - industrial smooth fade (global)
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.page-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.page-fade-leave-to {
+  opacity: 0;
+  transform: scale(1.02);
 }
 </style>

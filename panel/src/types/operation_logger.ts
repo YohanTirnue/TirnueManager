@@ -11,6 +11,13 @@ export enum OperationLoggerAction {
   InstanceFileUpdate = "instance_file_update",
   InstanceFileDownload = "instance_file_download",
   InstanceFileDelete = "instance_file_delete",
+  InstanceFileCopy = "instance_file_copy",
+  InstanceFileMove = "instance_file_move",
+  InstanceFileChmod = "instance_file_chmod",
+  InstanceFileMkdir = "instance_file_mkdir",
+  InstanceFileCompress = "instance_file_compress",
+  InstanceFileTouch = "instance_file_touch",
+  InstanceCommand = "instance_command",
   InstanceTaskCreate = "instance_task_create",
   InstanceTaskDelete = "instance_task_delete",
   DaemonCreate = "daemon_create",
@@ -30,7 +37,7 @@ export type GlobalGeneralOptions = {
   operation_id: string;
   operation_time: string;
   operation_level: "info" | "warning" | "error";
-  operator_ip: string;
+  operator_ip?: string;
   operator_name?: string;
 };
 
@@ -90,6 +97,42 @@ export type InstanceFileDownloadOptions = {
 export type InstanceFileDeleteOptions = {
   type: "instance_file_delete";
   file: string;
+} & InstanceGeneralOptions;
+
+export type InstanceFileCopyOptions = {
+  type: "instance_file_copy";
+  targets?: string[];
+} & InstanceGeneralOptions;
+
+export type InstanceFileMoveOptions = {
+  type: "instance_file_move";
+  targets?: string[];
+} & InstanceGeneralOptions;
+
+export type InstanceFileChmodOptions = {
+  type: "instance_file_chmod";
+  target?: string;
+  chmod?: number;
+} & InstanceGeneralOptions;
+
+export type InstanceFileMkdirOptions = {
+  type: "instance_file_mkdir";
+  target?: string;
+} & InstanceGeneralOptions;
+
+export type InstanceFileCompressOptions = {
+  type: "instance_file_compress";
+  source?: string;
+} & InstanceGeneralOptions;
+
+export type InstanceFileTouchOptions = {
+  type: "instance_file_touch";
+  target?: string;
+} & InstanceGeneralOptions;
+
+export type InstanceCommandOptions = {
+  type: "instance_command";
+  command?: string;
 } & InstanceGeneralOptions;
 
 export type InstanceTaskCreateOptions = {
@@ -170,6 +213,13 @@ export type OperationLoggerItem =
   | InstanceFileUpdateOptions
   | InstanceFileDownloadOptions
   | InstanceFileDeleteOptions
+  | InstanceFileCopyOptions
+  | InstanceFileMoveOptions
+  | InstanceFileChmodOptions
+  | InstanceFileMkdirOptions
+  | InstanceFileCompressOptions
+  | InstanceFileTouchOptions
+  | InstanceCommandOptions
   | InstanceTaskCreateOptions
   | InstanceTaskDeleteOptions
   | DaemonCreateOptions

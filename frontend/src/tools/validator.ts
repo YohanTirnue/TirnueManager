@@ -1,5 +1,7 @@
 import { t } from "@/lang/i18n";
-import { message } from "ant-design-vue";
+import { notification } from "ant-design-vue";
+import { h } from "vue";
+import { CloseCircleOutlined, WarningOutlined } from "@ant-design/icons-vue";
 
 export function emptyValueValidator(value: string | number) {
   if (String(value).trim() === "") throw new Error(t("TXT_CODE_cb08d342"));
@@ -24,14 +26,61 @@ export function getValidatorErrorMsg(error: any, def: string = "") {
   return String(error);
 }
 
+// Modern industrial error notification
+function showIndustrialError(errorMsg: string, isValidation: boolean = false) {
+  notification.open({
+    message: h('div', {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: '16px'
+      }
+    }, [
+      h(isValidation ? WarningOutlined : CloseCircleOutlined, {
+        style: {
+          fontSize: '24px',
+          color: isValidation ? '#faad14' : '#ff4d4f'
+        }
+      }),
+      isValidation ? 'Validation Error' : 'Error'
+    ]),
+    description: h('div', {
+      style: {
+        color: 'rgba(255, 255, 255, 0.85)',
+        fontSize: '14px',
+        lineHeight: '1.6',
+        marginTop: '8px',
+        padding: '12px',
+        background: 'rgba(0, 0, 0, 0.2)',
+        borderRadius: '8px',
+        borderLeft: `3px solid ${isValidation ? '#faad14' : '#ff4d4f'}`
+      }
+    }, errorMsg),
+    style: {
+      background: 'linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(40, 40, 40, 0.98) 100%)',
+      border: `1px solid ${isValidation ? 'rgba(250, 173, 20, 0.5)' : 'rgba(255, 77, 79, 0.5)'}`,
+      borderRadius: '12px',
+      boxShadow: `0 8px 32px ${isValidation ? 'rgba(250, 173, 20, 0.3)' : 'rgba(255, 77, 79, 0.3)'}`,
+      padding: '16px 20px'
+    },
+    duration: 4.5,
+    placement: 'topRight'
+  });
+}
+
 export function reportValidatorError(error: any) {
   console.error("Function reportValidatorError():", error);
-  message.error(getValidatorErrorMsg(error, t("TXT_CODE_6a365d01")));
+  const errorMsg = getValidatorErrorMsg(error, t("TXT_CODE_6a365d01"));
+  showIndustrialError(errorMsg, true);
 }
 
 export function reportErrorMsg(error: any = {}) {
   console.error("Function reportErrorMsg():", error);
-  message.error(getValidatorErrorMsg(error, t("TXT_CODE_6a365d01")));
+  const errorMsg = getValidatorErrorMsg(error, t("TXT_CODE_6a365d01"));
+  showIndustrialError(errorMsg, false);
 }
 
 export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\x00-\x7F]{9,36}$/;

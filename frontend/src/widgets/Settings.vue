@@ -671,4 +671,36 @@ div {
   padding: 16px;
   overflow-y: auto;
 }
+
+// Mobile responsive styles
+@media (max-width: 768px) {
+  .content-box {
+    padding: 12px;
+  }
+
+  :deep(.ant-select),
+  :deep(.ant-input),
+  :deep(.ant-textarea) {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .flex {
+    flex-direction: column;
+    gap: 8px;
+
+    .ant-input {
+      max-width: 100% !important;
+    }
+
+    .ant-btn {
+      margin-left: 0 !important;
+      width: 100%;
+    }
+  }
+
+  :deep(.ant-typography-title) {
+    font-size: 18px !important;
+  }
+}
 </style>

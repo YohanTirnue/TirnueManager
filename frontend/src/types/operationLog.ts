@@ -51,7 +51,7 @@ export type InstanceFileUploadOptions = {
 
 export type InstanceFileUpdateOptions = {
   type: "instance_file_update";
-  file: string;
+  file?: string;
 } & InstanceGeneralOptions;
 
 export type InstanceFileDownloadOptions = {
@@ -62,6 +62,42 @@ export type InstanceFileDownloadOptions = {
 export type InstanceFileDeleteOptions = {
   type: "instance_file_delete";
   file: string;
+} & InstanceGeneralOptions;
+
+export type InstanceFileCopyOptions = {
+  type: "instance_file_copy";
+  targets?: string[];
+} & InstanceGeneralOptions;
+
+export type InstanceFileMoveOptions = {
+  type: "instance_file_move";
+  targets?: string[];
+} & InstanceGeneralOptions;
+
+export type InstanceFileChmodOptions = {
+  type: "instance_file_chmod";
+  target?: string;
+  chmod?: number;
+} & InstanceGeneralOptions;
+
+export type InstanceFileMkdirOptions = {
+  type: "instance_file_mkdir";
+  target?: string;
+} & InstanceGeneralOptions;
+
+export type InstanceFileCompressOptions = {
+  type: "instance_file_compress";
+  source?: string;
+} & InstanceGeneralOptions;
+
+export type InstanceFileTouchOptions = {
+  type: "instance_file_touch";
+  target?: string;
+} & InstanceGeneralOptions;
+
+export type InstanceCommandOptions = {
+  type: "instance_command";
+  command?: string;
 } & InstanceGeneralOptions;
 
 export type InstanceTaskCreateOptions = {
@@ -112,6 +148,22 @@ export type SystemConfigChangeOptions = {
   type: "system_config_change";
 } & GlobalGeneralOptions;
 
+export type SubUserCreateOptions = {
+  type: "sub_user_create";
+  target_user_name: string;
+} & GlobalGeneralOptions;
+
+export type SubUserUpdateOptions = {
+  type: "sub_user_update";
+  target_user_uuid: string;
+} & GlobalGeneralOptions;
+
+export type SubUserDeleteOptions = {
+  type: "sub_user_delete";
+  target_user_name: string;
+  target_user_uuid: string;
+} & GlobalGeneralOptions;
+
 export type OperationLoggerItem =
   | InstanceStartOptions
   | InstanceStopOptions
@@ -125,6 +177,13 @@ export type OperationLoggerItem =
   | InstanceFileUpdateOptions
   | InstanceFileDownloadOptions
   | InstanceFileDeleteOptions
+  | InstanceFileCopyOptions
+  | InstanceFileMoveOptions
+  | InstanceFileChmodOptions
+  | InstanceFileMkdirOptions
+  | InstanceFileCompressOptions
+  | InstanceFileTouchOptions
+  | InstanceCommandOptions
   | InstanceTaskCreateOptions
   | InstanceTaskDeleteOptions
   | DaemonCreateOptions
@@ -134,4 +193,7 @@ export type OperationLoggerItem =
   | UserDeleteOptions
   | UserConfigChangeOptions
   | UserLoginOptions
-  | SystemConfigChangeOptions;
+  | SystemConfigChangeOptions
+  | SubUserCreateOptions
+  | SubUserUpdateOptions
+  | SubUserDeleteOptions;

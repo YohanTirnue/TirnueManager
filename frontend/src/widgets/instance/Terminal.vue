@@ -26,7 +26,9 @@ import { INSTANCE_STATUS } from "@/types/const";
 import {
   ApartmentOutlined,
   BlockOutlined,
+  CalendarOutlined,
   CheckCircleOutlined,
+  ClockCircleOutlined,
   CloseOutlined,
   CloudDownloadOutlined,
   CloudServerOutlined,
@@ -49,6 +51,21 @@ import type { TagInfo } from "../../components/interface";
 import { GLOBAL_INSTANCE_NAME } from "../../config/const";
 import { useTerminal, type UseTerminalHook } from "../../hooks/useTerminal";
 import { arrayFilter } from "../../tools/array";
+import { parseTimestamp } from "../../tools/time";
+
+// Format date with month name
+const formatDateWithMonth = (timestamp: number | string | undefined) => {
+  if (!timestamp) return '-';
+  const date = new Date(timestamp);
+  if (isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 
 const props = defineProps<{
   card: LayoutCard;
@@ -148,16 +165,13 @@ const quickOperations = computed(() =>
         danger: true
       },
       condition: () => isRunning.value
-    }
-  ])
-);
-const instanceOperations = computed(() =>
-  arrayFilter([
+    },
     {
       title: t("TXT_CODE_47dcfa5"),
       icon: RedoOutlined,
       type: "default",
       noConfirm: false,
+      class: "button-color-warning",
       click: async () => {
         try {
           await restartInstance().execute({
@@ -171,7 +185,11 @@ const instanceOperations = computed(() =>
         }
       },
       condition: () => isRunning.value
-    },
+    }
+  ])
+);
+const instanceOperations = computed(() =>
+  arrayFilter([
     {
       title: t("TXT_CODE_7b67813a"),
       icon: CloseOutlined,
@@ -331,98 +349,78 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 </script>
 
 <template>
-  <!-- ULTRA MODERN BENTO GRID + GLASSMORPHISM REDESIGN -->
-  <div v-if="innerTerminalType" class="bento-terminal-container">
+  <!-- COMPACT 3-ROW LAYOUT (Default View) -->
+  <div class="compact-terminal-container">
     <PermissionBanner type="instance" theme="orange" />
 
-    <!-- Compact Info Header -->
-    <div class="compact-info-header">
-      <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
-        <div class="orb-pulse"></div>
-        <div class="orb-ring"></div>
-      </div>
-      <div class="info-content">
-        <h1 class="instance-name">{{ getInstanceName }}</h1>
-        <div class="info-chips">
-          <div class="meta-chip chip-status" :class="{ 'chip-active': isRunning, 'chip-busy': isBuys }">
-            <div class="chip-dot"></div>
-            <span>{{ instanceStatusText }}</span>
-          </div>
-          <div v-if="instanceTypeText" class="meta-chip chip-type">
-            <CloudServerOutlined />
-            <span>{{ instanceTypeText }}</span>
-          </div>
-          <div v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1" class="meta-chip chip-watchers">
-            <LaptopOutlined />
-            <span>{{ instanceInfo?.watcher }} watching</span>
+    <!-- ROW 1: Header | Basic Info | Buttons -->
+    <div class="top-bar">
+      <!-- Header Section with integrated Basic Info -->
+      <div class="header-section">
+        <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
+          <div class="orb-pulse"></div>
+          <div class="orb-ring"></div>
+        </div>
+        <div class="header-info">
+          <h1 class="instance-name">{{ getInstanceName }}</h1>
+          <div class="status-chips">
+            <a-tag v-if="isRunning" color="green">
+              <CheckCircleOutlined />
+              {{ instanceStatusText }}
+            </a-tag>
+            <a-tag v-else-if="isBuys" color="orange">
+              <LoadingOutlined />
+              {{ instanceStatusText }}
+            </a-tag>
+            <a-tag v-else>
+              <InfoCircleOutlined />
+              {{ instanceStatusText }}
+            </a-tag>
+            <a-tag v-if="instanceTypeText" color="purple">
+              <CloudServerOutlined />
+              {{ instanceTypeText }}
+            </a-tag>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Stats Cards -->
-    <div class="bento-stats-container" v-if="!isStopped">
-      <div v-for="(tag, index) in terminalTopTags" :key="tag.label"
-           class="bento-stat-card"
-           :class="`bento-stat-${index}`"
-      >
-        <div class="stat-glow" :class="`glow-${tag.color}`"></div>
-        <component :is="tag.icon" class="bento-stat-icon" />
-        <div class="bento-stat-info">
-          <div class="bento-stat-label">{{ tag.label }}</div>
-          <div class="bento-stat-value" :class="`value-${tag.color}`">{{ tag.value }}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Manage Instance - Full Width Action Buttons -->
-    <div class="manage-instance-panel">
-      <div class="panel-header">
-        <h3>Manage Instance</h3>
-      </div>
-      <div class="action-buttons-grid" v-if="!isPhone">
-        <template v-for="item in quickOperations" :key="item.title">
-          <a-button
-            v-if="item.noConfirm"
-            size="large"
-            class="modern-action-btn btn-primary-gradient"
-            :class="{ 'btn-disabled': isOpenInstanceLoading }"
-            :disabled="isOpenInstanceLoading"
-            @click="!isOpenInstanceLoading && item.click()"
-          >
-            <template #icon>
-              <component :is="item.icon" />
-            </template>
-            {{ item.title }}
-          </a-button>
-          <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
-            <a-button size="large" class="modern-action-btn btn-primary-gradient">
-              <template #icon>
-                <component :is="item.icon" />
-              </template>
-              {{ item.title }}
-            </a-button>
-          </a-popconfirm>
+      <!-- Basic Info integrated into header -->
+      <div class="info-stats">
+        <!-- Runtime stats when running -->
+        <template v-if="!isStopped && terminalTopTags.length">
+          <div v-for="tag in terminalTopTags" :key="tag.label" class="stat-item" @click="tag.onClick">
+            <component :is="tag.icon" class="stat-icon" />
+            <div class="stat-content">
+              <span class="stat-label">{{ tag.label }}</span>
+              <span class="stat-value" :class="`value-${tag.color}`">{{ tag.value }}</span>
+            </div>
+          </div>
         </template>
+        <!-- Expiration date -->
+        <div class="stat-item" v-if="instanceInfo?.config.endTime">
+          <CalendarOutlined class="stat-icon" />
+          <div class="stat-content">
+            <span class="stat-label">Expires</span>
+            <span class="stat-value">{{ formatDateWithMonth(instanceInfo?.config.endTime) }}</span>
+          </div>
+        </div>
+        <!-- Last access -->
+        <div class="stat-item">
+          <ClockCircleOutlined class="stat-icon" />
+          <div class="stat-content">
+            <span class="stat-label">Last Access</span>
+            <span class="stat-value">{{ formatDateWithMonth(instanceInfo?.config.lastDatetime) }}</span>
+          </div>
+        </div>
+      </div>
 
-        <template v-for="item in instanceOperations" :key="item.title">
-          <a-button
-            v-if="item.noConfirm"
-            size="large"
-            class="modern-action-btn"
-            :class="item.type === 'danger' ? 'btn-danger-gradient' : 'btn-default-modern'"
-            @click="item.click"
-          >
-            <template #icon>
-              <component :is="item.icon" />
-            </template>
-            {{ item.title }}
-          </a-button>
-          <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
+      <!-- Buttons Section -->
+      <div class="buttons-section" v-if="!isPhone">
+        <template v-for="item in quickOperations" :key="item.title">
+          <a-popconfirm v-if="!item.noConfirm" :title="t('TXT_CODE_276756b2')" @confirm="item.click">
             <a-button
               size="large"
-              class="modern-action-btn"
-              :class="item.type === 'danger' ? 'btn-danger-gradient' : 'btn-default-modern'"
+              :class="['action-btn', item.class, item.props?.danger ? 'btn-danger' : '']"
             >
               <template #icon>
                 <component :is="item.icon" />
@@ -430,11 +428,36 @@ const terminalTopTags = computed<TagInfo[]>(() => {
               {{ item.title }}
             </a-button>
           </a-popconfirm>
+          <a-button
+            v-else
+            size="large"
+            :class="['action-btn', item.class, item.props?.danger ? 'btn-danger' : '']"
+            @click="item.click"
+          >
+            <template #icon>
+              <component :is="item.icon" />
+            </template>
+            {{ item.title }}
+          </a-button>
         </template>
+        <a-dropdown>
+          <template #overlay>
+            <a-menu>
+              <a-menu-item v-for="item in instanceOperations" :key="item.title" @click="item.click">
+                <component :is="item.icon"></component>
+                <span>&nbsp;{{ item.title }}</span>
+              </a-menu-item>
+            </a-menu>
+          </template>
+          <a-button size="large" class="action-btn">
+            <template #icon>
+              <DownOutlined />
+            </template>
+            {{ t("TXT_CODE_fe731dfc") }}
+          </a-button>
+        </a-dropdown>
       </div>
-
-      <!-- Mobile Actions -->
-      <div class="mobile-actions-modern" v-else>
+      <div class="buttons-section" v-else>
         <a-dropdown>
           <template #overlay>
             <a-menu>
@@ -448,7 +471,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
               </a-menu-item>
             </a-menu>
           </template>
-          <a-button size="large" class="modern-action-btn btn-primary-gradient mobile-dropdown-btn">
+          <a-button size="large" class="action-btn">
             <template #icon>
               <DownOutlined />
             </template>
@@ -458,7 +481,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
       </div>
     </div>
 
-    <!-- Terminal in Modern Glass Container -->
+    <!-- ROW 2: Console with iOS-style header -->
     <div class="glass-terminal-wrapper">
       <div class="terminal-glass-header">
         <div class="terminal-dots">
@@ -466,88 +489,24 @@ const terminalTopTags = computed<TagInfo[]>(() => {
           <span class="dot dot-yellow"></span>
           <span class="dot dot-green"></span>
         </div>
-        <span class="terminal-title">Terminal</span>
+        <span class="terminal-title">Console</span>
       </div>
-      <TerminalCore
-        v-if="instanceId && daemonId && hasConsoleAccess"
-        :use-terminal-hook="terminalHook"
-        :instance-id="instanceId"
-        :daemon-id="daemonId"
-        :height="card.height"
-      />
-      <div v-else-if="!hasConsoleAccess" style="padding: 40px; text-align: center; color: var(--color-red-5);">
-        <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
-        <h3>Access Denied</h3>
-        <p>You do not have permission to access the console for this instance.</p>
+      <div class="console-section">
+        <TerminalCore
+          v-if="instanceId && daemonId && hasConsoleAccess"
+          :use-terminal-hook="terminalHook"
+          :instance-id="instanceId"
+          :daemon-id="daemonId"
+          :height="card.height"
+        />
+        <div v-else-if="!hasConsoleAccess" class="access-denied">
+          <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
+          <h3>Access Denied</h3>
+          <p>You do not have permission to access the console for this instance.</p>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- Other Page View -->
-  <CardPanel v-else class="containerWrapper" style="height: 100%">
-    <template #title>
-      <CloudServerOutlined />
-      <span class="ml-8"> {{ getInstanceName }} </span>
-      <span class="ml-8">
-        <a-tag v-if="isRunning" color="green">
-          <CheckCircleOutlined />
-          {{ instanceStatusText }}
-        </a-tag>
-        <a-tag v-else-if="isBuys" color="red">
-          <LoadingOutlined />
-          {{ instanceStatusText }}
-        </a-tag>
-        <a-tag v-else>
-          <InfoCircleOutlined />
-          {{ instanceStatusText }}
-        </a-tag>
-        <a-tag color="purple"> {{ instanceTypeText }} </a-tag>
-      </span>
-    </template>
-    <template #operator>
-      <span
-        v-for="item in quickOperations"
-        :key="item.title"
-        size="default"
-        class="mr-2"
-        v-bind="item.props"
-      >
-        <IconBtn :icon="item.icon" :title="item.title" @click="item.click"></IconBtn>
-      </span>
-      <a-dropdown>
-        <template #overlay>
-          <a-menu>
-            <a-menu-item v-for="item in instanceOperations" :key="item.title" @click="item.click">
-              <component :is="item.icon"></component>
-              <span>&nbsp;{{ item.title }}</span>
-            </a-menu-item>
-          </a-menu>
-        </template>
-        <span size="default" type="primary">
-          <IconBtn :icon="DownOutlined" :title="t('TXT_CODE_fe731dfc')"></IconBtn>
-        </span>
-      </a-dropdown>
-    </template>
-    <template #body>
-      <PermissionBanner type="instance" theme="orange" />
-
-      <div class="mb-6">
-        <TerminalTags :tags="terminalTopTags" />
-      </div>
-      <TerminalCore
-        v-if="instanceId && daemonId && hasConsoleAccess"
-        :use-terminal-hook="terminalHook"
-        :instance-id="instanceId"
-        :daemon-id="daemonId"
-        :height="card.height"
-      />
-      <div v-else-if="!hasConsoleAccess" style="padding: 40px; text-align: center; color: var(--color-red-5);">
-        <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
-        <h3>Access Denied</h3>
-        <p>You do not have permission to access the console for this instance.</p>
-      </div>
-    </template>
-  </CardPanel>
 
   <!-- Sub-User Manager Modal -->
   <SubUserManager
@@ -559,64 +518,222 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
 
 <style lang="scss" scoped>
-// ULTRA MODERN BENTO GRID + GLASSMORPHISM DESIGN
-.bento-terminal-container {
+// COMPACT 3-ROW LAYOUT
+.compact-terminal-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   height: 100%;
   padding: 8px;
 }
 
-// COMPACT INFO HEADER - COMBINED NAME, STATUS, TYPE
-.compact-info-header {
-  position: relative;
-  display: flex;
-  align-items: center;
+// ROW 1: TOP BAR - Header | Stats | Buttons
+.top-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   gap: 20px;
-  padding: 20px 24px;
-  background: linear-gradient(135deg, rgba(153, 27, 27, 0.03) 0%, rgba(212, 107, 8, 0.03) 100%);
-  border-radius: 16px;
-  border: 1px solid rgba(153, 27, 27, 0.1);
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at top right, rgba(153, 27, 27, 0.08), transparent 70%);
-    pointer-events: none;
-  }
+  align-items: center;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 140, 66, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-.info-content {
-  flex: 1;
+// Header Section
+.header-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.header-info {
   min-width: 0;
 }
 
 .instance-name {
-  margin: 0 0 12px 0;
-  font-size: 28px;
+  margin: 0 0 8px 0;
+  font-size: 22px;
   font-weight: 800;
   background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  letter-spacing: -0.5px;
-  filter: drop-shadow(0 2px 8px rgba(255, 140, 66, 0.3));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-.info-chips {
+.status-chips {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+// Info Stats - integrated into header
+.info-stats {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
 }
 
-// STATUS ORB - Cyberpunk Style Animated Indicator
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.stat-icon {
+  font-size: 14px;
+  color: #FF8C42;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.2;
+}
+
+.stat-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.3;
+
+  &.value-error {
+    color: #ff4d4f;
+  }
+
+  &.value-warning {
+    color: #faad14;
+  }
+}
+
+// Buttons Section
+.buttons-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+// Industry Standard Button Styling
+.action-btn {
+  background: linear-gradient(135deg, rgba(40, 40, 40, 0.95) 0%, rgba(50, 50, 50, 0.95) 100%) !important;
+  border: 2px solid rgba(255, 140, 66, 0.5) !important;
+  color: #D4AF37 !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  height: 44px !important;
+  padding: 0 20px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 140, 66, 0.2) !important;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(50, 50, 50, 1) 0%, rgba(60, 60, 60, 1) 100%) !important;
+    border-color: #FF8C42 !important;
+    color: #FFD700 !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 140, 66, 0.4) !important;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  :deep(.anticon) {
+    color: #FF8C42 !important;
+    font-size: 16px !important;
+  }
+
+  // Green Start button
+  &.button-color-success {
+    background: linear-gradient(135deg, rgba(82, 196, 26, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
+    border-color: rgba(82, 196, 26, 0.6) !important;
+    color: #52c41a !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(82, 196, 26, 0.3) !important;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(82, 196, 26, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
+      border-color: #52c41a !important;
+      color: #73d13d !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(82, 196, 26, 0.5) !important;
+    }
+
+    :deep(.anticon) {
+      color: #52c41a !important;
+    }
+  }
+
+  // Red Stop/Danger button
+  &.btn-danger {
+    background: linear-gradient(135deg, rgba(255, 77, 79, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
+    border-color: rgba(255, 77, 79, 0.6) !important;
+    color: #ff4d4f !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 77, 79, 0.3) !important;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(255, 77, 79, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
+      border-color: #ff4d4f !important;
+      color: #ff7875 !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 77, 79, 0.5) !important;
+    }
+
+    :deep(.anticon) {
+      color: #ff4d4f !important;
+    }
+  }
+
+  // Orange Restart button
+  &.button-color-warning {
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
+    border-color: rgba(255, 140, 66, 0.6) !important;
+    color: #FF8C42 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 140, 66, 0.3) !important;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(255, 140, 66, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
+      border-color: #FF8C42 !important;
+      color: #FFA366 !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 140, 66, 0.5) !important;
+    }
+
+    :deep(.anticon) {
+      color: #FF8C42 !important;
+    }
+  }
+}
+
+// Status Orb (smaller)
 .status-orb {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -625,48 +742,40 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
 .orb-pulse {
   position: absolute;
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(153, 27, 27, 0.4), rgba(153, 27, 27, 0.1));
-  filter: blur(8px);
+  background: radial-gradient(circle, rgba(255, 140, 66, 0.4), rgba(212, 175, 55, 0.1));
+  filter: blur(6px);
   animation: orb-pulse 2s ease-in-out infinite;
 }
 
 .orb-ring {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(153, 27, 27, 0.9), rgba(212, 107, 8, 0.7));
-  box-shadow: 
-    0 0 20px rgba(153, 27, 27, 0.5),
-    inset 0 0 10px rgba(255, 255, 255, 0.2);
+  background: radial-gradient(circle, #FF8C42, #D4AF37);
+  box-shadow: 0 0 12px rgba(255, 140, 66, 0.6);
 }
 
 .orb-running {
   .orb-pulse {
     background: radial-gradient(circle, rgba(82, 196, 26, 0.5), rgba(82, 196, 26, 0.1));
-    animation: orb-pulse-green 1.5s ease-in-out infinite;
   }
   .orb-ring {
     background: radial-gradient(circle, #52c41a, #73d13d);
-    box-shadow: 
-      0 0 30px rgba(82, 196, 26, 0.7),
-      inset 0 0 15px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(82, 196, 26, 0.7);
   }
 }
 
 .orb-busy {
   .orb-pulse {
     background: radial-gradient(circle, rgba(255, 193, 7, 0.5), rgba(255, 193, 7, 0.1));
-    animation: orb-pulse-yellow 1s ease-in-out infinite;
   }
   .orb-ring {
     background: radial-gradient(circle, #ffc107, #ffeb3b);
-    box-shadow: 
-      0 0 30px rgba(255, 193, 7, 0.7),
-      inset 0 0 15px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.7);
   }
 }
 
@@ -677,359 +786,29 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   }
   .orb-ring {
     background: radial-gradient(circle, #666, #888);
-    box-shadow: 
-      0 0 10px rgba(100, 100, 100, 0.3),
-      inset 0 0 5px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
   }
 }
 
 @keyframes orb-pulse {
   0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.3); opacity: 0.3; }
+  50% { transform: scale(1.2); opacity: 0.3; }
 }
 
-@keyframes orb-pulse-green {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.4); opacity: 0.3; }
-}
-
-@keyframes orb-pulse-yellow {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.3); opacity: 0.4; }
-}
-
-.meta-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.75) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 140, 66, 0.3);
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-color);
-  box-shadow: 0 3px 12px rgba(255, 140, 66, 0.15);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 140, 66, 0.5);
-    box-shadow: 0 6px 20px rgba(255, 140, 66, 0.25);
-  }
-}
-
-.chip-status {
-  position: relative;
-}
-
-.chip-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #999;
-}
-
-.chip-active .chip-dot {
-  background: #52c41a;
-  box-shadow: 0 0 10px rgba(82, 196, 26, 0.6);
-  animation: dot-pulse 2s ease-in-out infinite;
-}
-
-.chip-busy .chip-dot {
-  background: #ffc107;
-  box-shadow: 0 0 10px rgba(255, 193, 7, 0.6);
-  animation: dot-pulse 1s ease-in-out infinite;
-}
-
-@keyframes dot-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.2); }
-}
-
-// BENTO STATS CARDS
-.bento-stats-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-}
-
-.bento-stat-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(153, 27, 27, 0.15);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 
-      0 8px 24px rgba(153, 27, 27, 0.15),
-      0 0 0 1px rgba(153, 27, 27, 0.1);
-    
-    .bento-stat-icon {
-      transform: scale(1.1) rotate(-5deg);
-    }
-  }
-}
-
-.stat-glow {
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  filter: blur(40px);
-  opacity: 0.15;
-  pointer-events: none;
-}
-
-.glow-error {
-  background: radial-gradient(circle, var(--color-red-5), transparent);
-}
-
-.glow-warning {
-  background: radial-gradient(circle, var(--color-orange-5), transparent);
-}
-
-.glow-default {
-  background: radial-gradient(circle, rgba(153, 27, 27, 0.8), transparent);
-}
-
-.bento-stat-icon {
-  font-size: 32px;
-  color: rgba(153, 27, 27, 0.7);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.bento-stat-info {
-  flex: 1;
-}
-
-.bento-stat-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-color);
-  opacity: 0.5;
-  margin-bottom: 4px;
-}
-
-.bento-stat-value {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-color);
-  line-height: 1;
-
-  &.value-error {
-    color: var(--color-red-6);
-    text-shadow: 0 0 10px rgba(255, 77, 79, 0.3);
-  }
-
-  &.value-warning {
-    color: var(--color-orange-6);
-    text-shadow: 0 0 10px rgba(250, 173, 20, 0.3);
-  }
-}
-
-// MANAGE INSTANCE PANEL - FULL WIDTH
-.manage-instance-panel {
-  position: relative;
-  width: 100%;
-  padding: 20px 24px;
-  background: linear-gradient(135deg, rgba(153, 27, 27, 0.03) 0%, rgba(212, 107, 8, 0.03) 100%);
-  border-radius: 16px;
-  border: 1px solid rgba(153, 27, 27, 0.1);
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at bottom left, rgba(153, 27, 27, 0.08), transparent 70%);
-    pointer-events: none;
-  }
-}
-
-.panel-header {
-  margin-bottom: 16px;
-
-  h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.3px;
-  }
-}
-
-.action-buttons-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  align-content: start;
-}
-
-.modern-action-btn {
-  position: relative;
-  width: 100%;
-  height: auto;
-  min-height: 54px;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-
-  :deep(.anticon) {
-    font-size: 18px;
-    transition: transform 0.3s ease;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-
-    &::before {
-      opacity: 1;
-    }
-
-    :deep(.anticon) {
-      transform: scale(1.12);
-    }
-  }
-
-  &:active {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
-  }
-}
-
-.btn-primary-gradient {
-  background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
-  border-color: rgba(255, 140, 66, 0.5);
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-
-  &:hover {
-    background: linear-gradient(135deg, #FF9C52 0%, #FF7B45 100%);
-    border-color: rgba(255, 140, 66, 0.7);
-    color: #fff;
-  }
-
-  &:active,
-  &:focus {
-    background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
-    color: #fff;
-  }
-}
-
-.btn-danger-gradient {
-  background: linear-gradient(135deg, rgba(207, 19, 34, 0.9) 0%, rgba(130, 0, 20, 0.9) 100%);
-  border-color: rgba(207, 19, 34, 0.5);
-  color: #fff;
-  font-weight: 700;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-
-  :deep(.anticon) {
-    color: #fff;
-  }
-
-  &:hover {
-    background: linear-gradient(135deg, rgba(245, 34, 45, 1) 0%, rgba(168, 7, 26, 1) 100%);
-    border-color: rgba(245, 34, 45, 0.6);
-    color: #fff;
-
-    :deep(.anticon) {
-      color: #fff;
-    }
-  }
-
-  &:active,
-  &:focus {
-    background: linear-gradient(135deg, rgba(207, 19, 34, 0.9) 0%, rgba(130, 0, 20, 0.9) 100%);
-    color: #fff;
-  }
-}
-
-.btn-default-modern {
-  background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
-  border-color: rgba(255, 140, 66, 0.4);
-  color: #D4AF37;
-  font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-
-  :deep(.anticon) {
-    color: #D4AF37;
-  }
-
-  &:hover {
-    background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
-    border-color: rgba(255, 140, 66, 0.6);
-    color: #FFD700;
-
-    :deep(.anticon) {
-      color: #FFD700;
-    }
-  }
-
-  &:active,
-  &:focus {
-    background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
-    color: #D4AF37;
-  }
-}
-
-.btn-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.mobile-actions-modern {
-  width: 100%;
-
-  .mobile-dropdown-btn {
-    width: 100%;
-  }
-}
-
-// GLASS TERMINAL WRAPPER - macOS Style
+// iOS-style Glass Terminal Wrapper
 .glass-terminal-wrapper {
-  width: 100%;
-  background: rgba(30, 30, 30, 0.95);
-  backdrop-filter: blur(40px) saturate(150%);
-  -webkit-backdrop-filter: blur(40px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 140, 66, 0.3);
+  border-radius: 12px;
   overflow: hidden;
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 140, 66, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
@@ -1037,9 +816,9 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
-  background: rgba(40, 40, 40, 0.6);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
+  border-bottom: 1px solid rgba(255, 140, 66, 0.2);
 }
 
 .terminal-dots {
@@ -1052,107 +831,106 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   height: 12px;
   border-radius: 50%;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-  
+
   &.dot-red {
     background: linear-gradient(135deg, #ff5f57, #ff3b30);
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.4);
   }
-  
+
   &.dot-yellow {
     background: linear-gradient(135deg, #ffbd2e, #ff9500);
+    box-shadow: 0 0 8px rgba(255, 149, 0, 0.4);
   }
-  
+
   &.dot-green {
     background: linear-gradient(135deg, #28c840, #30d158);
+    box-shadow: 0 0 8px rgba(48, 209, 88, 0.4);
   }
 }
 
 .terminal-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-  letter-spacing: 0.3px;
+  color: #D4AF37;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+// ROW 2: Console Section
+.console-section {
+  flex: 1;
+  min-height: 300px;
+  background: #0d0d0d;
+  overflow: hidden;
+}
+
+.access-denied {
+  padding: 40px;
+  text-align: center;
+  color: #ff4d4f;
+
+  h3 {
+    color: #D4AF37;
+  }
 }
 
 // MOBILE OPTIMIZATIONS
 @media (max-width: 992px) {
-  .compact-info-header {
-    padding: 20px;
-  }
-
-  .manage-instance-panel {
-    padding: 20px;
-  }
-
-  .action-buttons-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 10px;
-  }
-
-  .modern-action-btn {
-    min-height: 50px;
-    font-size: 13px;
-  }
-
-  .instance-name {
-    font-size: 22px;
-  }
-
-  .status-orb {
-    width: 56px;
-    height: 56px;
-  }
-
-  .orb-ring,
-  .orb-pulse {
-    width: 40px;
-    height: 40px;
-  }
-}
-
-@media (max-width: 576px) {
-  .bento-stats-container {
+  .top-bar {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .compact-info-header {
-    padding: 16px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+  .header-section {
+    justify-content: center;
   }
 
-  .manage-instance-panel {
-    padding: 16px;
+  .stats-section {
+    justify-content: center;
   }
 
-  .action-buttons-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .modern-action-btn {
-    min-height: 46px;
-    font-size: 12px;
+  .buttons-section {
+    justify-content: center;
   }
 
   .instance-name {
     font-size: 18px;
+    text-align: center;
   }
 
-  .bento-terminal-container {
+  .status-chips {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .compact-terminal-container {
     padding: 4px;
-    gap: 12px;
+    gap: 8px;
+  }
+
+  .top-bar {
+    padding: 12px;
+  }
+
+  .stats-section {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .instance-name {
+    font-size: 16px;
   }
 
   .status-orb {
-    width: 48px;
-    height: 48px;
+    width: 32px;
+    height: 32px;
   }
 
   .orb-ring,
   .orb-pulse {
-    width: 36px;
-    height: 36px;
+    width: 24px;
+    height: 24px;
   }
 }
 

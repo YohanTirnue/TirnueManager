@@ -9,6 +9,8 @@ import { GLOBAL_INSTANCE_NAME } from "../../config/const";
 import { useLayoutCardTools } from "../../hooks/useCardTools";
 import { parseTimestamp } from "../../tools/time";
 import DockerInfo from "./dialogs/DockerInfo.vue";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
+import { useAppStateStore } from "@/stores/useAppStateStore";
 
 const props = defineProps<{
   card: LayoutCard;
@@ -19,6 +21,19 @@ const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
 
 const instanceId = getMetaOrRouteValue("instanceId");
 const daemonId = getMetaOrRouteValue("daemonId");
+
+// Permission checks
+const { userPermissions, isAdmin } = useUserPermissions();
+const { state } = useAppStateStore();
+const isSubUser = computed(() => state.userInfo?.isSubUser ?? false);
+const canAccessMinecraftQuery = computed(() => {
+  // Sub-users can NEVER access Minecraft query
+  if (isSubUser.value) return false;
+  // Admins always have permission
+  if (isAdmin.value) return true;
+  // Regular users need canAccessMinecraftQuery permission
+  return userPermissions.value.canAccessMinecraftQuery;
+});
 
 const { statusText, isRunning, isStopped, instanceTypeText, instanceInfo, execute } =
   useInstanceInfo({
@@ -67,8 +82,8 @@ onMounted(async () => {
     <template #body>
       <PermissionBanner type="instance" theme="orange" />
 
-      <!-- Game Server Info (if applicable) -->
-      <div v-if="instanceGameServerInfo" class="game-server-section">
+      <!-- Game Server Info (if applicable and has permission) -->
+      <div v-if="instanceGameServerInfo && canAccessMinecraftQuery" class="game-server-section">
         <div class="info-card">
           <div class="info-label">{{ t("TXT_CODE_855c4a1c") }}</div>
           <div class="info-value">{{ instanceGameServerInfo.players }}</div>

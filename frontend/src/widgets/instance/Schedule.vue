@@ -241,4 +241,46 @@ onMounted(async () => {
     width: 100% !important;
   }
 }
+
+// Mobile responsive styles
+@media (max-width: 768px) {
+  .container {
+    padding: 0 8px;
+  }
+
+  :deep(.ant-table) {
+    font-size: 12px;
+
+    .ant-table-thead > tr > th,
+    .ant-table-tbody > tr > td {
+      padding: 8px 4px;
+    }
+
+    .ant-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+      height: auto;
+    }
+  }
+
+  :deep(.ant-btn) {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 576px) {
+  :deep(.ant-table) {
+    .ant-btn {
+      display: block;
+      width: 100%;
+      margin-bottom: 4px;
+      margin-right: 0 !important;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
 </style>

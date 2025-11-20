@@ -18,7 +18,10 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  WalletOutlined,
+  CustomerServiceOutlined,
+  IdcardOutlined
 } from "@ant-design/icons-vue";
 
 const router = useRouter();
@@ -28,6 +31,13 @@ const { containerState } = useLayoutContainerStore();
 
 const userPermission = computed(() => state.userInfo?.permission ?? 0);
 const userName = computed(() => state.userInfo?.userName ?? "Guest");
+const isSubUser = computed(() => state.userInfo?.isSubUser ?? false);
+
+const userRole = computed(() => {
+  if (userPermission.value >= ROLE.ADMIN) return "Administrator";
+  if (isSubUser.value) return "Sub User";
+  return "User";
+});
 
 const showLogoutModal = ref(false);
 const { execute } = logoutUser();
@@ -58,7 +68,10 @@ function getIconForRoute(path: string) {
     "/users": TeamOutlined,
     "/node": ClusterOutlined,
     "/settings": SettingOutlined,
-    "/customer": UserOutlined
+    "/customer": AppstoreOutlined,
+    "/account": IdcardOutlined,
+    "/billing": WalletOutlined,
+    "/support": CustomerServiceOutlined
   };
   return iconMap[path] || AppstoreOutlined;
 }
@@ -76,8 +89,24 @@ const sidebarCollapsed = computed({
   set: (val) => (containerState.sidebarCollapsed = val)
 });
 
+const mobileMenuOpen = ref(false);
+
 function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value;
+}
+
+function toggleMobileMenu() {
+  mobileMenuOpen.value = !mobileMenuOpen.value;
+}
+
+function closeMobileMenu() {
+  mobileMenuOpen.value = false;
+}
+
+// Close mobile menu when navigating
+function navigateAndClose(path: string) {
+  navigateTo(path);
+  closeMobileMenu();
 }
 
 function openLogoutModal() {
@@ -100,7 +129,16 @@ async function handleLogout() {
 </script>
 
 <template>
-  <div class="app-sidebar" :class="{ collapsed: sidebarCollapsed }">
+  <!-- Mobile Menu Button -->
+  <button class="mobile-menu-btn" @click="toggleMobileMenu">
+    <MenuUnfoldOutlined v-if="!mobileMenuOpen" />
+    <MenuFoldOutlined v-else />
+  </button>
+
+  <!-- Mobile Overlay -->
+  <div v-if="mobileMenuOpen" class="mobile-overlay" @click="closeMobileMenu"></div>
+
+  <div class="app-sidebar" :class="{ collapsed: sidebarCollapsed, 'mobile-open': mobileMenuOpen }">
     <!-- Logo Section -->
     <div class="sidebar-logo">
       <div class="logo-icon">
@@ -116,7 +154,7 @@ async function handleLogout() {
       </div>
       <div v-if="!sidebarCollapsed" class="user-info">
         <div class="user-name">{{ userName }}</div>
-        <div class="user-role">{{ userPermission >= ROLE.ADMIN ? "Administrator" : "User" }}</div>
+        <div class="user-role">{{ userRole }}</div>
       </div>
       <LogoutOutlined v-if="!sidebarCollapsed" class="logout-icon" />
     </div>
@@ -128,7 +166,7 @@ async function handleLogout() {
         :key="item.path"
         class="nav-item"
         :class="{ active: isActive(item.path) }"
-        @click="navigateTo(item.path)"
+        @click="navigateAndClose(item.path)"
       >
         <component :is="item.icon" class="nav-icon" />
         <span v-if="!sidebarCollapsed" class="nav-text">{{ item.name }}</span>
@@ -458,7 +496,49 @@ async function handleLogout() {
   }
 }
 
+// Mobile menu button
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1001;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.4);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+// Mobile overlay
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
 @media (max-width: 992px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .mobile-overlay {
+    display: block;
+  }
+
   .app-sidebar {
     transform: translateX(-100%);
 

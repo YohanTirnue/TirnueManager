@@ -10,16 +10,15 @@ import { defineConfig } from "vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    sourcemap: true,
+    sourcemap: false,
     chunkSizeWarningLimit: 1024,
+    minify: 'esbuild', // Much faster than terser
     rollupOptions: {
       output: {
         manualChunks(path) {
-          if (path.includes("node_modules/ant-design-vue/es")) {
-            return "ant-es";
-          }
-          if (path.includes("node_modules/ant-design-vue")) {
-            return "ant";
+          // Bundle ant-design-vue and icons together (icons need theme context)
+          if (path.includes("@ant-design/icons") || path.includes("node_modules/ant-design-vue")) {
+            return "antd";
           }
           if (path.includes("node_modules/zrender")) {
             return "zrender";
@@ -44,6 +43,14 @@ export default defineConfig({
           }
           if (path.includes("node_modules/htmlparser2")) {
             return "htmlparser2";
+          }
+          // Socket.io for real-time features
+          if (path.includes("socket.io") || path.includes("engine.io")) {
+            return "socket";
+          }
+          // Axios for API calls
+          if (path.includes("node_modules/axios")) {
+            return "axios";
           }
         }
       }

@@ -1,15 +1,18 @@
 import { $t as t } from "@/lang/i18n";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import type { LoginUserInfo } from "@/types/user";
-import InstallPage from "@/views/Install.vue";
-import LayoutContainer from "@/views/LayoutContainer.vue";
-import LoginPage from "@/views/Login.vue";
 import {
   createRouter,
   createWebHashHistory,
   type RouteLocationNormalized,
   type RouteRecordRaw
 } from "vue-router";
+
+// Lazy load pages for better initial load performance
+const InstallPage = () => import("@/views/Install.vue");
+const LayoutContainer = () => import("@/views/LayoutContainer.vue");
+const LoginPage = () => import("@/views/Login.vue");
+const LandingPage = () => import("@/views/Landing.vue");
 
 export interface RouterMetaInfo {
   icon?: string;
@@ -99,7 +102,7 @@ const originRouterConfig: RouterConfig[] = [
         if (user?.permission && user.permission >= ROLE.USER) {
           return "/customer";
         }
-        return "/login";
+        return "/welcome";
       },
       permission: ROLE.USER
     }
@@ -271,8 +274,43 @@ const originRouterConfig: RouterConfig[] = [
     component: LayoutContainer,
     meta: {
       permission: ROLE.USER,
-      mainMenu: true,
-      onlyDisplayEditMode: true
+      mainMenu: true
+    }
+  },
+  {
+    path: "/account",
+    name: "Account",
+    component: LayoutContainer,
+    meta: {
+      permission: ROLE.USER,
+      mainMenu: true
+    }
+  },
+  {
+    path: "/billing",
+    name: "Billing",
+    component: LayoutContainer,
+    meta: {
+      permission: ROLE.USER,
+      mainMenu: true
+    }
+  },
+  {
+    path: "/support",
+    name: "Support",
+    component: LayoutContainer,
+    meta: {
+      permission: ROLE.USER,
+      mainMenu: true
+    }
+  },
+  {
+    path: "/welcome",
+    name: "Welcome",
+    component: LandingPage,
+    meta: {
+      permission: ROLE.GUEST,
+      mainMenu: false
     }
   },
   {
@@ -368,7 +406,7 @@ router.beforeEach((to, from, next) => {
 
   if (
     toRoutePath.includes("_open_page") ||
-    ["/shop", "/login", "/install", "/404"].includes(toRoutePath)
+    ["/shop", "/login", "/welcome", "/install", "/404"].includes(toRoutePath)
   ) {
     return next();
   }
@@ -379,7 +417,7 @@ router.beforeEach((to, from, next) => {
 
   if (!to.name) return next("/404");
 
-  if (!state.userInfo?.token) return next("/login");
+  if (!state.userInfo?.token) return next("/welcome");
 
   if (toPagePermission > userPermission && userPermission !== ROLE.ADMIN) {
     return next("/customer");
