@@ -166,8 +166,8 @@ const startLoginAnimation = () => {
             <div class="feature-item">
               <ThunderboltOutlined class="feature-icon" />
               <div class="feature-text">
-                <h3>High Performance</h3>
-                <p>Lightning-fast server management</p>
+                <h3>Quick Setup</h3>
+                <p>Get your server running fast</p>
               </div>
             </div>
             <div class="feature-item">
