@@ -788,11 +788,22 @@ const startLoginAnimation = () => {
   }
 }
 
-// Override autofill styles
-:deep(input:-webkit-autofill) {
+// Override autofill styles - prevent white background
+:deep(input:-webkit-autofill),
+:deep(input:-webkit-autofill:hover),
+:deep(input:-webkit-autofill:focus),
+:deep(input:-webkit-autofill:active) {
   -webkit-text-fill-color: white !important;
   -webkit-box-shadow: 0 0 0px 1000px rgba(10, 10, 10, 0.9) inset !important;
+  box-shadow: 0 0 0px 1000px rgba(10, 10, 10, 0.9) inset !important;
   background-color: rgba(10, 10, 10, 0.9) !important;
-  transition: background-color 5000s ease-in-out 0s;
+  background-clip: content-box !important;
+  caret-color: white !important;
+  transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s;
+}
+
+// Also target autofill with specific selections
+:deep(input:-webkit-autofill::first-line) {
+  color: white !important;
 }
 </style>
