@@ -519,6 +519,57 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
       ]
     },
     {
+      page: "/account",
+      items: [
+        {
+          id: getRandomId(),
+          type: "UnderDevelopment",
+          title: "Account Settings",
+          meta: {
+            title: "Account Settings",
+            description: "Manage your profile, security settings, and preferences. This feature is coming soon!"
+          },
+          width: 12,
+          height: LayoutCardHeight.AUTO,
+          disableDelete: true
+        }
+      ]
+    },
+    {
+      page: "/billing",
+      items: [
+        {
+          id: getRandomId(),
+          type: "UnderDevelopment",
+          title: "Billing & Invoices",
+          meta: {
+            title: "Billing & Invoices",
+            description: "View invoices, manage payment methods, and check your balance. This feature is coming soon!"
+          },
+          width: 12,
+          height: LayoutCardHeight.AUTO,
+          disableDelete: true
+        }
+      ]
+    },
+    {
+      page: "/support",
+      items: [
+        {
+          id: getRandomId(),
+          type: "UnderDevelopment",
+          title: "Support Center",
+          meta: {
+            title: "Support Center",
+            description: "Create support tickets and get help from our team. This feature is coming soon!"
+          },
+          width: 12,
+          height: LayoutCardHeight.AUTO,
+          disableDelete: true
+        }
+      ]
+    },
+    {
       page: "/login",
       items: [
         {

@@ -30,6 +30,7 @@ import UserStatusBlock from "@/widgets/UserStatusBlock.vue";
 import OperationLogCard from "@/widgets/OperationLogCard.vue";
 import Schedule from "@/widgets/instance/Schedule.vue";
 import InstanceShortcut from "@/widgets/instance/Shortcut.vue";
+import UnderDevelopment from "@/widgets/UnderDevelopment.vue";
 
 // Lazy load rarely-used widgets
 const ImageManager = defineAsyncComponent(() => import("@/widgets/imageManager/index.vue"));
@@ -96,7 +97,8 @@ export const LAYOUT_CARD_TYPES: { [key: string]: any } = {
   MusicCard,
   ShelvesCard,
   OperationLogCard,
-  Market
+  Market,
+  UnderDevelopment
 };
 
 export interface NewCardItem extends LayoutCard {

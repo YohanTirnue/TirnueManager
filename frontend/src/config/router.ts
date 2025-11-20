@@ -279,6 +279,33 @@ const originRouterConfig: RouterConfig[] = [
     }
   },
   {
+    path: "/account",
+    name: "Account",
+    component: LayoutContainer,
+    meta: {
+      permission: ROLE.USER,
+      mainMenu: false
+    }
+  },
+  {
+    path: "/billing",
+    name: "Billing",
+    component: LayoutContainer,
+    meta: {
+      permission: ROLE.USER,
+      mainMenu: false
+    }
+  },
+  {
+    path: "/support",
+    name: "Support",
+    component: LayoutContainer,
+    meta: {
+      permission: ROLE.USER,
+      mainMenu: false
+    }
+  },
+  {
     path: "/welcome",
     name: "Welcome",
     component: LandingPage,
