@@ -439,8 +439,8 @@ router.put(
     try {
       // Here is the low-privileged user configuration setting interface,
       // in order to prevent data injection, a layer of filtering must be performed
-      const daemonId = toText(ctx.query.daemonId);
-      const instanceUuid = toText(ctx.query.uuid);
+      const daemonId = String(ctx.query.daemonId);
+      const instanceUuid = String(ctx.query.uuid);
       const config = ctx.request.body;
 
       let instanceTags: string[] | null = null;
