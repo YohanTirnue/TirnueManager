@@ -162,7 +162,7 @@ router.post(
 
       operationLogger.log("sub_user_create", {
         operator_ip: ctx.ip,
-        operator_name: ctx.session?.["userName"],
+        operator_name: String(ctx.session?.["userName"] || ""),
         target_user_name: subUser.userName,
         instance_uuid: instanceUuid
       });
@@ -206,7 +206,7 @@ router.put(
 
       operationLogger.log("sub_user_update", {
         operator_ip: ctx.ip,
-        operator_name: ctx.session?.["userName"],
+        operator_name: String(ctx.session?.["userName"] || ""),
         target_user_uuid: subUserUuid
       });
 
@@ -251,7 +251,7 @@ router.del(
         "sub_user_delete",
         {
           operator_ip: ctx.ip,
-          operator_name: ctx.session?.["userName"],
+          operator_name: String(ctx.session?.["userName"] || ""),
           target_user_name: subUserName,
           target_user_uuid: subUserUuid
         },
