@@ -285,6 +285,23 @@ export const getInstanceTeams = useDefineApi<
   method: "GET"
 });
 
+export const getParentUsers = useDefineApi<
+  {
+    params: {
+      daemonId: string;
+      instanceUuid: string;
+    };
+  },
+  Array<{
+    uuid: string;
+    userName: string;
+    permission: number;
+  }>
+>({
+  url: "/api/sub-users/parents",
+  method: "GET"
+});
+
 export const createSubUser = useDefineApi<
   {
     params: {
@@ -295,6 +312,7 @@ export const createSubUser = useDefineApi<
       userName: string;
       passWord: string;
       permissions?: UserPermissions;
+      parentUuid?: string;
     };
   },
   any

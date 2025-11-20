@@ -17,8 +17,10 @@ import {
   getSubUsers,
   createSubUser,
   updateSubUserPermissions,
-  deleteSubUser
+  deleteSubUser,
+  getParentUsers
 } from "@/services/apis";
+import { useAppStateStore } from "@/stores/useAppState";
 import _ from "lodash";
 
 interface SubUser {
@@ -42,12 +44,21 @@ const emit = defineEmits<{
   (e: "refresh"): void;
 }>();
 
+const appStateStore = useAppStateStore();
+
 const MAX_SUB_USERS = 3;
 const subUsers = ref<SubUser[]>([]);
+const parentUsers = ref<Array<{ uuid: string; userName: string; permission: number }>>([]);
+const parentUserMap = ref<Map<string, string>>(new Map()); // uuid -> userName
 const loading = ref(false);
 const dialogVisible = ref(false);
 const isEditMode = ref(false);
 const formRef = ref<FormInstance>();
+
+const isAdmin = computed(() => {
+  const userInfo = appStateStore.state.userInfo;
+  return userInfo && userInfo.permission === 10;
+});
 
 const defaultPermissions: UserPermissions = {
   canUploadFiles: true,
@@ -78,10 +89,18 @@ const formData = ref({
   uuid: "",
   userName: "",
   passWord: "",
-  permissions: _.cloneDeep(defaultPermissions)
+  permissions: _.cloneDeep(defaultPermissions),
+  parentUuid: ""
 });
 
-const canAddMore = computed(() => subUsers.value.length < MAX_SUB_USERS);
+const canAddMore = computed(() => {
+  // For admins, always allow if there are parent users available
+  if (isAdmin.value) {
+    return parentUsers.value.length > 0;
+  }
+  // For regular users, check their own sub-user count
+  return subUsers.value.length < MAX_SUB_USERS;
+});
 
 const formRules: Record<string, Rule[]> = {
   userName: [
@@ -99,6 +118,17 @@ const formRules: Record<string, Rule[]> = {
       },
       trigger: "blur"
     }
+  ],
+  parentUuid: [
+    {
+      required: true,
+      validator: async (_rule: Rule, value: string) => {
+        if (isAdmin.value && !isEditMode.value && !value) {
+          throw new Error("Please select a parent user");
+        }
+      },
+      trigger: "blur"
+    }
   ]
 };
 
@@ -107,6 +137,9 @@ watch(
   (newVal) => {
     if (newVal) {
       fetchSubUsers();
+      if (isAdmin.value) {
+        fetchParentUsers();
+      }
     }
   }
 );
@@ -121,10 +154,39 @@ const fetchSubUsers = async () => {
       }
     });
     subUsers.value = res.value || [];
+
+    // Build parent user map for displaying parent names
+    if (isAdmin.value) {
+      const map = new Map<string, string>();
+      for (const subUser of subUsers.value) {
+        if (subUser.parentUserId) {
+          // Find parent username from parentUsers list
+          const parent = parentUsers.value.find((p) => p.uuid === subUser.parentUserId);
+          if (parent) {
+            map.set(subUser.parentUserId, parent.userName);
+          }
+        }
+      }
+      parentUserMap.value = map;
+    }
   } catch (error: any) {
     reportErrorMsg(error.message);
   } finally {
     loading.value = false;
+  }
+};
+
+const fetchParentUsers = async () => {
+  try {
+    const res = await getParentUsers().execute({
+      params: {
+        daemonId: props.daemonId,
+        instanceUuid: props.instanceUuid
+      }
+    });
+    parentUsers.value = res.value || [];
+  } catch (error: any) {
+    reportErrorMsg(error.message);
   }
 };
 
@@ -138,7 +200,8 @@ const handleAddSubUser = () => {
     uuid: "",
     userName: "",
     passWord: "",
-    permissions: _.cloneDeep(defaultPermissions)
+    permissions: _.cloneDeep(defaultPermissions),
+    parentUuid: ""
   };
   dialogVisible.value = true;
 };
@@ -198,22 +261,32 @@ const handleSubmit = async () => {
       message.success(t("TXT_CODE_27efac3b"));
     } else {
       // Create new sub-user
+      const createData: any = {
+        userName: formData.value.userName,
+        passWord: formData.value.passWord,
+        permissions: formData.value.permissions
+      };
+
+      // If admin, include parentUuid
+      if (isAdmin.value && formData.value.parentUuid) {
+        createData.parentUuid = formData.value.parentUuid;
+      }
+
       await createSubUser().execute({
         params: {
           daemonId: props.daemonId,
           instanceUuid: props.instanceUuid
         },
-        data: {
-          userName: formData.value.userName,
-          passWord: formData.value.passWord,
-          permissions: formData.value.permissions
-        }
+        data: createData
       });
       message.success(t("TXT_CODE_c7c04c00"));
     }
 
     dialogVisible.value = false;
     fetchSubUsers();
+    if (isAdmin.value) {
+      fetchParentUsers();
+    }
     emit("refresh");
   } catch (error: any) {
     reportErrorMsg(error.message);
@@ -226,7 +299,11 @@ const handleSubmit = async () => {
 <template>
   <a-modal
     :open="visible"
-    :title="`Manage Sub-Users (${subUsers.length}/${MAX_SUB_USERS})`"
+    :title="
+      isAdmin
+        ? `Manage Sub-Users (${subUsers.length} total)`
+        : `Manage Sub-Users (${subUsers.length}/${MAX_SUB_USERS})`
+    "
     :width="800"
     @cancel="handleClose"
   >
@@ -236,7 +313,7 @@ const handleSubmit = async () => {
 
     <div class="sub-user-manager">
       <a-alert
-        v-if="!canAddMore"
+        v-if="!canAddMore && !isAdmin"
         type="warning"
         :message="`Maximum ${MAX_SUB_USERS} sub-users reached for this instance`"
         show-icon
@@ -288,6 +365,9 @@ const handleSubmit = async () => {
                 </template>
                 <template #title>
                   {{ item.userName }}
+                  <a-tag v-if="isAdmin && item.parentUserId" color="blue" style="margin-left: 8px">
+                    Parent: {{ parentUserMap.get(item.parentUserId) || "Unknown" }}
+                  </a-tag>
                 </template>
                 <template #description>
                   <div>Created: {{ item.registerTime }}</div>
@@ -315,6 +395,26 @@ const handleSubmit = async () => {
         :rules="formRules"
         layout="vertical"
       >
+        <a-form-item
+          v-if="!isEditMode && isAdmin"
+          name="parentUuid"
+          label="Parent User"
+        >
+          <a-select
+            v-model:value="formData.parentUuid"
+            placeholder="Select parent user"
+            style="width: 100%"
+          >
+            <a-select-option
+              v-for="parent in parentUsers"
+              :key="parent.uuid"
+              :value="parent.uuid"
+            >
+              {{ parent.userName }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+
         <a-form-item v-if="!isEditMode" name="userName" label="Username">
           <a-input v-model:value="formData.userName" placeholder="Enter username" />
         </a-form-item>

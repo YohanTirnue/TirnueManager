@@ -34,11 +34,11 @@ export function getUserByUserName(userName: string) {
 
 /**
  * Check if user can manage sub-users for a specific instance
- * Requirements: User must have the instance AND not be a sub-user themselves
+ * Requirements: Admin OR (User must have the instance AND not be a sub-user)
  */
 export function canManageSubUsers(user: User, daemonId: string, instanceUuid: string): boolean {
-  // Admins cannot create sub-users (they manage instances directly)
-  if (isTopPermission(user)) return false;
+  // Admins can manage all sub-users
+  if (isTopPermission(user)) return true;
 
   // Sub-users cannot create sub-users
   if (user.isSubUser) return false;

@@ -84,8 +84,8 @@ const openSubUserManager = (daemonId: string, instanceUuid: string) => {
 
 const canManageSubUsers = () => {
   const userInfo = appStateStore.state.userInfo;
-  // Only regular users (not admins, not sub-users) can manage sub-users
-  return userInfo && userInfo.permission === 1 && !userInfo.isSubUser;
+  // Admins and regular users (not sub-users) can manage sub-users
+  return userInfo && !userInfo.isSubUser && (userInfo.permission === 10 || userInfo.permission === 1);
 };
 
 onMounted(() => {

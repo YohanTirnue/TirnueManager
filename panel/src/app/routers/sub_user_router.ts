@@ -29,11 +29,19 @@ router.get(
       ctx.throw(403, "You do not have permission to manage sub-users for this instance");
     }
 
-    const subUsers = subUserService.getSubUsers(
-      userUuid,
-      String(instanceUuid),
-      String(daemonId)
-    );
+    // If admin, get ALL sub-users for this instance from all parents
+    // If regular user, get only their own sub-users
+    let subUsers;
+    if (isTopPermissionByUuid(userUuid)) {
+      const teams = subUserService.getInstanceTeam(String(instanceUuid), String(daemonId));
+      subUsers = teams.flatMap((team) => team.subUsers);
+    } else {
+      subUsers = subUserService.getSubUsers(
+        userUuid,
+        String(instanceUuid),
+        String(daemonId)
+      );
+    }
 
     // Remove sensitive data
     const sanitizedSubUsers = subUsers.map((user) => ({
@@ -80,6 +88,34 @@ router.get(
   }
 );
 
+// Get parent users who have access to an instance (admin only)
+router.get(
+  "/parents",
+  permission({ level: ROLE.ADMIN }),
+  validator({ query: { daemonId: String, instanceUuid: String } }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const { daemonId, instanceUuid } = ctx.query;
+
+    const parentUsers = [];
+    for (const [uuid, user] of userSystem.objects) {
+      // Skip sub-users and users without this instance
+      if (user.isSubUser) continue;
+      const hasInstance = user.instances.some(
+        (inst) => inst.instanceUuid === instanceUuid && inst.daemonId === daemonId
+      );
+      if (hasInstance) {
+        parentUsers.push({
+          uuid: user.uuid,
+          userName: user.userName,
+          permission: user.permission
+        });
+      }
+    }
+
+    ctx.body = parentUsers;
+  }
+);
+
 // Create a sub-user
 router.post(
   "/",
@@ -91,16 +127,23 @@ router.post(
   async (ctx: Koa.ParameterizedContext) => {
     const userUuid = getUserUuid(ctx);
     const { daemonId, instanceUuid } = ctx.query;
-    const { userName, passWord, permissions } = ctx.request.body;
+    const { userName, passWord, permissions, parentUuid } = ctx.request.body;
 
     // Check if user can manage sub-users for this instance
     if (!canManageSubUsersByUuid(userUuid, String(daemonId), String(instanceUuid))) {
       ctx.throw(403, "You do not have permission to manage sub-users for this instance");
     }
 
+    // Determine the parent: if admin and parentUuid provided, use it; otherwise use current user
+    let actualParentUuid = userUuid;
+    if (isTopPermissionByUuid(userUuid) && parentUuid) {
+      // Admin can create sub-users for other parents
+      actualParentUuid = String(parentUuid);
+    }
+
     try {
       const subUser = await subUserService.createSubUser(
-        userUuid,
+        actualParentUuid,
         String(instanceUuid),
         String(daemonId),
         {
@@ -139,8 +182,18 @@ router.put(
     const { subUserUuid } = ctx.params;
     const { permissions } = ctx.request.body;
 
+    const subUser = userSystem.getInstance(String(subUserUuid));
+    if (!subUser || !subUser.isSubUser) {
+      ctx.throw(404, "Sub-user not found");
+    }
+
+    // Allow if user is admin OR if user is the parent
+    if (!isTopPermissionByUuid(userUuid) && subUser.parentUserId !== userUuid) {
+      ctx.throw(403, "You do not have permission to modify this sub-user");
+    }
+
     try {
-      await subUserService.updateSubUserPermissions(userUuid, String(subUserUuid), permissions);
+      await userSystem.edit(String(subUserUuid), { permissions });
 
       operationLogger.log("sub_user_update", {
         operator_ip: ctx.ip,
@@ -163,11 +216,25 @@ router.del(
     const userUuid = getUserUuid(ctx);
     const { subUserUuid } = ctx.params;
 
-    try {
-      const subUser = userSystem.getInstance(String(subUserUuid));
-      const subUserName = subUser?.userName || "Unknown";
+    const subUser = userSystem.getInstance(String(subUserUuid));
+    if (!subUser || !subUser.isSubUser) {
+      ctx.throw(404, "Sub-user not found");
+    }
 
-      await subUserService.deleteSubUser(userUuid, String(subUserUuid));
+    const subUserName = subUser.userName || "Unknown";
+
+    // Allow if user is admin OR if user is the parent
+    if (!isTopPermissionByUuid(userUuid) && subUser.parentUserId !== userUuid) {
+      ctx.throw(403, "You do not have permission to delete this sub-user");
+    }
+
+    try {
+      if (subUser.parentUserId) {
+        await subUserService.deleteSubUser(subUser.parentUserId, String(subUserUuid));
+      } else {
+        // Orphaned sub-user
+        await userSystem.deleteInstance(String(subUserUuid));
+      }
 
       operationLogger.log(
         "sub_user_delete",
