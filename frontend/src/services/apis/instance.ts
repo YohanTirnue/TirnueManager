@@ -132,6 +132,20 @@ export const updateInstance = useDefineApi<
   method: "POST"
 });
 
+export const sendInstanceCommand = useDefineApi<
+  {
+    params: {
+      uuid: string;
+      daemonId: string;
+      command: string;
+    };
+  },
+  boolean
+>({
+  url: "/api/protected_instance/command",
+  method: "GET"
+});
+
 export const updateInstanceConfig = useDefineApi<
   {
     params: {

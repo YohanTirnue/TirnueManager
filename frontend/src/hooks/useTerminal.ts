@@ -2,7 +2,7 @@ import { GLOBAL_INSTANCE_NAME } from "@/config/const";
 import { useCommandHistory } from "@/hooks/useCommandHistory";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { t } from "@/lang/i18n";
-import { setUpTerminalStreamChannel } from "@/services/apis/instance";
+import { sendInstanceCommand, setUpTerminalStreamChannel } from "@/services/apis/instance";
 import { useLayoutConfigStore } from "@/stores/useLayoutConfig";
 import { mapDaemonAddress, parseForwardAddress } from "@/tools/protocol";
 import { reportErrorMsg } from "@/tools/validator";
@@ -69,6 +69,8 @@ export function useTerminal() {
   const terminal = ref<Terminal>();
   const isConnect = ref<boolean>(false);
   const socketAddress = ref("");
+  let currentInstanceId = "";
+  let currentDaemonId = "";
 
   const isGlobalTerminal = computed(() => {
     return state.value?.config.nickname === GLOBAL_INSTANCE_NAME;
@@ -91,6 +93,10 @@ export function useTerminal() {
       events.emit("error", error);
       return reportErrorMsg(error.message);
     }
+
+    // Store for use in sendCommand logging
+    currentInstanceId = config.instanceId;
+    currentDaemonId = config.daemonId;
 
     isReady.value = false;
 
@@ -340,6 +346,18 @@ export function useTerminal() {
         command
       }
     });
+    // Log command to operation logger (fire-and-forget)
+    if (currentInstanceId && currentDaemonId) {
+      sendInstanceCommand().execute({
+        params: {
+          uuid: currentInstanceId,
+          daemonId: currentDaemonId,
+          command
+        }
+      }).catch(() => {
+        // Silently ignore logging errors to not affect terminal experience
+      });
+    }
   };
 
   let statusQueryTask: NodeJS.Timeout;
