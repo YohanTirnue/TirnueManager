@@ -341,8 +341,7 @@ export const useFileManager = (instanceId?: string, daemonId?: string) => {
       message.success(t("TXT_CODE_c3a933d3"));
       await getFileList();
     } catch (error: any) {
-      message.error(t("TXT_CODE_dba9bf61"));
-      reportErrorMsg(error.message);
+      reportErrorMsg(t("TXT_CODE_dba9bf61") + ": " + error.message);
     } finally {
       loadingDialog.cancel();
     }
@@ -380,8 +379,7 @@ export const useFileManager = (instanceId?: string, daemonId?: string) => {
       message.success(t("TXT_CODE_c3a933d3"));
       await getFileList();
     } catch (error: any) {
-      message.error(t("TXT_CODE_26d7316f"));
-      reportErrorMsg(error.message);
+      reportErrorMsg(t("TXT_CODE_26d7316f") + ": " + error.message);
     } finally {
       loadingDialog.cancel();
     }

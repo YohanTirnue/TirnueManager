@@ -7,6 +7,7 @@ import { originRouterConfig, ROLE } from "@/config/router";
 import { logoutUser } from "@/services/apis/index";
 import { message } from "ant-design-vue";
 import { t } from "@/lang/i18n";
+import { reportErrorMsg } from "@/tools/validator";
 import {
   AppstoreOutlined,
   ShopOutlined,
@@ -123,7 +124,7 @@ async function handleLogout() {
     message.success(t("TXT_CODE_11673d8c"));
     setTimeout(() => (window.location.href = "/"), 400);
   } catch (error) {
-    message.error("Logout failed. Please try again.");
+    reportErrorMsg("Logout failed. Please try again.");
   }
 }
 </script>

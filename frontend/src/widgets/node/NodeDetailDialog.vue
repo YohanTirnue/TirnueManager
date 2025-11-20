@@ -131,7 +131,7 @@ const dialog = reactive({
       dialog.close();
       message.success(t("TXT_CODE_a00e84d7"));
     } catch (error: any) {
-      message.error(error.message ?? error);
+      reportErrorMsg(error.message ?? error);
     }
   },
   submit: async () => {
@@ -196,7 +196,7 @@ defineExpose({ openDialog });
             <a-input v-model:value="dialog.data.port" />
           </a-form-item>
 
-          <a-form-item :label="t('TXT_CODE_300c2ff4')" name="apiKey" :required="!editMode">
+          <a-form-item v-if="!editMode" :label="t('TXT_CODE_300c2ff4')" name="apiKey" required>
             <a-typography-paragraph>
               <a-typography-text type="secondary">
                 {{ t("TXT_CODE_5ef2cf20") }}
@@ -208,7 +208,20 @@ defineExpose({ openDialog });
             </a-typography-paragraph>
             <a-input
               v-model:value="dialog.data.apiKey"
-              :placeholder="editMode ? t('TXT_CODE_dc570cf2') : t('TXT_CODE_fe25087f')"
+              :placeholder="t('TXT_CODE_fe25087f')"
+            />
+          </a-form-item>
+
+          <a-form-item v-else :label="t('TXT_CODE_300c2ff4')">
+            <a-typography-paragraph>
+              <a-typography-text type="secondary">
+                {{ t("TXT_CODE_key_locked") || "API Key is locked after creation. Delete and recreate the daemon to change the key." }}
+              </a-typography-text>
+            </a-typography-paragraph>
+            <a-input
+              value="••••••••••••••••"
+              disabled
+              style="background: var(--color-gray-3); color: var(--color-gray-7);"
             />
           </a-form-item>
 

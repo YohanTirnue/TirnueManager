@@ -172,7 +172,7 @@ const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text);
     message.success("Copied to clipboard");
   } catch {
-    message.error("Failed to copy");
+    reportErrorMsg("Failed to copy to clipboard");
   }
 };
 
