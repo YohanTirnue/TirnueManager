@@ -61,6 +61,80 @@ router.get(
 );
 
 // [Top-level Permission]
+// Query all daemons for instances
+router.get(
+  "/remote_service_all_instances",
+  permission({ level: ROLE.ADMIN }),
+  validator({ query: { page: Number, page_size: Number } }),
+  async (ctx) => {
+    const page = Number(ctx.query.page);
+    const pageSize = Number(ctx.query.page_size);
+    const instanceName = ctx.query.instance_name;
+    const status = ctx.query.status;
+    const tag = String(ctx.query.tag);
+
+    let tagList: string[] = [];
+    try {
+      tagList = JSON.parse(tag);
+    } catch (error) {
+      // ignore
+    }
+
+    // Collect all instances from all daemons
+    const allInstances: any[] = [];
+    const allTags = new Set<string>();
+
+    for (const [, remoteService] of RemoteServiceSubsystem.services.entries()) {
+      if (!remoteService.available) continue;
+
+      try {
+        // Fetch all instances from this daemon (large page to get all)
+        const result = await new RemoteRequest(remoteService).request("instance/select", {
+          page: 1,
+          pageSize: 1000, // Get all from each daemon
+          condition: {
+            instanceName,
+            status,
+            tag: tagList.length > 0 ? tagList : null
+          }
+        });
+
+        // Add daemon info to each instance
+        for (const instance of result.data || []) {
+          instance.daemonId = remoteService.uuid;
+          instance.daemonRemarks = remoteService.config.remarks;
+          instance.daemonIp = remoteService.config.ip;
+          instance.daemonPort = remoteService.config.port;
+          allInstances.push(instance);
+        }
+
+        // Collect tags
+        for (const t of result.allTags || []) {
+          allTags.add(t);
+        }
+      } catch (err) {
+        // Skip daemons that fail
+        continue;
+      }
+    }
+
+    // Manual pagination
+    const total = allInstances.length;
+    const maxPage = Math.ceil(total / pageSize) || 1;
+    const startIndex = (page - 1) * pageSize;
+    const paginatedData = allInstances.slice(startIndex, startIndex + pageSize);
+
+    ctx.body = {
+      page,
+      pageSize,
+      maxPage,
+      data: paginatedData,
+      allTags: Array.from(allTags)
+    };
+  }
+);
+
+// [Top-level Permission]
 // Get remote server system information
 router.get("/remote_services_system", permission({ level: ROLE.ADMIN }), async (ctx) => {
   const result = new Array();

@@ -111,6 +111,27 @@ export const remoteInstances = useDefineApi<
   url: "/api/service/remote_service_instances"
 });
 
+export const remoteAllInstances = useDefineApi<
+  {
+    params: {
+      page: number;
+      page_size: number;
+      instance_name?: string;
+      status?: string;
+      tag?: string;
+    };
+  },
+  {
+    maxPage: number;
+    page: number;
+    pageSize: number;
+    data: (InstanceDetail & { daemonId: string; daemonRemarks: string; daemonIp: string; daemonPort: number })[];
+    allTags: string[];
+  }
+>({
+  url: "/api/service/remote_service_all_instances"
+});
+
 export const settingInfo = useDefineApi<any, Settings>({
   url: "/api/overview/setting"
 });

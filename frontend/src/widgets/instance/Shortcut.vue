@@ -26,6 +26,7 @@ import {
   CloseOutlined,
   CloudDownloadOutlined,
   CodeOutlined,
+  DatabaseOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
   PauseCircleOutlined,
@@ -42,6 +43,7 @@ const props = defineProps<{
   card: LayoutCard;
   targetInstanceInfo?: InstanceDetail;
   targetDaemonId?: string;
+  daemonName?: string;
 }>();
 
 const emits = defineEmits(["refreshList"]);
@@ -276,6 +278,10 @@ const instanceOperations = computed(() =>
       <div class="instance-title">
         {{ instanceInfo?.config.nickname }}
       </div>
+      <div v-if="daemonName" class="daemon-name">
+        <DatabaseOutlined />
+        {{ daemonName }}
+      </div>
     </template>
     <template #operator> </template>
     <template #body>
@@ -379,6 +385,16 @@ const instanceOperations = computed(() =>
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.daemon-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-gray-7);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .instance-card-body {

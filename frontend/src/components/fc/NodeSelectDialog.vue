@@ -78,14 +78,14 @@ defineExpose({
         >
           <div class="node-content">
             <div class="node-header">
-              <span class="node-name">{{ item.remarks || `${item.ip}:${item.port}` }}</span>
+              <span class="node-name">{{ item.remarks || `${item.ip}:${item.port || 'unknown'}` }}</span>
               <a-tag v-if="item.available" color="green">{{ t("TXT_CODE_b078a763") }}</a-tag>
               <a-tag v-else color="red">{{ t("TXT_CODE_6cbb84a9") }}</a-tag>
             </div>
             <div class="node-details">
               <span>ID: {{ item.uuid }}</span>
               <span>{{ t("TXT_CODE_3d0885c0") }}: {{ item?.platformText }}</span>
-              <span>{{ t("TXT_CODE_c7d0002e") }}: {{ item.ip }}:{{ item.port }}</span>
+              <span>{{ t("TXT_CODE_c7d0002e") }}: {{ item.ip }}:{{ item.port || 'unknown' }}</span>
             </div>
           </div>
         </div>

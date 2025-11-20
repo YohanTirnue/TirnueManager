@@ -58,7 +58,7 @@ const instancesList = computed(() => {
       daemonId: currentRemoteNode.value?.uuid ?? "",
       nickname: instance.config.nickname,
       status: instance.status,
-      hostIp: `${currentRemoteNode.value?.ip}:${currentRemoteNode.value?.port}`,
+      hostIp: `${currentRemoteNode.value?.ip}:${currentRemoteNode.value?.port || 'unknown'}`,
       config: instance.config
     });
   }

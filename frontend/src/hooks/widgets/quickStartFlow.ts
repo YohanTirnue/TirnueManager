@@ -106,7 +106,7 @@ export function useQuickStartFlow() {
       ?.filter((v) => v.available)
       ?.map((v) => {
         return {
-          title: `${v.ip}:${v.port} (${v.remarks})`,
+          title: `${v.ip}:${v.port || 'unknown'} (${v.remarks})`,
           key: v.uuid,
           icon: NodeIndexOutlined
         };

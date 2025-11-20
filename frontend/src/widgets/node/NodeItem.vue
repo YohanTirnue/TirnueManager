@@ -82,7 +82,7 @@ const { toPage } = useAppRouters();
 const detailList = (node: ComputedNodeInfo) => [
   {
     title: t("TXT_CODE_f52079a0"),
-    value: `${node.ip}:${node.port}`
+    value: `${node.ip}:${node.port || 'unknown'}`
   },
   {
     title: t("TXT_CODE_7c0b7608"),

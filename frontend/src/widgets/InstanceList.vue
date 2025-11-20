@@ -23,7 +23,7 @@ import { router } from "@/config/router";
 import { useInstanceTagSearch, useInstanceTagTips } from "@/hooks/useInstanceTag";
 import { useScreen } from "@/hooks/useScreen";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
-import { remoteInstances, remoteNodeList } from "@/services/apis";
+import { remoteInstances, remoteAllInstances, remoteNodeList } from "@/services/apis";
 import {
   batchDelete,
   batchKill,
@@ -57,9 +57,11 @@ const operationForm = ref({
 });
 
 const currentRemoteNode = ref<NodeStatus>();
+const showAllDaemons = ref(false);
 
 const { execute: getNodes, state: nodes, isLoading: isLoading1 } = remoteNodeList();
 const { execute: getInstances, state: instances, isLoading: isLoading2 } = remoteInstances();
+const { execute: getAllInstances, state: allInstances, isLoading: isLoading3 } = remoteAllInstances();
 const { updateTagTips, tagTips } = useInstanceTagTips();
 const {
   tags: selectedTags,
@@ -70,15 +72,27 @@ const {
   clearTags
 } = useInstanceTagSearch();
 
-const isLoading = computed(() => isLoading1.value || isLoading2.value);
+const isLoading = computed(() => isLoading1.value || isLoading2.value || isLoading3.value);
 
 const instancesMoreInfo = computed(() => {
   const newInstances: InstanceMoreDetail[] = [];
-  for (const instance of instances.value?.data || []) {
+  const data = showAllDaemons.value ? allInstances.value?.data : instances.value?.data;
+  for (const instance of data || []) {
     const instanceMoreInfo = useInstanceMoreDetail(instance);
+    // Add daemon info if available (from all instances endpoint)
+    if ((instance as any).daemonId) {
+      (instanceMoreInfo as any).daemonId = (instance as any).daemonId;
+      (instanceMoreInfo as any).daemonRemarks = (instance as any).daemonRemarks;
+      (instanceMoreInfo as any).daemonIp = (instance as any).daemonIp;
+      (instanceMoreInfo as any).daemonPort = (instance as any).daemonPort;
+    }
     newInstances.push(instanceMoreInfo);
   }
   return newInstances || [];
+});
+
+const currentInstanceData = computed(() => {
+  return showAllDaemons.value ? allInstances.value : instances.value;
 });
 
 const initNodes = async () => {
@@ -101,20 +115,34 @@ const initInstancesData = async (resetPage?: boolean) => {
   try {
     selectedInstance.value = [];
     if (resetPage) operationForm.value.currentPage = 1;
-    if (!currentRemoteNode.value) {
+    if (!showAllDaemons.value && !currentRemoteNode.value) {
       await initNodes();
     }
-    await getInstances({
-      params: {
-        daemonId: currentRemoteNode.value?.uuid ?? "",
-        page: operationForm.value.currentPage,
-        page_size: operationForm.value.pageSize,
-        status: operationForm.value.status,
-        instance_name: operationForm.value.instanceName.trim(),
-        tag: JSON.stringify(selectedTags.value)
-      }
-    });
-    updateTagTips(instances.value?.allTags || []);
+
+    if (showAllDaemons.value) {
+      await getAllInstances({
+        params: {
+          page: operationForm.value.currentPage,
+          page_size: operationForm.value.pageSize,
+          status: operationForm.value.status,
+          instance_name: operationForm.value.instanceName.trim(),
+          tag: JSON.stringify(selectedTags.value)
+        }
+      });
+      updateTagTips(allInstances.value?.allTags || []);
+    } else {
+      await getInstances({
+        params: {
+          daemonId: currentRemoteNode.value?.uuid ?? "",
+          page: operationForm.value.currentPage,
+          page_size: operationForm.value.pageSize,
+          status: operationForm.value.status,
+          instance_name: operationForm.value.instanceName.trim(),
+          tag: JSON.stringify(selectedTags.value)
+        }
+      });
+      updateTagTips(instances.value?.allTags || []);
+    }
   } catch (err) {
     return reportErrorMsg(t("TXT_CODE_e109c091"));
   }
@@ -135,12 +163,20 @@ const toAppDetailPage = (daemonId: string, instanceId: string) => {
   });
 };
 
-const handleChangeNode = async (item: NodeStatus) => {
+const handleChangeNode = async (item: NodeStatus | null) => {
   try {
-    currentRemoteNode.value = item;
+    if (item === null) {
+      // "All Daemons" selected
+      showAllDaemons.value = true;
+      currentRemoteNode.value = undefined;
+      localStorage.removeItem("pageSelectedRemote");
+    } else {
+      showAllDaemons.value = false;
+      currentRemoteNode.value = item;
+      localStorage.setItem("pageSelectedRemote", JSON.stringify(item));
+    }
     selectedInstance.value = [];
     await initInstancesData(true);
-    localStorage.setItem("pageSelectedRemote", JSON.stringify(item));
   } catch (err: any) {
     console.error(err.message);
   }
@@ -189,7 +225,10 @@ const handleSelectInstance = (item: InstanceMoreDetail) => {
   if (multipleMode.value) {
     selectInstance(item);
   } else {
-    toAppDetailPage(currentRemoteNode.value?.uuid || "", item.instanceUuid);
+    const daemonId = showAllDaemons.value
+      ? (item as any).daemonId
+      : (currentRemoteNode.value?.uuid || "");
+    toAppDetailPage(daemonId, item.instanceUuid);
   }
 };
 
@@ -211,6 +250,9 @@ const exitMultipleMode = () => {
 
 // Check if user can perform operations on ALL selected instances
 const canPerformBatchOperation = (action: "start" | "stop" | "restart" | "kill" | "delete") => {
+  // Disable batch delete when showing all daemons (requires API restructuring)
+  if (showAllDaemons.value && action === "delete") return false;
+
   if (isAdmin.value) return true;
 
   const permissionMap = {
@@ -296,7 +338,9 @@ const batchOperation = async (actName: "start" | "stop" | "kill" | "restart") =>
       const state = await fn({
         data: selectedInstance.value.map((item) => ({
           instanceUuid: item.instanceUuid,
-          daemonId: currentRemoteNode.value?.uuid ?? ""
+          daemonId: showAllDaemons.value
+            ? (item as any).daemonId
+            : (currentRemoteNode.value?.uuid ?? "")
         }))
       });
       if (state.value) {
@@ -398,6 +442,11 @@ onMounted(async () => {
             <a-dropdown>
               <template #overlay>
                 <a-menu>
+                  <a-menu-item key="all" @click="handleChangeNode(null)">
+                    <AppstoreOutlined />
+                    {{ t("TXT_CODE_c48f6f64") }}
+                  </a-menu-item>
+                  <a-menu-divider />
                   <a-menu-item
                     v-for="item in nodes"
                     :key="item.uuid"
@@ -420,11 +469,13 @@ onMounted(async () => {
                   style="max-width: 145px"
                   :ellipsis="{ ellipsis: true }"
                   :content="
-                    computeNodeName(
-                      currentRemoteNode?.ip || '',
-                      currentRemoteNode?.available || true,
-                      currentRemoteNode?.remarks
-                    )
+                    showAllDaemons
+                      ? t('TXT_CODE_c48f6f64')
+                      : computeNodeName(
+                          currentRemoteNode?.ip || '',
+                          currentRemoteNode?.available || true,
+                          currentRemoteNode?.remarks
+                        )
                   "
                 />
                 <DownOutlined />
@@ -432,7 +483,7 @@ onMounted(async () => {
             </a-dropdown>
             <a-button
               type="primary"
-              :disabled="!currentRemoteNode?.available"
+              :disabled="showAllDaemons || !currentRemoteNode?.available"
               @click="toCreateAppPage"
             >
               {{ t("TXT_CODE_53408064") }}
@@ -522,11 +573,11 @@ onMounted(async () => {
               {{ t("TXT_CODE_432cbc38") }}{{ selectedInstance.length }} {{ t("TXT_CODE_5cd3b4bd") }}
             </a-typography-text>
           </template>
-          <template v-if="instances" #right>
+          <template v-if="currentInstanceData" #right>
             <a-pagination
               v-model:current="operationForm.currentPage"
               v-model:pageSize="operationForm.pageSize"
-              :total="(instances?.maxPage || 0) * operationForm.pageSize"
+              :total="(currentInstanceData?.maxPage || 0) * operationForm.pageSize"
               show-size-changer
               @change="initInstancesData()"
             />
@@ -575,7 +626,8 @@ onMounted(async () => {
                 style="height: 100%"
                 :card="card"
                 :target-instance-info="item"
-                :target-daemon-id="currentRemoteNode?.uuid"
+                :target-daemon-id="showAllDaemons ? (item as any).daemonId : currentRemoteNode?.uuid"
+                :daemon-name="showAllDaemons ? ((item as any).daemonRemarks || `${(item as any).daemonIp}:${(item as any).daemonPort || 'unknown'}`) : undefined"
                 @click="handleSelectInstance(item)"
                 @refresh-list="initInstancesData()"
               />
