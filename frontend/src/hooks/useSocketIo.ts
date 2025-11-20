@@ -45,16 +45,18 @@ export function useSocketIoClient() {
           prefix = nodeCfg.prefix;
         if (nodeCfg.remoteMappings) {
           const mapped = mapDaemonAddress(
-            nodeCfg.remoteMappings.map((entry) => ({
-              from: {
-                addr: `${entry.from.ip}:${entry.from.port}`,
-                prefix: entry.from.prefix
-              },
-              to: {
-                addr: `${entry.to.ip}:${entry.to.port}`,
-                prefix: entry.to.prefix
-              }
-            }))
+            nodeCfg.remoteMappings
+              .filter((entry) => entry?.from && entry?.to && entry.from.ip && entry.to.ip)
+              .map((entry) => ({
+                from: {
+                  addr: `${entry.from.ip}:${entry.from.port || ''}`,
+                  prefix: entry.from.prefix
+                },
+                to: {
+                  addr: `${entry.to.ip}:${entry.to.port || ''}`,
+                  prefix: entry.to.prefix
+                }
+              }))
           );
           if (mapped) {
             addr = mapped.addr;
