@@ -28,6 +28,13 @@ const { containerState } = useLayoutContainerStore();
 
 const userPermission = computed(() => state.userInfo?.permission ?? 0);
 const userName = computed(() => state.userInfo?.userName ?? "Guest");
+const isSubUser = computed(() => state.userInfo?.isSubUser ?? false);
+
+const userRole = computed(() => {
+  if (userPermission.value >= ROLE.ADMIN) return "Administrator";
+  if (isSubUser.value) return "Sub User";
+  return "User";
+});
 
 const showLogoutModal = ref(false);
 const { execute } = logoutUser();
@@ -116,7 +123,7 @@ async function handleLogout() {
       </div>
       <div v-if="!sidebarCollapsed" class="user-info">
         <div class="user-name">{{ userName }}</div>
-        <div class="user-role">{{ userPermission >= ROLE.ADMIN ? "Administrator" : "User" }}</div>
+        <div class="user-role">{{ userRole }}</div>
       </div>
       <LogoutOutlined v-if="!sidebarCollapsed" class="logout-icon" />
     </div>
