@@ -817,7 +817,7 @@ onUnmounted(() => {
 // Charts
 .charts-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
   margin-bottom: 24px;
 }
@@ -944,21 +944,72 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .modern-stats {
+    padding: 0 12px 12px 12px;
+  }
+
   .stats-hero {
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
     text-align: center;
+    padding: 16px 20px;
+  }
+
+  .hero-icon {
+    font-size: 40px;
   }
 
   .hero-text h1 {
-    font-size: 28px;
+    font-size: 24px;
+  }
+
+  .hero-text p {
+    font-size: 14px;
+  }
+
+  .hero-time {
+    font-size: 14px;
   }
 
   .charts-row {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .quick-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+
+  .bottom-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .chart {
+    height: 250px;
+  }
+
+  .chart-pie {
+    height: 280px;
+  }
+
+  .info-grid {
     grid-template-columns: 1fr;
   }
 }
