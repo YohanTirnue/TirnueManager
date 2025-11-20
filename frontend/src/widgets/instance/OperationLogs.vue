@@ -4,6 +4,8 @@ import type { LayoutCard } from "@/types";
 import type { OperationLoggerItem } from "@/types/operationLog";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { getInstanceOperationLog } from "@/services/apis/operationLog";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
+import { useAppStateStore } from "@/stores/useAppStateStore";
 import {
   ReloadOutlined,
   UserOutlined,
@@ -17,7 +19,8 @@ import {
   DeleteOutlined,
   EditOutlined,
   SettingOutlined,
-  CodeOutlined
+  CodeOutlined,
+  LockOutlined
 } from "@ant-design/icons-vue";
 
 const props = defineProps<{
@@ -27,6 +30,19 @@ const props = defineProps<{
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
 const instanceId = getMetaOrRouteValue("instanceId");
 const daemonId = getMetaOrRouteValue("daemonId");
+
+// Permission checks
+const { canViewLogs, isAdmin } = useUserPermissions();
+const { state } = useAppStateStore();
+const isSubUser = computed(() => state.userInfo?.isSubUser ?? false);
+const hasLogPermission = computed(() => {
+  // Sub-users can NEVER view logs
+  if (isSubUser.value) return false;
+  // Admins always have permission
+  if (isAdmin.value) return true;
+  // Regular users need canViewLogs permission
+  return canViewLogs.value;
+});
 
 const logs = ref<OperationLoggerItem[]>([]);
 const loading = ref(false);
@@ -62,6 +78,7 @@ const actionOptions = [
 
 const fetchLogs = async () => {
   if (!instanceId || !daemonId) return;
+  if (!hasLogPermission.value) return;
   loading.value = true;
   try {
     const { execute, state } = getInstanceOperationLog();
@@ -209,7 +226,13 @@ onMounted(() => {
       </a-button>
     </template>
     <template #body>
-      <div class="logs-container">
+      <!-- No Permission Message -->
+      <div v-if="!hasLogPermission" class="no-permission">
+        <LockOutlined style="font-size: 48px; color: #d9d9d9; margin-bottom: 16px" />
+        <p style="color: #999; margin: 0">You do not have permission to view operation logs</p>
+      </div>
+
+      <div v-else class="logs-container">
         <!-- Filters -->
         <div class="filters-section">
           <a-input
@@ -314,6 +337,15 @@ onMounted(() => {
   background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
   border: 1px solid rgba(255, 140, 66, 0.3);
   border-radius: 12px;
+}
+
+.no-permission {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  text-align: center;
 }
 
 .logs-container {

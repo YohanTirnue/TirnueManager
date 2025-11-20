@@ -14,6 +14,7 @@ import { isHaveInstanceByUuid, isTopPermissionByUuid } from "../service/permissi
 import RemoteRequest, { RemoteRequestTimeoutError } from "../service/remote_command";
 import RemoteServiceSubsystem from "../service/remote_service";
 import { systemConfig } from "../setting";
+import userSystem from "../service/user_service";
 
 const router = new Router({ prefix: "/protected_instance" });
 
@@ -634,6 +635,25 @@ router.get(
   validator({ query: { daemonId: String, uuid: String } }),
   async (ctx) => {
     try {
+      const userUuid = getUserUuid(ctx);
+      const user = userSystem.getInstance(userUuid);
+
+      // Sub-users can NEVER view operation logs
+      if (user?.isSubUser) {
+        ctx.status = 403;
+        ctx.body = $t("TXT_CODE_permission.forbiddenInstance");
+        return;
+      }
+
+      // Non-admin users need canViewLogs permission
+      if (!isTopPermissionByUuid(userUuid)) {
+        if (!user?.permissions?.canViewLogs) {
+          ctx.status = 403;
+          ctx.body = $t("TXT_CODE_permission.forbiddenInstance");
+          return;
+        }
+      }
+
       const instanceUuid = String(ctx.query.uuid);
       const limit = +(ctx?.query?.limit || 50);
       if (limit < 1 || limit > 200) {
