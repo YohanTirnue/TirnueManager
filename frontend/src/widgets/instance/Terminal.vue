@@ -331,110 +331,78 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 </script>
 
 <template>
-  <!-- ULTRA MODERN BENTO GRID + GLASSMORPHISM REDESIGN -->
-  <div v-if="innerTerminalType" class="bento-terminal-container">
+  <!-- COMPACT 3-ROW LAYOUT -->
+  <div v-if="innerTerminalType" class="compact-terminal-container">
     <PermissionBanner type="instance" theme="orange" />
 
-    <!-- Compact Info Header -->
-    <div class="compact-info-header">
-      <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
-        <div class="orb-pulse"></div>
-        <div class="orb-ring"></div>
-      </div>
-      <div class="info-content">
-        <h1 class="instance-name">{{ getInstanceName }}</h1>
-        <div class="info-chips">
-          <div class="meta-chip chip-status" :class="{ 'chip-active': isRunning, 'chip-busy': isBuys }">
-            <div class="chip-dot"></div>
-            <span>{{ instanceStatusText }}</span>
-          </div>
-          <div v-if="instanceTypeText" class="meta-chip chip-type">
-            <CloudServerOutlined />
-            <span>{{ instanceTypeText }}</span>
-          </div>
-          <div v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1" class="meta-chip chip-watchers">
-            <LaptopOutlined />
-            <span>{{ instanceInfo?.watcher }} watching</span>
+    <!-- ROW 1: Header | Basic Info | Buttons -->
+    <div class="top-bar">
+      <!-- Header Section -->
+      <div class="header-section">
+        <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
+          <div class="orb-pulse"></div>
+          <div class="orb-ring"></div>
+        </div>
+        <div class="header-info">
+          <h1 class="instance-name">{{ getInstanceName }}</h1>
+          <div class="status-chips">
+            <a-tag v-if="isRunning" color="green">
+              <CheckCircleOutlined />
+              {{ instanceStatusText }}
+            </a-tag>
+            <a-tag v-else-if="isBuys" color="orange">
+              <LoadingOutlined />
+              {{ instanceStatusText }}
+            </a-tag>
+            <a-tag v-else>
+              <InfoCircleOutlined />
+              {{ instanceStatusText }}
+            </a-tag>
+            <a-tag v-if="instanceTypeText" color="purple">
+              <CloudServerOutlined />
+              {{ instanceTypeText }}
+            </a-tag>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Stats Cards -->
-    <div class="bento-stats-container" v-if="!isStopped">
-      <div v-for="(tag, index) in terminalTopTags" :key="tag.label"
-           class="bento-stat-card"
-           :class="`bento-stat-${index}`"
-      >
-        <div class="stat-glow" :class="`glow-${tag.color}`"></div>
-        <component :is="tag.icon" class="bento-stat-icon" />
-        <div class="bento-stat-info">
-          <div class="bento-stat-label">{{ tag.label }}</div>
-          <div class="bento-stat-value" :class="`value-${tag.color}`">{{ tag.value }}</div>
+      <!-- Basic Info Section (Stats) -->
+      <div class="stats-section" v-if="!isStopped && terminalTopTags.length">
+        <div v-for="tag in terminalTopTags" :key="tag.label" class="stat-item" @click="tag.onClick">
+          <component :is="tag.icon" class="stat-icon" />
+          <div class="stat-content">
+            <span class="stat-label">{{ tag.label }}</span>
+            <span class="stat-value" :class="`value-${tag.color}`">{{ tag.value }}</span>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Manage Instance - Full Width Action Buttons -->
-    <div class="manage-instance-panel">
-      <div class="panel-header">
-        <h3>Manage Instance</h3>
-      </div>
-      <div class="action-buttons-grid" v-if="!isPhone">
-        <template v-for="item in quickOperations" :key="item.title">
-          <a-button
-            v-if="item.noConfirm"
-            size="large"
-            class="modern-action-btn btn-primary-gradient"
-            :class="{ 'btn-disabled': isOpenInstanceLoading }"
-            :disabled="isOpenInstanceLoading"
-            @click="!isOpenInstanceLoading && item.click()"
-          >
-            <template #icon>
-              <component :is="item.icon" />
-            </template>
-            {{ item.title }}
-          </a-button>
-          <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
-            <a-button size="large" class="modern-action-btn btn-primary-gradient">
-              <template #icon>
-                <component :is="item.icon" />
-              </template>
-              {{ item.title }}
-            </a-button>
-          </a-popconfirm>
-        </template>
-
-        <template v-for="item in instanceOperations" :key="item.title">
-          <a-button
-            v-if="item.noConfirm"
-            size="large"
-            class="modern-action-btn"
-            :class="item.type === 'danger' ? 'btn-danger-gradient' : 'btn-default-modern'"
-            @click="item.click"
-          >
-            <template #icon>
-              <component :is="item.icon" />
-            </template>
-            {{ item.title }}
-          </a-button>
-          <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
-            <a-button
-              size="large"
-              class="modern-action-btn"
-              :class="item.type === 'danger' ? 'btn-danger-gradient' : 'btn-default-modern'"
-            >
-              <template #icon>
-                <component :is="item.icon" />
-              </template>
-              {{ item.title }}
-            </a-button>
-          </a-popconfirm>
-        </template>
+      <div class="stats-section stats-placeholder" v-else>
+        <span class="stats-offline">Instance Offline</span>
       </div>
 
-      <!-- Mobile Actions -->
-      <div class="mobile-actions-modern" v-else>
+      <!-- Buttons Section -->
+      <div class="buttons-section" v-if="!isPhone">
+        <span v-for="item in quickOperations" :key="item.title" class="action-btn-wrapper">
+          <a-popconfirm v-if="!item.noConfirm" :title="t('TXT_CODE_276756b2')" @confirm="item.click">
+            <IconBtn :icon="item.icon" :title="item.title" :class="item.class"></IconBtn>
+          </a-popconfirm>
+          <IconBtn v-else :icon="item.icon" :title="item.title" :class="item.class" @click="item.click"></IconBtn>
+        </span>
+        <a-dropdown>
+          <template #overlay>
+            <a-menu>
+              <a-menu-item v-for="item in instanceOperations" :key="item.title" @click="item.click">
+                <component :is="item.icon"></component>
+                <span>&nbsp;{{ item.title }}</span>
+              </a-menu-item>
+            </a-menu>
+          </template>
+          <span>
+            <IconBtn :icon="DownOutlined" :title="t('TXT_CODE_fe731dfc')"></IconBtn>
+          </span>
+        </a-dropdown>
+      </div>
+      <div class="buttons-section" v-else>
         <a-dropdown>
           <template #overlay>
             <a-menu>
@@ -448,26 +416,13 @@ const terminalTopTags = computed<TagInfo[]>(() => {
               </a-menu-item>
             </a-menu>
           </template>
-          <a-button size="large" class="modern-action-btn btn-primary-gradient mobile-dropdown-btn">
-            <template #icon>
-              <DownOutlined />
-            </template>
-            {{ t("TXT_CODE_fe731dfc") }}
-          </a-button>
+          <IconBtn :icon="DownOutlined" :title="t('TXT_CODE_fe731dfc')"></IconBtn>
         </a-dropdown>
       </div>
     </div>
 
-    <!-- Terminal in Modern Glass Container -->
-    <div class="glass-terminal-wrapper">
-      <div class="terminal-glass-header">
-        <div class="terminal-dots">
-          <span class="dot dot-red"></span>
-          <span class="dot dot-yellow"></span>
-          <span class="dot dot-green"></span>
-        </div>
-        <span class="terminal-title">Terminal</span>
-      </div>
+    <!-- ROW 2: Console -->
+    <div class="console-section">
       <TerminalCore
         v-if="instanceId && daemonId && hasConsoleAccess"
         :use-terminal-hook="terminalHook"
@@ -475,10 +430,45 @@ const terminalTopTags = computed<TagInfo[]>(() => {
         :daemon-id="daemonId"
         :height="card.height"
       />
-      <div v-else-if="!hasConsoleAccess" style="padding: 40px; text-align: center; color: var(--color-red-5);">
+      <div v-else-if="!hasConsoleAccess" class="access-denied">
         <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
         <h3>Access Denied</h3>
         <p>You do not have permission to access the console for this instance.</p>
+      </div>
+    </div>
+
+    <!-- ROW 3: Manage Instance -->
+    <div class="manage-section">
+      <div class="manage-header">
+        <h3>Manage Instance</h3>
+      </div>
+      <div class="manage-actions">
+        <template v-for="item in instanceOperations" :key="item.title">
+          <a-button
+            v-if="item.noConfirm"
+            size="small"
+            :type="item.type === 'danger' ? 'primary' : 'default'"
+            :danger="item.type === 'danger'"
+            @click="item.click"
+          >
+            <template #icon>
+              <component :is="item.icon" />
+            </template>
+            {{ item.title }}
+          </a-button>
+          <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
+            <a-button
+              size="small"
+              :type="item.type === 'danger' ? 'primary' : 'default'"
+              :danger="item.type === 'danger'"
+            >
+              <template #icon>
+                <component :is="item.icon" />
+              </template>
+              {{ item.title }}
+            </a-button>
+          </a-popconfirm>
+        </template>
       </div>
     </div>
   </div>
@@ -559,64 +549,139 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
 
 <style lang="scss" scoped>
-// ULTRA MODERN BENTO GRID + GLASSMORPHISM DESIGN
-.bento-terminal-container {
+// COMPACT 3-ROW LAYOUT
+.compact-terminal-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   height: 100%;
   padding: 8px;
 }
 
-// COMPACT INFO HEADER - COMBINED NAME, STATUS, TYPE
-.compact-info-header {
-  position: relative;
-  display: flex;
+// ROW 1: TOP BAR - Header | Stats | Buttons
+.top-bar {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
   align-items: center;
-  gap: 20px;
-  padding: 20px 24px;
+  padding: 16px 20px;
   background: linear-gradient(135deg, rgba(153, 27, 27, 0.03) 0%, rgba(212, 107, 8, 0.03) 100%);
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid rgba(153, 27, 27, 0.1);
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at top right, rgba(153, 27, 27, 0.08), transparent 70%);
-    pointer-events: none;
-  }
 }
 
-.info-content {
-  flex: 1;
+// Header Section
+.header-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.header-info {
   min-width: 0;
 }
 
 .instance-name {
-  margin: 0 0 12px 0;
-  font-size: 28px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
-  filter: drop-shadow(0 2px 8px rgba(255, 140, 66, 0.3));
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.info-chips {
+.status-chips {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
-// STATUS ORB - Cyberpunk Style Animated Indicator
+// Stats Section
+.stats-section {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(153, 27, 27, 0.1);
+}
+
+.stats-placeholder {
+  min-width: 120px;
+  justify-content: center;
+}
+
+.stats-offline {
+  font-size: 12px;
+  color: var(--text-color);
+  opacity: 0.5;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(153, 27, 27, 0.05);
+  }
+}
+
+.stat-icon {
+  font-size: 14px;
+  color: rgba(153, 27, 27, 0.7);
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-color);
+  opacity: 0.5;
+}
+
+.stat-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-color);
+
+  &.value-error {
+    color: var(--color-red-6);
+  }
+
+  &.value-warning {
+    color: var(--color-orange-6);
+  }
+}
+
+// Buttons Section
+.buttons-section {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action-btn-wrapper {
+  display: inline-flex;
+}
+
+// Status Orb (smaller)
 .status-orb {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -625,48 +690,40 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
 .orb-pulse {
   position: absolute;
-  width: 48px;
-  height: 48px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(153, 27, 27, 0.4), rgba(153, 27, 27, 0.1));
-  filter: blur(8px);
+  filter: blur(4px);
   animation: orb-pulse 2s ease-in-out infinite;
 }
 
 .orb-ring {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(153, 27, 27, 0.9), rgba(212, 107, 8, 0.7));
-  box-shadow: 
-    0 0 20px rgba(153, 27, 27, 0.5),
-    inset 0 0 10px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(153, 27, 27, 0.5);
 }
 
 .orb-running {
   .orb-pulse {
     background: radial-gradient(circle, rgba(82, 196, 26, 0.5), rgba(82, 196, 26, 0.1));
-    animation: orb-pulse-green 1.5s ease-in-out infinite;
   }
   .orb-ring {
     background: radial-gradient(circle, #52c41a, #73d13d);
-    box-shadow: 
-      0 0 30px rgba(82, 196, 26, 0.7),
-      inset 0 0 15px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(82, 196, 26, 0.7);
   }
 }
 
 .orb-busy {
   .orb-pulse {
     background: radial-gradient(circle, rgba(255, 193, 7, 0.5), rgba(255, 193, 7, 0.1));
-    animation: orb-pulse-yellow 1s ease-in-out infinite;
   }
   .orb-ring {
     background: radial-gradient(circle, #ffc107, #ffeb3b);
-    box-shadow: 
-      0 0 30px rgba(255, 193, 7, 0.7),
-      inset 0 0 15px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.7);
   }
 }
 
@@ -677,482 +734,121 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   }
   .orb-ring {
     background: radial-gradient(circle, #666, #888);
-    box-shadow: 
-      0 0 10px rgba(100, 100, 100, 0.3),
-      inset 0 0 5px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
   }
 }
 
 @keyframes orb-pulse {
   0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.3); opacity: 0.3; }
+  50% { transform: scale(1.2); opacity: 0.3; }
 }
 
-@keyframes orb-pulse-green {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.4); opacity: 0.3; }
-}
-
-@keyframes orb-pulse-yellow {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.3); opacity: 0.4; }
-}
-
-.meta-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.75) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 140, 66, 0.3);
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-color);
-  box-shadow: 0 3px 12px rgba(255, 140, 66, 0.15);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 140, 66, 0.5);
-    box-shadow: 0 6px 20px rgba(255, 140, 66, 0.25);
-  }
-}
-
-.chip-status {
-  position: relative;
-}
-
-.chip-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #999;
-}
-
-.chip-active .chip-dot {
-  background: #52c41a;
-  box-shadow: 0 0 10px rgba(82, 196, 26, 0.6);
-  animation: dot-pulse 2s ease-in-out infinite;
-}
-
-.chip-busy .chip-dot {
-  background: #ffc107;
-  box-shadow: 0 0 10px rgba(255, 193, 7, 0.6);
-  animation: dot-pulse 1s ease-in-out infinite;
-}
-
-@keyframes dot-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.2); }
-}
-
-// BENTO STATS CARDS
-.bento-stats-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-}
-
-.bento-stat-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(153, 27, 27, 0.15);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 
-      0 8px 24px rgba(153, 27, 27, 0.15),
-      0 0 0 1px rgba(153, 27, 27, 0.1);
-    
-    .bento-stat-icon {
-      transform: scale(1.1) rotate(-5deg);
-    }
-  }
-}
-
-.stat-glow {
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  filter: blur(40px);
-  opacity: 0.15;
-  pointer-events: none;
-}
-
-.glow-error {
-  background: radial-gradient(circle, var(--color-red-5), transparent);
-}
-
-.glow-warning {
-  background: radial-gradient(circle, var(--color-orange-5), transparent);
-}
-
-.glow-default {
-  background: radial-gradient(circle, rgba(153, 27, 27, 0.8), transparent);
-}
-
-.bento-stat-icon {
-  font-size: 32px;
-  color: rgba(153, 27, 27, 0.7);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.bento-stat-info {
+// ROW 2: Console Section
+.console-section {
   flex: 1;
-}
-
-.bento-stat-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-color);
-  opacity: 0.5;
-  margin-bottom: 4px;
-}
-
-.bento-stat-value {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-color);
-  line-height: 1;
-
-  &.value-error {
-    color: var(--color-red-6);
-    text-shadow: 0 0 10px rgba(255, 77, 79, 0.3);
-  }
-
-  &.value-warning {
-    color: var(--color-orange-6);
-    text-shadow: 0 0 10px rgba(250, 173, 20, 0.3);
-  }
-}
-
-// MANAGE INSTANCE PANEL - FULL WIDTH
-.manage-instance-panel {
-  position: relative;
-  width: 100%;
-  padding: 20px 24px;
-  background: linear-gradient(135deg, rgba(153, 27, 27, 0.03) 0%, rgba(212, 107, 8, 0.03) 100%);
-  border-radius: 16px;
-  border: 1px solid rgba(153, 27, 27, 0.1);
+  min-height: 300px;
+  background: #1e1e1e;
+  border-radius: 8px;
   overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at bottom left, rgba(153, 27, 27, 0.08), transparent 70%);
-    pointer-events: none;
-  }
+  border: 1px solid var(--card-border-color);
 }
 
-.panel-header {
-  margin-bottom: 16px;
+.access-denied {
+  padding: 40px;
+  text-align: center;
+  color: var(--color-red-5);
+}
+
+// ROW 3: Manage Section
+.manage-section {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(153, 27, 27, 0.1);
+}
+
+.manage-header {
+  margin-bottom: 10px;
 
   h3 {
     margin: 0;
-    font-size: 18px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.3px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-color);
   }
 }
 
-.action-buttons-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  align-content: start;
-}
-
-.modern-action-btn {
-  position: relative;
-  width: 100%;
-  height: auto;
-  min-height: 54px;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-
-  :deep(.anticon) {
-    font-size: 18px;
-    transition: transform 0.3s ease;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-
-    &::before {
-      opacity: 1;
-    }
-
-    :deep(.anticon) {
-      transform: scale(1.12);
-    }
-  }
-
-  &:active {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
-  }
-}
-
-.btn-primary-gradient {
-  background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
-  border-color: rgba(255, 140, 66, 0.5);
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-
-  &:hover {
-    background: linear-gradient(135deg, #FF9C52 0%, #FF7B45 100%);
-    border-color: rgba(255, 140, 66, 0.7);
-    color: #fff;
-  }
-
-  &:active,
-  &:focus {
-    background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
-    color: #fff;
-  }
-}
-
-.btn-danger-gradient {
-  background: linear-gradient(135deg, rgba(207, 19, 34, 0.9) 0%, rgba(130, 0, 20, 0.9) 100%);
-  border-color: rgba(207, 19, 34, 0.5);
-  color: #fff;
-  font-weight: 700;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-
-  :deep(.anticon) {
-    color: #fff;
-  }
-
-  &:hover {
-    background: linear-gradient(135deg, rgba(245, 34, 45, 1) 0%, rgba(168, 7, 26, 1) 100%);
-    border-color: rgba(245, 34, 45, 0.6);
-    color: #fff;
-
-    :deep(.anticon) {
-      color: #fff;
-    }
-  }
-
-  &:active,
-  &:focus {
-    background: linear-gradient(135deg, rgba(207, 19, 34, 0.9) 0%, rgba(130, 0, 20, 0.9) 100%);
-    color: #fff;
-  }
-}
-
-.btn-default-modern {
-  background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
-  border-color: rgba(255, 140, 66, 0.4);
-  color: #D4AF37;
-  font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-
-  :deep(.anticon) {
-    color: #D4AF37;
-  }
-
-  &:hover {
-    background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
-    border-color: rgba(255, 140, 66, 0.6);
-    color: #FFD700;
-
-    :deep(.anticon) {
-      color: #FFD700;
-    }
-  }
-
-  &:active,
-  &:focus {
-    background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
-    color: #D4AF37;
-  }
-}
-
-.btn-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.mobile-actions-modern {
-  width: 100%;
-
-  .mobile-dropdown-btn {
-    width: 100%;
-  }
-}
-
-// GLASS TERMINAL WRAPPER - macOS Style
-.glass-terminal-wrapper {
-  width: 100%;
-  background: rgba(30, 30, 30, 0.95);
-  backdrop-filter: blur(40px) saturate(150%);
-  -webkit-backdrop-filter: blur(40px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.terminal-glass-header {
+.manage-actions {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: rgba(40, 40, 40, 0.6);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.terminal-dots {
-  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-  
-  &.dot-red {
-    background: linear-gradient(135deg, #ff5f57, #ff3b30);
-  }
-  
-  &.dot-yellow {
-    background: linear-gradient(135deg, #ffbd2e, #ff9500);
-  }
-  
-  &.dot-green {
-    background: linear-gradient(135deg, #28c840, #30d158);
-  }
-}
-
-.terminal-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-  letter-spacing: 0.3px;
 }
 
 // MOBILE OPTIMIZATIONS
 @media (max-width: 992px) {
-  .compact-info-header {
-    padding: 20px;
-  }
-
-  .manage-instance-panel {
-    padding: 20px;
-  }
-
-  .action-buttons-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 10px;
-  }
-
-  .modern-action-btn {
-    min-height: 50px;
-    font-size: 13px;
-  }
-
-  .instance-name {
-    font-size: 22px;
-  }
-
-  .status-orb {
-    width: 56px;
-    height: 56px;
-  }
-
-  .orb-ring,
-  .orb-pulse {
-    width: 40px;
-    height: 40px;
-  }
-}
-
-@media (max-width: 576px) {
-  .bento-stats-container {
+  .top-bar {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .compact-info-header {
-    padding: 16px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+  .header-section {
+    justify-content: center;
   }
 
-  .manage-instance-panel {
-    padding: 16px;
+  .stats-section {
+    justify-content: center;
   }
 
-  .action-buttons-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .modern-action-btn {
-    min-height: 46px;
-    font-size: 12px;
+  .buttons-section {
+    justify-content: center;
   }
 
   .instance-name {
     font-size: 18px;
+    text-align: center;
   }
 
-  .bento-terminal-container {
+  .status-chips {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .compact-terminal-container {
     padding: 4px;
-    gap: 12px;
+    gap: 8px;
+  }
+
+  .top-bar {
+    padding: 12px;
+  }
+
+  .stats-section {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .instance-name {
+    font-size: 16px;
   }
 
   .status-orb {
-    width: 48px;
-    height: 48px;
+    width: 32px;
+    height: 32px;
   }
 
   .orb-ring,
   .orb-pulse {
-    width: 36px;
-    height: 36px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .manage-section {
+    padding: 10px 12px;
+  }
+
+  .manage-actions {
+    gap: 6px;
   }
 }
 
