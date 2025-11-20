@@ -192,6 +192,8 @@ router.delete(
           },
           "error"
         );
+        // Clean up instance-specific logs
+        operationLogger.deleteInstanceLogs(e.instanceUuid);
       });
       ctx.body = result;
     } catch (err) {
