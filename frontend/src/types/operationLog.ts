@@ -51,7 +51,7 @@ export type InstanceFileUploadOptions = {
 
 export type InstanceFileUpdateOptions = {
   type: "instance_file_update";
-  file: string;
+  file?: string;
 } & InstanceGeneralOptions;
 
 export type InstanceFileDownloadOptions = {
@@ -66,10 +66,12 @@ export type InstanceFileDeleteOptions = {
 
 export type InstanceFileCopyOptions = {
   type: "instance_file_copy";
+  targets?: string[];
 } & InstanceGeneralOptions;
 
 export type InstanceFileMoveOptions = {
   type: "instance_file_move";
+  targets?: string[];
 } & InstanceGeneralOptions;
 
 export type InstanceFileChmodOptions = {
