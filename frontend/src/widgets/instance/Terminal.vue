@@ -53,6 +53,20 @@ import { useTerminal, type UseTerminalHook } from "../../hooks/useTerminal";
 import { arrayFilter } from "../../tools/array";
 import { parseTimestamp } from "../../tools/time";
 
+// Format date with month name
+const formatDateWithMonth = (timestamp: number | string | undefined) => {
+  if (!timestamp) return '-';
+  const date = new Date(timestamp);
+  if (isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
 const props = defineProps<{
   card: LayoutCard;
 }>();
@@ -388,7 +402,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
             <CalendarOutlined class="stat-icon" />
             <div class="stat-content">
               <span class="stat-label">{{ t("TXT_CODE_ae747cc0") }}</span>
-              <span class="stat-value">{{ parseTimestamp(instanceInfo?.config.endTime) || t("TXT_CODE_e3a77a77") }}</span>
+              <span class="stat-value">{{ formatDateWithMonth(instanceInfo?.config.endTime) }}</span>
             </div>
           </div>
           <!-- Creation date -->
@@ -396,7 +410,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
             <CalendarOutlined class="stat-icon" />
             <div class="stat-content">
               <span class="stat-label">{{ t("TXT_CODE_8b8e08a6") }}</span>
-              <span class="stat-value">{{ parseTimestamp(instanceInfo?.config.createDatetime) || '-' }}</span>
+              <span class="stat-value">{{ formatDateWithMonth(instanceInfo?.config.createDatetime) }}</span>
             </div>
           </div>
           <!-- Last access -->
@@ -404,7 +418,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
             <ClockCircleOutlined class="stat-icon" />
             <div class="stat-content">
               <span class="stat-label">{{ t("TXT_CODE_46f575ae") }}</span>
-              <span class="stat-value">{{ parseTimestamp(instanceInfo?.config.lastDatetime) || '-' }}</span>
+              <span class="stat-value">{{ formatDateWithMonth(instanceInfo?.config.lastDatetime) }}</span>
             </div>
           </div>
           <!-- Process type -->
@@ -428,12 +442,30 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
       <!-- Buttons Section -->
       <div class="buttons-section" v-if="!isPhone">
-        <span v-for="item in quickOperations" :key="item.title" class="action-btn-wrapper">
+        <template v-for="item in quickOperations" :key="item.title">
           <a-popconfirm v-if="!item.noConfirm" :title="t('TXT_CODE_276756b2')" @confirm="item.click">
-            <IconBtn :icon="item.icon" :title="item.title" :class="item.class"></IconBtn>
+            <a-button
+              size="large"
+              :class="['action-btn', item.class, item.props?.danger ? 'btn-danger' : '']"
+            >
+              <template #icon>
+                <component :is="item.icon" />
+              </template>
+              {{ item.title }}
+            </a-button>
           </a-popconfirm>
-          <IconBtn v-else :icon="item.icon" :title="item.title" :class="item.class" @click="item.click"></IconBtn>
-        </span>
+          <a-button
+            v-else
+            size="large"
+            :class="['action-btn', item.class, item.props?.danger ? 'btn-danger' : '']"
+            @click="item.click"
+          >
+            <template #icon>
+              <component :is="item.icon" />
+            </template>
+            {{ item.title }}
+          </a-button>
+        </template>
         <a-dropdown>
           <template #overlay>
             <a-menu>
@@ -443,9 +475,12 @@ const terminalTopTags = computed<TagInfo[]>(() => {
               </a-menu-item>
             </a-menu>
           </template>
-          <span>
-            <IconBtn :icon="DownOutlined" :title="t('TXT_CODE_fe731dfc')"></IconBtn>
-          </span>
+          <a-button size="large" class="action-btn">
+            <template #icon>
+              <DownOutlined />
+            </template>
+            {{ t("TXT_CODE_fe731dfc") }}
+          </a-button>
         </a-dropdown>
       </div>
       <div class="buttons-section" v-else>
@@ -462,7 +497,12 @@ const terminalTopTags = computed<TagInfo[]>(() => {
               </a-menu-item>
             </a-menu>
           </template>
-          <IconBtn :icon="DownOutlined" :title="t('TXT_CODE_fe731dfc')"></IconBtn>
+          <a-button size="large" class="action-btn">
+            <template #icon>
+              <DownOutlined />
+            </template>
+            {{ t("TXT_CODE_fe731dfc") }}
+          </a-button>
         </a-dropdown>
       </div>
     </div>
@@ -662,69 +702,76 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 .buttons-section {
   display: flex;
   align-items: center;
-  gap: 10px;
-
-  :deep(.icon-btn) {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.2) 0%, rgba(212, 175, 55, 0.2) 100%);
-    border: 2px solid rgba(255, 140, 66, 0.5);
-    color: #D4AF37;
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 12px rgba(255, 140, 66, 0.3);
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(255, 140, 66, 0.4) 0%, rgba(212, 175, 55, 0.4) 100%);
-      border-color: #FF8C42;
-      box-shadow: 0 0 25px rgba(255, 140, 66, 0.5);
-      transform: translateY(-2px);
-    }
-
-    .anticon {
-      color: #FF8C42;
-      font-size: 18px;
-    }
-  }
-
-  // Green for Start button
-  :deep(.button-color-success .icon-btn) {
-    background: linear-gradient(135deg, rgba(82, 196, 26, 0.3) 0%, rgba(115, 209, 61, 0.3) 100%);
-    border-color: rgba(82, 196, 26, 0.6);
-    box-shadow: 0 0 12px rgba(82, 196, 26, 0.3);
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(82, 196, 26, 0.5) 0%, rgba(115, 209, 61, 0.5) 100%);
-      border-color: #52c41a;
-      box-shadow: 0 0 25px rgba(82, 196, 26, 0.5);
-    }
-
-    .anticon {
-      color: #52c41a;
-    }
-  }
-
-  // Red for Stop/Danger button
-  :deep([danger="true"] .icon-btn),
-  :deep(.ant-btn-dangerous .icon-btn) {
-    background: linear-gradient(135deg, rgba(255, 77, 79, 0.3) 0%, rgba(207, 19, 34, 0.3) 100%);
-    border-color: rgba(255, 77, 79, 0.6);
-    box-shadow: 0 0 12px rgba(255, 77, 79, 0.3);
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(255, 77, 79, 0.5) 0%, rgba(207, 19, 34, 0.5) 100%);
-      border-color: #ff4d4f;
-      box-shadow: 0 0 25px rgba(255, 77, 79, 0.5);
-    }
-
-    .anticon {
-      color: #ff4d4f;
-    }
-  }
+  gap: 12px;
 }
 
-.action-btn-wrapper {
-  display: inline-flex;
+// Industry Standard Button Styling
+.action-btn {
+  background: linear-gradient(135deg, rgba(40, 40, 40, 0.95) 0%, rgba(50, 50, 50, 0.95) 100%) !important;
+  border: 2px solid rgba(255, 140, 66, 0.5) !important;
+  color: #D4AF37 !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  height: 44px !important;
+  padding: 0 20px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 140, 66, 0.2) !important;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(50, 50, 50, 1) 0%, rgba(60, 60, 60, 1) 100%) !important;
+    border-color: #FF8C42 !important;
+    color: #FFD700 !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 140, 66, 0.4) !important;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  :deep(.anticon) {
+    color: #FF8C42 !important;
+    font-size: 16px !important;
+  }
+
+  // Green Start button
+  &.button-color-success {
+    background: linear-gradient(135deg, rgba(82, 196, 26, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
+    border-color: rgba(82, 196, 26, 0.6) !important;
+    color: #52c41a !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(82, 196, 26, 0.3) !important;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(82, 196, 26, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
+      border-color: #52c41a !important;
+      color: #73d13d !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(82, 196, 26, 0.5) !important;
+    }
+
+    :deep(.anticon) {
+      color: #52c41a !important;
+    }
+  }
+
+  // Red Stop/Danger button
+  &.btn-danger {
+    background: linear-gradient(135deg, rgba(255, 77, 79, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
+    border-color: rgba(255, 77, 79, 0.6) !important;
+    color: #ff4d4f !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 77, 79, 0.3) !important;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(255, 77, 79, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
+      border-color: #ff4d4f !important;
+      color: #ff7875 !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 77, 79, 0.5) !important;
+    }
+
+    :deep(.anticon) {
+      color: #ff4d4f !important;
+    }
+  }
 }
 
 // Status Orb (smaller)
