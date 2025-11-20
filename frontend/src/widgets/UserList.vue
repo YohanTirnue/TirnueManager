@@ -349,6 +349,11 @@ const isUserSelected = (uuid: string) => {
   return selectedUsers.value.includes(uuid);
 };
 
+const getUserNameById = (uuid: string) => {
+  const user = data.value.data.find(u => u.uuid === uuid);
+  return user?.userName || null;
+};
+
 onMounted(async () => {
   fetchData();
 });
@@ -543,6 +548,37 @@ onMounted(async () => {
               </div>
             </div>
           </div>
+      </div>
+
+      <!-- Sub-Users Section (Edit Mode Only) -->
+      <div v-if="!isAddMode && formData.subUsers && formData.subUsers.length > 0" class="user-settings-card">
+        <div class="permissions-header">
+          <h4 class="permissions-main-title">
+            <TeamOutlined style="margin-right: 8px" />
+            Sub-Users ({{ formData.subUsers.length }})
+          </h4>
+          <p class="permissions-main-subtitle">Sub-users created by this parent user</p>
+        </div>
+        <div class="sub-users-list">
+          <a-list
+            :data-source="formData.subUsers"
+            :grid="{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4 }"
+          >
+            <template #renderItem="{ item }">
+              <a-list-item>
+                <a-card size="small">
+                  <div class="sub-user-card">
+                    <UserOutlined class="sub-user-icon" />
+                    <div class="sub-user-info">
+                      <div class="sub-user-name">{{ getUserNameById(item.uuid) || 'Unknown' }}</div>
+                      <div class="sub-user-instance">Instance: {{ item.instanceUuid.substring(0, 8) }}...</div>
+                    </div>
+                  </div>
+                </a-card>
+              </a-list-item>
+            </template>
+          </a-list>
+        </div>
       </div>
     </a-form>
   </a-modal>
@@ -1662,5 +1698,36 @@ onMounted(async () => {
   background: rgba(82, 196, 26, 0.1);
   color: #52c41a;
   border: 1px solid rgba(82, 196, 26, 0.3);
+}
+
+.sub-users-list {
+  margin-top: 16px;
+}
+
+.sub-user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sub-user-icon {
+  font-size: 24px;
+  color: #1890ff;
+}
+
+.sub-user-info {
+  flex: 1;
+}
+
+.sub-user-name {
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.sub-user-instance {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-top: 4px;
 }
 </style>

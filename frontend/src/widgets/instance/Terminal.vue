@@ -5,6 +5,7 @@ import IconBtn from "@/components/IconBtn.vue";
 import PermissionBanner from "@/components/PermissionBanner.vue";
 import TerminalCore from "@/components/TerminalCore.vue";
 import TerminalTags from "@/components/TerminalTags.vue";
+import SubUserManager from "@/components/SubUserManager.vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { INSTANCE_TYPE_TRANSLATION, verifyEULA } from "@/hooks/useInstance";
 import { useScreen } from "@/hooks/useScreen";
@@ -38,11 +39,12 @@ import {
   MoneyCollectOutlined,
   PauseCircleOutlined,
   PlayCircleOutlined,
-  RedoOutlined
+  RedoOutlined,
+  TeamOutlined
 } from "@ant-design/icons-vue";
 import { useLocalStorage } from "@vueuse/core";
 import prettyBytes, { type Options as PrettyOptions } from "pretty-bytes";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { TagInfo } from "../../components/interface";
 import { GLOBAL_INSTANCE_NAME } from "../../config/const";
 import { useTerminal, type UseTerminalHook } from "../../hooks/useTerminal";
@@ -81,6 +83,13 @@ const instanceTypeText = computed(
 const hasConsoleAccess = computed(() =>
   canPerformInstanceAction(instanceId ?? "", "canAccessConsole")
 );
+
+// Sub-user management
+const subUserManagerVisible = ref(false);
+const canManageSubUsers = computed(() => {
+  const userInfo = state.userInfo;
+  return userInfo && !userInfo.isSubUser && (userInfo.permission === 10 || userInfo.permission === 1);
+});
 
 const { execute: requestOpenInstance, isLoading: isOpenInstanceLoading } = openInstance();
 
@@ -238,6 +247,16 @@ const instanceOperations = computed(() =>
       },
       props: {},
       condition: () => !!instanceInfo.value?.config?.category
+    },
+    {
+      title: "Manage Sub-Users",
+      icon: TeamOutlined,
+      noConfirm: true,
+      click: () => {
+        subUserManagerVisible.value = true;
+      },
+      props: {},
+      condition: () => canManageSubUsers.value
     }
   ])
 );
@@ -528,6 +547,13 @@ const terminalTopTags = computed<TagInfo[]>(() => {
       </div>
     </template>
   </CardPanel>
+
+  <!-- Sub-User Manager Modal -->
+  <SubUserManager
+    v-model:visible="subUserManagerVisible"
+    :daemon-id="daemonId ?? ''"
+    :instance-uuid="instanceId ?? ''"
+  />
 </template>
 
 
