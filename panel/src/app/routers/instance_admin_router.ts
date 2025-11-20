@@ -169,7 +169,12 @@ router.delete(
       userSystem.deleteUserInstances(null, instanceIds, true);
       // Clean up all sub-users associated with these instances
       for (const instanceUuid of instanceUuids) {
-        await subUserService.deleteInstanceSubUsers(instanceUuid, daemonId);
+        try {
+          await subUserService.deleteInstanceSubUsers(instanceUuid, daemonId);
+        } catch (error: any) {
+          // Log error but continue with other deletions
+          logger.error(`Failed to delete sub-users for instance ${instanceUuid}: ${error.message}`);
+        }
       }
       const result = await new RemoteRequest(remoteService).request("instance/delete", {
         instanceUuids,

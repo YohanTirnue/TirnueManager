@@ -1,6 +1,7 @@
 import { v4 } from "uuid";
 import Storage from "../common/storage/sys_storage";
 import { User, IUserApp } from "../entity/user";
+import type { UserPermissions } from "../entity/entity_interface";
 import userSystem from "./user_service";
 import { logger } from "./log";
 import { $t } from "../i18n";
@@ -85,7 +86,7 @@ export class SubUserService {
     userData: {
       userName: string;
       passWord: string;
-      permissions?: any;
+      permissions?: UserPermissions;
     }
   ): Promise<User> {
     const parentUser = userSystem.getInstance(parentUuid);
@@ -164,7 +165,7 @@ export class SubUserService {
   async updateSubUserPermissions(
     parentUuid: string,
     subUserUuid: string,
-    permissions: any
+    permissions: UserPermissions
   ): Promise<void> {
     const parentUser = userSystem.getInstance(parentUuid);
     const subUser = userSystem.getInstance(subUserUuid);

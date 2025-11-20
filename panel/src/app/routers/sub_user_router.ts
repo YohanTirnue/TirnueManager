@@ -2,7 +2,7 @@ import Koa from "koa";
 import Router from "@koa/router";
 import permission from "../middleware/permission";
 import validator from "../middleware/validator";
-import { ROLE } from "../entity/user";
+import { ROLE, type User } from "../entity/user";
 import { getUserUuid } from "../service/passport_service";
 import {
   canManageSubUsersByUuid,
@@ -48,7 +48,7 @@ router.get(
     }
 
     // Remove sensitive data
-    const sanitizedSubUsers = subUsers.map((user: any) => ({
+    const sanitizedSubUsers = subUsers.map((user: User) => ({
       uuid: user.uuid,
       userName: user.userName,
       registerTime: user.registerTime,
