@@ -538,7 +538,6 @@ defineExpose({
                     :disabled="isGlobalTerminal"
                     checked-value="docker"
                     un-checked-value="general"
-                    size="large"
                   >
                     <template #checkedChildren><check-outlined /></template>
                     <template #unCheckedChildren><close-outlined /></template>
