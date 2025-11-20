@@ -383,7 +383,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
               </div>
             </div>
           </template>
-          <!-- Basic instance info -->
+          <!-- Expiration date -->
           <div class="stat-item" v-if="instanceInfo?.config.endTime">
             <CalendarOutlined class="stat-icon" />
             <div class="stat-content">
@@ -391,11 +391,36 @@ const terminalTopTags = computed<TagInfo[]>(() => {
               <span class="stat-value">{{ parseTimestamp(instanceInfo?.config.endTime) || t("TXT_CODE_e3a77a77") }}</span>
             </div>
           </div>
+          <!-- Creation date -->
+          <div class="stat-item" v-if="instanceInfo?.config.createDatetime">
+            <CalendarOutlined class="stat-icon" />
+            <div class="stat-content">
+              <span class="stat-label">{{ t("TXT_CODE_8b8e08a6") }}</span>
+              <span class="stat-value">{{ parseTimestamp(instanceInfo?.config.createDatetime) || '-' }}</span>
+            </div>
+          </div>
+          <!-- Last access -->
           <div class="stat-item">
             <ClockCircleOutlined class="stat-icon" />
             <div class="stat-content">
               <span class="stat-label">{{ t("TXT_CODE_46f575ae") }}</span>
               <span class="stat-value">{{ parseTimestamp(instanceInfo?.config.lastDatetime) || '-' }}</span>
+            </div>
+          </div>
+          <!-- Process type -->
+          <div class="stat-item" v-if="instanceInfo?.config.processType">
+            <CloudServerOutlined class="stat-icon" />
+            <div class="stat-content">
+              <span class="stat-label">Process</span>
+              <span class="stat-value">{{ instanceInfo?.config.processType === 'docker' ? 'Docker' : 'General' }}</span>
+            </div>
+          </div>
+          <!-- Encoding -->
+          <div class="stat-item" v-if="instanceInfo?.config.oe">
+            <InfoCircleOutlined class="stat-icon" />
+            <div class="stat-content">
+              <span class="stat-label">Encoding</span>
+              <span class="stat-value">{{ instanceInfo?.config.oe?.toUpperCase() }}</span>
             </div>
           </div>
         </div>
