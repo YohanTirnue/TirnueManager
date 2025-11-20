@@ -788,6 +788,95 @@ const startLoginAnimation = () => {
   }
 }
 
+// Landscape mode fixes
+@media (max-height: 600px) and (orientation: landscape) {
+  .modern-login-page {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .login-container {
+    height: auto;
+    min-height: 100vh;
+    max-height: none;
+  }
+
+  .form-section {
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .form-header {
+    margin-bottom: 20px;
+
+    h2 {
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .login-form {
+    gap: 16px;
+  }
+
+  .form-inputs {
+    gap: 16px;
+  }
+
+  .input-group {
+    gap: 4px;
+
+    label {
+      font-size: 12px;
+    }
+  }
+
+  .modern-input {
+    :deep(.ant-input),
+    :deep(.ant-input-password),
+    :deep(.ant-input-affix-wrapper) {
+      padding: 8px 12px !important;
+      font-size: 14px !important;
+    }
+  }
+
+  .form-actions {
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  .login-button {
+    height: 44px;
+    font-size: 14px;
+  }
+
+  .secondary-button {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .status-screen {
+    padding: 30px 20px;
+
+    .status-icon {
+      font-size: 50px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 20px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+}
+
 // Override autofill styles - prevent white background
 :deep(input:-webkit-autofill),
 :deep(input:-webkit-autofill:hover),

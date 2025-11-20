@@ -178,7 +178,7 @@ onMounted(() => {
           <ul class="service-features">
             <li><CheckCircleOutlined /> Server setup included</li>
             <li><CheckCircleOutlined /> Basic mod support</li>
-            <li><CheckCircleOutlined /> Regular backups</li>
+            <li><CheckCircleOutlined /> Easy file manager</li>
             <li><CheckCircleOutlined /> Direct support</li>
           </ul>
           <a-button type="primary" block class="service-btn" @click="goToLogin">
