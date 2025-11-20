@@ -131,12 +131,12 @@
         // Fade out rings and text
         if (orbitalLoader) {
           orbitalLoader.querySelectorAll(".orbit-ring").forEach(ring => {
-            ring.style.transition = "opacity 0.5s ease";
+            ring.style.transition = "opacity 0.4s ease-out";
             ring.style.opacity = "0";
           });
         }
         if (loadingText) {
-          loadingText.style.transition = "opacity 0.5s ease";
+          loadingText.style.transition = "opacity 0.4s ease-out";
           loadingText.style.opacity = "0";
         }
 
@@ -152,72 +152,60 @@
             logoElement.style.animation = "none";
             logoElement.style.filter = "drop-shadow(0 0 12px rgba(255, 165, 0, 0.8))";
 
-            // MATHEMATICAL APPROACH: Use pure transform-based animation
-            // Current state: logo is centered at 50vw, 50vh using translate(-50%, -50%)
-            // Target state: logo should be at 25vw, 35vh (still centered on that point)
-
             // Get current viewport dimensions
             const vw = window.innerWidth;
             const vh = window.innerHeight;
 
             // Current center position (in viewport coordinates)
-            const currentX = vw * 0.5;  // 50vw
-            const currentY = vh * 0.5;  // 50vh
+            const currentX = vw * 0.5;
+            const currentY = vh * 0.5;
 
             // Target center position
-            const targetX = vw * 0.25;  // 25vw (middle of left section)
-            const targetY = vh * 0.35;  // 35vh (upper-middle)
+            const targetX = vw * 0.25;
+            const targetY = vh * 0.35;
 
-            // Calculate the translation needed (in pixels)
-            const deltaX = targetX - currentX;  // Will be negative (move left)
-            const deltaY = targetY - currentY;  // Will be negative (move up)
+            // Calculate the translation needed
+            const deltaX = targetX - currentX;
+            const deltaY = targetY - currentY;
 
-            // Convert logo to fixed positioning to break out of container
+            // Convert logo to fixed positioning
             logoElement.style.position = "fixed";
             logoElement.style.top = "50%";
             logoElement.style.left = "50%";
             logoElement.style.margin = "0";
             logoElement.style.zIndex = "10000";
-
-            // Start with current transform (centered)
             logoElement.style.transform = "translate(-50%, -50%)";
 
-            // Force a reflow to ensure the position change is applied
+            // Force reflow
             logoElement.offsetHeight;
 
-            // Animate to target position using pure transform
+            // Animate to target position
             setTimeout(() => {
-              logoElement.style.transition = "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)";
-
-              // Apply translation: translate(horizontal, vertical)
-              // We need to move deltaX pixels horizontally and deltaY pixels vertically
-              // While keeping the element centered on that point (-50%, -50%)
+              logoElement.style.transition = "transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.7s ease-out";
               logoElement.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px))`;
-
-              // Scale up to final size
               logoElement.style.width = "120px";
               logoElement.style.height = "120px";
               logoElement.style.filter = "drop-shadow(0 10px 30px rgba(255, 140, 66, 0.4))";
-            }, 50);
+            }, 30);
 
-            // Signal login page to show content at the right time
+            // Signal login page after logo starts moving
             setTimeout(() => {
               window.loginAnimationReady = true;
               window.dispatchEvent(new Event("login-animation-start"));
-            }, 200);
+            }, 100);
 
-            // Hide loading logo and show login logo after animation completes
+            // Fade out loading logo smoothly AFTER login logo is in place
             setTimeout(() => {
+              logoElement.style.transition = "opacity 0.4s ease-out";
               logoElement.style.opacity = "0";
-              logoElement.style.transition = "opacity 0.3s ease";
-            }, 850);
+            }, 700);
           }
 
           // Remove loading container after all animations complete
           setTimeout(() => {
             loadingContainer.style.display = "none";
-          }, 2000);
-        }, 500);
+          }, 1500);
+        }, 400);
       };
     </script>
   </head>

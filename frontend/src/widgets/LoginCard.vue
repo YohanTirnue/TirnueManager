@@ -106,20 +106,20 @@ onMounted(async () => {
 });
 
 const startLoginAnimation = () => {
-  // Step 1: Show logo after loading logo has moved to position and faded
+  // Step 1: Show logo (sync with loading logo fade out at 700ms)
   setTimeout(() => {
     showLogo.value = true;
-  }, 650);
+  }, 600);
 
-  // Step 2: Pop up "Tirnue" text
+  // Step 2: Show brand name and features
   setTimeout(() => {
     showBrandName.value = true;
-  }, 1100);
+  }, 900);
 
   // Step 3: Fade in login form
   setTimeout(() => {
     showLoginForm.value = true;
-  }, 1500);
+  }, 1200);
 };
 </script>
 
@@ -386,19 +386,18 @@ const startLoginAnimation = () => {
   max-width: 500px;
 }
 
-// Animated Logo Container - Simplified to blur transition only
+// Animated Logo Container - Smooth fade and scale
 .brand-logo-container {
   display: flex;
   justify-content: center;
   margin-bottom: 32px;
   opacity: 0;
-  filter: blur(10px);
-  transition: opacity 0.6s ease, filter 0.6s ease;
+  transform: scale(0.9);
+  transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
-  // Will be shown via inline style or class
   &.show {
     opacity: 1;
-    filter: blur(0);
+    transform: scale(1);
   }
 }
 
@@ -408,15 +407,15 @@ const startLoginAnimation = () => {
   filter: drop-shadow(0 10px 25px rgba(255, 140, 66, 0.3));
 }
 
-// Animated Brand Name - Simplified to blur transition only
+// Animated Brand Name - Smooth fade and slide
 .brand-name-container {
   opacity: 0;
-  filter: blur(10px);
-  transition: opacity 0.6s ease, filter 0.6s ease;
+  transform: translateY(20px);
+  transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   &.show {
     opacity: 1;
-    filter: blur(0);
+    transform: translateY(0);
   }
 }
 
@@ -467,12 +466,12 @@ const startLoginAnimation = () => {
   margin-bottom: 48px;
   margin-top: 48px;
   opacity: 0;
-  filter: blur(10px);
-  transition: opacity 0.6s ease 0.3s, filter 0.6s ease 0.3s;
+  transform: translateY(15px);
+  transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s;
 
   &.show {
     opacity: 1;
-    filter: blur(0);
+    transform: translateY(0);
   }
 }
 
@@ -546,12 +545,12 @@ const startLoginAnimation = () => {
   width: 100%;
   max-width: 420px;
   opacity: 0;
-  filter: blur(10px);
-  transition: opacity 0.6s ease, filter 0.6s ease;
+  transform: translateX(30px);
+  transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   &.form-visible {
     opacity: 1;
-    filter: blur(0);
+    transform: translateX(0);
   }
 }
 
@@ -706,12 +705,12 @@ const startLoginAnimation = () => {
   text-align: center;
   padding: 60px 20px;
   opacity: 0;
-  filter: blur(10px);
-  transition: opacity 0.5s ease, filter 0.5s ease;
+  transform: scale(0.95);
+  transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   &.show {
     opacity: 1;
-    filter: blur(0);
+    transform: scale(1);
   }
 
   .status-icon {
@@ -721,16 +720,10 @@ const startLoginAnimation = () => {
 
   .loading-icon {
     color: #FF8C42;
-    opacity: 1;
-    filter: blur(0);
-    transition: opacity 0.4s ease, filter 0.4s ease;
   }
 
   .success-icon {
     color: #D4AF37;
-    opacity: 1;
-    filter: blur(0);
-    transition: opacity 0.4s ease, filter 0.4s ease;
   }
 
   h3 {
