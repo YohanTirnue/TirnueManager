@@ -368,15 +368,19 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
       <!-- Basic Info Section (Stats) -->
       <div class="stats-section" v-if="!isStopped && terminalTopTags.length">
-        <div v-for="tag in terminalTopTags" :key="tag.label" class="stat-item" @click="tag.onClick">
-          <component :is="tag.icon" class="stat-icon" />
-          <div class="stat-content">
-            <span class="stat-label">{{ tag.label }}</span>
-            <span class="stat-value" :class="`value-${tag.color}`">{{ tag.value }}</span>
+        <div class="stats-title">Basic Information</div>
+        <div class="stats-items">
+          <div v-for="tag in terminalTopTags" :key="tag.label" class="stat-item" @click="tag.onClick">
+            <component :is="tag.icon" class="stat-icon" />
+            <div class="stat-content">
+              <span class="stat-label">{{ tag.label }}</span>
+              <span class="stat-value" :class="`value-${tag.color}`">{{ tag.value }}</span>
+            </div>
           </div>
         </div>
       </div>
       <div class="stats-section stats-placeholder" v-else>
+        <div class="stats-title">Basic Information</div>
         <span class="stats-offline">Instance Offline</span>
       </div>
 
@@ -434,41 +438,6 @@ const terminalTopTags = computed<TagInfo[]>(() => {
         <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
         <h3>Access Denied</h3>
         <p>You do not have permission to access the console for this instance.</p>
-      </div>
-    </div>
-
-    <!-- ROW 3: Manage Instance -->
-    <div class="manage-section">
-      <div class="manage-header">
-        <h3>Manage Instance</h3>
-      </div>
-      <div class="manage-actions">
-        <template v-for="item in instanceOperations" :key="item.title">
-          <a-button
-            v-if="item.noConfirm"
-            size="small"
-            :type="item.type === 'danger' ? 'primary' : 'default'"
-            :danger="item.type === 'danger'"
-            @click="item.click"
-          >
-            <template #icon>
-              <component :is="item.icon" />
-            </template>
-            {{ item.title }}
-          </a-button>
-          <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
-            <a-button
-              size="small"
-              :type="item.type === 'danger' ? 'primary' : 'default'"
-              :danger="item.type === 'danger'"
-            >
-              <template #icon>
-                <component :is="item.icon" />
-              </template>
-              {{ item.title }}
-            </a-button>
-          </a-popconfirm>
-        </template>
       </div>
     </div>
   </div>
@@ -535,17 +504,32 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 // Stats Section
 .stats-section {
   display: flex;
-  gap: 12px;
-  align-items: center;
+  flex-direction: column;
+  gap: 6px;
   padding: 8px 12px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 8px;
   border: 1px solid rgba(153, 27, 27, 0.1);
 }
 
+.stats-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-color);
+  opacity: 0.6;
+}
+
+.stats-items {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 .stats-placeholder {
   min-width: 120px;
-  justify-content: center;
+  text-align: center;
 }
 
 .stats-offline {
@@ -693,31 +677,6 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   color: var(--color-red-5);
 }
 
-// ROW 3: Manage Section
-.manage-section {
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
-  border: 1px solid rgba(153, 27, 27, 0.1);
-}
-
-.manage-header {
-  margin-bottom: 10px;
-
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-color);
-  }
-}
-
-.manage-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 // MOBILE OPTIMIZATIONS
 @media (max-width: 992px) {
   .top-bar {
@@ -775,14 +734,6 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   .orb-pulse {
     width: 24px;
     height: 24px;
-  }
-
-  .manage-section {
-    padding: 10px 12px;
-  }
-
-  .manage-actions {
-    gap: 6px;
   }
 }
 
