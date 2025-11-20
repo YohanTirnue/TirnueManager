@@ -4,9 +4,7 @@ import type { LayoutCard } from "@/types";
 import type { OperationLoggerItem } from "@/types/operationLog";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { getInstanceOperationLog } from "@/services/apis/operationLog";
-import { t } from "@/lang/i18n";
 import {
-  FilterOutlined,
   ReloadOutlined,
   UserOutlined,
   ClockCircleOutlined,
