@@ -63,13 +63,13 @@ onMounted(() => {
           Powered by MCS Manager
         </div>
         <h1 class="hero-title">
-          Enterprise-Grade
+          Your
           <span class="highlight">Game Server</span>
           Hosting
         </h1>
         <p class="hero-subtitle">
-          Deploy, manage, and scale your game servers with industrial-strength infrastructure.
-          Professional hosting solutions for gaming communities worldwide.
+          We're a small startup focused on providing honest, reliable game server hosting.
+          No gimmicks, just straightforward service you can trust.
         </p>
         <div class="hero-actions">
           <a-button type="primary" size="large" class="cta-primary" @click="goToLogin">
@@ -82,18 +82,18 @@ onMounted(() => {
         </div>
         <div class="hero-stats">
           <div class="stat-item">
-            <span class="stat-value">99.9%</span>
-            <span class="stat-label">Uptime</span>
+            <span class="stat-value">Honest</span>
+            <span class="stat-label">Pricing</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-value">24/7</span>
+            <span class="stat-value">Real</span>
             <span class="stat-label">Support</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-value">Global</span>
-            <span class="stat-label">Network</span>
+            <span class="stat-value">Growing</span>
+            <span class="stat-label">Together</span>
           </div>
         </div>
       </div>
@@ -115,78 +115,78 @@ onMounted(() => {
 
     <!-- Features Section -->
     <section class="features-section" :class="{ show: showFeatures }">
-      <h2 class="section-title">Why Choose Tirnue?</h2>
+      <h2 class="section-title">What We Offer</h2>
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">
             <SafetyCertificateOutlined />
           </div>
-          <h3>Free DDoS Protection</h3>
-          <p>Enterprise-grade DDoS mitigation included with every server. Keep your games running smoothly.</p>
+          <h3>DDoS Protection</h3>
+          <p>Basic DDoS protection included with your server to help keep things running.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <GlobalOutlined />
           </div>
-          <h3>Free IP Addresses</h3>
-          <p>Dedicated IP addresses for your servers at no extra cost. Full control over your network.</p>
+          <h3>Dedicated IPs</h3>
+          <p>Your own IP address included. No extra charges for the basics.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <ThunderboltOutlined />
           </div>
-          <h3>High Performance</h3>
-          <p>NVMe storage, latest gen processors, and low-latency networking for optimal gaming.</p>
+          <h3>Solid Hardware</h3>
+          <p>We use reliable hardware that gets the job done. Nothing fancy, just works.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <CloudServerOutlined />
           </div>
-          <h3>Instant Deployment</h3>
-          <p>Deploy servers in seconds with our automated provisioning system. No waiting required.</p>
+          <h3>Easy Setup</h3>
+          <p>Simple server deployment through our panel. We try to make it painless.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <RocketOutlined />
           </div>
-          <h3>Auto Scaling</h3>
-          <p>Scale resources up or down based on player demand. Pay only for what you use.</p>
+          <h3>Fair Pricing</h3>
+          <p>Transparent pricing with no hidden fees. What you see is what you pay.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <CustomerServiceOutlined />
           </div>
-          <h3>Expert Support</h3>
-          <p>24/7 technical support from gaming infrastructure experts. We're here when you need us.</p>
+          <h3>We Actually Reply</h3>
+          <p>Real humans answering your questions. We're small, so we actually care.</p>
         </div>
       </div>
     </section>
 
     <!-- Services Section -->
     <section class="services-section" :class="{ show: showServices }">
-      <h2 class="section-title">Server Solutions</h2>
+      <h2 class="section-title">Our Services</h2>
       <div class="services-grid">
         <div class="service-card premium">
-          <div class="service-badge">Popular</div>
-          <h3>Managed Servers</h3>
-          <p class="service-desc">Full-service hosting with our premium infrastructure</p>
+          <div class="service-badge">Main</div>
+          <h3>Managed Hosting</h3>
+          <p class="service-desc">We host and manage your game servers</p>
           <ul class="service-features">
-            <li><CheckCircleOutlined /> Automatic backups</li>
-            <li><CheckCircleOutlined /> Mod installation support</li>
-            <li><CheckCircleOutlined /> Performance monitoring</li>
-            <li><CheckCircleOutlined /> Priority support</li>
+            <li><CheckCircleOutlined /> Server setup included</li>
+            <li><CheckCircleOutlined /> Basic mod support</li>
+            <li><CheckCircleOutlined /> Regular backups</li>
+            <li><CheckCircleOutlined /> Direct support</li>
           </ul>
           <a-button type="primary" block class="service-btn" @click="goToLogin">
             Get Started
           </a-button>
         </div>
         <div class="service-card">
-          <h3>Third-Party Integration</h3>
+          <h3>Bring Your Own</h3>
           <p class="service-desc">Connect your existing servers to our panel</p>
           <ul class="service-features">
             <li><CheckCircleOutlined /> Remote management</li>
-            <li><CheckCircleOutlined /> Unified dashboard</li>
-            <li><CheckCircleOutlined /> Cross-platform support</li>
+            <li><CheckCircleOutlined /> Single dashboard</li>
+            <li><CheckCircleOutlined /> Works with most setups</li>
             <li><CheckCircleOutlined /> API access</li>
           </ul>
           <a-button block class="service-btn-secondary" @click="goToLogin">
@@ -194,13 +194,13 @@ onMounted(() => {
           </a-button>
         </div>
         <div class="service-card">
-          <h3>Custom Solutions</h3>
-          <p class="service-desc">Tailored infrastructure for your needs</p>
+          <h3>Need Something Else?</h3>
+          <p class="service-desc">We're flexible - just ask</p>
           <ul class="service-features">
-            <li><CheckCircleOutlined /> Dedicated hardware</li>
-            <li><CheckCircleOutlined /> Custom configurations</li>
-            <li><CheckCircleOutlined /> SLA guarantees</li>
-            <li><CheckCircleOutlined /> Enterprise support</li>
+            <li><CheckCircleOutlined /> Custom setups</li>
+            <li><CheckCircleOutlined /> Special requirements</li>
+            <li><CheckCircleOutlined /> We'll figure it out</li>
+            <li><CheckCircleOutlined /> Honest pricing</li>
           </ul>
           <a-button block class="service-btn-secondary" @click="goToLogin">
             Contact Us
@@ -212,8 +212,8 @@ onMounted(() => {
     <!-- CTA Section -->
     <section class="cta-section" :class="{ show: showCTA }">
       <div class="cta-content">
-        <h2>Ready to Launch Your Server?</h2>
-        <p>Join thousands of gaming communities trusting Tirnue for their hosting needs.</p>
+        <h2>Want to Give Us a Try?</h2>
+        <p>We're a small team building something we believe in. Come check it out.</p>
         <a-button type="primary" size="large" class="cta-final" @click="goToLogin">
           <img src="/favicon.png" alt="" class="btn-icon" />
           Sign In to Dashboard
