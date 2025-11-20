@@ -645,15 +645,7 @@ router.get(
         return;
       }
 
-      // Non-admin users need canViewLogs permission
-      if (!isTopPermissionByUuid(userUuid)) {
-        if (!user?.permissions?.canViewLogs) {
-          ctx.status = 403;
-          ctx.body = $t("TXT_CODE_permission.forbiddenInstance");
-          return;
-        }
-      }
-
+      // Admins and regular users can view logs for their instances
       const instanceUuid = String(ctx.query.uuid);
       const limit = +(ctx?.query?.limit || 50);
       if (limit < 1 || limit > 200) {
