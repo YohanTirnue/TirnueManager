@@ -497,35 +497,39 @@ defineExpose({
           <!-- Protection Status Section Card -->
           <a-col :span="24">
             <div class="protection-section-card" :class="{ active: isDockerMode }">
-              <div class="protection-header-row">
-                <div class="protection-info">
-                  <div class="protection-title-group">
-                    <span class="protection-icon-wrapper" :class="{ active: isDockerMode }">
-                      <safety-outlined v-if="isDockerMode" />
-                      <warning-outlined v-else />
-                    </span>
-                    <div>
-                      <h3 class="protection-title">Container Protection</h3>
-                      <p class="protection-subtitle">
-                        {{ isDockerMode ? 'Instance runs in an isolated Docker container' : 'Instance runs directly on host system' }}
-                      </p>
-                    </div>
-                  </div>
-                  <div class="protection-details">
-                    <div v-if="isDockerMode" class="status-benefits">
-                      <span class="benefit-item">✓ File System Isolation</span>
-                      <span class="benefit-item">✓ Process Isolation</span>
-                      <span class="benefit-item">✓ Resource Limits</span>
-                      <span class="benefit-item">~1-3% overhead</span>
-                    </div>
-                    <div v-else class="status-warnings">
-                      <span class="warning-item">⚠ Host filesystem accessible</span>
-                      <span class="warning-item">⚠ SSH keys accessible</span>
-                      <span class="warning-item">Only for trusted instances!</span>
-                    </div>
+              <!-- LANDSCAPE LAYOUT: Three horizontal sections -->
+              <div class="protection-landscape-row">
+                <!-- Left: Icon + Title + Subtitle -->
+                <div class="protection-left-section">
+                  <span class="protection-icon-wrapper" :class="{ active: isDockerMode }">
+                    <safety-outlined v-if="isDockerMode" />
+                    <warning-outlined v-else />
+                  </span>
+                  <div class="protection-text-group">
+                    <h3 class="protection-title">Container Protection</h3>
+                    <p class="protection-subtitle">
+                      {{ isDockerMode ? 'Instance runs in an isolated Docker container' : 'Instance runs directly on host system' }}
+                    </p>
                   </div>
                 </div>
-                <div class="protection-toggle-section">
+
+                <!-- Middle: Status Badges -->
+                <div class="protection-middle-section">
+                  <div v-if="isDockerMode" class="status-benefits">
+                    <span class="benefit-item">✓ File System Isolation</span>
+                    <span class="benefit-item">✓ Process Isolation</span>
+                    <span class="benefit-item">✓ Resource Limits</span>
+                    <span class="benefit-item">~1-3% overhead</span>
+                  </div>
+                  <div v-else class="status-warnings">
+                    <span class="warning-item">⚠ Host filesystem accessible</span>
+                    <span class="warning-item">⚠ SSH keys accessible</span>
+                    <span class="warning-item">Only for trusted instances!</span>
+                  </div>
+                </div>
+
+                <!-- Right: Status Tag + Toggle Switch -->
+                <div class="protection-right-section">
                   <a-tag :color="isDockerMode ? 'orange' : 'default'" class="status-tag">
                     {{ isDockerMode ? 'ENABLED' : 'DISABLED' }}
                   </a-tag>
@@ -906,12 +910,12 @@ defineExpose({
   max-width: 100%;
 }
 
-/* Modern Settings Card - ORANGE GOLD BLACK THEME ONLY */
+/* LANDSCAPE Layout - ORANGE GOLD BLACK THEME ONLY */
 .protection-section-card {
   background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
   border: 2px solid #2a2a2a;
   border-radius: 12px;
-  padding: 24px;
+  padding: 24px; /* OCD: 24px all around */
   transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -926,24 +930,21 @@ defineExpose({
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.protection-header-row {
+/* LANDSCAPE: Three-column horizontal layout */
+.protection-landscape-row {
   display: flex;
+  align-items: center; /* OCD: All sections vertically centered */
+  gap: 24px; /* OCD: 24px between sections */
   justify-content: space-between;
-  align-items: center; /* OCD: Perfect vertical center */
-  gap: 24px; /* OCD: 24px consistent */
 }
 
-.protection-info {
-  flex: 1;
+/* LEFT Section: Icon + Title + Subtitle */
+.protection-left-section {
   display: flex;
-  flex-direction: column;
-  gap: 16px; /* OCD: 8px multiples */
-}
-
-.protection-title-group {
-  display: flex;
-  align-items: center; /* OCD: Icon and text perfectly aligned */
-  gap: 16px; /* OCD: 16px gap */
+  align-items: center; /* OCD: Icon and text aligned */
+  gap: 16px; /* OCD: 16px between icon and text */
+  flex: 0 0 auto; /* OCD: Don't grow, don't shrink */
+  min-width: 280px; /* OCD: Minimum width for title area */
 }
 
 .protection-icon-wrapper {
@@ -952,7 +953,7 @@ defineExpose({
   justify-content: center;
   width: 48px; /* OCD: 48x48 perfect square */
   height: 48px;
-  border-radius: 8px;
+  border-radius: 8px; /* OCD: 8px radius */
   font-size: 24px;
   transition: all 0.3s ease;
   flex-shrink: 0; /* OCD: Never shrinks */
@@ -969,6 +970,12 @@ defineExpose({
   color: #999999;
 }
 
+.protection-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* OCD: 4px between title and subtitle */
+}
+
 .protection-title {
   margin: 0;
   padding: 0;
@@ -976,18 +983,25 @@ defineExpose({
   font-weight: 600;
   color: #ffd700; /* GOLD */
   line-height: 1.4;
+  white-space: nowrap; /* OCD: No wrapping on desktop */
 }
 
 .protection-subtitle {
   margin: 0;
   padding: 0;
-  font-size: 14px;
+  font-size: 13px;
   color: #999999;
   line-height: 1.4;
+  white-space: nowrap; /* OCD: No wrapping on desktop */
 }
 
-.protection-details {
-  margin-left: 64px; /* OCD: 48px icon + 16px gap = 64px */
+/* MIDDLE Section: Status Badges */
+.protection-middle-section {
+  flex: 1; /* OCD: Takes remaining space */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* OCD: Badges centered */
+  min-width: 0; /* OCD: Allows flex shrinking */
 }
 
 .status-benefits,
@@ -996,6 +1010,7 @@ defineExpose({
   flex-wrap: wrap;
   gap: 8px; /* OCD: 8px consistent gap */
   align-items: center;
+  justify-content: center; /* OCD: Center badges */
 }
 
 .benefit-item {
@@ -1004,7 +1019,7 @@ defineExpose({
   padding: 6px 12px; /* OCD: 6px vertical, 12px horizontal */
   background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%); /* ORANGE */
   color: #000000; /* BLACK text */
-  border-radius: 6px;
+  border-radius: 6px; /* OCD: 6px radius */
   font-size: 13px;
   font-weight: 600;
   line-height: 1.2;
@@ -1017,20 +1032,19 @@ defineExpose({
   padding: 6px 12px; /* OCD: Same as benefit */
   background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%);
   color: #ffd700; /* GOLD text */
-  border-radius: 6px;
+  border-radius: 6px; /* OCD: 6px radius */
   font-size: 13px;
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
 }
 
-.protection-toggle-section {
+/* RIGHT Section: Status Tag + Toggle Switch */
+.protection-right-section {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: center; /* OCD: Vertically centered */
-  gap: 12px;
-  flex-shrink: 0;
+  align-items: center; /* OCD: Tag and switch horizontally aligned */
+  gap: 16px; /* OCD: 16px between tag and switch */
+  flex: 0 0 auto; /* OCD: Don't grow, don't shrink */
 }
 
 .status-tag {
@@ -1038,24 +1052,38 @@ defineExpose({
   font-size: 11px;
   letter-spacing: 1px;
   text-transform: uppercase;
+  margin: 0; /* OCD: No default margin */
 }
 
-@media (max-width: 768px) {
-  .protection-header-row {
+/* RESPONSIVE: Stack vertically on mobile only */
+@media (max-width: 992px) {
+  .protection-landscape-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px; /* OCD: Tighter gap on mobile */
   }
 
-  .protection-toggle-section {
-    align-items: center;
-    flex-direction: row;
+  .protection-left-section {
+    min-width: 0;
+  }
+
+  .protection-title,
+  .protection-subtitle {
+    white-space: normal; /* Allow wrapping on mobile */
+  }
+
+  .protection-middle-section {
+    justify-content: flex-start; /* Align left on mobile */
+  }
+
+  .status-benefits,
+  .status-warnings {
+    justify-content: flex-start; /* Align left on mobile */
+  }
+
+  .protection-right-section {
     justify-content: space-between;
     width: 100%;
-    padding-top: 8px;
-  }
-
-  .protection-details {
-    margin-left: 0;
   }
 }
 </style>
