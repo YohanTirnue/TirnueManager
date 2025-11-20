@@ -37,7 +37,7 @@ import {
   DesktopOutlined,
   CodeOutlined
 } from "@ant-design/icons-vue";
-import { instanceOperationApi } from "@/services/apis/instance";
+import { openInstance, stopInstance, restartInstance, killInstance } from "@/services/apis/instance";
 
 defineProps<{
   card: LayoutCard;
@@ -53,7 +53,10 @@ const sortOrder = ref<"asc" | "desc">("asc");
 const animatedCards = ref<Set<string>>(new Set());
 
 const { execute, state } = userInfoApi();
-const { execute: executeOperation } = instanceOperationApi();
+const { execute: executeOpen } = openInstance();
+const { execute: executeStop } = stopInstance();
+const { execute: executeRestart } = restartInstance();
+const { execute: executeKill } = killInstance();
 const subUserManagerVisible = ref(false);
 const selectedInstance = ref({ daemonId: "", instanceUuid: "" });
 const operatingInstances = ref<Set<string>>(new Set());
@@ -129,13 +132,26 @@ const quickAction = async (instance: any, action: "open" | "stop" | "restart" | 
   operatingInstances.value.add(key);
 
   try {
-    await executeOperation({
-      params: {
-        uuid: instance.instanceUuid,
-        daemonId: instance.daemonId,
-        operation: action
-      }
-    });
+    const params = {
+      uuid: instance.instanceUuid,
+      daemonId: instance.daemonId
+    };
+
+    switch (action) {
+      case "open":
+        await executeOpen({ params });
+        break;
+      case "stop":
+        await executeStop({ params });
+        break;
+      case "restart":
+        await executeRestart({ params });
+        break;
+      case "kill":
+        await executeKill({ params });
+        break;
+    }
+
     message.success(`${action.charAt(0).toUpperCase() + action.slice(1)} command sent`);
     // Refresh list after action
     setTimeout(() => getInstanceList(), 1500);
