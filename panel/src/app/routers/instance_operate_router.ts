@@ -107,6 +107,13 @@ router.all(
         instanceUuid,
         command
       });
+      operationLogger.log("instance_command", {
+        daemon_id: daemonId,
+        instance_id: instanceUuid,
+        operator_ip: ctx.ip,
+        operator_name: ctx.session?.["userName"],
+        command: command
+      });
       ctx.body = result;
     } catch (err) {
       ctx.body = err;

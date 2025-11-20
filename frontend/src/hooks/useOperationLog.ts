@@ -105,6 +105,10 @@ const renderMap: OperationRenderer = {
     text: "<<user>> created file in instance <<instance>>",
     data: [item.operator_name || item.operation_id, item.instance_name || item.instance_id]
   }),
+  instance_command: (item) => ({
+    text: "<<user>> sent command in instance <<instance>>",
+    data: [item.operator_name || item.operation_id, item.instance_name || item.instance_id]
+  }),
   instance_task_create: (item) => ({
     text: t("TXT_CODE_5ddb00f2"),
     data: [

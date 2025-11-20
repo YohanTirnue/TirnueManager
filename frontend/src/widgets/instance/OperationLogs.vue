@@ -18,7 +18,8 @@ import {
   DownloadOutlined,
   DeleteOutlined,
   EditOutlined,
-  SettingOutlined
+  SettingOutlined,
+  CodeOutlined
 } from "@ant-design/icons-vue";
 
 const props = defineProps<{
@@ -55,6 +56,7 @@ const actionOptions = [
   { value: "instance_file_mkdir", label: "Create Directory" },
   { value: "instance_file_chmod", label: "Change Permissions" },
   { value: "instance_file_compress", label: "Compress" },
+  { value: "instance_command", label: "Command" },
   { value: "instance_task_create", label: "Create Task" },
   { value: "instance_task_delete", label: "Delete Task" }
 ];
@@ -138,6 +140,7 @@ const getActionName = (type: string) => {
     instance_file_chmod: "Changed Perms",
     instance_file_compress: "Compressed",
     instance_file_touch: "Created File",
+    instance_command: "Command",
     instance_task_create: "Task Created",
     instance_task_delete: "Task Deleted"
   };
@@ -154,6 +157,7 @@ const getActionIcon = (type: string) => {
   if (type.includes("delete")) return DeleteOutlined;
   if (type.includes("update") || type.includes("edit")) return EditOutlined;
   if (type.includes("config")) return SettingOutlined;
+  if (type.includes("command")) return CodeOutlined;
   return FileOutlined;
 };
 
@@ -172,6 +176,7 @@ const getActionColor = (type: string, level: string) => {
 // Get details from log
 const getDetails = (log: OperationLoggerItem) => {
   const details: string[] = [];
+  if ('command' in log && log.command) details.push(log.command);
   if ('file' in log && log.file) details.push(log.file);
   if ('target' in log && log.target) details.push(log.target);
   if ('source' in log && log.source) details.push(log.source);

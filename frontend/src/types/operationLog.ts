@@ -93,6 +93,11 @@ export type InstanceFileTouchOptions = {
   target?: string;
 } & InstanceGeneralOptions;
 
+export type InstanceCommandOptions = {
+  type: "instance_command";
+  command?: string;
+} & InstanceGeneralOptions;
+
 export type InstanceTaskCreateOptions = {
   type: "instance_task_create";
   task_name: string;
@@ -176,6 +181,7 @@ export type OperationLoggerItem =
   | InstanceFileMkdirOptions
   | InstanceFileCompressOptions
   | InstanceFileTouchOptions
+  | InstanceCommandOptions
   | InstanceTaskCreateOptions
   | InstanceTaskDeleteOptions
   | DaemonCreateOptions

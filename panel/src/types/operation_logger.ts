@@ -17,6 +17,7 @@ export enum OperationLoggerAction {
   InstanceFileMkdir = "instance_file_mkdir",
   InstanceFileCompress = "instance_file_compress",
   InstanceFileTouch = "instance_file_touch",
+  InstanceCommand = "instance_command",
   InstanceTaskCreate = "instance_task_create",
   InstanceTaskDelete = "instance_task_delete",
   DaemonCreate = "daemon_create",
@@ -129,6 +130,11 @@ export type InstanceFileTouchOptions = {
   target?: string;
 } & InstanceGeneralOptions;
 
+export type InstanceCommandOptions = {
+  type: "instance_command";
+  command?: string;
+} & InstanceGeneralOptions;
+
 export type InstanceTaskCreateOptions = {
   type: "instance_task_create";
   task_name: string;
@@ -213,6 +219,7 @@ export type OperationLoggerItem =
   | InstanceFileMkdirOptions
   | InstanceFileCompressOptions
   | InstanceFileTouchOptions
+  | InstanceCommandOptions
   | InstanceTaskCreateOptions
   | InstanceTaskDeleteOptions
   | DaemonCreateOptions
