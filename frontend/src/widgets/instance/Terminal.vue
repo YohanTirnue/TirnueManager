@@ -88,7 +88,8 @@ const hasConsoleAccess = computed(() =>
 const subUserManagerVisible = ref(false);
 const canManageSubUsers = computed(() => {
   const userInfo = state.userInfo;
-  return userInfo && !userInfo.isSubUser && (userInfo.permission === 10 || userInfo.permission === 1);
+  if (!userInfo) return false;
+  return !userInfo.isSubUser && (userInfo.permission === 10 || userInfo.permission === 1);
 });
 
 const { execute: requestOpenInstance, isLoading: isOpenInstanceLoading } = openInstance();

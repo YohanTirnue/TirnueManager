@@ -350,7 +350,7 @@ const isUserSelected = (uuid: string) => {
 };
 
 const getUserNameById = (uuid: string) => {
-  const user = data.value.data.find(u => u.uuid === uuid);
+  const user = data.value?.data.find(u => u.uuid === uuid);
   return user?.userName || null;
 };
 
