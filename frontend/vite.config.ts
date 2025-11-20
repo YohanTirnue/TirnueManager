@@ -22,6 +22,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(path) {
+          // Icons are large - separate chunk for better caching
+          if (path.includes("@ant-design/icons")) {
+            return "ant-icons";
+          }
           if (path.includes("node_modules/ant-design-vue/es")) {
             return "ant-es";
           }
@@ -51,6 +55,14 @@ export default defineConfig({
           }
           if (path.includes("node_modules/htmlparser2")) {
             return "htmlparser2";
+          }
+          // Socket.io for real-time features
+          if (path.includes("socket.io") || path.includes("engine.io")) {
+            return "socket";
+          }
+          // Axios for API calls
+          if (path.includes("node_modules/axios")) {
+            return "axios";
           }
         }
       }
