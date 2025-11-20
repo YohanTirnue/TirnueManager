@@ -55,12 +55,12 @@ h2 {
   font-size: 24px;
   font-weight: 700;
   margin: 0 0 12px;
-  color: var(--color-text-1);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 p {
   font-size: 14px;
-  color: var(--color-text-3);
+  color: rgba(255, 255, 255, 0.6);
   margin: 0 0 24px;
   line-height: 1.6;
 }

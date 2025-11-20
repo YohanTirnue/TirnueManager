@@ -10,6 +10,7 @@ import {
   CheckCircleOutlined,
   ArrowRightOutlined
 } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
 import { onMounted, ref } from "vue";
 
 const showContent = ref(false);
@@ -19,6 +20,10 @@ const showCTA = ref(false);
 
 const goToLogin = () => {
   router.push("/login");
+};
+
+const showUnderDevelopment = () => {
+  message.info("This feature is under development. Check back soon!");
 };
 
 onMounted(() => {
@@ -76,7 +81,7 @@ onMounted(() => {
             Get Started
             <ArrowRightOutlined />
           </a-button>
-          <a-button size="large" class="cta-secondary">
+          <a-button size="large" class="cta-secondary" @click="showUnderDevelopment">
             View Plans
           </a-button>
         </div>
@@ -189,7 +194,7 @@ onMounted(() => {
             <li><CheckCircleOutlined /> Works with most setups</li>
             <li><CheckCircleOutlined /> API access</li>
           </ul>
-          <a-button block class="service-btn-secondary" @click="goToLogin">
+          <a-button block class="service-btn-secondary" @click="showUnderDevelopment">
             Learn More
           </a-button>
         </div>
@@ -202,7 +207,7 @@ onMounted(() => {
             <li><CheckCircleOutlined /> We'll figure it out</li>
             <li><CheckCircleOutlined /> Honest pricing</li>
           </ul>
-          <a-button block class="service-btn-secondary" @click="goToLogin">
+          <a-button block class="service-btn-secondary" @click="showUnderDevelopment">
             Contact Us
           </a-button>
         </div>
