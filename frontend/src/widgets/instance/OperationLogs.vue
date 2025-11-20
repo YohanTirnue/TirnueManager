@@ -54,6 +54,7 @@ const actionOptions = [
   { value: "instance_file_mkdir", label: "Create Directory" },
   { value: "instance_file_chmod", label: "Change Permissions" },
   { value: "instance_file_compress", label: "Compress" },
+  { value: "instance_file_touch", label: "Create File" },
   { value: "instance_command", label: "Command" },
   { value: "instance_task_create", label: "Create Task" },
   { value: "instance_task_delete", label: "Delete Task" }
