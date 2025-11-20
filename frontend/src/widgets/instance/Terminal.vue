@@ -354,7 +354,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
     <!-- ROW 1: Header | Basic Info | Buttons -->
     <div class="top-bar">
-      <!-- Header Section -->
+      <!-- Header Section with integrated Basic Info -->
       <div class="header-section">
         <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
           <div class="orb-pulse"></div>
@@ -383,59 +383,32 @@ const terminalTopTags = computed<TagInfo[]>(() => {
         </div>
       </div>
 
-      <!-- Basic Info Section -->
-      <div class="stats-section">
-        <div class="stats-title">Basic Information</div>
-        <div class="stats-items">
-          <!-- Runtime stats when running -->
-          <template v-if="!isStopped && terminalTopTags.length">
-            <div v-for="tag in terminalTopTags" :key="tag.label" class="stat-item" @click="tag.onClick">
-              <component :is="tag.icon" class="stat-icon" />
-              <div class="stat-content">
-                <span class="stat-label">{{ tag.label }}</span>
-                <span class="stat-value" :class="`value-${tag.color}`">{{ tag.value }}</span>
-              </div>
-            </div>
-          </template>
-          <!-- Expiration date -->
-          <div class="stat-item" v-if="instanceInfo?.config.endTime">
-            <CalendarOutlined class="stat-icon" />
+      <!-- Basic Info integrated into header -->
+      <div class="info-stats">
+        <!-- Runtime stats when running -->
+        <template v-if="!isStopped && terminalTopTags.length">
+          <div v-for="tag in terminalTopTags" :key="tag.label" class="stat-item" @click="tag.onClick">
+            <component :is="tag.icon" class="stat-icon" />
             <div class="stat-content">
-              <span class="stat-label">{{ t("TXT_CODE_ae747cc0") }}</span>
-              <span class="stat-value">{{ formatDateWithMonth(instanceInfo?.config.endTime) }}</span>
+              <span class="stat-label">{{ tag.label }}</span>
+              <span class="stat-value" :class="`value-${tag.color}`">{{ tag.value }}</span>
             </div>
           </div>
-          <!-- Creation date -->
-          <div class="stat-item" v-if="instanceInfo?.config.createDatetime">
-            <CalendarOutlined class="stat-icon" />
-            <div class="stat-content">
-              <span class="stat-label">{{ t("TXT_CODE_8b8e08a6") }}</span>
-              <span class="stat-value">{{ formatDateWithMonth(instanceInfo?.config.createDatetime) }}</span>
-            </div>
+        </template>
+        <!-- Expiration date -->
+        <div class="stat-item" v-if="instanceInfo?.config.endTime">
+          <CalendarOutlined class="stat-icon" />
+          <div class="stat-content">
+            <span class="stat-label">Expires</span>
+            <span class="stat-value">{{ formatDateWithMonth(instanceInfo?.config.endTime) }}</span>
           </div>
-          <!-- Last access -->
-          <div class="stat-item">
-            <ClockCircleOutlined class="stat-icon" />
-            <div class="stat-content">
-              <span class="stat-label">{{ t("TXT_CODE_46f575ae") }}</span>
-              <span class="stat-value">{{ formatDateWithMonth(instanceInfo?.config.lastDatetime) }}</span>
-            </div>
-          </div>
-          <!-- Process type -->
-          <div class="stat-item" v-if="instanceInfo?.config.processType">
-            <CloudServerOutlined class="stat-icon" />
-            <div class="stat-content">
-              <span class="stat-label">Process</span>
-              <span class="stat-value">{{ instanceInfo?.config.processType === 'docker' ? 'Docker' : 'General' }}</span>
-            </div>
-          </div>
-          <!-- Encoding -->
-          <div class="stat-item" v-if="instanceInfo?.config.oe">
-            <InfoCircleOutlined class="stat-icon" />
-            <div class="stat-content">
-              <span class="stat-label">Encoding</span>
-              <span class="stat-value">{{ instanceInfo?.config.oe?.toUpperCase() }}</span>
-            </div>
+        </div>
+        <!-- Last access -->
+        <div class="stat-item">
+          <ClockCircleOutlined class="stat-icon" />
+          <div class="stat-content">
+            <span class="stat-label">Last Access</span>
+            <span class="stat-value">{{ formatDateWithMonth(instanceInfo?.config.lastDatetime) }}</span>
           </div>
         </div>
       </div>
@@ -599,73 +572,35 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   align-items: center;
 }
 
-// Stats Section
-.stats-section {
+// Info Stats - integrated into header
+.info-stats {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(35, 35, 35, 0.9) 100%);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 140, 66, 0.25);
-  justify-self: center;
-  align-self: center;
-}
-
-.stats-title {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #FF8C42;
-  text-align: center;
-  margin-bottom: 4px;
-}
-
-.stats-items {
-  display: flex;
-  gap: 16px;
+  gap: 20px;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
 }
 
-.stats-placeholder {
-  min-width: 120px;
-  text-align: center;
-}
-
-.stats-offline {
-  font-size: 12px;
-  color: #D4AF37;
-  opacity: 0.7;
-  text-align: center;
-}
-
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
   transition: all 0.2s ease;
-  background: rgba(255, 140, 66, 0.05);
 
   &:hover {
-    background: rgba(255, 140, 66, 0.15);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.05);
   }
 }
 
 .stat-icon {
-  font-size: 16px;
+  font-size: 14px;
   color: #FF8C42;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
 }
 
 .stat-content {
@@ -675,18 +610,18 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 }
 
 .stat-label {
-  font-size: 9px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: rgba(255, 140, 66, 0.7);
+  color: rgba(255, 255, 255, 0.5);
   line-height: 1.2;
 }
 
 .stat-value {
   font-size: 13px;
-  font-weight: 700;
-  color: #D4AF37;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.3;
 
   &.value-error {
