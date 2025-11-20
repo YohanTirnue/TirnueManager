@@ -15,7 +15,6 @@ import {
   ThunderboltOutlined,
   CloudServerOutlined
 } from "@ant-design/icons-vue";
-import { message, Modal } from "ant-design-vue";
 import { onMounted, reactive, ref } from "vue";
 
 const { state: pageInfoResult, execute } = loginPageInfo();
@@ -43,7 +42,7 @@ const showLoginForm = ref(false);
 
 const handleLogin = async () => {
   if (!formData.username.trim() || !formData.password.trim()) {
-    return message.error(t("TXT_CODE_c846074d"));
+    return reportErrorMsg({ message: t("TXT_CODE_c846074d") });
   }
   try {
     loginStep.value++;
@@ -74,10 +73,7 @@ const handleNext = async () => {
   } catch (error: any) {
     console.error(error);
     loginStep.value = 0;
-    Modal.error({
-      title: t("TXT_CODE_da2fb99a"),
-      content: t("TXT_CODE_6e718abe")
-    });
+    reportErrorMsg({ message: t("TXT_CODE_6e718abe") });
   }
 };
 

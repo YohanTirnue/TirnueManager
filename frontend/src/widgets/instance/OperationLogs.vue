@@ -306,12 +306,6 @@ onMounted(() => {
                 <span class="details-cell">{{ getDetails(record) }}</span>
               </template>
             </a-table-column>
-
-            <a-table-column title="IP" data-index="operator_ip" :width="120">
-              <template #default="{ record }">
-                <span class="ip-cell">{{ record.operator_ip || "-" }}</span>
-              </template>
-            </a-table-column>
           </a-table>
         </div>
 
@@ -417,16 +411,10 @@ onMounted(() => {
 .details-cell {
   color: rgba(255, 255, 255, 0.6);
   font-size: 11px;
-  max-width: 200px;
+  max-width: 300px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.ip-cell {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 11px;
-  font-family: monospace;
 }
 
 .pagination-section {
@@ -460,6 +448,75 @@ onMounted(() => {
         color: rgba(255, 255, 255, 0.85);
       }
     }
+  }
+}
+
+// Mobile responsive styles
+@media (max-width: 768px) {
+  .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+
+    .ant-input,
+    .ant-select {
+      width: 100% !important;
+    }
+
+    .results-count {
+      margin-left: 0;
+      text-align: center;
+    }
+  }
+
+  .logs-table-wrapper {
+    :deep(.ant-table) {
+      .ant-table-thead > tr > th,
+      .ant-table-tbody > tr > td {
+        padding: 6px 8px;
+        font-size: 11px;
+      }
+
+      // Hide Time column on mobile, show in details
+      .ant-table-thead > tr > th:first-child,
+      .ant-table-tbody > tr > td:first-child {
+        display: none;
+      }
+    }
+  }
+
+  .time-cell,
+  .user-cell {
+    font-size: 10px;
+  }
+
+  .details-cell {
+    max-width: 120px;
+    font-size: 10px;
+  }
+
+  .pagination-section {
+    :deep(.ant-pagination) {
+      .ant-pagination-options {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .logs-table-wrapper {
+    :deep(.ant-table) {
+      .ant-table-thead > tr > th,
+      .ant-table-tbody > tr > td {
+        padding: 4px 6px;
+        font-size: 10px;
+      }
+    }
+  }
+
+  .details-cell {
+    max-width: 80px;
   }
 }
 </style>
