@@ -362,7 +362,7 @@ onMounted(async () => {
     :destroy-on-close="true"
     :title="userDialog.title"
     :confirm-loading="userDialog.confirmBtnLoading"
-    :width="1000"
+    :width="1400"
     @ok="userDialog.resolve()"
   >
     <a-form
@@ -371,86 +371,72 @@ onMounted(async () => {
       :model="formData"
       layout="vertical"
     >
-      <!-- Info Card - LANDSCAPE -->
-      <div class="user-info-card">
-        <div class="user-info-row">
-          <div class="user-info-icon">👤</div>
-          <div class="user-info-content">
-            <p class="user-info-text">{{ t("TXT_CODE_21b8b71a") }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Basic Information Card - LANDSCAPE -->
+      <!-- Basic Information + APIKEY - FULLY LANDSCAPE -->
       <div class="user-settings-card">
-        <div class="user-settings-row">
-          <div class="user-settings-title-section">
-            <h4 class="user-settings-title">Basic Information</h4>
-            <p class="user-settings-subtitle">Account credentials and access level</p>
-          </div>
-          <div class="user-settings-controls">
-            <a-form-item required name="permission" class="user-form-item">
-              <div class="user-control-label">
-                <span class="user-label-text required">{{ t("TXT_CODE_511aea70") }}</span>
-              </div>
-              <a-select v-model:value="formData.permission" style="width: 200px">
-                <a-select-option v-for="(item, key, i) in PERMISSION_MAP" :key="i" :value="Number(key)">
-                  {{ item }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item required name="userName" class="user-form-item">
-              <div class="user-control-label">
-                <span class="user-label-text required">{{ t("TXT_CODE_eb9fcdad") }}</span>
-                <span class="user-label-hint">{{ t("TXT_CODE_1987587b") }}</span>
-              </div>
-              <a-input
-                v-model:value="formData.userName"
-                :placeholder="t('TXT_CODE_4ea93630')"
-                style="width: 240px"
-              />
-            </a-form-item>
-            <a-form-item :required="isAddMode" name="passWord" class="user-form-item">
-              <div class="user-control-label">
-                <span class="user-label-text" :class="{ required: isAddMode }">{{ t("TXT_CODE_551b0348") }}</span>
-                <span class="user-label-hint">{{ !isAddMode ? t("TXT_CODE_af1f921d") : t("TXT_CODE_1f2062c7") }}</span>
-              </div>
-              <a-input
-                v-model:value="formData.passWord"
-                :placeholder="t('TXT_CODE_4ea93630')"
-                style="width: 240px"
-              />
-            </a-form-item>
-          </div>
+        <div class="user-settings-row-horizontal">
+          <!-- Permission -->
+          <a-form-item required name="permission" class="user-form-item-horizontal">
+            <div class="user-control-label">
+              <span class="user-label-text required">{{ t("TXT_CODE_511aea70") }}</span>
+            </div>
+            <a-select v-model:value="formData.permission" style="width: 180px">
+              <a-select-option v-for="(item, key, i) in PERMISSION_MAP" :key="i" :value="Number(key)">
+                {{ item }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+
+          <!-- Username -->
+          <a-form-item required name="userName" class="user-form-item-horizontal">
+            <div class="user-control-label">
+              <span class="user-label-text required">{{ t("TXT_CODE_eb9fcdad") }}</span>
+              <span class="user-label-hint">{{ t("TXT_CODE_1987587b") }}</span>
+            </div>
+            <a-input
+              v-model:value="formData.userName"
+              :placeholder="t('TXT_CODE_4ea93630')"
+              style="width: 220px"
+            />
+          </a-form-item>
+
+          <!-- Password -->
+          <a-form-item :required="isAddMode" name="passWord" class="user-form-item-horizontal">
+            <div class="user-control-label">
+              <span class="user-label-text" :class="{ required: isAddMode }">{{ t("TXT_CODE_551b0348") }}</span>
+              <span class="user-label-hint">{{ !isAddMode ? t("TXT_CODE_af1f921d") : t("TXT_CODE_1f2062c7") }}</span>
+            </div>
+            <a-input
+              v-model:value="formData.passWord"
+              :placeholder="t('TXT_CODE_4ea93630')"
+              style="width: 220px"
+              type="password"
+            />
+          </a-form-item>
+
+          <!-- APIKEY (Edit Mode Only) -->
+          <a-form-item v-if="!isAddMode" class="user-form-item-horizontal user-form-item-grow">
+            <div class="user-control-label">
+              <span class="user-label-text">APIKEY</span>
+              <span class="user-label-hint">API authentication key</span>
+            </div>
+            <a-input
+              v-if="formData.apiKey"
+              v-model:value="formData.apiKey"
+              :readonly="true"
+              style="width: 100%"
+            />
+            <span v-else class="user-apikey-empty">{{ t("TXT_CODE_6c274bdc") }}</span>
+          </a-form-item>
         </div>
       </div>
 
-      <!-- APIKEY Card - LANDSCAPE (Edit Mode Only) -->
-      <div v-if="!isAddMode" class="user-settings-card">
-        <div class="user-settings-row">
-          <div class="user-settings-title-section">
-            <h4 class="user-settings-title">APIKEY</h4>
-            <p class="user-settings-subtitle">API authentication key for this user</p>
-          </div>
-          <div class="user-settings-controls">
-            <a-form-item class="user-form-item-full">
-              <a-typography-paragraph v-if="!formData.apiKey" class="user-apikey-empty">
-                {{ t("TXT_CODE_6c274bdc") }}
-              </a-typography-paragraph>
-              <a-input v-else v-model:value="formData.apiKey" :readonly="true" />
-            </a-form-item>
-          </div>
-        </div>
-      </div>
-
-      <!-- User Permissions Card - LANDSCAPE -->
+      <!-- User Permissions Card - FULLY HORIZONTAL 4-COLUMN GRID -->
       <div class="user-settings-card">
-        <div class="user-settings-row user-settings-column">
-          <div class="user-settings-title-section">
-            <h4 class="user-settings-title">User Permissions</h4>
-            <p class="user-settings-subtitle">Configure specific permissions for this user</p>
-          </div>
-          <div class="permissions-landscape-grid">
+        <div class="permissions-header">
+          <h4 class="permissions-main-title">User Permissions</h4>
+          <p class="permissions-main-subtitle">Configure specific permissions for this user</p>
+        </div>
+        <div class="permissions-landscape-grid-4col">
             <!-- File Operations -->
             <div class="permission-category-landscape">
               <h4 class="category-title-landscape">
@@ -557,22 +543,6 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Documentation Notice (Add Mode Only) -->
-      <div v-if="isAddMode" class="user-info-card">
-        <div class="user-info-row">
-          <div class="user-info-content">
-            <p class="user-info-text">
-              {{ t("TXT_CODE_9e9d3767") }}
-              <br />
-              <a href="https://docs.mcsmanager.com/" target="_blank" class="user-info-link">
-                {{ t("TXT_CODE_b01f8383") }}
-              </a>
-            </p>
-          </div>
-        </div>
       </div>
     </a-form>
   </a-modal>
@@ -1490,12 +1460,59 @@ onMounted(async () => {
 }
 
 /* Permissions Grid - Three columns landscape */
-.permissions-landscape-grid {
+/* FULLY HORIZONTAL LAYOUT */
+.user-settings-row-horizontal {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px; /* OCD: 16px between form items */
+  padding: 20px; /* OCD: 20px padding */
+  flex-wrap: nowrap;
+}
+
+.user-form-item-horizontal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* OCD: 8px between label and input */
+  margin-bottom: 0 !important;
+  flex-shrink: 0;
+}
+
+.user-form-item-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Permissions Header */
+.permissions-header {
+  padding: 20px 20px 0 20px; /* OCD: 20px padding, 0 bottom */
+  border-bottom: 1px solid #2a2a2a;
+  margin-bottom: 16px; /* OCD: 16px gap */
+}
+
+.permissions-main-title {
+  margin: 0 0 4px 0; /* OCD: 4px gap */
+  padding: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffd700; /* GOLD */
+  line-height: 1.4;
+}
+
+.permissions-main-subtitle {
+  margin: 0 0 12px 0; /* OCD: 12px bottom margin */
+  padding: 0;
+  font-size: 13px;
+  color: #999999;
+  line-height: 1.4;
+}
+
+/* 4-Column Grid for Permissions */
+.permissions-landscape-grid-4col {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px; /* OCD: 16px between columns */
   width: 100%;
-  margin-top: 8px; /* OCD: 8px top margin */
+  padding: 0 20px 20px 20px; /* OCD: 20px padding, 0 top */
 }
 
 .permission-category-landscape {
@@ -1555,9 +1572,22 @@ onMounted(async () => {
     width: 100% !important;
   }
 
-  .permissions-landscape-grid {
+  .permissions-landscape-grid-4col {
     grid-template-columns: 1fr; /* Single column on mobile */
     gap: 12px; /* OCD: 12px gap on mobile */
+  }
+
+  .user-settings-row-horizontal {
+    flex-wrap: wrap; /* Allow wrapping on mobile */
+  }
+
+  .user-form-item-horizontal {
+    width: 100%;
+
+    input,
+    .ant-select {
+      width: 100% !important;
+    }
   }
 }
 
