@@ -26,7 +26,9 @@ import { INSTANCE_STATUS } from "@/types/const";
 import {
   ApartmentOutlined,
   BlockOutlined,
+  CalendarOutlined,
   CheckCircleOutlined,
+  ClockCircleOutlined,
   CloseOutlined,
   CloudDownloadOutlined,
   CloudServerOutlined,
@@ -49,6 +51,7 @@ import type { TagInfo } from "../../components/interface";
 import { GLOBAL_INSTANCE_NAME } from "../../config/const";
 import { useTerminal, type UseTerminalHook } from "../../hooks/useTerminal";
 import { arrayFilter } from "../../tools/array";
+import { parseTimestamp } from "../../tools/time";
 
 const props = defineProps<{
   card: LayoutCard;
@@ -366,22 +369,36 @@ const terminalTopTags = computed<TagInfo[]>(() => {
         </div>
       </div>
 
-      <!-- Basic Info Section (Stats) -->
-      <div class="stats-section" v-if="!isStopped && terminalTopTags.length">
+      <!-- Basic Info Section -->
+      <div class="stats-section">
         <div class="stats-title">Basic Information</div>
         <div class="stats-items">
-          <div v-for="tag in terminalTopTags" :key="tag.label" class="stat-item" @click="tag.onClick">
-            <component :is="tag.icon" class="stat-icon" />
+          <!-- Runtime stats when running -->
+          <template v-if="!isStopped && terminalTopTags.length">
+            <div v-for="tag in terminalTopTags" :key="tag.label" class="stat-item" @click="tag.onClick">
+              <component :is="tag.icon" class="stat-icon" />
+              <div class="stat-content">
+                <span class="stat-label">{{ tag.label }}</span>
+                <span class="stat-value" :class="`value-${tag.color}`">{{ tag.value }}</span>
+              </div>
+            </div>
+          </template>
+          <!-- Basic instance info -->
+          <div class="stat-item" v-if="instanceInfo?.config.endTime">
+            <CalendarOutlined class="stat-icon" />
             <div class="stat-content">
-              <span class="stat-label">{{ tag.label }}</span>
-              <span class="stat-value" :class="`value-${tag.color}`">{{ tag.value }}</span>
+              <span class="stat-label">{{ t("TXT_CODE_ae747cc0") }}</span>
+              <span class="stat-value">{{ parseTimestamp(instanceInfo?.config.endTime) || t("TXT_CODE_e3a77a77") }}</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <ClockCircleOutlined class="stat-icon" />
+            <div class="stat-content">
+              <span class="stat-label">{{ t("TXT_CODE_46f575ae") }}</span>
+              <span class="stat-value">{{ parseTimestamp(instanceInfo?.config.lastDatetime) || '-' }}</span>
             </div>
           </div>
         </div>
-      </div>
-      <div class="stats-section stats-placeholder" v-else>
-        <div class="stats-title">Basic Information</div>
-        <span class="stats-offline">Instance Offline</span>
       </div>
 
       <!-- Buttons Section -->
