@@ -17,17 +17,14 @@ import {
   ClockCircleOutlined,
   CloudServerOutlined,
   TeamOutlined,
-  ThunderboltOutlined,
   SettingOutlined,
   RocketOutlined,
-  GlobalOutlined,
   DatabaseOutlined,
   ReloadOutlined,
   SearchOutlined,
   AppstoreOutlined,
   UnorderedListOutlined,
   SortAscendingOutlined,
-  CopyOutlined,
   PoweroffOutlined,
   CaretRightOutlined,
   LoadingOutlined,
@@ -92,8 +89,7 @@ const filteredInstances = computed(() => {
     const query = searchQuery.value.toLowerCase();
     instances = instances.filter((i: any) =>
       i.nickname?.toLowerCase().includes(query) ||
-      i.processType?.toLowerCase().includes(query) ||
-      i.hostIp?.toLowerCase().includes(query)
+      i.processType?.toLowerCase().includes(query)
     );
   }
 
@@ -167,14 +163,6 @@ const openSubUserManager = (daemonId: string, instanceUuid: string) => {
   subUserManagerVisible.value = true;
 };
 
-const copyToClipboard = async (text: string) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
-  } catch {
-    message.error("Failed to copy");
-  }
-};
 
 const canManageSubUsers = () => {
   const userInfo = appStateStore.state.userInfo;
@@ -239,13 +227,6 @@ const canStop = (status: INSTANCE_STATUS_CODE) => {
   return status === INSTANCE_STATUS_CODE.RUNNING;
 };
 
-const instanceCount = computed(() => state.value?.instances?.length || 0);
-const runningCount = computed(() =>
-  state.value?.instances?.filter((i: any) => i.status === INSTANCE_STATUS_CODE.RUNNING).length || 0
-);
-const stoppedCount = computed(() =>
-  state.value?.instances?.filter((i: any) => i.status === INSTANCE_STATUS_CODE.STOPPED).length || 0
-);
 
 const toggleSort = (field: "name" | "status" | "lastActive") => {
   if (sortBy.value === field) {
@@ -289,37 +270,6 @@ onMounted(() => {
     </template>
     <template #body>
       <PermissionBanner type="instance" theme="orange" />
-
-      <!-- Stats Overview -->
-      <div class="stats-overview">
-        <div class="stat-card total">
-          <div class="stat-icon">
-            <GlobalOutlined />
-          </div>
-          <div class="stat-info">
-            <span class="stat-number">{{ instanceCount }}</span>
-            <span class="stat-label">Total Servers</span>
-          </div>
-        </div>
-        <div class="stat-card running">
-          <div class="stat-icon">
-            <ThunderboltOutlined />
-          </div>
-          <div class="stat-info">
-            <span class="stat-number">{{ runningCount }}</span>
-            <span class="stat-label">Running</span>
-          </div>
-        </div>
-        <div class="stat-card stopped">
-          <div class="stat-icon">
-            <PauseCircleOutlined />
-          </div>
-          <div class="stat-info">
-            <span class="stat-number">{{ stoppedCount }}</span>
-            <span class="stat-label">Stopped</span>
-          </div>
-        </div>
-      </div>
 
       <!-- Controls Bar -->
       <div class="controls-bar">
@@ -454,13 +404,6 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Host Info with Copy -->
-            <div class="host-info" @click="copyToClipboard(instance.hostIp || 'Unknown')">
-              <GlobalOutlined class="host-icon" />
-              <span class="host-value">{{ instance.hostIp || 'Unknown' }}</span>
-              <CopyOutlined class="copy-icon" />
-              <span class="copy-hint">Click to copy</span>
-            </div>
           </div>
 
           <!-- Quick Actions -->
