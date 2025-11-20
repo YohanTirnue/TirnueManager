@@ -141,16 +141,16 @@ class OperationLogger {
     await this.#instanceStorage.clear(instanceId);
   }
 
-  info<T extends keyof OperationLoggerItemPayload>(type: T, payload: CleanPayload<T>) {
-    return this.log(type, payload, "info");
+  info<T extends keyof OperationLoggerItemPayload>(type: T, payload: CleanPayload<T>, skipInstanceLog = false) {
+    return this.log(type, payload, "info", skipInstanceLog);
   }
 
-  warning<T extends keyof OperationLoggerItemPayload>(type: T, payload: CleanPayload<T>) {
-    return this.log(type, payload, "warning");
+  warning<T extends keyof OperationLoggerItemPayload>(type: T, payload: CleanPayload<T>, skipInstanceLog = false) {
+    return this.log(type, payload, "warning", skipInstanceLog);
   }
 
-  error<T extends keyof OperationLoggerItemPayload>(type: T, payload: CleanPayload<T>) {
-    return this.log(type, payload, "error");
+  error<T extends keyof OperationLoggerItemPayload>(type: T, payload: CleanPayload<T>, skipInstanceLog = false) {
+    return this.log(type, payload, "error", skipInstanceLog);
   }
 
   private startFlushTimer() {
