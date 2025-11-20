@@ -8,7 +8,8 @@ import {
   RocketOutlined,
   CustomerServiceOutlined,
   CheckCircleOutlined,
-  ArrowRightOutlined
+  ArrowRightOutlined,
+  TeamOutlined
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import { onMounted, ref } from "vue";
@@ -223,6 +224,26 @@ onMounted(() => {
           <img src="/favicon.png" alt="" class="btn-icon" />
           Sign In to Dashboard
           <ArrowRightOutlined />
+        </a-button>
+      </div>
+    </section>
+
+    <!-- Join Team Section -->
+    <section class="join-team-section" :class="{ show: showCTA }">
+      <div class="join-team-content">
+        <div class="join-team-icon">
+          <TeamOutlined />
+        </div>
+        <h2>Join Our Team</h2>
+        <p>We're always looking for passionate people to help us grow. Whether you're into development, support, or community management - we'd love to hear from you.</p>
+        <div class="join-team-roles">
+          <span class="role-tag">Developers</span>
+          <span class="role-tag">Support Staff</span>
+          <span class="role-tag">Community Mods</span>
+        </div>
+        <a-button size="large" class="join-team-btn" @click="showUnderDevelopment">
+          <TeamOutlined />
+          Get in Touch
         </a-button>
       </div>
     </section>
@@ -819,6 +840,101 @@ onMounted(() => {
   height: 24px;
 }
 
+// Join Team Section
+.join-team-section {
+  padding: 80px 60px;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+  transition-delay: 0.2s;
+
+  &.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.join-team-content {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 48px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(10, 10, 10, 0.9));
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 24px;
+
+  h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 16px;
+    background: linear-gradient(135deg, #D4AF37, #FF8C42);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  p {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 24px;
+    line-height: 1.7;
+  }
+}
+
+.join-team-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(255, 140, 66, 0.2));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #D4AF37;
+}
+
+.join-team-roles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.role-tag {
+  padding: 8px 16px;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 20px;
+  font-size: 13px;
+  color: #D4AF37;
+  font-weight: 500;
+}
+
+.join-team-btn {
+  height: 48px;
+  padding: 0 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  background: transparent;
+  border: 2px solid #D4AF37;
+  color: #D4AF37;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: #FF8C42;
+    color: #FF8C42;
+  }
+}
+
 // Footer
 .landing-footer {
   padding: 40px 60px;
@@ -966,8 +1082,38 @@ onMounted(() => {
 
   .features-section,
   .services-section,
-  .cta-section {
+  .cta-section,
+  .join-team-section {
     padding: 60px 16px;
+  }
+
+  .join-team-content {
+    padding: 32px 20px;
+
+    h2 {
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .join-team-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+  }
+
+  .role-tag {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .join-team-btn {
+    height: 44px;
+    font-size: 14px;
+    width: 100%;
   }
 
   .features-grid,
