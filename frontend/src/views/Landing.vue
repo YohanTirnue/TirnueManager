@@ -229,6 +229,7 @@ onMounted(() => {
           <img src="/favicon.png" alt="Tirnue" class="footer-logo" />
           <span>Tirnue</span>
         </div>
+        <p class="footer-notice">Links and buttons under construction for future services</p>
         <p class="footer-powered">Powered by MCS Manager</p>
         <p class="footer-copy">&copy; 2024 Tirnue. All rights reserved.</p>
       </div>
@@ -238,11 +239,14 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .landing-page {
+  position: fixed;
+  inset: 0;
   min-height: 100vh;
   background: #050505;
   color: white;
   overflow-x: hidden;
-  position: relative;
+  overflow-y: auto;
+  z-index: 9999;
 }
 
 // Blurred Background Image
@@ -841,6 +845,13 @@ onMounted(() => {
 .footer-logo {
   width: 28px;
   height: 28px;
+}
+
+.footer-notice {
+  font-size: 13px;
+  color: rgba(255, 140, 66, 0.7);
+  margin: 0 0 12px;
+  font-style: italic;
 }
 
 .footer-powered {
