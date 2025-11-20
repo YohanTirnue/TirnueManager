@@ -231,7 +231,7 @@ onMounted(() => {
         </div>
         <p class="footer-notice">Links and buttons under construction for future services</p>
         <p class="footer-powered">Powered by MCS Manager</p>
-        <p class="footer-copy">&copy; 2024 Tirnue. All rights reserved.</p>
+        <p class="footer-copy">&copy; 2025 Tirnue. All rights reserved.</p>
       </div>
     </footer>
   </div>
