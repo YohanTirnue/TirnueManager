@@ -226,12 +226,6 @@ watch(instanceInfo, (cfg, oldCfg) => {
       </div>
     </template>
     <template #body>
-      <PermissionBanner
-        type="custom"
-        :customPermissions="availableManagerPermissions || []"
-        theme="gold"
-      />
-
       <div class="manager-buttons-grid" :class="{ 'centered-manager-grid': btns.length <= 3 }">
         <a-button
           v-for="(item, index) in btns"
