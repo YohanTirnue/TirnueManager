@@ -335,87 +335,102 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   <div v-if="innerTerminalType" class="bento-terminal-container">
     <PermissionBanner type="instance" theme="orange" />
 
-    <!-- Bento Grid Layout -->
-    <div class="bento-grid">
-      <!-- Hero Section with Floating Status -->
-      <div class="hero-section">
-        <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
-          <div class="orb-pulse"></div>
-          <div class="orb-ring"></div>
-        </div>
-        <div class="hero-content">
-          <h1 class="instance-hero-title">{{ getInstanceName }}</h1>
-          <div class="hero-meta-chips">
-            <div class="meta-chip chip-status" :class="{ 'chip-active': isRunning, 'chip-busy': isBuys }">
-              <div class="chip-dot"></div>
-              <span>{{ instanceStatusText }}</span>
-            </div>
-            <div v-if="instanceTypeText" class="meta-chip chip-type">
-              <CloudServerOutlined />
-              <span>{{ instanceTypeText }}</span>
-            </div>
-            <div v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1" class="meta-chip chip-watchers">
-              <LaptopOutlined />
-              <span>{{ instanceInfo?.watcher }} watching</span>
-            </div>
+    <!-- Compact Info Header -->
+    <div class="compact-info-header">
+      <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
+        <div class="orb-pulse"></div>
+        <div class="orb-ring"></div>
+      </div>
+      <div class="info-content">
+        <h1 class="instance-name">{{ getInstanceName }}</h1>
+        <div class="info-chips">
+          <div class="meta-chip chip-status" :class="{ 'chip-active': isRunning, 'chip-busy': isBuys }">
+            <div class="chip-dot"></div>
+            <span>{{ instanceStatusText }}</span>
+          </div>
+          <div v-if="instanceTypeText" class="meta-chip chip-type">
+            <CloudServerOutlined />
+            <span>{{ instanceTypeText }}</span>
+          </div>
+          <div v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1" class="meta-chip chip-watchers">
+            <LaptopOutlined />
+            <span>{{ instanceInfo?.watcher }} watching</span>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Modern Action Buttons Panel -->
-      <div class="actions-panel-modern" v-if="!isPhone">
-        <div class="action-buttons-grid">
-          <template v-for="item in quickOperations" :key="item.title">
-            <a-button
-              v-if="item.noConfirm"
-              size="large"
-              class="modern-action-btn btn-primary-gradient"
-              :class="{ 'btn-disabled': isOpenInstanceLoading }"
-              :disabled="isOpenInstanceLoading"
-              @click="!isOpenInstanceLoading && item.click()"
-            >
+    <!-- Stats Cards -->
+    <div class="bento-stats-container" v-if="!isStopped">
+      <div v-for="(tag, index) in terminalTopTags" :key="tag.label"
+           class="bento-stat-card"
+           :class="`bento-stat-${index}`"
+      >
+        <div class="stat-glow" :class="`glow-${tag.color}`"></div>
+        <component :is="tag.icon" class="bento-stat-icon" />
+        <div class="bento-stat-info">
+          <div class="bento-stat-label">{{ tag.label }}</div>
+          <div class="bento-stat-value" :class="`value-${tag.color}`">{{ tag.value }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manage Instance - Full Width Action Buttons -->
+    <div class="manage-instance-panel">
+      <div class="panel-header">
+        <h3>Manage Instance</h3>
+      </div>
+      <div class="action-buttons-grid" v-if="!isPhone">
+        <template v-for="item in quickOperations" :key="item.title">
+          <a-button
+            v-if="item.noConfirm"
+            size="large"
+            class="modern-action-btn btn-primary-gradient"
+            :class="{ 'btn-disabled': isOpenInstanceLoading }"
+            :disabled="isOpenInstanceLoading"
+            @click="!isOpenInstanceLoading && item.click()"
+          >
+            <template #icon>
+              <component :is="item.icon" />
+            </template>
+            {{ item.title }}
+          </a-button>
+          <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
+            <a-button size="large" class="modern-action-btn btn-primary-gradient">
               <template #icon>
                 <component :is="item.icon" />
               </template>
               {{ item.title }}
             </a-button>
-            <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
-              <a-button size="large" class="modern-action-btn btn-primary-gradient">
-                <template #icon>
-                  <component :is="item.icon" />
-                </template>
-                {{ item.title }}
-              </a-button>
-            </a-popconfirm>
-          </template>
+          </a-popconfirm>
+        </template>
 
-          <template v-for="item in instanceOperations" :key="item.title">
+        <template v-for="item in instanceOperations" :key="item.title">
+          <a-button
+            v-if="item.noConfirm"
+            size="large"
+            class="modern-action-btn"
+            :class="item.type === 'danger' ? 'btn-danger-gradient' : 'btn-default-modern'"
+            @click="item.click"
+          >
+            <template #icon>
+              <component :is="item.icon" />
+            </template>
+            {{ item.title }}
+          </a-button>
+          <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
             <a-button
-              v-if="item.noConfirm"
               size="large"
               class="modern-action-btn"
               :class="item.type === 'danger' ? 'btn-danger-gradient' : 'btn-default-modern'"
-              @click="item.click"
             >
               <template #icon>
                 <component :is="item.icon" />
               </template>
               {{ item.title }}
             </a-button>
-            <a-popconfirm v-else :title="t('TXT_CODE_276756b2')" @confirm="item.click">
-              <a-button
-                size="large"
-                class="modern-action-btn"
-                :class="item.type === 'danger' ? 'btn-danger-gradient' : 'btn-default-modern'"
-              >
-                <template #icon>
-                  <component :is="item.icon" />
-                </template>
-                {{ item.title }}
-              </a-button>
-            </a-popconfirm>
-          </template>
-        </div>
+          </a-popconfirm>
+        </template>
       </div>
 
       <!-- Mobile Actions -->
@@ -440,21 +455,6 @@ const terminalTopTags = computed<TagInfo[]>(() => {
             {{ t("TXT_CODE_fe731dfc") }}
           </a-button>
         </a-dropdown>
-      </div>
-
-      <!-- Stats Cards in Bento Style -->
-      <div class="bento-stats-container" v-if="!isStopped">
-        <div v-for="(tag, index) in terminalTopTags" :key="tag.label"
-             class="bento-stat-card"
-             :class="`bento-stat-${index}`"
-        >
-          <div class="stat-glow" :class="`glow-${tag.color}`"></div>
-          <component :is="tag.icon" class="bento-stat-icon" />
-          <div class="bento-stat-info">
-            <div class="bento-stat-label">{{ tag.label }}</div>
-            <div class="bento-stat-value" :class="`value-${tag.color}`">{{ tag.value }}</div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -563,20 +563,20 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 .bento-terminal-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   height: 100%;
   padding: 8px;
 }
 
-// HERO SECTION WITH ANIMATED STATUS ORB
-.hero-section {
+// COMPACT INFO HEADER - COMBINED NAME, STATUS, TYPE
+.compact-info-header {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 32px 28px;
+  gap: 20px;
+  padding: 20px 24px;
   background: linear-gradient(135deg, rgba(153, 27, 27, 0.03) 0%, rgba(212, 107, 8, 0.03) 100%);
-  border-radius: 20px;
+  border-radius: 16px;
   border: 1px solid rgba(153, 27, 27, 0.1);
   overflow: hidden;
 
@@ -587,6 +587,29 @@ const terminalTopTags = computed<TagInfo[]>(() => {
     background: radial-gradient(circle at top right, rgba(153, 27, 27, 0.08), transparent 70%);
     pointer-events: none;
   }
+}
+
+.info-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.instance-name {
+  margin: 0 0 12px 0;
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+  filter: drop-shadow(0 2px 8px rgba(255, 140, 66, 0.3));
+}
+
+.info-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 // STATUS ORB - Cyberpunk Style Animated Indicator
@@ -675,50 +698,26 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   50% { transform: scale(1.3); opacity: 0.4; }
 }
 
-// HERO CONTENT
-.hero-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.instance-hero-title {
-  margin: 0 0 16px 0;
-  font-size: 40px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -1px;
-  filter: drop-shadow(0 2px 8px rgba(255, 140, 66, 0.3));
-}
-
-.hero-meta-chips {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
 .meta-chip {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 20px;
+  gap: 8px;
+  padding: 10px 16px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.75) 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 2px solid rgba(255, 140, 66, 0.3);
-  border-radius: 24px;
-  font-size: 15px;
+  border-radius: 20px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-color);
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.15);
+  box-shadow: 0 3px 12px rgba(255, 140, 66, 0.15);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     border-color: rgba(255, 140, 66, 0.5);
-    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.25);
+    box-shadow: 0 6px 20px rgba(255, 140, 66, 0.25);
   }
 }
 
@@ -750,23 +749,8 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   50% { opacity: 0.6; transform: scale(1.2); }
 }
 
-// BENTO GRID LAYOUT
-.bento-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
-}
-
-// HERO SECTION INSIDE GRID
-.hero-section {
-  grid-column: 1;
-  grid-row: 1;
-}
-
 // BENTO STATS CARDS
 .bento-stats-container {
-  grid-column: 1 / -1;
-  grid-row: 2;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
@@ -859,30 +843,45 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   }
 }
 
-// MODERN ACTION BUTTONS PANEL
-.actions-panel-modern {
-  grid-column: 2;
-  grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  align-self: start;
+// MANAGE INSTANCE PANEL - FULL WIDTH
+.manage-instance-panel {
+  position: relative;
+  width: 100%;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.03) 0%, rgba(212, 107, 8, 0.03) 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(153, 27, 27, 0.1);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at bottom left, rgba(153, 27, 27, 0.08), transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.panel-header {
+  margin-bottom: 16px;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.3px;
+  }
 }
 
 .action-buttons-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
   align-content: start;
-
-  > * {
-    grid-column: 1 / -1;
-  }
-
-  // Make first two buttons (Start/Reset) sit side by side
-  > :nth-child(1),
-  > :nth-child(2) {
-    grid-column: span 1;
-  }
 }
 
 .modern-action-btn {
@@ -1013,8 +1012,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 }
 
 .mobile-actions-modern {
-  grid-column: 1;
-  margin-top: 16px;
+  width: 100%;
 
   .mobile-dropdown-btn {
     width: 100%;
@@ -1023,14 +1021,14 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
 // GLASS TERMINAL WRAPPER - macOS Style
 .glass-terminal-wrapper {
-  grid-column: 1 / -1;
+  width: 100%;
   background: rgba(30, 30, 30, 0.95);
   backdrop-filter: blur(40px) saturate(150%);
   -webkit-backdrop-filter: blur(40px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
@@ -1077,34 +1075,17 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
 // MOBILE OPTIMIZATIONS
 @media (max-width: 992px) {
-  .bento-grid {
-    grid-template-columns: 1fr;
+  .compact-info-header {
+    padding: 20px;
   }
 
-  .hero-section {
-    grid-column: 1;
-    grid-row: 1;
-    padding: 24px 20px;
-  }
-
-  .actions-panel-modern {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .bento-stats-container {
-    grid-column: 1;
-    grid-row: 3;
+  .manage-instance-panel {
+    padding: 20px;
   }
 
   .action-buttons-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 10px;
-
-    > :nth-child(1),
-    > :nth-child(2) {
-      grid-column: span 1;
-    }
   }
 
   .modern-action-btn {
@@ -1112,8 +1093,8 @@ const terminalTopTags = computed<TagInfo[]>(() => {
     font-size: 13px;
   }
 
-  .instance-hero-title {
-    font-size: 24px;
+  .instance-name {
+    font-size: 22px;
   }
 
   .status-orb {
@@ -1133,18 +1114,20 @@ const terminalTopTags = computed<TagInfo[]>(() => {
     grid-template-columns: 1fr;
   }
 
+  .compact-info-header {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .manage-instance-panel {
+    padding: 16px;
+  }
+
   .action-buttons-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 8px;
-
-    > :nth-child(1),
-    > :nth-child(2) {
-      grid-column: span 1;
-    }
-
-    > :nth-child(n+3) {
-      grid-column: 1 / -1;
-    }
   }
 
   .modern-action-btn {
@@ -1152,13 +1135,24 @@ const terminalTopTags = computed<TagInfo[]>(() => {
     font-size: 12px;
   }
 
-  .instance-hero-title {
-    font-size: 20px;
+  .instance-name {
+    font-size: 18px;
   }
 
   .bento-terminal-container {
     padding: 4px;
-    gap: 16px;
+    gap: 12px;
+  }
+
+  .status-orb {
+    width: 48px;
+    height: 48px;
+  }
+
+  .orb-ring,
+  .orb-pulse {
+    width: 36px;
+    height: 36px;
   }
 }
 
