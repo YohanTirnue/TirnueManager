@@ -318,179 +318,163 @@ defineExpose({
         layout="vertical"
         autocomplete="off"
       >
-        <a-row v-if="activeKey === TabSettings.Basic" :gutter="20">
-          <a-col :xs="24" :lg="8" :offset="0">
-            <a-form-item name="nickname">
-              <a-typography-title :level="5" class="require-field">
-                {{ t("TXT_CODE_f70badb9") }}
-              </a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_818928ba')" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
-                    {{ t("TXT_CODE_818928ba") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-input v-model:value="options.config.nickname" :disabled="isGlobalTerminal" />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :lg="8" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5" class="require-field">
-                {{ t("TXT_CODE_2f291d8b") }}
-              </a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_be608c82')" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
-                    {{ t("TXT_CODE_be608c82") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-select
-                v-model:value="options.config.type"
-                :placeholder="t('TXT_CODE_3bb646e4')"
-                :disabled="isGlobalTerminal"
-              >
-                <a-select-option
-                  v-for="(item, key) in INSTANCE_TYPE_TRANSLATION"
-                  :key="key"
-                  :value="key"
-                >
-                  {{ item }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-
-          <a-col :xs="24" :lg="8" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5">{{ t("TXT_CODE_fa920c0") }}</a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_b029a155')" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
-                    {{ t("TXT_CODE_b029a155") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-date-picker
-                v-model:value="options.dayjsEndTime"
-                size="large"
-                show-time
-                style="width: 100%"
-                :placeholder="t('TXT_CODE_e3a77a77')"
-                :disabled="isGlobalTerminal"
-              />
-            </a-form-item>
+        <a-row v-if="activeKey === TabSettings.Basic" :gutter="[16, 16]">
+          <!-- Basic Information Card - LANDSCAPE -->
+          <a-col :span="24">
+            <div class="settings-card">
+              <div class="settings-card-row">
+                <div class="settings-card-title-section">
+                  <h4 class="settings-card-title">Basic Information</h4>
+                  <p class="settings-card-subtitle">Configure instance name and type</p>
+                </div>
+                <div class="settings-card-controls">
+                  <a-form-item name="nickname" class="settings-form-item">
+                    <div class="settings-control-label">
+                      <span class="settings-label-text required">{{ t("TXT_CODE_f70badb9") }}</span>
+                      <span class="settings-label-hint">{{ t("TXT_CODE_818928ba") }}</span>
+                    </div>
+                    <a-input
+                      v-model:value="options.config.nickname"
+                      :disabled="isGlobalTerminal"
+                      style="width: 240px"
+                    />
+                  </a-form-item>
+                  <a-form-item class="settings-form-item">
+                    <div class="settings-control-label">
+                      <span class="settings-label-text required">{{ t("TXT_CODE_2f291d8b") }}</span>
+                      <span class="settings-label-hint">{{ t("TXT_CODE_be608c82") }}</span>
+                    </div>
+                    <a-select
+                      v-model:value="options.config.type"
+                      :placeholder="t('TXT_CODE_3bb646e4')"
+                      :disabled="isGlobalTerminal"
+                      style="width: 200px"
+                    >
+                      <a-select-option
+                        v-for="(item, key) in INSTANCE_TYPE_TRANSLATION"
+                        :key="key"
+                        :value="key"
+                      >
+                        {{ item }}
+                      </a-select-option>
+                    </a-select>
+                  </a-form-item>
+                  <a-form-item class="settings-form-item">
+                    <div class="settings-control-label">
+                      <span class="settings-label-text">{{ t("TXT_CODE_fa920c0") }}</span>
+                      <span class="settings-label-hint">{{ t("TXT_CODE_b029a155") }}</span>
+                    </div>
+                    <a-date-picker
+                      v-model:value="options.dayjsEndTime"
+                      size="large"
+                      show-time
+                      style="width: 240px"
+                      :placeholder="t('TXT_CODE_e3a77a77')"
+                      :disabled="isGlobalTerminal"
+                    />
+                  </a-form-item>
+                </div>
+              </div>
+            </div>
           </a-col>
 
-          <a-col :xs="24" :offset="0">
-            <a-form-item name="startCommand">
-              <a-typography-title :level="5">
-                {{ t("TXT_CODE_d12fa808") }}
-              </a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_A0000001')" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
+          <!-- Startup Command Card - LANDSCAPE -->
+          <a-col :span="24">
+            <div class="settings-card">
+              <div class="settings-card-row settings-card-column">
+                <div class="settings-card-title-section">
+                  <h4 class="settings-card-title">{{ t("TXT_CODE_d12fa808") }}</h4>
+                  <p class="settings-card-subtitle">
                     <!-- eslint-disable-next-line vue/no-v-html -->
                     <span v-html="t('TXT_CODE_A0000001')"></span>
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-input-group compact style="display: flex">
-                <a-textarea
-                  v-model:value="options.config.startCommand"
-                  :rows="5"
-                  style="min-height: 40px"
-                  :placeholder="isDockerMode ? t('TXT_CODE_98e7c829') : t('TXT_CODE_f50cfe2')"
-                />
-              </a-input-group>
-            </a-form-item>
+                  </p>
+                </div>
+                <a-form-item name="startCommand" class="settings-form-item-full">
+                  <a-textarea
+                    v-model:value="options.config.startCommand"
+                    :rows="5"
+                    :placeholder="isDockerMode ? t('TXT_CODE_98e7c829') : t('TXT_CODE_f50cfe2')"
+                  />
+                </a-form-item>
+              </div>
+            </div>
           </a-col>
         </a-row>
-        <a-row v-if="activeKey === TabSettings.Advanced" :gutter="20">
-          <a-col :xs="24" :offset="0">
-            <a-form-item name="cwd">
-              <a-typography-title :level="5" class="require-field">
-                {{ t("TXT_CODE_ee67e1a3") }}
-              </a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_962d9320')" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
-                    {{ t("TXT_CODE_962d9320") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-input v-model:value="options.config.cwd" />
-            </a-form-item>
+        <a-row v-if="activeKey === TabSettings.Advanced" :gutter="[16, 16]">
+          <!-- Working Directory Card - LANDSCAPE -->
+          <a-col :span="24">
+            <div class="settings-card">
+              <div class="settings-card-row settings-card-column">
+                <div class="settings-card-title-section">
+                  <h4 class="settings-card-title required">{{ t("TXT_CODE_ee67e1a3") }}</h4>
+                  <p class="settings-card-subtitle">{{ t("TXT_CODE_962d9320") }}</p>
+                </div>
+                <a-form-item name="cwd" class="settings-form-item-full">
+                  <a-input v-model:value="options.config.cwd" />
+                </a-form-item>
+              </div>
+            </div>
           </a-col>
-          <a-col :xs="24" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5">{{ t("TXT_CODE_bb0b9711") }}</a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="updateCommandDesc" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
+
+          <!-- Update Command Card - LANDSCAPE -->
+          <a-col :span="24">
+            <div class="settings-card">
+              <div class="settings-card-row settings-card-column">
+                <div class="settings-card-title-section">
+                  <h4 class="settings-card-title">{{ t("TXT_CODE_bb0b9711") }}</h4>
+                  <p class="settings-card-subtitle">
                     <span>{{ t("TXT_CODE_4f387c5a") }}</span>
-                    <br />
-                    <!-- eslint-disable-next-line vue/no-v-html -->
-                    <span v-html="updateCommandDesc"> </span>
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <!-- eslint-disable-next-line vue/html-quotes -->
-              <a-input
-                v-model:value="options.config.updateCommand"
-                :placeholder="UPDATE_CMD_TEMPLATE"
-                :disabled="isGlobalTerminal"
-              />
-            </a-form-item>
+                  </p>
+                </div>
+                <a-form-item class="settings-form-item-full">
+                  <a-input
+                    v-model:value="options.config.updateCommand"
+                    :placeholder="UPDATE_CMD_TEMPLATE"
+                    :disabled="isGlobalTerminal"
+                  />
+                </a-form-item>
+              </div>
+            </div>
           </a-col>
-          <a-col :xs="24" :lg="6" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5" class="require-field">
-                {{ t("TXT_CODE_f041de90") }}
-              </a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_6e69b5a5')" placement="top">
-                  <a-typography-text
-                    type="secondary"
-                    :class="[!isPhone && 'two-line-height', 'typography-text-ellipsis']"
-                  >
-                    {{ t("TXT_CODE_6e69b5a5") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-select
-                v-model:value="options.config.fileCode"
-                :placeholder="t('TXT_CODE_3bb646e4')"
-              >
-                <a-select-option v-for="item in TERMINAL_CODE" :key="item" :value="item">
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :lg="16" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5">{{ t("TXT_CODE_fffaeb17") }}</a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip
-                  :title="t('TXT_CODE_fffaeb18') + '\n' + t('TXT_CODE_50a2b2d9')"
-                  placement="top"
-                >
-                  <a-typography-text
-                    type="secondary"
-                    :class="[!isPhone && 'two-line-height', 'typography-text-ellipsis']"
-                  >
-                    <span>{{ t("TXT_CODE_fffaeb18") }}</span>
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-input
-                v-model:value="options.config.runAs"
-                :placeholder="t('TXT_CODE_9aa83c05')"
-                :disabled="isGlobalTerminal"
-                style="width: 400px"
-              />
-            </a-form-item>
+
+          <!-- Advanced Settings Card - LANDSCAPE -->
+          <a-col :span="24">
+            <div class="settings-card">
+              <div class="settings-card-row">
+                <div class="settings-card-title-section">
+                  <h4 class="settings-card-title">Advanced Settings</h4>
+                  <p class="settings-card-subtitle">File encoding and runtime configuration</p>
+                </div>
+                <div class="settings-card-controls">
+                  <a-form-item class="settings-form-item">
+                    <div class="settings-control-label">
+                      <span class="settings-label-text required">{{ t("TXT_CODE_f041de90") }}</span>
+                      <span class="settings-label-hint">{{ t("TXT_CODE_6e69b5a5") }}</span>
+                    </div>
+                    <a-select
+                      v-model:value="options.config.fileCode"
+                      :placeholder="t('TXT_CODE_3bb646e4')"
+                      style="width: 180px"
+                    >
+                      <a-select-option v-for="item in TERMINAL_CODE" :key="item" :value="item">
+                      </a-select-option>
+                    </a-select>
+                  </a-form-item>
+                  <a-form-item class="settings-form-item">
+                    <div class="settings-control-label">
+                      <span class="settings-label-text">{{ t("TXT_CODE_fffaeb17") }}</span>
+                      <span class="settings-label-hint">{{ t("TXT_CODE_fffaeb18") }}</span>
+                    </div>
+                    <a-input
+                      v-model:value="options.config.runAs"
+                      :placeholder="t('TXT_CODE_9aa83c05')"
+                      :disabled="isGlobalTerminal"
+                      style="width: 280px"
+                    />
+                  </a-form-item>
+                </div>
+              </div>
+            </div>
           </a-col>
         </a-row>
         <a-row v-if="activeKey === TabSettings.Docker" :gutter="[16, 16]">
@@ -793,103 +777,93 @@ defineExpose({
             </a-col>
           </template>
         </a-row>
-        <a-row v-if="activeKey === TabSettings.ResLimit" :gutter="20">
-          <a-col :xs="24" :lg="8" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5">{{ t("TXT_CODE_53046822") }}</a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_750ab5c6')" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
-                    {{ t("TXT_CODE_750ab5c6") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-tooltip placement="bottom">
-                <template #title>
-                  {{ t("TXT_CODE_dce87e42") }}
-                </template>
-                <a-input
-                  v-model:value="options.config.docker.cpuUsage"
-                  :allow-clear="true"
-                  :placeholder="t('TXT_CODE_91d857f5')"
-                />
-              </a-tooltip>
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :lg="8" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5">{{ t("TXT_CODE_b0c4e4ae") }}</a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_2b9e9b5')" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
-                    {{ t("TXT_CODE_2b9e9b5") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-tooltip placement="bottom">
-                <template #title>
-                  {{ t("TXT_CODE_67c765be") }}
-                </template>
-                <a-input
-                  v-model:value="options.config.docker.cpusetCpus"
-                  :allow-clear="true"
-                  :placeholder="t('TXT_CODE_30fe1717')"
-                />
-              </a-tooltip>
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :lg="8" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5">{{ t("TXT_CODE_6fe24924") }}</a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_a0d214ac')" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
-                    {{ t("TXT_CODE_a0d214ac") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-input
-                v-model:value="options.config.docker.memory"
-                :allow-clear="true"
-                :placeholder="t('TXT_CODE_80790069')"
-              />
-            </a-form-item>
+        <a-row v-if="activeKey === TabSettings.ResLimit" :gutter="[16, 16]">
+          <!-- CPU Limits Card - LANDSCAPE -->
+          <a-col :span="24">
+            <div class="settings-card">
+              <div class="settings-card-row">
+                <div class="settings-card-title-section">
+                  <h4 class="settings-card-title">CPU Limits</h4>
+                  <p class="settings-card-subtitle">Configure CPU usage and core allocation</p>
+                </div>
+                <div class="settings-card-controls">
+                  <a-form-item class="settings-form-item">
+                    <div class="settings-control-label">
+                      <span class="settings-label-text">{{ t("TXT_CODE_53046822") }}</span>
+                      <span class="settings-label-hint">{{ t("TXT_CODE_750ab5c6") }}</span>
+                    </div>
+                    <a-input
+                      v-model:value="options.config.docker.cpuUsage"
+                      :allow-clear="true"
+                      :placeholder="t('TXT_CODE_91d857f5')"
+                      style="width: 160px"
+                    />
+                  </a-form-item>
+                  <a-form-item class="settings-form-item">
+                    <div class="settings-control-label">
+                      <span class="settings-label-text">{{ t("TXT_CODE_b0c4e4ae") }}</span>
+                      <span class="settings-label-hint">{{ t("TXT_CODE_2b9e9b5") }}</span>
+                    </div>
+                    <a-input
+                      v-model:value="options.config.docker.cpusetCpus"
+                      :allow-clear="true"
+                      :placeholder="t('TXT_CODE_30fe1717')"
+                      style="width: 160px"
+                    />
+                  </a-form-item>
+                </div>
+              </div>
+            </div>
           </a-col>
 
-          <a-col :xs="24" :lg="8" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5">{{ t("TXT_CODE_a68b3a9c") }}</a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_b946a322')" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
-                    {{ t("TXT_CODE_b946a322") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-input
-                v-model:value="options.config.docker.memorySwap"
-                :allow-clear="true"
-                :placeholder="t('TXT_CODE_6f1129fb')"
-              />
-            </a-form-item>
-          </a-col>
-
-          <a-col :xs="24" :lg="8" :offset="0">
-            <a-form-item>
-              <a-typography-title :level="5">{{ t("TXT_CODE_5c43374f") }}</a-typography-title>
-              <a-typography-paragraph>
-                <a-tooltip :title="t('TXT_CODE_a7885cbc')" placement="top">
-                  <a-typography-text type="secondary" class="typography-text-ellipsis">
-                    {{ t("TXT_CODE_a7885cbc") }}
-                  </a-typography-text>
-                </a-tooltip>
-              </a-typography-paragraph>
-              <a-input
-                v-model:value="options.config.docker.memorySwappiness"
-                :allow-clear="true"
-                :placeholder="t('TXT_CODE_6f1129fb')"
-              />
-            </a-form-item>
+          <!-- Memory Limits Card - LANDSCAPE -->
+          <a-col :span="24">
+            <div class="settings-card">
+              <div class="settings-card-row">
+                <div class="settings-card-title-section">
+                  <h4 class="settings-card-title">Memory Limits</h4>
+                  <p class="settings-card-subtitle">Configure memory and swap allocation</p>
+                </div>
+                <div class="settings-card-controls">
+                  <a-form-item class="settings-form-item">
+                    <div class="settings-control-label">
+                      <span class="settings-label-text">{{ t("TXT_CODE_6fe24924") }}</span>
+                      <span class="settings-label-hint">{{ t("TXT_CODE_a0d214ac") }}</span>
+                    </div>
+                    <a-input
+                      v-model:value="options.config.docker.memory"
+                      :allow-clear="true"
+                      :placeholder="t('TXT_CODE_80790069')"
+                      style="width: 160px"
+                    />
+                  </a-form-item>
+                  <a-form-item class="settings-form-item">
+                    <div class="settings-control-label">
+                      <span class="settings-label-text">{{ t("TXT_CODE_a68b3a9c") }}</span>
+                      <span class="settings-label-hint">{{ t("TXT_CODE_b946a322") }}</span>
+                    </div>
+                    <a-input
+                      v-model:value="options.config.docker.memorySwap"
+                      :allow-clear="true"
+                      :placeholder="t('TXT_CODE_6f1129fb')"
+                      style="width: 160px"
+                    />
+                  </a-form-item>
+                  <a-form-item class="settings-form-item">
+                    <div class="settings-control-label">
+                      <span class="settings-label-text">{{ t("TXT_CODE_5c43374f") }}</span>
+                      <span class="settings-label-hint">{{ t("TXT_CODE_a7885cbc") }}</span>
+                    </div>
+                    <a-input
+                      v-model:value="options.config.docker.memorySwappiness"
+                      :allow-clear="true"
+                      :placeholder="t('TXT_CODE_6f1129fb')"
+                      style="width: 160px"
+                    />
+                  </a-form-item>
+                </div>
+              </div>
+            </div>
           </a-col>
         </a-row>
       </a-form>
@@ -1083,6 +1057,177 @@ defineExpose({
   .protection-right-section {
     justify-content: space-between;
     width: 100%;
+  }
+}
+
+/* LANDSCAPE Settings Cards - ORANGE GOLD BLACK THEME (All tabs) */
+.settings-card {
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  border: 2px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 24px; /* OCD: 24px all around */
+  margin-bottom: 16px; /* OCD: 16px between cards */
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #ff8c00; /* ORANGE on hover */
+    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.15);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.settings-card-row {
+  display: flex;
+  align-items: center; /* OCD: Vertically centered */
+  gap: 32px; /* OCD: 32px between sections */
+  justify-content: space-between;
+}
+
+.settings-card-column {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px; /* OCD: 16px for vertical */
+}
+
+.settings-card-title-section {
+  flex: 0 0 240px; /* OCD: Fixed 240px width */
+  min-width: 240px;
+}
+
+.settings-card-title {
+  margin: 0 0 4px 0; /* OCD: 4px gap */
+  padding: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffd700; /* GOLD */
+  line-height: 1.4;
+
+  &.required::after {
+    content: " *";
+    color: #ff8c00; /* ORANGE asterisk */
+  }
+}
+
+.settings-card-subtitle {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: #999999;
+  line-height: 1.4;
+}
+
+.settings-card-controls {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px; /* OCD: 24px between controls */
+  align-items: flex-start;
+}
+
+.settings-form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* OCD: 8px between label and input */
+  margin-bottom: 0 !important;
+}
+
+.settings-form-item-full {
+  width: 100%;
+  margin-bottom: 0 !important;
+}
+
+.settings-control-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* OCD: 4px between text and hint */
+}
+
+.settings-label-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.2;
+
+  &.required::after {
+    content: " *";
+    color: #ff8c00; /* ORANGE asterisk */
+  }
+}
+
+.settings-label-hint {
+  font-size: 12px;
+  color: #666666;
+  line-height: 1.2;
+}
+
+/* RESPONSIVE: Stack vertically on mobile */
+@media (max-width: 992px) {
+  .settings-card-row:not(.settings-card-column) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px; /* OCD: Tighter gap on mobile */
+  }
+
+  .settings-card-title-section {
+    flex: none;
+    min-width: 0;
+  }
+
+  .settings-card-controls {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .settings-form-item {
+    width: 100%;
+  }
+
+  .settings-form-item input,
+  .settings-form-item .ant-select,
+  .settings-form-item .ant-picker {
+    width: 100% !important;
+  }
+}
+
+/* Customize Ant Design for ORANGE GOLD BLACK theme */
+:deep(.settings-card) {
+  .ant-input:hover,
+  .ant-input:focus {
+    border-color: #ff8c00; /* ORANGE */
+  }
+
+  .ant-input:focus {
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+  }
+
+  .ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+  .ant-select-focused:not(.ant-select-disabled).ant-select .ant-select-selector {
+    border-color: #ff8c00; /* ORANGE */
+  }
+
+  .ant-select-focused:not(.ant-select-disabled).ant-select .ant-select-selector {
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+  }
+
+  .ant-picker:hover,
+  .ant-picker-focused {
+    border-color: #ff8c00; /* ORANGE */
+  }
+
+  .ant-picker-focused {
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+  }
+
+  textarea.ant-input:hover,
+  textarea.ant-input:focus {
+    border-color: #ff8c00; /* ORANGE */
+  }
+
+  textarea.ant-input:focus {
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
   }
 }
 </style>
