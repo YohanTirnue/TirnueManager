@@ -3,30 +3,38 @@ import { getRandomId } from "@/tools/randId";
 import type { LayoutCard } from "@/types";
 import { defineAsyncComponent } from "vue";
 
-// Critical widgets loaded immediately
+// Core widgets - loaded synchronously for fast page loads
 import DefaultCard from "@/widgets/DefaultCard.vue";
 import EmptyCard from "@/widgets/EmptyCard.vue";
 import LoginCard from "@/widgets/LoginCard.vue";
+import Page404 from "@/widgets/Page404.vue";
+import TitleCard from "@/widgets/TitleCard.vue";
+import StatusBlock from "@/widgets/StatusBlock.vue";
+import DataOverview from "@/widgets/stats/StatsOverviewModern.vue";
+import NodeOverview from "@/widgets/NodeOverview.vue";
+import RequestChart from "@/widgets/RequestChart.vue";
+import InstanceChart from "@/widgets/InstanceChart.vue";
+import InstanceList from "@/widgets/InstanceList.vue";
+import NodeList from "@/widgets/NodeList.vue";
+import NodeItem from "@/widgets/node/NodeItem.vue";
+import UserList from "@/widgets/UserList.vue";
+import Terminal from "@/widgets/instance/Terminal.vue";
+import InstanceManagerBtns from "@/widgets/instance/ManagerBtns.vue";
+import InstanceBaseInfo from "@/widgets/instance/BaseInfo.vue";
+import InstanceServerConfigOverview from "@/widgets/instance/ServerConfigOverview.vue";
+import InstanceServerConfigFile from "@/widgets/instance/ServerConfigFile.vue";
+import InstanceFileManager from "@/widgets/instance/FileManager.vue";
+import InstanceOperationLogs from "@/widgets/instance/OperationLogs.vue";
+import UserInstanceList from "@/widgets/UserInstanceList.vue";
+import UserStatusBlock from "@/widgets/UserStatusBlock.vue";
+import OperationLogCard from "@/widgets/OperationLogCard.vue";
+import Schedule from "@/widgets/instance/Schedule.vue";
+import InstanceShortcut from "@/widgets/instance/Shortcut.vue";
 
-// Lazy load all other widgets for better initial load performance
+// Lazy load rarely-used widgets
 const ImageManager = defineAsyncComponent(() => import("@/widgets/imageManager/index.vue"));
 const NewImage = defineAsyncComponent(() => import("@/widgets/imageManager/NewImage.vue"));
-const InstanceBaseInfo = defineAsyncComponent(() => import("@/widgets/instance/BaseInfo.vue"));
-const InstanceFileManager = defineAsyncComponent(() => import("@/widgets/instance/FileManager.vue"));
-const InstanceManagerBtns = defineAsyncComponent(() => import("@/widgets/instance/ManagerBtns.vue"));
-const Schedule = defineAsyncComponent(() => import("@/widgets/instance/Schedule.vue"));
-const InstanceServerConfigFile = defineAsyncComponent(() => import("@/widgets/instance/ServerConfigFile.vue"));
-const InstanceServerConfigOverview = defineAsyncComponent(() => import("@/widgets/instance/ServerConfigOverview.vue"));
-const InstanceShortcut = defineAsyncComponent(() => import("@/widgets/instance/Shortcut.vue"));
-const InstanceOperationLogs = defineAsyncComponent(() => import("@/widgets/instance/OperationLogs.vue"));
-const Terminal = defineAsyncComponent(() => import("@/widgets/instance/Terminal.vue"));
-const InstanceChart = defineAsyncComponent(() => import("@/widgets/InstanceChart.vue"));
-const InstanceList = defineAsyncComponent(() => import("@/widgets/InstanceList.vue"));
 const Market = defineAsyncComponent(() => import("@/widgets/Market.vue"));
-const NodeItem = defineAsyncComponent(() => import("@/widgets/node/NodeItem.vue"));
-const NodeList = defineAsyncComponent(() => import("@/widgets/NodeList.vue"));
-const NodeOverview = defineAsyncComponent(() => import("@/widgets/NodeOverview.vue"));
-const OperationLogCard = defineAsyncComponent(() => import("@/widgets/OperationLogCard.vue"));
 const Carousel = defineAsyncComponent(() => import("@/widgets/others/Carousel.vue"));
 const ClockCard = defineAsyncComponent(() => import("@/widgets/others/ClockCard.vue"));
 const IframeCard = defineAsyncComponent(() => import("@/widgets/others/IframeCard.vue"));
@@ -35,19 +43,11 @@ const LinkCard = defineAsyncComponent(() => import("@/widgets/others/LinkCard.vu
 const MusicCard = defineAsyncComponent(() => import("@/widgets/others/MusicCard.vue"));
 const PluginCard = defineAsyncComponent(() => import("@/widgets/others/PluginCard.vue"));
 const TextCard = defineAsyncComponent(() => import("@/widgets/others/TextCard.vue"));
-const Page404 = defineAsyncComponent(() => import("@/widgets/Page404.vue"));
-const DataOverview = defineAsyncComponent(() => import("@/widgets/stats/StatsOverviewModern.vue"));
-const RequestChart = defineAsyncComponent(() => import("@/widgets/RequestChart.vue"));
 const Settings = defineAsyncComponent(() => import("@/widgets/Settings.vue"));
 const McPreset = defineAsyncComponent(() => import("@/widgets/setupApp/McPreset.vue"));
 const QuickStartFlow = defineAsyncComponent(() => import("@/widgets/setupApp/QuickStartFlow.vue"));
 const ShelvesCard = defineAsyncComponent(() => import("@/widgets/ShelvesCard.vue"));
-const StatusBlock = defineAsyncComponent(() => import("@/widgets/StatusBlock.vue"));
-const TitleCard = defineAsyncComponent(() => import("@/widgets/TitleCard.vue"));
 const UserAccessSettings = defineAsyncComponent(() => import("@/widgets/user/AccessSettings.vue"));
-const UserInstanceList = defineAsyncComponent(() => import("@/widgets/UserInstanceList.vue"));
-const UserList = defineAsyncComponent(() => import("@/widgets/UserList.vue"));
-const UserStatusBlock = defineAsyncComponent(() => import("@/widgets/UserStatusBlock.vue"));
 
 import { NEW_CARD_TYPE } from "../types/index";
 import { LayoutCardHeight } from "./originLayoutConfig";
