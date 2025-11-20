@@ -43,7 +43,7 @@ export class SubUserService {
       if (!hasInstance) continue;
 
       const subUsers = this.getSubUsers(uuid, instanceUuid, daemonId);
-      if (subUsers.length > 0 || user.subUsers.length > 0) {
+      if (subUsers.length > 0) {
         teams.push({ parent: user, subUsers });
       }
     }

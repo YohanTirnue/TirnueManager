@@ -2,6 +2,7 @@ import Koa from "koa";
 import Router from "@koa/router";
 import permission from "../middleware/permission";
 import userSystem from "../service/user_service";
+import subUserService from "../service/sub_user_service";
 import { ICompleteUser } from "../entity/entity_interface";
 import { $t } from "../i18n";
 import { ROLE } from "../entity/user";
@@ -20,6 +21,33 @@ router.put("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Parameterized
       config.secret = "";
       config.open2FA = false;
     }
+
+    // Track instance changes for sub-user cleanup
+    if (config.instances) {
+      const user = userSystem.getInstance(uuid);
+      if (user && !user.isSubUser) {
+        // Find instances that were removed
+        const oldInstances = user.instances || [];
+        const newInstances = config.instances || [];
+
+        for (const oldInst of oldInstances) {
+          const stillHasInstance = newInstances.some(
+            (newInst: any) =>
+              newInst.instanceUuid === oldInst.instanceUuid &&
+              newInst.daemonId === oldInst.daemonId
+          );
+          if (!stillHasInstance) {
+            // Parent lost access to this instance, cleanup sub-users
+            await subUserService.handleParentInstanceRemoval(
+              uuid,
+              oldInst.instanceUuid,
+              oldInst.daemonId
+            );
+          }
+        }
+      }
+    }
+
     await userSystem.edit(uuid, config);
     ctx.body = true;
   } catch (error: any) {

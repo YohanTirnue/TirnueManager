@@ -16,6 +16,7 @@ import { isHaveInstanceByUuid, isTopPermissionByUuid } from "../service/permissi
 import RemoteRequest from "../service/remote_command";
 import RemoteServiceSubsystem from "../service/remote_service";
 import userSystem from "../service/user_service";
+import subUserService from "../service/sub_user_service";
 import { systemConfig } from "../setting";
 
 const router = new Router({ prefix: "/instance" });
@@ -164,7 +165,12 @@ router.delete(
       const instanceIds = instanceUuids.map((uuid: string) => {
         return { instanceUuid: uuid, daemonId };
       });
+      // Remove instances from all users
       userSystem.deleteUserInstances(null, instanceIds, true);
+      // Clean up all sub-users associated with these instances
+      for (const instanceUuid of instanceUuids) {
+        await subUserService.deleteInstanceSubUsers(instanceUuid, daemonId);
+      }
       const result = await new RemoteRequest(remoteService).request("instance/delete", {
         instanceUuids,
         deleteFile
