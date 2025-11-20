@@ -36,7 +36,7 @@ export function useSocketIoClient() {
   const testFrontendSocket = async (remoteNode?: Partial<ComputedNodeInfo>) => {
     const nodeCfg = remoteNode;
 
-    if (!nodeCfg?.available || !nodeCfg.ip) {
+    if (!nodeCfg?.available || !nodeCfg.ip || !nodeCfg.port) {
       socketStatus.value = SocketStatus.Error;
     } else {
       try {
