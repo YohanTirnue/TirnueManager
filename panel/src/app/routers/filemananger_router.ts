@@ -398,6 +398,7 @@ router.all(
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
       const uploadDir = String(ctx.query.upload_dir);
+      const fileName = ctx.query.file_name ? String(ctx.query.file_name) : undefined;
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       if (!remoteService) throw new Error($t("TXT_CODE_dd559000") + ` Daemon ID: ${daemonId}`);
       const addr = remoteService.config.fullAddr;
@@ -417,7 +418,7 @@ router.all(
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId,
-        file: uploadDir
+        file: fileName || uploadDir
       }, "info", isAdmin);
       ctx.body = {
         password,
