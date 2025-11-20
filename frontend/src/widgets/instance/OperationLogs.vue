@@ -69,9 +69,7 @@ const fetchLogs = async () => {
     await execute({
       params: {
         uuid: instanceId,
-        daemonId: daemonId
-      },
-      data: {
+        daemonId: daemonId,
         limit: 200
       }
     });

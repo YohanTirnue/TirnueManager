@@ -18,8 +18,6 @@ export const getInstanceOperationLog = useDefineApi<
     params: {
       uuid: string;
       daemonId: string;
-    };
-    data: {
       limit?: number;
     };
   },
