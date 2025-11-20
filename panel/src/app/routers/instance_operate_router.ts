@@ -125,6 +125,32 @@ router.all(
 );
 
 // [Low-level Permission]
+// Log command without executing (for WebSocket commands that are already executed via stream)
+router.post(
+  "/command_log",
+  permission({ level: ROLE.USER }),
+  validator({ query: { daemonId: String, uuid: String }, body: { command: String } }),
+  async (ctx) => {
+    try {
+      const daemonId = String(ctx.query.daemonId);
+      const instanceUuid = String(ctx.query.uuid);
+      const command = String(ctx.request.body.command);
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      operationLogger.log("instance_command", {
+        daemon_id: daemonId,
+        instance_id: instanceUuid,
+        operator_ip: ctx.ip,
+        operator_name: ctx.session?.["userName"],
+        command: command
+      }, "info", isAdmin);
+      ctx.body = true;
+    } catch (err) {
+      ctx.body = err;
+    }
+  }
+);
+
+// [Low-level Permission]
 // restart the instance
 router.all(
   "/restart",

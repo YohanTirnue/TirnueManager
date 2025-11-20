@@ -2,7 +2,7 @@ import { GLOBAL_INSTANCE_NAME } from "@/config/const";
 import { useCommandHistory } from "@/hooks/useCommandHistory";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { t } from "@/lang/i18n";
-import { sendInstanceCommand, setUpTerminalStreamChannel } from "@/services/apis/instance";
+import { logInstanceCommand, setUpTerminalStreamChannel } from "@/services/apis/instance";
 import { useLayoutConfigStore } from "@/stores/useLayoutConfig";
 import { mapDaemonAddress, parseForwardAddress } from "@/tools/protocol";
 import { reportErrorMsg } from "@/tools/validator";
@@ -348,10 +348,12 @@ export function useTerminal() {
     });
     // Log command to operation logger (fire-and-forget)
     if (currentInstanceId && currentDaemonId) {
-      sendInstanceCommand().execute({
+      logInstanceCommand().execute({
         params: {
           uuid: currentInstanceId,
-          daemonId: currentDaemonId,
+          daemonId: currentDaemonId
+        },
+        data: {
           command
         }
       }).catch(() => {
