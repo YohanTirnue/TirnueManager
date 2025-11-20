@@ -898,27 +898,140 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .landing-nav {
-    padding: 16px 24px;
+    padding: 12px 16px;
   }
 
-  .hero-section,
-  .features-section,
-  .services-section,
-  .cta-section {
-    padding: 80px 24px;
+  .nav-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .nav-title {
+    font-size: 18px;
+  }
+
+  .nav-signin {
+    height: 36px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  .hero-section {
+    padding: 100px 16px 60px;
+    min-height: auto;
+  }
+
+  .hero-badge {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 
   .hero-title {
-    font-size: 36px;
+    font-size: 28px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .cta-primary,
+  .cta-secondary {
+    width: 100%;
+    height: 48px;
+  }
+
+  .hero-stats {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .stat-divider {
+    display: none;
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+
+  .features-section,
+  .services-section,
+  .cta-section {
+    padding: 60px 16px;
   }
 
   .features-grid,
   .services-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .feature-card {
+    padding: 24px;
   }
 
   .section-title {
-    font-size: 28px;
+    font-size: 24px;
+    margin-bottom: 32px;
+  }
+
+  .service-card {
+    padding: 24px;
+  }
+
+  .cta-content {
+    padding: 32px 20px;
+
+    h2 {
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .cta-final {
+    height: 48px;
+    padding: 0 20px;
+    font-size: 14px;
+  }
+
+  .landing-footer {
+    padding: 32px 16px;
+  }
+
+  .footer-notice {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 24px;
+  }
+
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .feature-card h3 {
+    font-size: 16px;
+  }
+
+  .feature-card p {
+    font-size: 13px;
+  }
+
+  .service-card h3 {
+    font-size: 18px;
   }
 }
 </style>
