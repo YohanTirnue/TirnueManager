@@ -16,15 +16,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(path) {
-          // Icons are large - separate chunk for better caching
-          if (path.includes("@ant-design/icons")) {
-            return "ant-icons";
-          }
-          if (path.includes("node_modules/ant-design-vue/es")) {
-            return "ant-es";
-          }
-          if (path.includes("node_modules/ant-design-vue")) {
-            return "ant";
+          // Bundle ant-design-vue and icons together (icons need theme context)
+          if (path.includes("@ant-design/icons") || path.includes("node_modules/ant-design-vue")) {
+            return "antd";
           }
           if (path.includes("node_modules/zrender")) {
             return "zrender";
