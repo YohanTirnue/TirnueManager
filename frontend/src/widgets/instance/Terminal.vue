@@ -482,19 +482,20 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 .top-bar {
   display: grid;
   grid-template-columns: 1fr auto auto;
-  gap: 16px;
+  gap: 20px;
   align-items: center;
-  padding: 16px 20px;
-  background: linear-gradient(135deg, rgba(153, 27, 27, 0.03) 0%, rgba(212, 107, 8, 0.03) 100%);
+  padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
   border-radius: 12px;
-  border: 1px solid rgba(153, 27, 27, 0.1);
+  border: 1px solid rgba(255, 140, 66, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 // Header Section
 .header-section {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   min-width: 0;
 }
 
@@ -503,45 +504,54 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 }
 
 .instance-name {
-  margin: 0 0 6px 0;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-color);
+  margin: 0 0 8px 0;
+  font-size: 22px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .status-chips {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 // Stats Section
 .stats-section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
-  border: 1px solid rgba(153, 27, 27, 0.1);
+  gap: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(35, 35, 35, 0.9) 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 140, 66, 0.25);
+  min-width: 200px;
 }
 
 .stats-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-color);
-  opacity: 0.6;
+  letter-spacing: 1px;
+  color: #FF8C42;
+  text-align: center;
+  margin-bottom: 4px;
 }
 
 .stats-items {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .stats-placeholder {
@@ -551,53 +561,64 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
 .stats-offline {
   font-size: 12px;
-  color: var(--text-color);
-  opacity: 0.5;
+  color: #D4AF37;
+  opacity: 0.7;
+  text-align: center;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: background 0.2s;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background: rgba(255, 140, 66, 0.05);
 
   &:hover {
-    background: rgba(153, 27, 27, 0.05);
+    background: rgba(255, 140, 66, 0.15);
+    transform: translateY(-1px);
   }
 }
 
 .stat-icon {
-  font-size: 14px;
-  color: rgba(153, 27, 27, 0.7);
+  font-size: 16px;
+  color: #FF8C42;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
 }
 
 .stat-content {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
 
 .stat-label {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 9px;
+  font-weight: 700;
   text-transform: uppercase;
-  color: var(--text-color);
-  opacity: 0.5;
+  letter-spacing: 0.5px;
+  color: rgba(255, 140, 66, 0.7);
+  line-height: 1.2;
 }
 
 .stat-value {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  color: var(--text-color);
+  color: #D4AF37;
+  line-height: 1.3;
 
   &.value-error {
-    color: var(--color-red-6);
+    color: #ff4d4f;
   }
 
   &.value-warning {
-    color: var(--color-orange-6);
+    color: #faad14;
   }
 }
 
@@ -605,7 +626,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 .buttons-section {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .action-btn-wrapper {
@@ -615,8 +636,8 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 // Status Orb (smaller)
 .status-orb {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -625,21 +646,21 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
 .orb-pulse {
   position: absolute;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(153, 27, 27, 0.4), rgba(153, 27, 27, 0.1));
-  filter: blur(4px);
+  background: radial-gradient(circle, rgba(255, 140, 66, 0.4), rgba(212, 175, 55, 0.1));
+  filter: blur(6px);
   animation: orb-pulse 2s ease-in-out infinite;
 }
 
 .orb-ring {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(153, 27, 27, 0.9), rgba(212, 107, 8, 0.7));
-  box-shadow: 0 0 10px rgba(153, 27, 27, 0.5);
+  background: radial-gradient(circle, #FF8C42, #D4AF37);
+  box-shadow: 0 0 12px rgba(255, 140, 66, 0.6);
 }
 
 .orb-running {
