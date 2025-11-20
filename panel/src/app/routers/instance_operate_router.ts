@@ -44,13 +44,14 @@ router.all(
       const result = await new RemoteRequest(remoteService).request("instance/open", {
         instanceUuids: [instanceUuid]
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_start", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       if (err instanceof RemoteRequestTimeoutError) {
@@ -76,13 +77,14 @@ router.all(
       const result = await new RemoteRequest(remoteService).request("instance/stop", {
         instanceUuids: [instanceUuid]
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_stop", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -107,13 +109,14 @@ router.all(
         instanceUuid,
         command
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_command", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         command: command
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -135,13 +138,14 @@ router.all(
       const result = await new RemoteRequest(remoteService).request("instance/restart", {
         instanceUuids: [instanceUuid]
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_restart", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -163,13 +167,14 @@ router.all(
       const result = await new RemoteRequest(remoteService).request("instance/kill", {
         instanceUuids: [instanceUuid]
       });
-      operationLogger.warning("instance_kill", {
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      operationLogger.log("instance_kill", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result?.instances?.[0]?.nickname
-      });
+      }, "warning", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -490,12 +495,13 @@ router.put(
           ...advancedConfig
         }
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_config_change", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"]
-      });
+      }, "info", isAdmin);
       ctx.body = true;
     } catch (err) {
       ctx.body = err;

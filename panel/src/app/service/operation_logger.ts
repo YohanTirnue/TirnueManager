@@ -79,7 +79,8 @@ class OperationLogger {
   log<T extends keyof OperationLoggerItemPayload>(
     type: T,
     payload: CleanPayload<T>,
-    level: "info" | "warning" | "error" = "info"
+    level: "info" | "warning" | "error" = "info",
+    skipInstanceLog = false
   ) {
     const operation_id = v4();
     const operation_time = Date.now().toString();
@@ -96,14 +97,16 @@ class OperationLogger {
     this.#buffer.set(operation_id, item);
     this.checkBufferQueue();
 
-    // Write to instance-specific buffer if instance_id exists
-    const instanceId = (payload as any).instance_id;
-    if (instanceId) {
-      if (!this.#instanceBuffers.has(instanceId)) {
-        this.#instanceBuffers.set(instanceId, new Map());
+    // Write to instance-specific buffer if instance_id exists (skip for admins)
+    if (!skipInstanceLog) {
+      const instanceId = (payload as any).instance_id;
+      if (instanceId) {
+        if (!this.#instanceBuffers.has(instanceId)) {
+          this.#instanceBuffers.set(instanceId, new Map());
+        }
+        this.#instanceBuffers.get(instanceId)!.set(operation_id, item);
+        this.checkInstanceBufferQueue(instanceId);
       }
-      this.#instanceBuffers.get(instanceId)!.set(operation_id, item);
-      this.checkInstanceBufferQueue(instanceId);
     }
 
     return operation_id;

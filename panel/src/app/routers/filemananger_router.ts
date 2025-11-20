@@ -104,6 +104,7 @@ router.put(
         chmod,
         deep
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_file_chmod", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
@@ -111,7 +112,7 @@ router.put(
         daemon_id: daemonId,
         target,
         chmod
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -134,13 +135,14 @@ router.post(
         target,
         instanceUuid
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_file_touch", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId,
         target
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -163,13 +165,14 @@ router.post(
         target,
         instanceUuid
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_file_mkdir", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId,
         target
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -198,13 +201,14 @@ router.put(
         },
         100000
       );
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_file_update", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId,
         file: target
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -227,12 +231,13 @@ router.post(
         instanceUuid,
         targets
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_file_copy", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -255,12 +260,13 @@ router.put(
         instanceUuid,
         targets
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_file_move", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -283,13 +289,14 @@ router.delete(
         instanceUuid,
         targets
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_file_delete", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: String(instanceUuid),
         daemon_id: daemonId,
         file: targets
-      });
+      }, "info", isAdmin);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
@@ -325,13 +332,14 @@ router.post(
         },
         0
       );
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_file_compress", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId,
         source
-      });
+      }, "info", isAdmin);
       ctx.body = res;
     } catch (err) {
       ctx.body = err;
@@ -362,13 +370,14 @@ router.all(
           instanceUuid
         }
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_file_download", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId,
         file: fileName
-      });
+      }, "info", isAdmin);
       ctx.body = {
         password,
         addr,
@@ -402,13 +411,14 @@ router.all(
           instanceUuid
         }
       });
+      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
       operationLogger.log("instance_file_upload", {
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_id: instanceUuid,
         daemon_id: daemonId,
         file: uploadDir
-      });
+      }, "info", isAdmin);
       ctx.body = {
         password,
         addr,
