@@ -32,13 +32,15 @@ onMounted(() => {
 
 <template>
   <div class="landing-page">
+    <!-- Background Image with Blur -->
+    <div class="background-image"></div>
+
     <!-- Animated Background -->
     <div class="background-effects">
       <div class="grid-overlay"></div>
       <div class="gradient-orb orb-1"></div>
       <div class="gradient-orb orb-2"></div>
       <div class="gradient-orb orb-3"></div>
-      <div class="particles"></div>
     </div>
 
     <!-- Navigation -->
@@ -241,6 +243,32 @@ onMounted(() => {
   color: white;
   overflow-x: hidden;
   position: relative;
+}
+
+// Blurred Background Image
+.background-image {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/landing-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(8px);
+  transform: scale(1.1); // Prevent blur edge artifacts
+  opacity: 0.3;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(5, 5, 5, 0.9) 0%,
+      rgba(255, 140, 66, 0.1) 50%,
+      rgba(5, 5, 5, 0.95) 100%
+    );
+  }
 }
 
 // Background Effects
