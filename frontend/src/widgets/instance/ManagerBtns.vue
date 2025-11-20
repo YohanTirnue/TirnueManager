@@ -111,7 +111,8 @@ const btns = computed(() => {
         return (
           !isGlobalTerminal.value &&
           !!serverConfigFiles.value &&
-          serverConfigFiles.value?.length > 0
+          serverConfigFiles.value?.length > 0 &&
+          (isAdmin.value || userPermissions.value.canAccessConfigFiles)
         );
       },
       click: (): void => {
@@ -129,7 +130,10 @@ const btns = computed(() => {
       click: () => {
         toPage({ path: "/instances/terminal/files" });
       },
-      condition: () => (state.settings.canFileManager || isAdmin.value) && hasInstanceAccess(instanceId ?? "")
+      condition: () =>
+        (state.settings.canFileManager || isAdmin.value) &&
+        hasInstanceAccess(instanceId ?? "") &&
+        (isAdmin.value || userPermissions.value.canAccessFileManager)
     },
     {
       title: t("TXT_CODE_40241d8e"),
@@ -137,7 +141,9 @@ const btns = computed(() => {
       click: () => {
         mcSettingsDialog.value?.openDialog();
       },
-      condition: () => instanceInfo.value?.config.type.includes(TYPE_MINECRAFT_JAVA) ?? false
+      condition: () =>
+        (instanceInfo.value?.config.type.includes(TYPE_MINECRAFT_JAVA) ?? false) &&
+        (isAdmin.value || userPermissions.value.canAccessMinecraftQuery)
     },
     {
       title: t("TXT_CODE_656a85d8"),
@@ -146,19 +152,22 @@ const btns = computed(() => {
         rconSettingsDialog.value?.openDialog();
       },
       condition: () =>
-        instanceInfo.value?.config.type.includes(TYPE_STEAM_SERVER_UNIVERSAL) ?? false
+        (instanceInfo.value?.config.type.includes(TYPE_STEAM_SERVER_UNIVERSAL) ?? false)
     },
     {
       title: t("TXT_CODE_d23631cb"),
       icon: CodeOutlined,
       click: () => {
         terminalConfigDialog.value?.openDialog();
-      }
+      },
+      condition: () => (isAdmin.value || userPermissions.value.canAccessTerminalSettings)
     },
     {
       title: t("TXT_CODE_b7d026f8"),
       icon: FieldTimeOutlined,
-      condition: () => !isGlobalTerminal.value,
+      condition: () =>
+        !isGlobalTerminal.value &&
+        (isAdmin.value || userPermissions.value.canAccessScheduledTasks),
       click: () => {
         toPage({
           path: "/instances/schedule",
@@ -174,12 +183,13 @@ const btns = computed(() => {
       icon: DashboardOutlined,
       click: () => {
         eventConfigDialog.value?.openDialog();
-      }
+      },
+      condition: () => (isAdmin.value || userPermissions.value.canAccessEventTasks)
     },
     {
       title: t("TXT_CODE_4f34fc28"),
       icon: AppstoreAddOutlined,
-      condition: () => isAdmin.value,
+      condition: () => isAdmin.value && userPermissions.value.canAccessInstanceSettings,
       click: () => {
         instanceDetailsDialog.value?.openDialog();
       }
@@ -190,7 +200,8 @@ const btns = computed(() => {
       condition: () =>
         !isAdmin.value &&
         instanceInfo.value?.config.processType === "docker" &&
-        state.settings.allowChangeCmd,
+        state.settings.allowChangeCmd &&
+        userPermissions.value.canAccessInstanceSettings,
       click: () => {
         instanceFundamentalDetailDialog.value?.openDialog();
       }

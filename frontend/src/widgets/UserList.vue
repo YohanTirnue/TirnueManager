@@ -176,6 +176,13 @@ const userDialog = ref({
               canStopInstances: true,
               canTerminateInstances: true,
               canViewLogs: true,
+              canAccessConfigFiles: true,
+              canAccessFileManager: true,
+              canAccessMinecraftQuery: true,
+              canAccessTerminalSettings: true,
+              canAccessScheduledTasks: true,
+              canAccessEventTasks: true,
+              canAccessInstanceSettings: true,
               disableRightClick: false,
               disableKeyboardShortcuts: false,
               disableTextSelection: false,
@@ -228,6 +235,13 @@ const formDataOrigin: EditUserInfo = {
     canStopInstances: true,
     canTerminateInstances: true,
     canViewLogs: true,
+    canAccessConfigFiles: true,
+    canAccessFileManager: true,
+    canAccessMinecraftQuery: true,
+    canAccessTerminalSettings: true,
+    canAccessScheduledTasks: true,
+    canAccessEventTasks: true,
+    canAccessInstanceSettings: true,
     disableRightClick: false,
     disableKeyboardShortcuts: false,
     disableTextSelection: false,
@@ -483,6 +497,37 @@ onMounted(async () => {
                 </a-checkbox>
                 <a-checkbox v-model:checked="formData.permissions!.canViewLogs">
                   View Logs
+                </a-checkbox>
+              </div>
+            </div>
+
+            <!-- Instance Management Access -->
+            <div class="permission-category-landscape">
+              <h4 class="category-title-landscape">
+                <ControlOutlined class="category-icon-landscape" />
+                Instance Management Access
+              </h4>
+              <div class="permission-items-landscape">
+                <a-checkbox v-model:checked="formData.permissions!.canAccessConfigFiles">
+                  Configuration Files
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canAccessFileManager">
+                  File Management
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canAccessMinecraftQuery">
+                  Minecraft Players Query
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canAccessTerminalSettings">
+                  Terminal Settings
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canAccessScheduledTasks">
+                  Scheduled Tasks
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canAccessEventTasks">
+                  Event Tasks
+                </a-checkbox>
+                <a-checkbox v-model:checked="formData.permissions!.canAccessInstanceSettings">
+                  Instance Settings
                 </a-checkbox>
               </div>
             </div>
@@ -1447,7 +1492,7 @@ onMounted(async () => {
 /* Permissions Grid - Three columns landscape */
 .permissions-landscape-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px; /* OCD: 16px between columns */
   width: 100%;
   margin-top: 8px; /* OCD: 8px top margin */
