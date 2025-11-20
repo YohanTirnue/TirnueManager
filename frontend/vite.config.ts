@@ -10,15 +10,9 @@ import { defineConfig } from "vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    sourcemap: false, // Disabled for smaller production builds
+    sourcemap: false,
     chunkSizeWarningLimit: 1024,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console.log in production
-        drop_debugger: true
-      }
-    },
+    minify: 'esbuild', // Much faster than terser
     rollupOptions: {
       output: {
         manualChunks(path) {
