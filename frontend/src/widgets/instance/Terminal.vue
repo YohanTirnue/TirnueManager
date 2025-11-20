@@ -467,19 +467,29 @@ const terminalTopTags = computed<TagInfo[]>(() => {
       </div>
     </div>
 
-    <!-- ROW 2: Console -->
-    <div class="console-section">
-      <TerminalCore
-        v-if="instanceId && daemonId && hasConsoleAccess"
-        :use-terminal-hook="terminalHook"
-        :instance-id="instanceId"
-        :daemon-id="daemonId"
-        :height="card.height"
-      />
-      <div v-else-if="!hasConsoleAccess" class="access-denied">
-        <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
-        <h3>Access Denied</h3>
-        <p>You do not have permission to access the console for this instance.</p>
+    <!-- ROW 2: Console with iOS-style header -->
+    <div class="glass-terminal-wrapper">
+      <div class="terminal-glass-header">
+        <div class="terminal-dots">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+        </div>
+        <span class="terminal-title">Console</span>
+      </div>
+      <div class="console-section">
+        <TerminalCore
+          v-if="instanceId && daemonId && hasConsoleAccess"
+          :use-terminal-hook="terminalHook"
+          :instance-id="instanceId"
+          :daemon-id="daemonId"
+          :height="card.height"
+        />
+        <div v-else-if="!hasConsoleAccess" class="access-denied">
+          <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
+          <h3>Access Denied</h3>
+          <p>You do not have permission to access the console for this instance.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -651,7 +661,44 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 .buttons-section {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+
+  :deep(.icon-btn) {
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.2) 0%, rgba(212, 175, 55, 0.2) 100%);
+    border: 1px solid rgba(255, 140, 66, 0.5);
+    color: #D4AF37;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 140, 66, 0.2);
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(255, 140, 66, 0.4) 0%, rgba(212, 175, 55, 0.4) 100%);
+      border-color: #FF8C42;
+      box-shadow: 0 0 20px rgba(255, 140, 66, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .anticon {
+      color: #FF8C42;
+    }
+  }
+
+  :deep(.button-color-success .icon-btn) {
+    background: linear-gradient(135deg, rgba(82, 196, 26, 0.2) 0%, rgba(115, 209, 61, 0.2) 100%);
+    border-color: rgba(82, 196, 26, 0.5);
+    box-shadow: 0 0 10px rgba(82, 196, 26, 0.2);
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(82, 196, 26, 0.4) 0%, rgba(115, 209, 61, 0.4) 100%);
+      border-color: #52c41a;
+      box-shadow: 0 0 20px rgba(82, 196, 26, 0.4);
+    }
+
+    .anticon {
+      color: #52c41a;
+    }
+  }
 }
 
 .action-btn-wrapper {
@@ -724,20 +771,83 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   50% { transform: scale(1.2); opacity: 0.3; }
 }
 
+// iOS-style Glass Terminal Wrapper
+.glass-terminal-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 140, 66, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 140, 66, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.terminal-glass-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
+  border-bottom: 1px solid rgba(255, 140, 66, 0.2);
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  &.dot-red {
+    background: linear-gradient(135deg, #ff5f57, #ff3b30);
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.4);
+  }
+
+  &.dot-yellow {
+    background: linear-gradient(135deg, #ffbd2e, #ff9500);
+    box-shadow: 0 0 8px rgba(255, 149, 0, 0.4);
+  }
+
+  &.dot-green {
+    background: linear-gradient(135deg, #28c840, #30d158);
+    box-shadow: 0 0 8px rgba(48, 209, 88, 0.4);
+  }
+}
+
+.terminal-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #D4AF37;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
 // ROW 2: Console Section
 .console-section {
   flex: 1;
   min-height: 300px;
-  background: #1e1e1e;
-  border-radius: 8px;
+  background: #0d0d0d;
   overflow: hidden;
-  border: 1px solid var(--card-border-color);
 }
 
 .access-denied {
   padding: 40px;
   text-align: center;
-  color: var(--color-red-5);
+  color: #ff4d4f;
+
+  h3 {
+    color: #D4AF37;
+  }
 }
 
 // MOBILE OPTIMIZATIONS
