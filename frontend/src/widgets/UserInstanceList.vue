@@ -453,14 +453,6 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-
-            <!-- Host Info with Copy -->
-            <div class="host-info" @click="copyToClipboard(instance.hostIp || 'Unknown')">
-              <GlobalOutlined class="host-icon" />
-              <span class="host-value">{{ instance.hostIp || 'Unknown' }}</span>
-              <CopyOutlined class="copy-icon" />
-              <span class="copy-hint">Click to copy</span>
-            </div>
           </div>
 
           <!-- Quick Actions -->

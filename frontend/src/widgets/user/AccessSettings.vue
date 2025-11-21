@@ -134,7 +134,7 @@ const columns = computed(() => {
       minWidth: 200,
       condition: () => !isPhone.value,
       customRender: (row) => {
-        return row.record.hostIp + ` (${row.record.remarks})`;
+        return row.record.remarks || 'Daemon';
       }
     },
     {
