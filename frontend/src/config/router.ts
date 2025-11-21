@@ -396,6 +396,11 @@ router.beforeEach((to, from, next) => {
     return next("/install");
   }
 
+  // Immediately redirect guests at root to welcome page (no flash)
+  if (toRoutePath === "/" && !state.userInfo?.token) {
+    return next("/welcome");
+  }
+
   if (to.meta?.redirect) {
     if (typeof to.meta.redirect === "function") {
       const userInfo = state.userInfo;
