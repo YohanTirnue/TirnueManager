@@ -16,6 +16,7 @@ import {
   updateInstance
 } from "@/services/apis/instance";
 import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
+import { useAppStateStore } from "@/stores/useAppStateStore";
 import { arrayFilter } from "@/tools/array";
 import { formatMemoryUsage } from "@/tools/memory";
 import { parseTimestamp } from "@/tools/time";
@@ -50,6 +51,7 @@ const props = defineProps<{
 const emits = defineEmits(["refreshList"]);
 
 const { containerState } = useLayoutContainerStore();
+const { state } = useAppStateStore();
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
 const { toPage } = useAppRouters();
 const instanceId = props.targetInstanceInfo?.instanceUuid || getMetaOrRouteValue("instanceId");
@@ -238,7 +240,7 @@ const instanceOperations = computed(() =>
         }
       },
       disabled: containerState.isDesignMode,
-      condition: () => isStopped.value
+      condition: () => isStopped.value && (state.settings.allowUsePreset || isAdmin.value)
     },
     {
       area: true
