@@ -230,7 +230,7 @@ const instanceOperations = computed(() =>
       condition: () => !isStopped.value
     },
     {
-      title: t("TXT_CODE_88249aee") || "Server Market",
+      title: "Remake Your Server!",
       icon: ShopOutlined,
       click: async (event: MouseEvent): Promise<void> => {
         event.stopPropagation();
