@@ -46,16 +46,13 @@ const handleLogin = async () => {
   if (!formData.username.trim() || !formData.password.trim()) {
     return reportErrorMsg({ message: t("TXT_CODE_c846074d") });
   }
-  if (!turnstileToken.value) {
-    return reportErrorMsg({ message: "Please complete the security check" });
-  }
   try {
     loginStep.value++;
     await sleep(600);
     const result = await login({
       data: {
         ...formData,
-        turnstileToken: turnstileToken.value
+        turnstileToken: turnstileToken.value || undefined
       }
     });
     if (result.value === "NEED_2FA") {
