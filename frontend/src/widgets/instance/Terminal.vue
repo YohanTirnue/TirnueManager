@@ -74,7 +74,7 @@ const props = defineProps<{
 const { isPhone } = useScreen();
 const { state, isAdmin } = useAppStateStore();
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
-const { canPerformInstanceAction } = useUserPermissions();
+const { canPerformInstanceAction, userPermissions } = useUserPermissions();
 
 // The `useTerminal` is shared by this component and `TerminalCore`.
 // Please do not initialize `useTerminal` in this component; all initialization logic should be placed in its child component `TerminalCore.vue`.
@@ -250,8 +250,8 @@ const instanceOperations = computed(() =>
       props: {},
       condition: () =>
         isStopped.value &&
-        (state.settings.allowUsePreset || isAdmin.value) &&
-        !isGlobalTerminal.value
+        !isGlobalTerminal.value &&
+        (isAdmin.value || userPermissions.value.canAccessServerMarket)
     },
     {
       title: t("TXT_CODE_f77093c8"),
