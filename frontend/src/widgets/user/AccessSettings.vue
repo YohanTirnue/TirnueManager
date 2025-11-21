@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import CardPanel from "@/components/CardPanel.vue";
 import type { LayoutCard } from "@/types";
 import type { UserInstance } from "@/types/user";
 import { computed, ref, onMounted } from "vue";
 import { t } from "@/lang/i18n";
-import BetweenMenus from "@/components/BetweenMenus.vue";
 import { useScreen } from "@/hooks/useScreen";
 import { arrayFilter } from "@/tools/array";
 import { userInfoApiAdvanced } from "@/services/apis";
@@ -18,6 +16,13 @@ import type { AntColumnsType, AntTableCell } from "@/types/ant";
 import dayjs from "dayjs";
 import WarningDialog from "@/components/fc/WarningDialog.vue";
 import { useMountComponent } from "@/hooks/useMountComponent";
+import {
+  AppstoreOutlined,
+  ReloadOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+  InboxOutlined
+} from "@ant-design/icons-vue";
 
 const props = defineProps<{
   card: LayoutCard;
@@ -180,63 +185,270 @@ const columns = computed(() => {
 </script>
 
 <template>
-  <div style="height: 100%" class="container">
-    <a-row v-if="userUuid" :gutter="[24, 24]" style="height: 100%">
-      <a-col :span="24">
-        <BetweenMenus>
-          <template v-if="!isPhone" #left>
-            <a-typography-title class="mb-0" :level="4">
-              {{ t("TXT_CODE_76d20724") }}
-            </a-typography-title>
-          </template>
-          <template #right>
-            <a-button @click="refreshTableData()">
-              {{ t("TXT_CODE_b76d94e0") }}
-            </a-button>
-            <a-button type="primary" @click="assignApp">
-              {{ t("TXT_CODE_9393b484") }}
-            </a-button>
-          </template>
-        </BetweenMenus>
-      </a-col>
+  <div class="access-settings-container">
+    <div v-if="userUuid" class="settings-content">
+      <!-- Header Section -->
+      <div class="settings-header">
+        <div class="header-info">
+          <div class="header-icon">
+            <AppstoreOutlined />
+          </div>
+          <div class="header-text">
+            <h2>{{ t("TXT_CODE_76d20724") }}</h2>
+            <span class="header-subtitle">{{ dataSource.length }} instance{{ dataSource.length !== 1 ? 's' : '' }} assigned</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="action-btn secondary" @click="refreshTableData()">
+            <ReloadOutlined />
+            <span v-if="!isPhone">{{ t("TXT_CODE_b76d94e0") }}</span>
+          </button>
+          <button class="action-btn primary" @click="assignApp">
+            <PlusOutlined />
+            <span>{{ t("TXT_CODE_9393b484") }}</span>
+          </button>
+        </div>
+      </div>
 
-      <a-col :span="24">
-        <CardPanel class="h-100">
-          <template #body>
-            <a-table :scroll="{ x: 'max-content' }" :data-source="dataSource" :columns="columns">
-              <template #bodyCell="{ column, record }: AntTableCell">
-                <template v-if="column.key === 'operation'">
-                  <a-popconfirm :title="t('TXT_CODE_71155575')" @confirm="handleDelete(record)">
-                    <a-button danger size="large">
-                      {{ t("TXT_CODE_ecbd7449") }}
-                    </a-button>
-                  </a-popconfirm>
-                </template>
-              </template>
-            </a-table>
+      <!-- Table Section -->
+      <div class="table-container">
+        <a-table
+          :scroll="{ x: 'max-content' }"
+          :data-source="dataSource"
+          :columns="columns"
+          :pagination="{ pageSize: 10, showSizeChanger: true }"
+          class="modern-table"
+        >
+          <template #bodyCell="{ column, record }: AntTableCell">
+            <template v-if="column.key === 'operation'">
+              <a-popconfirm :title="t('TXT_CODE_71155575')" @confirm="handleDelete(record)">
+                <button class="delete-btn">
+                  <DeleteOutlined />
+                  <span>{{ t("TXT_CODE_ecbd7449") }}</span>
+                </button>
+              </a-popconfirm>
+            </template>
           </template>
-        </CardPanel>
-      </a-col>
-    </a-row>
+        </a-table>
+
+        <!-- Empty State -->
+        <div v-if="dataSource.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <InboxOutlined />
+          </div>
+          <h4>No Instances Assigned</h4>
+          <p>Assign instances to give this user access to manage them</p>
+          <button class="action-btn primary" @click="assignApp">
+            <PlusOutlined />
+            <span>Assign First Instance</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.search-input {
-  transition: all 0.4s;
-  text-align: center;
-  width: 50%;
+.access-settings-container {
+  height: 100%;
+  padding: 24px;
 }
 
-@media (max-width: 992px) {
-  .search-input {
-    transition: all 0.4s;
-    text-align: center;
-    width: 100% !important;
+.settings-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Header Section */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+}
+
+.header-text h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.header-subtitle {
+  font-size: 13px;
+  color: var(--color-text-3);
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Action Buttons */
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.action-btn.secondary {
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border-2);
+  color: var(--color-text-2);
+}
+
+.action-btn.secondary:hover {
+  background: var(--color-bg-4);
+}
+
+/* Table Container */
+.table-container {
+  flex: 1;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* Modern Table Styles */
+.modern-table {
+  :deep(.ant-table) {
+    background: transparent;
+  }
+
+  :deep(.ant-table-thead > tr > th) {
+    background: var(--color-bg-3);
+    border-bottom: 1px solid var(--color-border-2);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-2);
+  }
+
+  :deep(.ant-table-tbody > tr > td) {
+    border-bottom: 1px solid var(--color-border-2);
+    padding: 16px;
+  }
+
+  :deep(.ant-table-tbody > tr:hover > td) {
+    background: var(--color-bg-3);
   }
 }
 
-.search-input:hover {
-  width: 100%;
+/* Delete Button */
+.delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255, 77, 79, 0.1);
+  border: 1px solid rgba(255, 77, 79, 0.3);
+  border-radius: 6px;
+  color: #ff4d4f;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: rgba(255, 77, 79, 0.2);
+  border-color: rgba(255, 77, 79, 0.5);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  border-radius: 20px;
+  background: var(--color-bg-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: var(--color-text-3);
+}
+
+.empty-state h4 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.empty-state p {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: var(--color-text-3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .access-settings-container {
+    padding: 16px;
+  }
+
+  .settings-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .action-btn {
+    flex: 1;
+    justify-content: center;
+  }
 }
 </style>

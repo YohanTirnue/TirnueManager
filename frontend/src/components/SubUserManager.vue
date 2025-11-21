@@ -7,7 +7,11 @@ import {
   DeleteOutlined,
   PlusOutlined,
   EditOutlined,
-  TeamOutlined
+  TeamOutlined,
+  ExclamationCircleOutlined,
+  SafetyOutlined,
+  ControlOutlined,
+  FolderOutlined
 } from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
 import { PASSWORD_REGEX } from "@/tools/validator";
@@ -320,183 +324,270 @@ const handleSubmit = async () => {
 <template>
   <a-modal
     :open="visible"
-    :title="
-      isAdmin
-        ? `Manage Sub-Users (${subUsers.length} total)`
-        : `Manage Sub-Users (${subUsers.length}/${MAX_SUB_USERS})`
-    "
-    :width="800"
+    :width="900"
+    :footer="null"
+    class="sub-user-modal"
     @cancel="handleClose"
   >
-    <template #footer>
-      <a-button @click="handleClose">{{ t("TXT_CODE_d507abff") }}</a-button>
+    <template #title>
+      <div class="modal-header">
+        <div class="header-icon">
+          <TeamOutlined />
+        </div>
+        <div class="header-content">
+          <h3>Sub-User Management</h3>
+          <span class="header-subtitle">
+            {{ isAdmin ? `${subUsers.length} sub-users total` : `${subUsers.length} of ${MAX_SUB_USERS} slots used` }}
+          </span>
+        </div>
+      </div>
     </template>
 
     <div class="sub-user-manager">
-      <a-alert
-        v-if="!canAddMore && !isAdmin"
-        type="warning"
-        :message="`Maximum ${MAX_SUB_USERS} sub-users reached for this instance`"
-        show-icon
-        style="margin-bottom: 16px"
-      />
-      <a-alert
-        v-if="!canAddMore && isAdmin"
-        type="info"
-        :message="`All parent users have reached the maximum of ${MAX_SUB_USERS} sub-users for this instance`"
-        show-icon
-        style="margin-bottom: 16px"
-      />
+      <!-- Warning Alerts -->
+      <div v-if="!canAddMore" class="alert-banner">
+        <div class="alert-icon">
+          <ExclamationCircleOutlined />
+        </div>
+        <div class="alert-content">
+          <strong>Limit Reached</strong>
+          <span v-if="!isAdmin">Maximum {{ MAX_SUB_USERS }} sub-users allowed</span>
+          <span v-else>All parent users have reached maximum capacity</span>
+        </div>
+      </div>
 
-      <a-button
-        type="primary"
-        :icon="h(PlusOutlined)"
-        :disabled="!canAddMore"
-        @click="handleAddSubUser"
-        style="margin-bottom: 16px"
-      >
-        Add Sub-User
-      </a-button>
-
-      <a-spin :spinning="loading">
-        <a-list
-          v-if="subUsers.length > 0"
-          :data-source="subUsers"
-          item-layout="horizontal"
+      <!-- Action Bar -->
+      <div class="action-bar">
+        <button
+          class="add-user-btn"
+          :disabled="!canAddMore"
+          @click="handleAddSubUser"
         >
-          <template #renderItem="{ item }">
-            <a-list-item>
-              <template #actions>
-                <a-button
-                  type="text"
-                  :icon="h(EditOutlined)"
-                  @click="handleEditSubUser(item)"
-                >
-                  Edit Permissions
-                </a-button>
-                <a-button
-                  type="text"
-                  danger
-                  :icon="h(DeleteOutlined)"
-                  @click="handleDeleteSubUser(item)"
-                >
-                  Delete
-                </a-button>
-              </template>
-              <a-list-item-meta>
-                <template #avatar>
-                  <a-avatar :style="{ backgroundColor: '#1890ff' }">
-                    <template #icon>
-                      <UserOutlined />
-                    </template>
-                  </a-avatar>
-                </template>
-                <template #title>
-                  {{ item.userName }}
-                  <a-tag v-if="isAdmin && item.parentUserId" color="blue" style="margin-left: 8px">
-                    Parent: {{ parentUserMap.get(item.parentUserId) || "Unknown" }}
-                  </a-tag>
-                </template>
-                <template #description>
-                  <div>Created: {{ item.registerTime }}</div>
-                  <div v-if="item.loginTime">Last Login: {{ item.loginTime }}</div>
-                </template>
-              </a-list-item-meta>
-            </a-list-item>
-          </template>
-        </a-list>
-        <a-empty v-else description="No sub-users created yet" />
+          <PlusOutlined />
+          <span>Add Sub-User</span>
+        </button>
+        <div class="slot-indicator">
+          <div class="slot-dots">
+            <span
+              v-for="i in MAX_SUB_USERS"
+              :key="i"
+              class="slot-dot"
+              :class="{ filled: i <= subUsers.length }"
+            ></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-Users List -->
+      <a-spin :spinning="loading">
+        <div v-if="subUsers.length > 0" class="users-grid">
+          <div
+            v-for="item in subUsers"
+            :key="item.uuid"
+            class="user-card"
+          >
+            <div class="user-card-header">
+              <div class="user-avatar">
+                <UserOutlined />
+              </div>
+              <div class="user-info">
+                <h4>{{ item.userName }}</h4>
+                <span v-if="isAdmin && item.parentUserId" class="parent-badge">
+                  {{ parentUserMap.get(item.parentUserId) || "Unknown" }}
+                </span>
+              </div>
+            </div>
+
+            <div class="user-card-body">
+              <div class="user-meta">
+                <div class="meta-item">
+                  <span class="meta-label">Created</span>
+                  <span class="meta-value">{{ item.registerTime }}</span>
+                </div>
+                <div v-if="item.loginTime" class="meta-item">
+                  <span class="meta-label">Last Login</span>
+                  <span class="meta-value">{{ item.loginTime }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="user-card-actions">
+              <button class="action-btn edit" @click="handleEditSubUser(item)">
+                <EditOutlined />
+                <span>Permissions</span>
+              </button>
+              <button class="action-btn delete" @click="handleDeleteSubUser(item)">
+                <DeleteOutlined />
+                <span>Remove</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="empty-state">
+          <div class="empty-icon">
+            <TeamOutlined />
+          </div>
+          <h4>No Sub-Users</h4>
+          <p>Create sub-users to share limited access to this instance</p>
+        </div>
       </a-spin>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button class="close-btn" @click="handleClose">Close</button>
+      </div>
     </div>
 
     <!-- Sub-User Form Dialog -->
     <a-modal
       v-model:open="dialogVisible"
-      :title="isEditMode ? 'Edit Sub-User Permissions' : 'Create Sub-User'"
-      :width="600"
-      @ok="handleSubmit"
+      :width="700"
+      :footer="null"
+      class="permission-modal"
       @cancel="dialogVisible = false"
     >
+      <template #title>
+        <div class="modal-header">
+          <div class="header-icon" :class="isEditMode ? 'edit' : 'create'">
+            <EditOutlined v-if="isEditMode" />
+            <PlusOutlined v-else />
+          </div>
+          <div class="header-content">
+            <h3>{{ isEditMode ? 'Edit Permissions' : 'Create Sub-User' }}</h3>
+            <span class="header-subtitle">
+              {{ isEditMode ? 'Configure access permissions' : 'Set up a new sub-user account' }}
+            </span>
+          </div>
+        </div>
+      </template>
+
       <a-form
         ref="formRef"
         :model="formData"
         :rules="formRules"
         layout="vertical"
+        class="modern-form"
       >
-        <a-form-item
-          v-if="!isEditMode && isAdmin"
-          name="parentUuid"
-          label="Parent User"
-        >
-          <a-select
-            v-model:value="formData.parentUuid"
-            placeholder="Select parent user with available slots"
-            style="width: 100%"
-          >
-            <a-select-option
-              v-for="parent in availableParents"
-              :key="parent.uuid"
-              :value="parent.uuid"
+        <!-- Parent User Selection (Admin only) -->
+        <div v-if="!isEditMode && isAdmin" class="form-section">
+          <div class="section-header">
+            <UserOutlined />
+            <span>Parent User</span>
+          </div>
+          <a-form-item name="parentUuid">
+            <a-select
+              v-model:value="formData.parentUuid"
+              placeholder="Select parent user"
+              size="large"
             >
-              {{ parent.userName }}
-            </a-select-option>
-          </a-select>
-          <div v-if="availableParents.length === 0" style="color: #ff4d4f; margin-top: 8px">
-            All parent users have reached the maximum of {{ MAX_SUB_USERS }} sub-users
+              <a-select-option
+                v-for="parent in availableParents"
+                :key="parent.uuid"
+                :value="parent.uuid"
+              >
+                {{ parent.userName }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+        </div>
+
+        <!-- Account Details -->
+        <div v-if="!isEditMode" class="form-section">
+          <div class="section-header">
+            <UserOutlined />
+            <span>Account Details</span>
           </div>
-        </a-form-item>
+          <a-form-item name="userName" label="Username">
+            <a-input
+              v-model:value="formData.userName"
+              placeholder="Enter username"
+              size="large"
+            />
+          </a-form-item>
+          <a-form-item name="passWord" label="Password">
+            <a-input-password
+              v-model:value="formData.passWord"
+              placeholder="Min 9 chars with mixed case and numbers"
+              size="large"
+            />
+          </a-form-item>
+        </div>
 
-        <a-form-item v-if="!isEditMode" name="userName" label="Username">
-          <a-input v-model:value="formData.userName" placeholder="Enter username" />
-        </a-form-item>
-
-        <a-form-item v-if="!isEditMode" name="passWord" label="Password">
-          <a-input-password
-            v-model:value="formData.passWord"
-            placeholder="Min 9 chars, include uppercase, lowercase, and numbers"
-          />
-        </a-form-item>
-
-        <a-divider>Permissions</a-divider>
-
-        <div class="permissions-grid">
-          <div class="permission-section">
-            <h4>Instance Control</h4>
-            <a-checkbox v-model:checked="formData.permissions.canStartInstances">
-              Start Instances
-            </a-checkbox>
-            <a-checkbox v-model:checked="formData.permissions.canRestartInstances">
-              Restart Instances
-            </a-checkbox>
-            <a-checkbox v-model:checked="formData.permissions.canStopInstances">
-              Stop Instances
-            </a-checkbox>
-            <a-checkbox v-model:checked="formData.permissions.canAccessConsole">
-              Access Console
-            </a-checkbox>
-            <a-checkbox v-model:checked="formData.permissions.canViewLogs">
-              View Logs
-            </a-checkbox>
+        <!-- Permissions -->
+        <div class="form-section">
+          <div class="section-header">
+            <SafetyOutlined />
+            <span>Permissions</span>
           </div>
 
-          <div class="permission-section">
-            <h4>File Operations</h4>
-            <a-checkbox v-model:checked="formData.permissions.canUploadFiles">
-              Upload Files
-            </a-checkbox>
-            <a-checkbox v-model:checked="formData.permissions.canDownloadFiles">
-              Download Files
-            </a-checkbox>
-            <a-checkbox v-model:checked="formData.permissions.canModifyFiles">
-              Modify Files
-            </a-checkbox>
-            <a-checkbox v-model:checked="formData.permissions.canDeleteFiles">
-              Delete Files
-            </a-checkbox>
-            <a-checkbox v-model:checked="formData.permissions.canAccessFileManager">
-              Access File Manager
-            </a-checkbox>
+          <div class="permissions-container">
+            <div class="permission-group">
+              <div class="group-header">
+                <ControlOutlined />
+                <span>Instance Control</span>
+              </div>
+              <div class="permission-items">
+                <label class="permission-item">
+                  <a-checkbox v-model:checked="formData.permissions.canStartInstances" />
+                  <span>Start</span>
+                </label>
+                <label class="permission-item">
+                  <a-checkbox v-model:checked="formData.permissions.canRestartInstances" />
+                  <span>Restart</span>
+                </label>
+                <label class="permission-item">
+                  <a-checkbox v-model:checked="formData.permissions.canStopInstances" />
+                  <span>Stop</span>
+                </label>
+                <label class="permission-item">
+                  <a-checkbox v-model:checked="formData.permissions.canAccessConsole" />
+                  <span>Console</span>
+                </label>
+                <label class="permission-item">
+                  <a-checkbox v-model:checked="formData.permissions.canViewLogs" />
+                  <span>Logs</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="permission-group">
+              <div class="group-header">
+                <FolderOutlined />
+                <span>File Operations</span>
+              </div>
+              <div class="permission-items">
+                <label class="permission-item">
+                  <a-checkbox v-model:checked="formData.permissions.canUploadFiles" />
+                  <span>Upload</span>
+                </label>
+                <label class="permission-item">
+                  <a-checkbox v-model:checked="formData.permissions.canDownloadFiles" />
+                  <span>Download</span>
+                </label>
+                <label class="permission-item">
+                  <a-checkbox v-model:checked="formData.permissions.canModifyFiles" />
+                  <span>Modify</span>
+                </label>
+                <label class="permission-item">
+                  <a-checkbox v-model:checked="formData.permissions.canDeleteFiles" />
+                  <span>Delete</span>
+                </label>
+                <label class="permission-item">
+                  <a-checkbox v-model:checked="formData.permissions.canAccessFileManager" />
+                  <span>File Manager</span>
+                </label>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" @click="dialogVisible = false">Cancel</button>
+          <button type="button" class="btn-submit" @click="handleSubmit">
+            {{ isEditMode ? 'Save Changes' : 'Create User' }}
+          </button>
         </div>
       </a-form>
     </a-modal>
@@ -504,23 +595,438 @@ const handleSubmit = async () => {
 </template>
 
 <style scoped>
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+}
+
+.header-icon.edit {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.header-icon.create {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.header-content h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.header-subtitle {
+  font-size: 13px;
+  color: var(--color-text-3);
+}
+
+/* Main Container */
 .sub-user-manager {
   min-height: 300px;
 }
 
-.permissions-grid {
+/* Alert Banner */
+.alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 140, 0, 0.1);
+  border: 1px solid rgba(255, 140, 0, 0.3);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.alert-icon {
+  color: #ff8c00;
+  font-size: 18px;
+}
+
+.alert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.alert-content strong {
+  font-size: 13px;
+  color: #ff8c00;
+}
+
+.alert-content span {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+/* Action Bar */
+.action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-user-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.add-user-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slot-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slot-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.slot-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-border-2);
+  transition: all 0.3s ease;
+}
+
+.slot-dot.filled {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Users Grid */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.user-card {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.user-card:hover {
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.user-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+}
+
+.user-info h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.parent-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border-radius: 4px;
+}
+
+.user-card-body {
+  margin-bottom: 12px;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meta-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.meta-label {
+  color: var(--color-text-3);
+}
+
+.meta-value {
+  color: var(--color-text-2);
+}
+
+.user-card-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-2);
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn.edit {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.action-btn.edit:hover {
+  background: rgba(102, 126, 234, 0.2);
+}
+
+.action-btn.delete {
+  background: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
+}
+
+.action-btn.delete:hover {
+  background: rgba(255, 77, 79, 0.2);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+  background: var(--color-bg-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--color-text-3);
+}
+
+.empty-state h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: var(--color-text-1);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-3);
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border-2);
+}
+
+.close-btn {
+  padding: 8px 24px;
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: 6px;
+  color: var(--color-text-2);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: var(--color-bg-4);
+}
+
+/* Form Styles */
+.modern-form {
+  padding: 8px 0;
+}
+
+.form-section {
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.section-header > span:first-of-type {
+  color: #667eea;
+}
+
+/* Permissions Container */
+.permissions-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
-.permission-section h4 {
-  margin-bottom: 12px;
-  font-weight: 600;
+.permission-group {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 10px;
+  padding: 16px;
 }
 
-.permission-section .a-checkbox-wrapper {
-  display: block;
-  margin-bottom: 8px;
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-2);
+}
+
+.group-header > span:first-of-type {
+  color: #667eea;
+}
+
+.permission-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.permission-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.permission-item:hover {
+  background: var(--color-bg-3);
+}
+
+.permission-item span {
+  font-size: 12px;
+  color: var(--color-text-2);
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border-2);
+}
+
+.btn-cancel {
+  padding: 10px 24px;
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: 8px;
+  color: var(--color-text-2);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background: var(--color-bg-4);
+}
+
+.btn-submit {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .permissions-container {
+    grid-template-columns: 1fr;
+  }
+
+  .users-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
