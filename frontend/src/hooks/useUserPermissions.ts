@@ -50,35 +50,45 @@ export function useUserPermissions() {
       });
     }
 
-    // Return user's permissions or GRANT ALL if not set (backend compatibility)
-    // NOTE: If backend doesn't support permissions field, grant all by default
-    return (
-      state.userInfo?.permissions ?? {
-        canUploadFiles: true,
-        canDownloadFiles: true,
-        canDeleteFiles: true,
-        canModifyFiles: true,
-        canAccessConsole: true,
-        canStartInstances: true,
-        canRestartInstances: true,
-        canStopInstances: true,
-        canTerminateInstances: true,
-        canViewLogs: true,
-        canAccessConfigFiles: true,
-        canAccessFileManager: true,
-        canAccessMinecraftQuery: true,
-        canAccessTerminalSettings: true,
-        canAccessScheduledTasks: true,
-        canAccessEventTasks: true,
-        canAccessInstanceSettings: true,
-        canAccessServerMarket: true,
-        disableRightClick: false,
-        disableKeyboardShortcuts: false,
-        disableTextSelection: false,
-        disableCopy: false,
-        disablePaste: false
-      }
-    );
+    // Default permissions - grant all access permissions, no restrictions
+    const defaults: UserPermissions = {
+      canUploadFiles: true,
+      canDownloadFiles: true,
+      canDeleteFiles: true,
+      canModifyFiles: true,
+      canAccessConsole: true,
+      canStartInstances: true,
+      canRestartInstances: true,
+      canStopInstances: true,
+      canTerminateInstances: true,
+      canViewLogs: true,
+      canAccessConfigFiles: true,
+      canAccessFileManager: true,
+      canAccessMinecraftQuery: true,
+      canAccessTerminalSettings: true,
+      canAccessScheduledTasks: true,
+      canAccessEventTasks: true,
+      canAccessInstanceSettings: true,
+      canAccessServerMarket: true,
+      disableRightClick: false,
+      disableKeyboardShortcuts: false,
+      disableTextSelection: false,
+      disableCopy: false,
+      disablePaste: false
+    };
+
+    // Merge defaults with stored permissions
+    // This handles: 1) No permissions object, 2) Partial permissions (missing fields)
+    const stored = state.userInfo?.permissions;
+    if (!stored) return defaults;
+
+    // Merge: defaults first, then override with stored values (only defined ones)
+    return {
+      ...defaults,
+      ...Object.fromEntries(
+        Object.entries(stored).filter(([_, v]) => v !== undefined)
+      )
+    } as UserPermissions;
   });
 
   // File operation permissions

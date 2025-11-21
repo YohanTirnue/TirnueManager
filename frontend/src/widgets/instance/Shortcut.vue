@@ -249,7 +249,7 @@ const instanceOperations = computed(() =>
         if (!isStopped.value) return false;
         if (isSubUser.value) return false;
         if (isAdmin.value) return true;
-        return userPermissions.value.canAccessServerMarket ?? false;
+        return userPermissions.value.canAccessServerMarket;
       }
     },
     {
