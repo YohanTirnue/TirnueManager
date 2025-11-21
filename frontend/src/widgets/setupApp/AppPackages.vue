@@ -7,8 +7,7 @@ import { quickInstallListAddr } from "@/services/apis/instance";
 import { reportErrorMsg } from "@/tools/validator";
 import type { QuickStartPackages } from "@/types";
 import { DatabaseOutlined, DownloadOutlined, SearchOutlined } from "@ant-design/icons-vue";
-import { Flex, Modal } from "ant-design-vue";
-import Link from "ant-design-vue/es/typography/Link";
+import { Modal } from "ant-design-vue";
 import { computed, onMounted, reactive, ref } from "vue";
 
 const props = defineProps<{
@@ -325,43 +324,34 @@ onMounted(() => {
 </script>
 
 <template>
-  <a-typography-title :level="4" style="margin-bottom: 8px">
-    <DatabaseOutlined />
-    {{ title || t("TXT_CODE_88249aee") }}
-  </a-typography-title>
-  <a-typography-paragraph>
-    <Flex justify="space-between" align="flex-start">
-      <p>
-        <span>{{ t("TXT_CODE_c9ce7427") }}</span>
-        <span v-if="onlyDockerTemplate">
-          <br />
+  <!-- Industry-Grade Header -->
+  <div class="market-header">
+    <div class="market-title-section">
+      <DatabaseOutlined class="market-icon" />
+      <div class="market-title-text">
+        <h2 class="market-main-title">{{ title || "Game Servers Available!" }}</h2>
+        <p class="market-subtitle">{{ t("TXT_CODE_c9ce7427") }}</p>
+        <p v-if="onlyDockerTemplate" class="market-docker-note">
           {{ t("TXT_CODE_de9b7cc0") }}
-          <br />
-        </span>
-      </p>
-      <p>
-        <Link href="https://github.com/MCSManager/Script/issues/77" target="_blank">
-          {{ t("TXT_CODE_709c2db4") }}
-        </Link>
-      </p>
-    </Flex>
-  </a-typography-paragraph>
+        </p>
+      </div>
+    </div>
+    <div class="market-stats" v-if="!appListLoading">
+      <div class="stat-item">
+        <span class="stat-number">{{ totalPackages }}</span>
+        <span class="stat-label">Templates</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Loading state - shows loading spinner while fetching package data -->
   <a-row v-if="appListLoading" :gutter="[16, 16]" style="height: 100%">
     <a-col :span="24">
-      <div
-        style="
-          height: 50vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-        "
-      >
+      <div class="loading-container">
         <div>
           <Loading />
         </div>
-        <div style="margin-top: 20px; color: var(--color-gray-12)">
+        <div class="loading-text">
           {{ t("TXT_CODE_7fca723a") }}
         </div>
       </div>
@@ -389,72 +379,74 @@ onMounted(() => {
 
     <!-- Search filters section -->
     <a-col :span="24" :md="24">
-      <a-form
-        layout="horizontal"
-        :model="searchForm"
-        style="display: flex; gap: 10px; flex-wrap: wrap"
-      >
-        <!-- Language filter dropdown -->
-        <a-form-item class="mb-0">
-          <a-select
-            v-model:value="searchForm.language"
-            style="width: 200px"
-            :placeholder="t('TXT_CODE_8a30e150')"
-            @change="handleLanguageChange"
-          >
-            <a-select-option v-for="item in appLangList" :key="item.value" :value="item.value">
-              {{ item.label }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
+      <div class="filters-container">
+        <a-form
+          layout="horizontal"
+          :model="searchForm"
+          class="filters-form"
+        >
+          <!-- Language filter dropdown -->
+          <a-form-item class="mb-0">
+            <a-select
+              v-model:value="searchForm.language"
+              style="width: 180px"
+              :placeholder="t('TXT_CODE_8a30e150')"
+              @change="handleLanguageChange"
+            >
+              <a-select-option v-for="item in appLangList" :key="item.value" :value="item.value">
+                {{ item.label }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
 
-        <!-- Game type filter dropdown -->
-        <a-form-item class="mb-0">
-          <a-select
-            v-model:value="searchForm.gameType"
-            style="width: 200px"
-            :placeholder="t('TXT_CODE_107695d')"
-            @change="handleGameTypeChange"
-          >
-            <a-select-option v-for="item in appGameTypeList" :key="item.value" :value="item.value">
-              {{ item.label }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
+          <!-- Game type filter dropdown -->
+          <a-form-item class="mb-0">
+            <a-select
+              v-model:value="searchForm.gameType"
+              style="width: 180px"
+              :placeholder="t('TXT_CODE_107695d')"
+              @change="handleGameTypeChange"
+            >
+              <a-select-option v-for="item in appGameTypeList" :key="item.value" :value="item.value">
+                {{ item.label }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
 
-        <!-- Platform filter dropdown -->
-        <a-form-item class="mb-0">
-          <a-select
-            v-model:value="searchForm.platform"
-            style="width: 200px"
-            :placeholder="t('TXT_CODE_47203b64')"
-            @change="handlePlatformChange"
-          >
-            <a-select-option v-for="item in appPlatformList" :key="item.value" :value="item.value">
-              {{ item.label }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
+          <!-- Platform filter dropdown -->
+          <a-form-item class="mb-0">
+            <a-select
+              v-model:value="searchForm.platform"
+              style="width: 180px"
+              :placeholder="t('TXT_CODE_47203b64')"
+              @change="handlePlatformChange"
+            >
+              <a-select-option v-for="item in appPlatformList" :key="item.value" :value="item.value">
+                {{ item.label }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
 
-        <!-- Category filter dropdown -->
-        <a-form-item class="mb-0">
-          <a-select
-            v-model:value="searchForm.category"
-            style="width: 200px"
-            :placeholder="t('TXT_CODE_ebbb2def')"
-          >
-            <a-select-option v-for="item in appCategoryList" :key="item.value" :value="item.value">
-              {{ item.label }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
+          <!-- Category filter dropdown -->
+          <a-form-item class="mb-0">
+            <a-select
+              v-model:value="searchForm.category"
+              style="width: 180px"
+              :placeholder="t('TXT_CODE_ebbb2def')"
+            >
+              <a-select-option v-for="item in appCategoryList" :key="item.value" :value="item.value">
+                {{ item.label }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
 
-        <a-form-item class="mb-0">
-          <a-button type="default" @click="handleReset">
-            {{ t("TXT_CODE_880fedf7") }}
-          </a-button>
-        </a-form-item>
-      </a-form>
+          <a-form-item class="mb-0">
+            <a-button type="default" @click="handleReset">
+              {{ t("TXT_CODE_880fedf7") }}
+            </a-button>
+          </a-form-item>
+        </a-form>
+      </div>
     </a-col>
 
     <a-col v-if="showCustomBtn" :span="24" :md="24" class="justify-end">
@@ -469,7 +461,7 @@ onMounted(() => {
 
     <!-- Empty state - shown when no packages match current filters -->
     <a-col v-if="allFilteredPackages.length === 0" :span="24">
-      <div style="display: flex; justify-content: center; align-items: center; height: 40vh">
+      <div class="empty-state">
         <a-typography-paragraph :style="{ color: 'var(--color-gray-7)' }">
           {{ t("TXT_CODE_7356e569") }}
         </a-typography-paragraph>
@@ -595,6 +587,120 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
+// Industry-Grade Header Styles
+.market-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
+  border-radius: 16px;
+  border: 1px solid rgba(255, 140, 66, 0.2);
+}
+
+.market-title-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.market-icon {
+  font-size: 36px;
+  color: #FF8C42;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.2), rgba(212, 175, 55, 0.2));
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.market-title-text {
+  .market-main-title {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .market-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-text-3);
+  }
+
+  .market-docker-note {
+    margin: 4px 0 0 0;
+    font-size: 12px;
+    color: #faad14;
+  }
+}
+
+.market-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 140, 66, 0.15);
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FF8C42;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--color-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.loading-container {
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-text {
+  margin-top: 20px;
+  color: var(--color-gray-12);
+}
+
+.filters-container {
+  background: rgba(255, 140, 66, 0.03);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 140, 66, 0.1);
+}
+
+.filters-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40vh;
+}
+
 // Modern Marketplace with Gold/Orange Theme
 .package-card-content {
   display: flex;
