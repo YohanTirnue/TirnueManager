@@ -355,6 +355,7 @@ const columns = computed(() => {
 .modern-table {
   :deep(.ant-table) {
     background: transparent;
+    color: var(--color-text-1);
   }
 
   :deep(.ant-table-thead > tr > th) {
@@ -370,10 +371,38 @@ const columns = computed(() => {
   :deep(.ant-table-tbody > tr > td) {
     border-bottom: 1px solid var(--color-border-2);
     padding: 16px;
+    color: var(--color-text-1);
+    background: var(--color-bg-2);
   }
 
   :deep(.ant-table-tbody > tr:hover > td) {
     background: var(--color-bg-3);
+  }
+
+  :deep(.ant-pagination) {
+    color: var(--color-text-1);
+  }
+
+  :deep(.ant-pagination-item a) {
+    color: var(--color-text-1);
+  }
+
+  :deep(.ant-pagination-item-active a) {
+    color: #ff8c00;
+  }
+
+  :deep(.ant-select-selector) {
+    background: var(--color-bg-3) !important;
+    border-color: var(--color-border-2) !important;
+    color: var(--color-text-1) !important;
+  }
+
+  :deep(.ant-select-arrow) {
+    color: var(--color-text-2);
+  }
+
+  :deep(.ant-empty-description) {
+    color: var(--color-text-3);
   }
 }
 
