@@ -7,7 +7,7 @@ import { remoteAllInstances } from "@/services/apis";
 import { reportErrorMsg } from "@/tools/validator";
 import type { MountComponent, QuickStartPackages, InstanceDetail } from "@/types";
 import { INSTANCE_STATUS_CODE } from "@/types/const";
-import AppPackages from "@/widgets/setupApp/AppPackages.vue";
+import AppPackages from "@/widgets/setupApp/AppPackagesModern.vue";
 import { Modal, message } from "ant-design-vue";
 import { ref } from "vue";
 
