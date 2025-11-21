@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { LineChart, BarChart, PieChart } from "echarts/charts";
@@ -18,7 +18,8 @@ import {
   ThunderboltOutlined,
   ClockCircleOutlined,
   DatabaseOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  GlobalOutlined
 } from "@ant-design/icons-vue";
 import { useOverviewInfo } from "@/hooks/useOverviewInfo";
 import CardPanel from "@/components/CardPanel.vue";
@@ -42,6 +43,30 @@ use([
 
 const { state: overviewInfo } = useOverviewInfo();
 
+// Daemon selector
+const selectedDaemon = ref<string>("all");
+
+// Get list of available daemons for the selector
+const daemonOptions = computed(() => {
+  const options = [{ label: "All Nodes", value: "all" }];
+  if (overviewInfo.value?.remote) {
+    overviewInfo.value.remote.forEach((node) => {
+      options.push({
+        label: node.remarks || node.ip || "Unknown Node",
+        value: node.uuid
+      });
+    });
+  }
+  return options;
+});
+
+// Get selected daemon data
+const selectedDaemonData = computed(() => {
+  if (!overviewInfo.value) return null;
+  if (selectedDaemon.value === "all") return null;
+  return overviewInfo.value.remote?.find((node) => node.uuid === selectedDaemon.value);
+});
+
 // Chart refs
 const cpuChartRef = ref<HTMLDivElement>();
 const memoryChartRef = ref<HTMLDivElement>();
@@ -58,10 +83,54 @@ const cpuHistory = ref<number[]>([]);
 const memoryHistory = ref<number[]>([]);
 const maxHistoryLength = 15; // Reduced for better performance
 
-// Quick Stats with REAL data
+// Quick Stats with REAL data - filtered by selected daemon
 const quickStats = computed(() => {
   if (!overviewInfo.value) return [];
 
+  const daemon = selectedDaemonData.value;
+
+  // If specific daemon selected, show that daemon's stats
+  if (daemon) {
+    const sys = daemon.system;
+    const cpuUsage = (sys?.cpuUsage || 0) * 100;
+    const totalMem = sys?.totalmem || 1;
+    const freeMem = sys?.freemem || 0;
+    const memUsage = ((totalMem - freeMem) / totalMem) * 100;
+    const usedMemGB = (totalMem - freeMem) / 1024 / 1024 / 1024;
+
+    return [
+      {
+        title: "Node Status",
+        value: daemon.available ? "Online" : "Offline",
+        icon: CloudServerOutlined,
+        color: daemon.available ? "#52c41a" : "#ff4d4f",
+        subtitle: sys?.platform || 'Unknown'
+      },
+      {
+        title: "Instances",
+        value: daemon.instance?.total || 0,
+        icon: AppstoreOutlined,
+        color: "#D4AF37",
+        subtitle: `${daemon.instance?.running || 0} running now`
+      },
+      {
+        title: "CPU Usage",
+        value: `${cpuUsage.toFixed(1)}%`,
+        icon: ThunderboltOutlined,
+        color: cpuUsage > 80 ? "#ff4d4f" : cpuUsage > 50 ? "#faad14" : "#52c41a",
+        subtitle: `Load: ${sys?.loadavg?.[0]?.toFixed(2) || 'N/A'}`
+      },
+      {
+        title: "Memory",
+        value: `${memUsage.toFixed(1)}%`,
+        icon: DatabaseOutlined,
+        color: memUsage > 80 ? "#ff4d4f" : memUsage > 50 ? "#faad14" : "#52c41a",
+        subtitle: `${usedMemGB.toFixed(1)}GB used`
+      }
+    ];
+  }
+
+  // Show aggregated stats for all nodes
   const { system, remote, totalInstance, runningInstance, cpu, mem } = overviewInfo.value;
 
   return [
@@ -96,24 +165,30 @@ const quickStats = computed(() => {
   ];
 });
 
-// System Resources with REAL data
+// System Resources with REAL data - filtered by selected daemon
 const systemResources = computed(() => {
-  const sys = overviewInfo.value?.system;
+  const daemon = selectedDaemonData.value;
+
+  // Use daemon-specific data if selected
+  const sys = daemon?.system || overviewInfo.value?.system;
   if (!sys) return { cpu: { usage: 0, cores: 0 }, memory: { used: 0, total: 0, percentage: 0 }, disk: { used: 0, total: 0, percentage: 0 } };
 
   const totalMem = sys.totalmem / 1024 / 1024 / 1024;
   const freeMem = sys.freemem / 1024 / 1024 / 1024;
   const usedMem = totalMem - freeMem;
 
+  const cpuUsage = daemon ? (sys.cpuUsage || 0) * 100 : (overviewInfo.value?.cpu || 0);
+  const memPercentage = daemon ? ((sys.totalmem - sys.freemem) / sys.totalmem) * 100 : (overviewInfo.value?.mem || 0);
+
   return {
     cpu: {
-      usage: overviewInfo.value?.cpu || 0,
-      cores: 0 // System type doesn't provide CPU core count
+      usage: cpuUsage,
+      cores: sys.cpuCount || 0
     },
     memory: {
       used: usedMem,
       total: totalMem,
-      percentage: overviewInfo.value?.mem || 0
+      percentage: memPercentage
     },
     disk: {
       used: 0,
@@ -275,8 +350,10 @@ const updateMemoryChart = () => {
 const updateInstanceChart = () => {
   if (!instanceChart || !overviewInfo.value) return;
 
-  const running = overviewInfo.value.runningInstance || 0;
-  const stopped = (overviewInfo.value.totalInstance || 0) - running;
+  const daemon = selectedDaemonData.value;
+  const running = daemon ? (daemon.instance?.running || 0) : (overviewInfo.value.runningInstance || 0);
+  const total = daemon ? (daemon.instance?.total || 0) : (overviewInfo.value.totalInstance || 0);
+  const stopped = total - running;
 
   instanceChart.setOption({
     animation: false,
@@ -386,7 +463,8 @@ const updateInstanceChart = () => {
 const updateNetworkChart = () => {
   if (!networkChart || !overviewInfo.value) return;
 
-  const sys = overviewInfo.value.system;
+  const daemon = selectedDaemonData.value;
+  const sys = daemon?.system || overviewInfo.value.system;
   const loadAvg = sys?.loadavg || [0, 0, 0];
 
   networkChart.setOption({
@@ -441,14 +519,28 @@ const updateNetworkChart = () => {
 const updateCharts = () => {
   if (!overviewInfo.value) return;
 
+  const daemon = selectedDaemonData.value;
+
+  // Get CPU/mem values based on selection
+  let cpuValue: number;
+  let memValue: number;
+
+  if (daemon?.system) {
+    cpuValue = (daemon.system.cpuUsage || 0) * 100;
+    memValue = ((daemon.system.totalmem - daemon.system.freemem) / daemon.system.totalmem) * 100;
+  } else {
+    cpuValue = overviewInfo.value.cpu || 0;
+    memValue = overviewInfo.value.mem || 0;
+  }
+
   // Update CPU history
-  cpuHistory.value.push(overviewInfo.value.cpu || 0);
+  cpuHistory.value.push(cpuValue);
   if (cpuHistory.value.length > maxHistoryLength) {
     cpuHistory.value.shift();
   }
 
   // Update Memory history
-  memoryHistory.value.push(overviewInfo.value.mem || 0);
+  memoryHistory.value.push(memValue);
   if (memoryHistory.value.length > maxHistoryLength) {
     memoryHistory.value.shift();
   }
@@ -459,6 +551,13 @@ const updateCharts = () => {
   updateInstanceChart();
   updateNetworkChart();
 };
+
+// Reset history when daemon selection changes
+watch(selectedDaemon, () => {
+  cpuHistory.value = [];
+  memoryHistory.value = [];
+  updateCharts();
+});
 
 let updateInterval: number | null = null;
 
@@ -504,9 +603,20 @@ onUnmounted(() => {
           <p>Real-time monitoring and analytics dashboard</p>
         </div>
       </div>
-      <div class="hero-time">
-        <ClockCircleOutlined />
-        {{ new Date().toLocaleString() }}
+      <div class="hero-controls">
+        <div class="daemon-selector">
+          <GlobalOutlined />
+          <a-select
+            v-model:value="selectedDaemon"
+            :options="daemonOptions"
+            style="min-width: 180px"
+            size="large"
+          />
+        </div>
+        <div class="hero-time">
+          <ClockCircleOutlined />
+          {{ new Date().toLocaleString() }}
+        </div>
       </div>
     </div>
 
@@ -636,34 +746,64 @@ onUnmounted(() => {
       <!-- System Information -->
       <CardPanel class="activity-card">
         <template #title>
-          <CheckCircleOutlined /> System Information
+          <CheckCircleOutlined /> {{ selectedDaemonData ? 'Node Information' : 'System Information' }}
         </template>
         <template #body>
           <div class="info-grid" v-if="overviewInfo">
-            <div class="info-item">
-              <span class="info-label">MCS Version</span>
-              <span class="info-value">{{ overviewInfo.version }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Hostname</span>
-              <span class="info-value">{{ overviewInfo.system?.hostname || 'N/A' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Platform</span>
-              <span class="info-value">{{ overviewInfo.system?.platform || 'N/A' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Node.js</span>
-              <span class="info-value">{{ overviewInfo.system?.node || 'N/A' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Uptime</span>
-              <span class="info-value">{{ Math.floor((overviewInfo.system?.uptime || 0) / 3600) }}h</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Server Time</span>
-              <span class="info-value">{{ new Date(overviewInfo.system?.time || 0).toLocaleTimeString() }}</span>
-            </div>
+            <template v-if="selectedDaemonData">
+              <!-- Daemon-specific info -->
+              <div class="info-item">
+                <span class="info-label">Node Name</span>
+                <span class="info-value">{{ selectedDaemonData.remarks || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Hostname</span>
+                <span class="info-value">{{ selectedDaemonData.system?.hostname || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">IP Address</span>
+                <span class="info-value">{{ selectedDaemonData.ip || 'N/A' }}:{{ selectedDaemonData.port || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Platform</span>
+                <span class="info-value">{{ selectedDaemonData.system?.platform || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">CPU Cores</span>
+                <span class="info-value">{{ selectedDaemonData.system?.cpuCount || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Uptime</span>
+                <span class="info-value">{{ Math.floor((selectedDaemonData.system?.uptime || 0) / 3600) }}h</span>
+              </div>
+            </template>
+            <template v-else>
+              <!-- Aggregated panel info -->
+              <div class="info-item">
+                <span class="info-label">MCS Version</span>
+                <span class="info-value">{{ overviewInfo.version }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Hostname</span>
+                <span class="info-value">{{ overviewInfo.system?.hostname || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Platform</span>
+                <span class="info-value">{{ overviewInfo.system?.platform || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Node.js</span>
+                <span class="info-value">{{ overviewInfo.system?.node || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Uptime</span>
+                <span class="info-value">{{ Math.floor((overviewInfo.system?.uptime || 0) / 3600) }}h</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Server Time</span>
+                <span class="info-value">{{ new Date(overviewInfo.system?.time || 0).toLocaleTimeString() }}</span>
+              </div>
+            </template>
           </div>
         </template>
       </CardPanel>
@@ -737,15 +877,53 @@ onUnmounted(() => {
   }
 }
 
-.hero-time {
-  color: white;
-  font-size: 18px;
-  font-weight: 600;
+.hero-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.daemon-selector {
   display: flex;
   align-items: center;
   gap: 8px;
-  position: relative;
-  z-index: 1;
+  color: white;
+  font-size: 18px;
+
+  :deep(.ant-select) {
+    .ant-select-selector {
+      background: rgba(255, 255, 255, 0.15) !important;
+      border: 1px solid rgba(255, 255, 255, 0.3) !important;
+      color: white !important;
+      backdrop-filter: blur(8px);
+
+      .ant-select-selection-item {
+        color: white !important;
+        font-weight: 600;
+      }
+    }
+
+    .ant-select-arrow {
+      color: white !important;
+    }
+
+    &:hover .ant-select-selector {
+      border-color: rgba(255, 255, 255, 0.5) !important;
+    }
+  }
+}
+
+.hero-time {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.9;
 }
 
 // Quick Stats Grid
