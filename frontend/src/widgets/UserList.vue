@@ -397,270 +397,181 @@ onMounted(async () => {
       :rules="isAddMode ? addUserRules : editUserRules"
       :model="formData"
       layout="vertical"
-      class="industrial-form"
+      class="unified-modal-form"
     >
       <!-- Account Information Section -->
-      <div class="user-settings-card">
-        <div class="section-header-industrial">
-          <div class="section-icon">
-            <IdcardOutlined />
-          </div>
-          <div class="section-title">
+      <div class="modal-section">
+        <div class="section-header">
+          <IdcardOutlined class="section-icon" />
+          <div>
             <h4>Account Information</h4>
             <span>Basic user credentials and role</span>
           </div>
         </div>
-        <div class="user-settings-row-horizontal">
-          <!-- Permission -->
-          <a-form-item required name="permission" class="user-form-item-horizontal">
-            <div class="user-control-label">
-              <span class="user-label-text required">{{ t("TXT_CODE_511aea70") }}</span>
-            </div>
+        <div class="form-row">
+          <a-form-item required name="permission">
+            <template #label><span class="field-label">{{ t("TXT_CODE_511aea70") }}</span></template>
             <a-select v-model:value="formData.permission" size="large">
               <a-select-option v-for="(item, key, i) in PERMISSION_MAP" :key="i" :value="Number(key)">
                 {{ item }}
               </a-select-option>
             </a-select>
           </a-form-item>
-
-          <!-- Username -->
-          <a-form-item required name="userName" class="user-form-item-horizontal">
-            <div class="user-control-label">
-              <span class="user-label-text required">{{ t("TXT_CODE_eb9fcdad") }}</span>
-              <span class="user-label-hint">{{ t("TXT_CODE_1987587b") }}</span>
-            </div>
-            <a-input
-              v-model:value="formData.userName"
-              :placeholder="t('TXT_CODE_4ea93630')"
-              size="large"
-            />
+          <a-form-item required name="userName">
+            <template #label>
+              <span class="field-label">{{ t("TXT_CODE_eb9fcdad") }}</span>
+              <span class="field-hint">{{ t("TXT_CODE_1987587b") }}</span>
+            </template>
+            <a-input v-model:value="formData.userName" :placeholder="t('TXT_CODE_4ea93630')" size="large" />
           </a-form-item>
-
-          <!-- Password -->
-          <a-form-item :required="isAddMode" name="passWord" class="user-form-item-horizontal">
-            <div class="user-control-label">
-              <span class="user-label-text" :class="{ required: isAddMode }">{{ t("TXT_CODE_551b0348") }}</span>
-              <span class="user-label-hint">{{ !isAddMode ? t("TXT_CODE_af1f921d") : t("TXT_CODE_1f2062c7") }}</span>
-            </div>
-            <a-input-password
-              v-model:value="formData.passWord"
-              :placeholder="t('TXT_CODE_4ea93630')"
-              size="large"
-            />
+          <a-form-item :required="isAddMode" name="passWord">
+            <template #label>
+              <span class="field-label">{{ t("TXT_CODE_551b0348") }}</span>
+              <span class="field-hint">{{ !isAddMode ? t("TXT_CODE_af1f921d") : t("TXT_CODE_1f2062c7") }}</span>
+            </template>
+            <a-input-password v-model:value="formData.passWord" :placeholder="t('TXT_CODE_4ea93630')" size="large" />
           </a-form-item>
-
-          <!-- APIKEY (Edit Mode Only) -->
-          <a-form-item v-if="!isAddMode" class="user-form-item-horizontal user-form-item-grow">
-            <div class="user-control-label">
-              <span class="user-label-text">APIKEY</span>
-              <span class="user-label-hint">API authentication key</span>
-            </div>
-            <a-input
-              v-if="formData.apiKey"
-              v-model:value="formData.apiKey"
-              :readonly="true"
-              size="large"
-            />
-            <span v-else class="user-apikey-empty">{{ t("TXT_CODE_6c274bdc") }}</span>
+          <a-form-item v-if="!isAddMode" class="grow">
+            <template #label>
+              <span class="field-label">APIKEY</span>
+              <span class="field-hint">API authentication key</span>
+            </template>
+            <a-input v-if="formData.apiKey" v-model:value="formData.apiKey" :readonly="true" size="large" />
+            <span v-else class="empty-value">{{ t("TXT_CODE_6c274bdc") }}</span>
           </a-form-item>
         </div>
       </div>
 
-      <!-- User Permissions Card -->
-      <div class="user-settings-card">
-        <div class="section-header-industrial">
-          <div class="section-icon">
-            <SafetyOutlined />
-          </div>
-          <div class="section-title">
+      <!-- Permissions Section -->
+      <div class="modal-section">
+        <div class="section-header">
+          <SafetyOutlined class="section-icon" />
+          <div>
             <h4>Access Control & Security</h4>
             <span>Configure specific permissions for this user</span>
           </div>
         </div>
-        <div class="permissions-grid-ultra">
-            <!-- File Operations -->
-            <div class="permission-category-ultra">
-              <div class="category-header-ultra">
-                <div class="category-icon-ultra">
-                  <DatabaseOutlined />
-                </div>
-                <div class="category-info-ultra">
-                  <h4>File Operations</h4>
-                  <span>Manage file upload, download, and editing</span>
-                </div>
-              </div>
-              <div class="permission-cards-ultra">
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canUploadFiles }">
-                  <a-checkbox v-model:checked="formData.permissions!.canUploadFiles" />
-                  <span class="perm-label">Upload</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canDownloadFiles }">
-                  <a-checkbox v-model:checked="formData.permissions!.canDownloadFiles" />
-                  <span class="perm-label">Download</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canDeleteFiles }">
-                  <a-checkbox v-model:checked="formData.permissions!.canDeleteFiles" />
-                  <span class="perm-label">Delete</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canModifyFiles }">
-                  <a-checkbox v-model:checked="formData.permissions!.canModifyFiles" />
-                  <span class="perm-label">Modify</span>
-                </label>
-              </div>
+        <div class="permissions-grid">
+          <div class="perm-category">
+            <div class="perm-category-header">
+              <DatabaseOutlined />
+              <span>File Operations</span>
             </div>
-
-            <!-- Instance Control -->
-            <div class="permission-category-ultra">
-              <div class="category-header-ultra">
-                <div class="category-icon-ultra">
-                  <ControlOutlined />
-                </div>
-                <div class="category-info-ultra">
-                  <h4>Instance Control</h4>
-                  <span>Start, stop, and manage instances</span>
-                </div>
-              </div>
-              <div class="permission-cards-ultra">
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessConsole }">
-                  <a-checkbox v-model:checked="formData.permissions!.canAccessConsole" />
-                  <span class="perm-label">Console</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canStartInstances }">
-                  <a-checkbox v-model:checked="formData.permissions!.canStartInstances" />
-                  <span class="perm-label">Start</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canRestartInstances }">
-                  <a-checkbox v-model:checked="formData.permissions!.canRestartInstances" />
-                  <span class="perm-label">Restart</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canStopInstances }">
-                  <a-checkbox v-model:checked="formData.permissions!.canStopInstances" />
-                  <span class="perm-label">Stop</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canViewLogs }">
-                  <a-checkbox v-model:checked="formData.permissions!.canViewLogs" />
-                  <span class="perm-label">Logs</span>
-                </label>
-              </div>
-            </div>
-
-            <!-- Instance Management Access -->
-            <div class="permission-category-ultra">
-              <div class="category-header-ultra">
-                <div class="category-icon-ultra">
-                  <SettingOutlined />
-                </div>
-                <div class="category-info-ultra">
-                  <h4>Management Access</h4>
-                  <span>Advanced configuration access</span>
-                </div>
-              </div>
-              <div class="permission-cards-ultra">
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessConfigFiles }">
-                  <a-checkbox v-model:checked="formData.permissions!.canAccessConfigFiles" />
-                  <span class="perm-label">Config</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessFileManager }">
-                  <a-checkbox v-model:checked="formData.permissions!.canAccessFileManager" />
-                  <span class="perm-label">Files</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessTerminalSettings }">
-                  <a-checkbox v-model:checked="formData.permissions!.canAccessTerminalSettings" />
-                  <span class="perm-label">Terminal</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessScheduledTasks }">
-                  <a-checkbox v-model:checked="formData.permissions!.canAccessScheduledTasks" />
-                  <span class="perm-label">Schedule</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessEventTasks }">
-                  <a-checkbox v-model:checked="formData.permissions!.canAccessEventTasks" />
-                  <span class="perm-label">Events</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessInstanceSettings }">
-                  <a-checkbox v-model:checked="formData.permissions!.canAccessInstanceSettings" />
-                  <span class="perm-label">Settings</span>
-                </label>
-                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessMinecraftQuery }">
-                  <a-checkbox v-model:checked="formData.permissions!.canAccessMinecraftQuery" />
-                  <span class="perm-label">MC Query</span>
-                </label>
-              </div>
-            </div>
-
-            <!-- Security Restrictions -->
-            <div class="permission-category-ultra security">
-              <div class="category-header-ultra">
-                <div class="category-icon-ultra warning">
-                  <SafetyOutlined />
-                </div>
-                <div class="category-info-ultra">
-                  <h4>Security Restrictions</h4>
-                  <span>Restrict user interactions</span>
-                </div>
-              </div>
-              <div class="permission-cards-ultra">
-                <label class="permission-card-ultra restriction" :class="{ active: formData.permissions!.disableRightClick }">
-                  <a-checkbox v-model:checked="formData.permissions!.disableRightClick" />
-                  <span class="perm-label">No Right-Click</span>
-                </label>
-                <label class="permission-card-ultra restriction" :class="{ active: formData.permissions!.disableKeyboardShortcuts }">
-                  <a-checkbox v-model:checked="formData.permissions!.disableKeyboardShortcuts" />
-                  <span class="perm-label">No Shortcuts</span>
-                </label>
-                <label class="permission-card-ultra restriction" :class="{ active: formData.permissions!.disableTextSelection }">
-                  <a-checkbox v-model:checked="formData.permissions!.disableTextSelection" />
-                  <span class="perm-label">No Selection</span>
-                </label>
-                <label class="permission-card-ultra restriction" :class="{ active: formData.permissions!.disableCopy }">
-                  <a-checkbox v-model:checked="formData.permissions!.disableCopy" />
-                  <span class="perm-label">No Copy</span>
-                </label>
-                <label class="permission-card-ultra restriction" :class="{ active: formData.permissions!.disablePaste }">
-                  <a-checkbox v-model:checked="formData.permissions!.disablePaste" />
-                  <span class="perm-label">No Paste</span>
-                </label>
-              </div>
+            <div class="perm-items">
+              <label :class="{ active: formData.permissions!.canUploadFiles }">
+                <a-checkbox v-model:checked="formData.permissions!.canUploadFiles" />Upload
+              </label>
+              <label :class="{ active: formData.permissions!.canDownloadFiles }">
+                <a-checkbox v-model:checked="formData.permissions!.canDownloadFiles" />Download
+              </label>
+              <label :class="{ active: formData.permissions!.canDeleteFiles }">
+                <a-checkbox v-model:checked="formData.permissions!.canDeleteFiles" />Delete
+              </label>
+              <label :class="{ active: formData.permissions!.canModifyFiles }">
+                <a-checkbox v-model:checked="formData.permissions!.canModifyFiles" />Modify
+              </label>
             </div>
           </div>
+          <div class="perm-category">
+            <div class="perm-category-header">
+              <ControlOutlined />
+              <span>Instance Control</span>
+            </div>
+            <div class="perm-items">
+              <label :class="{ active: formData.permissions!.canAccessConsole }">
+                <a-checkbox v-model:checked="formData.permissions!.canAccessConsole" />Console
+              </label>
+              <label :class="{ active: formData.permissions!.canStartInstances }">
+                <a-checkbox v-model:checked="formData.permissions!.canStartInstances" />Start
+              </label>
+              <label :class="{ active: formData.permissions!.canRestartInstances }">
+                <a-checkbox v-model:checked="formData.permissions!.canRestartInstances" />Restart
+              </label>
+              <label :class="{ active: formData.permissions!.canStopInstances }">
+                <a-checkbox v-model:checked="formData.permissions!.canStopInstances" />Stop
+              </label>
+              <label :class="{ active: formData.permissions!.canViewLogs }">
+                <a-checkbox v-model:checked="formData.permissions!.canViewLogs" />Logs
+              </label>
+            </div>
+          </div>
+          <div class="perm-category">
+            <div class="perm-category-header">
+              <SettingOutlined />
+              <span>Management</span>
+            </div>
+            <div class="perm-items">
+              <label :class="{ active: formData.permissions!.canAccessConfigFiles }">
+                <a-checkbox v-model:checked="formData.permissions!.canAccessConfigFiles" />Config
+              </label>
+              <label :class="{ active: formData.permissions!.canAccessFileManager }">
+                <a-checkbox v-model:checked="formData.permissions!.canAccessFileManager" />Files
+              </label>
+              <label :class="{ active: formData.permissions!.canAccessTerminalSettings }">
+                <a-checkbox v-model:checked="formData.permissions!.canAccessTerminalSettings" />Terminal
+              </label>
+              <label :class="{ active: formData.permissions!.canAccessScheduledTasks }">
+                <a-checkbox v-model:checked="formData.permissions!.canAccessScheduledTasks" />Schedule
+              </label>
+              <label :class="{ active: formData.permissions!.canAccessEventTasks }">
+                <a-checkbox v-model:checked="formData.permissions!.canAccessEventTasks" />Events
+              </label>
+              <label :class="{ active: formData.permissions!.canAccessInstanceSettings }">
+                <a-checkbox v-model:checked="formData.permissions!.canAccessInstanceSettings" />Settings
+              </label>
+              <label :class="{ active: formData.permissions!.canAccessMinecraftQuery }">
+                <a-checkbox v-model:checked="formData.permissions!.canAccessMinecraftQuery" />MC Query
+              </label>
+            </div>
+          </div>
+          <div class="perm-category warning">
+            <div class="perm-category-header">
+              <SafetyOutlined />
+              <span>Restrictions</span>
+            </div>
+            <div class="perm-items">
+              <label :class="{ active: formData.permissions!.disableRightClick }">
+                <a-checkbox v-model:checked="formData.permissions!.disableRightClick" />No Right-Click
+              </label>
+              <label :class="{ active: formData.permissions!.disableKeyboardShortcuts }">
+                <a-checkbox v-model:checked="formData.permissions!.disableKeyboardShortcuts" />No Shortcuts
+              </label>
+              <label :class="{ active: formData.permissions!.disableTextSelection }">
+                <a-checkbox v-model:checked="formData.permissions!.disableTextSelection" />No Selection
+              </label>
+              <label :class="{ active: formData.permissions!.disableCopy }">
+                <a-checkbox v-model:checked="formData.permissions!.disableCopy" />No Copy
+              </label>
+              <label :class="{ active: formData.permissions!.disablePaste }">
+                <a-checkbox v-model:checked="formData.permissions!.disablePaste" />No Paste
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Sub-Users Section (Edit Mode Only) -->
-      <div v-if="!isAddMode && formData.subUsers && formData.subUsers.length > 0" class="user-settings-card">
-        <div class="section-header-industrial">
-          <div class="section-icon">
-            <TeamOutlined />
-          </div>
-          <div class="section-title">
+      <!-- Sub-Users Section -->
+      <div v-if="!isAddMode && formData.subUsers && formData.subUsers.length > 0" class="modal-section">
+        <div class="section-header">
+          <TeamOutlined class="section-icon" />
+          <div>
             <h4>Sub-Users ({{ formData.subUsers.length }})</h4>
             <span>Sub-users created by this parent user</span>
           </div>
         </div>
-        <div class="sub-users-grid">
-          <div v-for="item in formData.subUsers" :key="item.uuid" class="sub-user-card-modern">
-            <div class="sub-user-avatar">
-              <UserOutlined />
-            </div>
-            <div class="sub-user-details">
-              <div class="sub-user-name">{{ getUserNameById(item.uuid) || 'Unknown' }}</div>
-              <div class="sub-user-instance">Instance: {{ item.instanceUuid.substring(0, 8) }}...</div>
-            </div>
+        <div class="sub-users-list">
+          <div v-for="item in formData.subUsers" :key="item.uuid" class="sub-user-item">
+            <UserOutlined />
+            <span>{{ getUserNameById(item.uuid) || 'Unknown' }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Modal Footer -->
-      <div class="modal-footer-industrial">
-        <button type="button" class="btn-cancel-industrial" @click="userDialog.status = false">
-          Cancel
-        </button>
-        <button
-          type="button"
-          class="btn-submit-industrial"
-          :disabled="userDialog.confirmBtnLoading"
-          @click="userDialog.resolve()"
-        >
-          <span v-if="userDialog.confirmBtnLoading">Saving...</span>
-          <span v-else>{{ isAddMode ? 'Create User' : 'Save Changes' }}</span>
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" @click="userDialog.status = false">Cancel</button>
+        <button type="button" class="btn-submit" :disabled="userDialog.confirmBtnLoading" @click="userDialog.resolve()">
+          {{ userDialog.confirmBtnLoading ? 'Saving...' : (isAddMode ? 'Create User' : 'Save Changes') }}
         </button>
       </div>
     </a-form>
@@ -829,1159 +740,522 @@ onMounted(async () => {
   </a-modal>
 </template>
 
+
 <style lang="scss" scoped>
-// Theme Variables - Gold/Orange Industrial Theme
-:root {
-  --theme-card-bg: var(--color-bg-2);
-  --theme-card-bg-hover: var(--color-bg-3);
-  --theme-card-border: var(--color-border-2);
-  --theme-card-border-hover: #ff8c00;
-  --theme-title-color: var(--color-text-1);
-  --theme-subtitle-color: var(--color-text-3);
-  --theme-label-color: var(--color-text-2);
-  --theme-hint-color: var(--color-text-3);
-  --theme-shadow: rgba(0, 0, 0, 0.1);
-  --theme-shadow-hover: rgba(255, 140, 0, 0.15);
+/* Unified Modal Form */
+.unified-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-/* Industrial Modal Styles */
+.modal-section {
+  border-bottom: 1px solid var(--color-border-2);
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: var(--color-bg-3);
+
+  .section-icon {
+    font-size: 20px;
+    color: #ff8c00;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-1);
+  }
+
+  span {
+    display: block;
+    font-size: 12px;
+    color: var(--color-text-3);
+  }
+}
+
+/* Form Row - Account Info */
+.form-row {
+  display: grid;
+  grid-template-columns: 120px 180px 180px 1fr;
+  gap: 16px;
+  padding: 16px 24px;
+  align-items: start;
+
+  .ant-form-item {
+    margin: 0;
+  }
+
+  .grow {
+    grid-column: span 1;
+  }
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-1);
+}
+
+.field-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-3);
+  margin-top: 2px;
+}
+
+.empty-value {
+  color: var(--color-text-3);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Permissions Grid */
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 16px 24px;
+}
+
+.perm-category {
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: 8px;
+  padding: 12px;
+
+  &.warning {
+    border-color: rgba(250, 173, 20, 0.4);
+    background: rgba(250, 173, 20, 0.05);
+  }
+}
+
+.perm-category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-1);
+
+  .anticon {
+    color: #ff8c00;
+  }
+}
+
+.perm-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-border-2);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--color-text-2);
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover {
+      border-color: #ff8c00;
+    }
+
+    &.active {
+      border-color: #ff8c00;
+      background: rgba(255, 140, 0, 0.1);
+      color: #ff8c00;
+    }
+  }
+}
+
+/* Sub-Users */
+.sub-users-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 24px;
+}
+
+.sub-user-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-bg-3);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--color-text-2);
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background: var(--color-bg-3);
+  border-top: 1px solid var(--color-border-2);
+}
+
+.btn-cancel, .btn-submit {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-cancel {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  color: var(--color-text-2);
+
+  &:hover {
+    border-color: var(--color-text-3);
+  }
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #ff8c00, #ff6b00);
+  border: none;
+  color: white;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* Modal Header */
 .modal-header-industrial {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .header-icon-industrial {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ff8c00, #ff6b00);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   color: white;
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
 }
 
 .header-content-industrial h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--color-text-1);
 }
 
 .header-subtitle-industrial {
-  font-size: 13px;
-  color: var(--color-text-3);
-}
-
-.section-header-industrial {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 20px;
-  border-bottom: 1px solid var(--theme-card-border);
-  background: var(--color-bg-3);
-}
-
-.section-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: white;
-}
-
-.section-title h4 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-text-1);
-}
-
-.section-title span {
   font-size: 12px;
   color: var(--color-text-3);
 }
 
-.modal-footer-industrial {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 20px;
-  margin-top: 8px;
-  background: var(--color-bg-3);
-  border-top: 1px solid var(--theme-card-border);
-  border-radius: 0 0 12px 12px;
-}
-
-.btn-cancel-industrial {
-  padding: 10px 24px;
-  background: var(--color-bg-3);
-  border: 1px solid var(--color-border-2);
-  border-radius: 8px;
-  color: var(--color-text-2);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cancel-industrial:hover {
-  background: var(--color-bg-4);
-}
-
-.btn-submit-industrial {
-  padding: 10px 24px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-submit-industrial:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
-}
-
-.btn-submit-industrial:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.industrial-form {
-  padding: 8px 0;
-}
-
+/* Users Page */
 .modern-users-page {
   padding: 24px;
   min-height: 100vh;
   background: var(--background-color);
 }
 
-// Page Header
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 24px;
 }
 
 .header-left {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 16px;
 }
 
 .title-section {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .page-icon {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  color: white;
-  box-shadow: 0 8px 20px rgba(255, 140, 66, 0.3);
+  font-size: 24px;
+  color: #ff8c00;
 }
 
 .page-title {
-  font-size: 32px;
-  font-weight: 800;
   margin: 0;
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-1);
 }
 
 .page-subtitle {
+  margin: 0;
   font-size: 14px;
-  color: var(--color-gray-7);
-  margin: 4px 0 0 0;
+  color: var(--color-text-3);
 }
 
 .header-right {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap;
 }
 
-.action-button {
-  padding: 12px 24px;
-  border-radius: 12px;
-  border: none;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.search-section {
   display: flex;
+  gap: 12px;
   align-items: center;
-  gap: 8px;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &:not(:disabled):hover {
-    transform: translateY(-2px);
-  }
-
-  &:not(:disabled):active {
-    transform: translateY(0);
-  }
-}
-
-.reload-btn {
-  background: var(--background-color-white);
-  color: var(--text-color);
-  border: 2px solid var(--card-border-color);
-
-  &:hover:not(:disabled) {
-    border-color: #FF8C42;
-    color: #FF8C42;
-    background: rgba(255, 140, 66, 0.1);
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.2);
-  }
 }
 
 .add-btn {
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
-  color: white;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
-
-  &:hover:not(:disabled) {
-    box-shadow: 0 6px 24px rgba(255, 140, 66, 0.4);
-  }
-}
-
-.delete-btn {
-  background: var(--color-red-5);
-  color: white;
-  box-shadow: 0 4px 16px rgba(255, 77, 79, 0.3);
-
-  &:hover:not(:disabled) {
-    background: var(--color-red-4);
-    box-shadow: 0 6px 24px rgba(255, 77, 79, 0.4);
-  }
-}
-
-// Search Section
-.search-section {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.search-container {
-  flex: 1;
-  position: relative;
-  max-width: 600px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 20px;
-  color: #FF8C42;
-}
-
-.search-input {
-  width: 100%;
-  padding: 16px 20px 16px 56px;
-  border: 2px solid var(--card-border-color);
-  border-radius: 12px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  background: var(--background-color-white);
-  color: var(--text-color);
-
-  &:focus {
-    outline: none;
-    border-color: #FF8C42;
-    background: var(--background-color-white);
-    box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
-  }
-
-  &::placeholder {
-    color: var(--color-gray-7);
-  }
-}
-
-.role-filter {
-  padding: 16px 20px;
-  border: 2px solid var(--card-border-color);
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  background: var(--background-color-white);
-  color: var(--text-color);
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #FF8C42;
-    background: var(--background-color-white);
-    box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
-  }
-
-  &:hover {
-    border-color: #FF8C42;
-  }
-}
-
-// Users Grid
-.users-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-.user-card {
-  background: var(--background-color-white);
-  border-radius: 20px;
-  padding: 28px;
-  box-shadow: 0 4px 16px var(--card-shadow-color);
-  transition: all 0.3s ease;
-  position: relative;
-  border: 2px solid var(--card-border-color);
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.25);
-    border-color: rgba(255, 140, 66, 0.5);
-  }
-
-  &.selected {
-    border-color: #FF8C42;
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
-  }
-}
-
-.card-checkbox {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.checkbox {
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--card-border-color);
-  border-radius: 6px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  background: var(--background-color);
-
-  &.checked {
-    background: linear-gradient(135deg, #FF8C42, #FF6B35);
-    border-color: #FF8C42;
-    color: white;
-  }
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ff8c00, #ff6b00);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
 
   &:hover {
-    border-color: #FF8C42;
+    filter: brightness(1.1);
   }
 }
 
-.user-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  color: white;
-  margin: 0 auto 20px;
-  border: 4px solid;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
-}
-
-.user-info {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.user-name {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin: 0 0 12px 0;
-}
-
-.user-badge {
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
+/* User Stats */
 .user-stats {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding: 16px;
-  background: var(--card-bottom-background-color);
-  border-radius: 12px;
-  border: 1px solid var(--card-border-color);
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 16px 20px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 8px;
 }
 
 .stat-icon {
   font-size: 20px;
-  color: #FF8C42;
+  color: #ff8c00;
 }
 
 .stat-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-1);
 }
 
 .stat-label {
   font-size: 12px;
-  color: var(--color-gray-7);
-  font-weight: 600;
-}
-
-.stat-value {
-  font-size: 14px;
-  color: var(--text-color);
-  font-weight: 500;
-}
-
-.user-uuid {
-  padding: 12px;
-  background: var(--background-color);
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-size: 12px;
-  word-break: break-all;
-  border: 1px solid var(--card-border-color);
-}
-
-.uuid-label {
-  color: var(--color-gray-7);
-  font-weight: 600;
-  margin-right: 8px;
-}
-
-.uuid-value {
-  color: var(--text-color);
-  font-family: monospace;
-}
-
-// Action Menu
-.action-menu-container {
-  position: relative;
-}
-
-.action-menu-btn {
-  width: 100%;
-  padding: 12px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(212, 175, 55, 0.1));
-  border: 2px solid #FF8C42;
-  border-radius: 12px;
-  color: #FF8C42;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(255, 140, 66, 0.1);
-
-  &:hover {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.25), rgba(212, 175, 55, 0.25));
-    box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
-    border-color: #FF6B35;
-  }
-
-  &:active {
-    box-shadow: 0 1px 4px rgba(255, 140, 66, 0.2);
-  }
-}
-
-// Action Modal
-.action-modal-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 8px 0;
-}
-
-.action-modal-btn {
-  width: 100%;
-  padding: 16px 20px;
-  border: 2px solid;
-  border-radius: 12px;
-  background: transparent;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  .action-icon {
-    font-size: 20px;
-  }
-
-  &.edit-btn {
-    border-color: rgba(255, 140, 0, 0.3);
-    color: var(--color-blue-6);
-
-    &:hover {
-      background: rgba(255, 140, 0, 0.12);
-      border-color: var(--color-blue-6);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
-    }
-  }
-
-  &.resources-btn {
-    border-color: rgba(82, 196, 26, 0.3);
-    color: var(--color-green-6);
-
-    &:hover {
-      background: rgba(82, 196, 26, 0.12);
-      border-color: var(--color-green-6);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(82, 196, 26, 0.2);
-    }
-  }
-
-  &.delete-btn {
-    border-color: rgba(255, 77, 79, 0.3);
-    color: var(--color-red-6);
-
-    &:hover {
-      background: rgba(255, 77, 79, 0.12);
-      border-color: var(--color-red-6);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 77, 79, 0.2);
-    }
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
-
-// Pagination
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  padding: 24px 0;
-}
-
-// Responsive
-@media (max-width: 1400px) {
-  .users-grid {
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  }
-}
-
-@media (max-width: 768px) {
-  .modern-users-page {
-    padding: 16px;
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .header-right {
-    width: 100%;
-
-    .action-button {
-      flex: 1;
-      justify-content: center;
-    }
-  }
-
-  .search-section {
-    flex-direction: column;
-  }
-
-  .users-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .page-title {
-    font-size: 24px;
-  }
-
-  .page-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-  }
-}
-
-// Permissions Section Styling
-.permissions-section {
-  :deep(.ant-form-item-label) {
-    label {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-color);
-    }
-  }
-}
-
-.permissions-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-top: 16px;
-
-  // Responsive layout for smaller screens
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.permission-category {
-  background: var(--card-bottom-background-color);
-  border: 2px solid var(--card-border-color);
-  border-radius: 12px;
-  padding: 14px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    border-color: rgba(255, 140, 66, 0.4);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.15);
-  }
-}
-
-.category-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  font-weight: 700;
-  margin: 0 0 10px 0;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--card-border-color);
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.category-icon {
-  font-size: 18px;
-  color: #FF8C42;
-}
-
-.permission-items {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  :deep(.ant-checkbox-wrapper) {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-color);
-    padding: 6px 10px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(255, 140, 66, 0.08);
-      padding-left: 14px;
-    }
-  }
-
-  :deep(.ant-checkbox) {
-    .ant-checkbox-inner {
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--card-border-color);
-      border-radius: 4px;
-      transition: all 0.3s ease;
-    }
-
-    &:hover .ant-checkbox-inner {
-      border-color: #FF8C42;
-    }
-
-    &.ant-checkbox-checked {
-      .ant-checkbox-inner {
-        background: linear-gradient(135deg, #FF8C42, #FF6B35);
-        border-color: #FF8C42;
-      }
-
-      &::after {
-        border-color: #FF8C42;
-      }
-    }
-  }
-}
-
-// Make modal wider to accommodate permissions (landscape layout)
-:deep(.ant-modal) {
-  max-width: 1400px;
-  width: 95% !important;
-}
-
-/* LANDSCAPE User Permission Cards - ORANGE GOLD BLACK THEME */
-.user-info-card {
-  background: linear-gradient(135deg, #1a1a00 0%, #2a2200 100%);
-  border: 2px solid #ff8c00;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.user-info-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.user-info-icon {
-  font-size: 32px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.user-info-content {
-  flex: 1;
-}
-
-.user-info-text {
-  margin: 0 0 4px 0;
-  padding: 0;
-  font-size: 13px;
-  color: #ffd700; /* GOLD */
-  line-height: 1.4;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.user-info-link {
-  color: #ff8c00; /* ORANGE */
-  text-decoration: underline;
-
-  &:hover {
-    color: #ffa500; /* Lighter ORANGE */
-  }
-}
-
-.user-settings-card {
-  background: var(--theme-card-bg);
-  border: 2px solid var(--theme-card-border);
-  border-radius: 12px;
-  padding: 0; /* Content areas handle their own padding */
-  margin-bottom: 16px;
-  overflow: hidden; /* Clip content to border radius */
-  transition: all 0.3s ease;
-
-  &:hover {
-    border-color: var(--theme-card-border-hover);
-    background: var(--theme-card-bg-hover);
-    box-shadow: 0 4px 16px var(--theme-shadow-hover);
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.user-control-label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.user-label-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--theme-label-color);
-  line-height: 1.2;
-
-  &.required::after {
-    content: " *";
-    color: var(--theme-card-border-hover); /* ORANGE asterisk */
-  }
-}
-
-.user-label-hint {
-  font-size: 12px;
-  color: var(--theme-hint-color);
-  line-height: 1.2;
-}
-
-.user-apikey-empty {
-  margin: 0;
-  color: var(--theme-subtitle-color);
-  font-style: italic;
-}
-
-/* Permissions Grid - Three columns landscape */
-/* FULLY HORIZONTAL LAYOUT */
-.user-settings-row-horizontal {
-  display: grid;
-  grid-template-columns: 140px 200px 200px 1fr;
-  gap: 20px;
-  padding: 20px;
-  align-items: start;
-}
-
-.user-form-item-horizontal {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 0 !important;
-}
-
-.user-form-item-horizontal input,
-.user-form-item-horizontal .ant-select,
-.user-form-item-horizontal .ant-input-password {
-  width: 100% !important;
-}
-
-.user-form-item-grow {
-  /* Grid will handle the sizing */
-}
-
-/* RESPONSIVE */
-@media (max-width: 992px) {
-  .user-settings-row-horizontal {
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-}
-
-@media (max-width: 576px) {
-  .user-settings-row-horizontal {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Customize Ant Design for ORANGE GOLD BLACK theme */
-:deep(.user-settings-card) {
-  .ant-input:hover,
-  .ant-input:focus {
-    border-color: var(--theme-card-border-hover);
-  }
-
-  .ant-input:focus {
-    box-shadow: 0 0 0 2px var(--theme-focus-shadow);
-  }
-
-  .ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-  .ant-select-focused:not(.ant-select-disabled).ant-select .ant-select-selector {
-    border-color: var(--theme-card-border-hover);
-  }
-
-  .ant-select-focused:not(.ant-select-disabled).ant-select .ant-select-selector {
-    box-shadow: 0 0 0 2px var(--theme-focus-shadow);
-  }
-
-  .ant-checkbox-wrapper:hover .ant-checkbox-inner {
-    border-color: var(--theme-card-border-hover);
-  }
-
-  .ant-checkbox-checked .ant-checkbox-inner {
-    background: var(--theme-card-border-hover);
-    border-color: var(--theme-card-border-hover);
-  }
-}
-
-.sub-users-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 8px;
-  background: rgba(255, 140, 0, 0.1);
-  color: #ff8c00;
-  border: 1px solid rgba(255, 140, 0, 0.3);
-}
-
-/* Modern Sub-User Cards */
-.sub-users-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
-  padding: 20px; /* Consistent with other sections */
-}
-
-.sub-user-card-modern {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: var(--color-bg-3);
-  border: 1px solid var(--color-border-2);
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.sub-user-card-modern:hover {
-  border-color: #ff8c00;
-  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.15);
-}
-
-.sub-user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: white;
-}
-
-.sub-user-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.sub-user-name {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--color-text-1);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sub-user-instance {
-  font-size: 11px;
   color: var(--color-text-3);
-  margin-top: 2px;
 }
 
-/* ========================================
-   ULTRA INDUSTRIAL PERMISSIONS GRID
-   ======================================== */
-
-.permissions-grid-ultra {
+/* Users Grid */
+.users-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
-  padding: 20px; /* Consistent with account info section */
 }
 
-.permission-category-ultra {
-  background: var(--color-bg-3);
+.user-card {
+  background: var(--color-bg-2);
   border: 1px solid var(--color-border-2);
   border-radius: 12px;
   padding: 16px;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 
   &:hover {
-    border-color: rgba(255, 140, 0, 0.4);
-    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.1);
-  }
-
-  &.security {
-    border-color: rgba(250, 173, 20, 0.3);
-    background: rgba(250, 173, 20, 0.05);
-
-    &:hover {
-      border-color: rgba(250, 173, 20, 0.5);
-      box-shadow: 0 4px 16px rgba(250, 173, 20, 0.15);
-    }
+    border-color: #ff8c00;
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.1);
   }
 }
 
-.category-header-ultra {
+.card-checkbox {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.user-info {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--color-border-2);
+  margin-bottom: 12px;
 }
 
-.category-icon-ultra {
+.user-avatar {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: linear-gradient(135deg, #ff8c00, #ff6b00);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 16px;
   color: white;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
-
-  &.warning {
-    background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
-    box-shadow: 0 4px 12px rgba(250, 173, 20, 0.3);
-  }
 }
 
-.category-info-ultra {
-  flex: 1;
-  min-width: 0;
-
-  h4 {
-    margin: 0 0 4px 0;
-    padding: 0;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--color-text-1);
-    line-height: 1.3;
-  }
-
-  span {
-    font-size: 12px;
-    color: var(--color-text-3);
-    line-height: 1.4;
-  }
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
 }
 
-.permission-cards-ultra {
+.user-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: rgba(255, 140, 0, 0.1);
+  color: #ff8c00;
+}
+
+.user-uuid {
+  margin-bottom: 12px;
+}
+
+.uuid-label {
+  font-size: 11px;
+  color: var(--color-text-3);
+}
+
+.uuid-value {
+  font-size: 12px;
+  color: var(--color-text-2);
+  font-family: monospace;
+}
+
+.action-menu-container {
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
-.permission-card-ultra {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--color-bg-2);
-  border: 1px solid var(--color-border-2);
-  border-radius: 8px;
+.action-menu-btn, .edit-btn, .delete-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
+  transition: all 0.15s;
+}
+
+.edit-btn {
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border-2);
+  color: var(--color-text-2);
 
   &:hover {
     border-color: #ff8c00;
-    background: rgba(255, 140, 0, 0.08);
-  }
-
-  &.active {
-    border-color: #ff8c00;
-    background: rgba(255, 140, 0, 0.15);
-    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.2);
-
-    .perm-label {
-      color: #ff8c00;
-      font-weight: 600;
-    }
-  }
-
-  &.restriction {
-    &:hover {
-      border-color: #faad14;
-      background: rgba(250, 173, 20, 0.08);
-    }
-
-    &.active {
-      border-color: #faad14;
-      background: rgba(250, 173, 20, 0.15);
-      box-shadow: 0 2px 8px rgba(250, 173, 20, 0.2);
-
-      .perm-label {
-        color: #faad14;
-      }
-    }
-  }
-
-  :deep(.ant-checkbox) {
-    .ant-checkbox-inner {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-    }
+    color: #ff8c00;
   }
 }
 
-.perm-label {
-  font-size: 13px;
+.delete-btn {
+  background: rgba(255, 77, 79, 0.1);
+  border: 1px solid rgba(255, 77, 79, 0.3);
+  color: #ff4d4f;
+
+  &:hover {
+    background: rgba(255, 77, 79, 0.2);
+  }
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+/* Action Modal */
+.action-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-modal-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 6px;
   color: var(--color-text-2);
-  line-height: 1;
-  white-space: nowrap;
-  transition: all 0.2s ease;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: #ff8c00;
+    color: #ff8c00;
+  }
 }
 
-/* Responsive for permissions grid */
+.action-icon {
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .permissions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
-  .permissions-grid-ultra {
+  .form-row {
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 16px;
   }
 
-  .permission-category-ultra {
-    padding: 12px;
+  .permissions-grid {
+    grid-template-columns: 1fr;
   }
 
-  .category-icon-ultra {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-  }
-
-  .permission-cards-ultra {
-    gap: 6px;
-  }
-
-  .permission-card-ultra {
-    padding: 6px 10px;
-    gap: 6px;
-
-    .perm-label {
-      font-size: 12px;
-    }
+  .user-stats {
+    flex-direction: column;
   }
 }
 </style>
