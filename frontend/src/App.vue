@@ -14,10 +14,21 @@ import { useLayoutConfigStore } from "./stores/useLayoutConfig";
 import UploadBubble from "@/components/UploadBubble.vue";
 import { useSecurityRestrictions } from "@/hooks/useSecurityRestrictions";
 import PermissionBanner from "@/components/PermissionBanner.vue";
+import { useAppStateStore } from "@/stores/useAppStateStore";
+import { computed } from "vue";
 
 const { isDarkTheme, setBackgroundImage } = useAppConfigStore();
 const { getSettingsConfig, hasBgImage } = useLayoutConfigStore();
+const { state } = useAppStateStore();
 const route = useRoute();
+
+// Only show sidebar/header when user is logged in and not on guest pages
+const showAppLayout = computed(() => {
+  const guestPages = ['/login', '/install', '/welcome', '/shop', '/404'];
+  const isGuestPage = guestPages.includes(route.path);
+  const isLoggedIn = !!state.userInfo?.token;
+  return isLoggedIn && !isGuestPage;
+});
 
 // Apply global security restrictions based on user permissions
 useSecurityRestrictions();
@@ -57,16 +68,16 @@ onMounted(async () => {
   <AppConfigProvider :has-bg-image="hasBgImage">
     <!-- App Container with Sidebar -->
     <div class="global-app-container">
-      <!-- Show sidebar for logged-in pages (not login/install/welcome) -->
-      <AppSidebar v-if="route.path !== '/login' && route.path !== '/install' && route.path !== '/welcome'" />
+      <!-- Show sidebar only for logged-in users on non-guest pages -->
+      <AppSidebar v-if="showAppLayout" />
 
       <!-- Main Content Area -->
-      <div class="main-content-wrapper" :class="{ 'with-sidebar': route.path !== '/login' && route.path !== '/install' && route.path !== '/welcome' }">
-        <!-- Only show header when NOT on login/install/welcome pages -->
-        <AppHeaderSimple v-if="route.path !== '/login' && route.path !== '/install' && route.path !== '/welcome'" />
+      <div class="main-content-wrapper" :class="{ 'with-sidebar': showAppLayout }">
+        <!-- Only show header for logged-in users -->
+        <AppHeaderSimple v-if="showAppLayout" />
 
         <!-- Security Restrictions Banner (displays when any restriction is active) -->
-        <div v-if="route.path !== '/login' && route.path !== '/install' && route.path !== '/welcome'" class="security-banner-container">
+        <div v-if="showAppLayout" class="security-banner-container">
           <PermissionBanner type="security" theme="red" />
         </div>
 
