@@ -233,7 +233,7 @@ defineExpose({
           <div class="instance-info">
             <div class="instance-name">{{ instance.config?.nickname || 'Unnamed Instance' }}</div>
             <div class="instance-details">
-              <span class="daemon-info">{{ instance.daemonRemarks || instance.daemonIp || 'Unknown Daemon' }}</span>
+              <span class="daemon-info">{{ instance.daemonRemarks || 'Daemon' }}</span>
               <span class="status-badge" :class="instance.status === 3 ? 'running' : 'stopped'">
                 {{ instance.status === 3 ? 'Running' : 'Stopped' }}
               </span>

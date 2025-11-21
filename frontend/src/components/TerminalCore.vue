@@ -21,7 +21,7 @@ const props = defineProps<{
 }>();
 
 const { containerState } = useLayoutContainerStore();
-const { canPerformInstanceAction } = useUserPermissions();
+const { canPerformInstanceAction, isAdmin } = useUserPermissions();
 
 const {
   focusHistoryList,
@@ -192,7 +192,7 @@ onMounted(async () => {
       <div class="error-card-container">
         <a-typography-title :level="5">{{ $t("TXT_CODE_6929b0b2") }}</a-typography-title>
         <a-typography-paragraph>
-          {{ $t("TXT_CODE_812a629e") + socketAddress }}
+          {{ $t("TXT_CODE_812a629e") }}{{ isAdmin ? socketAddress : '' }}
         </a-typography-paragraph>
         <div>
           <img :src="connectErrorImage" style="width: 100%; height: 110px" />
