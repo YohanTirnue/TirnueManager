@@ -247,7 +247,7 @@ const instanceOperations = computed(() =>
       },
       disabled: containerState.isDesignMode,
       // Sub-users NEVER have access to market, only admins and regular users
-      condition: () => isStopped.value && !isSubUser.value && (state.settings.allowUsePreset || isAdmin.value)
+      condition: () => isStopped.value && !isSubUser.value && (state.settings?.allowUsePreset || isAdmin.value)
     },
     {
       area: true
