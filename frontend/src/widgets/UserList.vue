@@ -587,32 +587,25 @@ onMounted(async () => {
 
       <!-- Sub-Users Section (Edit Mode Only) -->
       <div v-if="!isAddMode && formData.subUsers && formData.subUsers.length > 0" class="user-settings-card">
-        <div class="permissions-header">
-          <h4 class="permissions-main-title">
-            <TeamOutlined style="margin-right: 8px" />
-            Sub-Users ({{ formData.subUsers.length }})
-          </h4>
-          <p class="permissions-main-subtitle">Sub-users created by this parent user</p>
+        <div class="section-header-industrial">
+          <div class="section-icon">
+            <TeamOutlined />
+          </div>
+          <div class="section-title">
+            <h4>Sub-Users ({{ formData.subUsers.length }})</h4>
+            <span>Sub-users created by this parent user</span>
+          </div>
         </div>
-        <div class="sub-users-list">
-          <a-list
-            :data-source="formData.subUsers"
-            :grid="{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4 }"
-          >
-            <template #renderItem="{ item }">
-              <a-list-item>
-                <a-card size="small">
-                  <div class="sub-user-card">
-                    <UserOutlined class="sub-user-icon" />
-                    <div class="sub-user-info">
-                      <div class="sub-user-name">{{ getUserNameById(item.uuid) || 'Unknown' }}</div>
-                      <div class="sub-user-instance">Instance: {{ item.instanceUuid.substring(0, 8) }}...</div>
-                    </div>
-                  </div>
-                </a-card>
-              </a-list-item>
-            </template>
-          </a-list>
+        <div class="sub-users-grid">
+          <div v-for="item in formData.subUsers" :key="item.uuid" class="sub-user-card-modern">
+            <div class="sub-user-avatar">
+              <UserOutlined />
+            </div>
+            <div class="sub-user-details">
+              <div class="sub-user-name">{{ getUserNameById(item.uuid) || 'Unknown' }}</div>
+              <div class="sub-user-instance">Instance: {{ item.instanceUuid.substring(0, 8) }}...</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1888,34 +1881,59 @@ onMounted(async () => {
   border: 1px solid rgba(82, 196, 26, 0.3);
 }
 
-.sub-users-list {
-  margin-top: 16px;
+/* Modern Sub-User Cards */
+.sub-users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 0 20px 20px;
 }
 
-.sub-user-card {
+.sub-user-card-modern {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 12px;
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.sub-user-icon {
-  font-size: 24px;
-  color: #ff8c00;
+.sub-user-card-modern:hover {
+  border-color: #ff8c00;
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.15);
 }
 
-.sub-user-info {
+.sub-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: white;
+}
+
+.sub-user-details {
   flex: 1;
+  min-width: 0;
 }
 
 .sub-user-name {
-  font-weight: 500;
-  font-size: 14px;
-  color: rgba(0, 0, 0, 0.85);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sub-user-instance {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
-  margin-top: 4px;
+  font-size: 11px;
+  color: var(--color-text-3);
+  margin-top: 2px;
 }
 </style>
