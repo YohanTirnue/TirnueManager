@@ -1572,14 +1572,14 @@ onMounted(async () => {
   background: linear-gradient(135deg, #1a1a00 0%, #2a2200 100%);
   border: 2px solid #ff8c00;
   border-radius: 12px;
-  padding: 16px; /* OCD: 16px all around */
-  margin-bottom: 16px; /* OCD: 16px between cards */
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
 .user-info-row {
   display: flex;
   align-items: center;
-  gap: 16px; /* OCD: 16px gap */
+  gap: 16px;
 }
 
 .user-info-icon {
@@ -1633,65 +1633,10 @@ onMounted(async () => {
   }
 }
 
-.user-settings-row {
-  display: flex;
-  align-items: center; /* OCD: Vertically centered */
-  gap: 32px; /* OCD: 32px between sections */
-  justify-content: space-between;
-}
-
-.user-settings-column {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px; /* OCD: 16px for vertical */
-}
-
-.user-settings-title-section {
-  flex: 0 0 240px; /* OCD: Fixed 240px width */
-  min-width: 240px;
-}
-
-.user-settings-title {
-  margin: 0 0 4px 0; /* OCD: 4px gap */
-  padding: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--theme-title-color);
-  line-height: 1.4;
-}
-
-.user-settings-subtitle {
-  margin: 0;
-  padding: 0;
-  font-size: 13px;
-  color: var(--theme-subtitle-color);
-  line-height: 1.4;
-}
-
-.user-settings-controls {
-  flex: 1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px; /* OCD: 24px between controls */
-  align-items: flex-start;
-}
-
-.user-form-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px; /* OCD: 8px between label and input */
-  margin-bottom: 0 !important;
-}
-
-.user-form-item-full {
-  width: 100%;
-  margin-bottom: 0 !important;
-}
-
 .user-control-label {
   display: flex;
   flex-direction: column;
-  gap: 4px; /* OCD: 4px between text and hint */
+  gap: 4px;
 }
 
 .user-label-text {
@@ -1745,129 +1690,17 @@ onMounted(async () => {
   /* Grid will handle the sizing */
 }
 
-/* Permissions Header */
-.permissions-header {
-  padding: 20px 20px 16px 20px;
-  border-bottom: 1px solid var(--theme-card-border);
-  margin-bottom: 16px;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 60%;
-    background: linear-gradient(180deg, #ff8c00, #ff6b00);
-    border-radius: 2px;
-  }
-}
-
-.permissions-main-title {
-  margin: 0 0 4px 0;
-  padding: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #ff8c00;
-  line-height: 1.4;
-}
-
-.permissions-main-subtitle {
-  margin: 0 0 12px 0; /* OCD: 12px bottom margin */
-  padding: 0;
-  font-size: 13px;
-  color: var(--theme-subtitle-color);
-  line-height: 1.4;
-}
-
-/* 4-Column Grid for Permissions */
-.permissions-landscape-grid-4col {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px; /* OCD: 16px between columns */
-  width: 100%;
-  padding: 0 20px 20px 20px; /* OCD: 20px padding, 0 top */
-}
-
-.permission-category-landscape {
-  background: var(--theme-card-bg-hover);
-  border: 1px solid var(--theme-card-border);
-  border-radius: 8px; /* OCD: 8px radius */
-  padding: 16px; /* OCD: 16px padding */
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: var(--theme-card-border-hover);
-    box-shadow: 0 2px 8px var(--theme-shadow);
-  }
-}
-
-.category-title-landscape {
-  display: flex;
-  align-items: center;
-  gap: 8px; /* OCD: 8px gap */
-  margin: 0 0 12px 0; /* OCD: 12px bottom margin */
-  padding: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--theme-title-color);
-  line-height: 1.2;
-}
-
-.category-icon-landscape {
-  font-size: 16px;
-  color: var(--theme-card-border-hover);
-}
-
-.permission-items-landscape {
-  display: flex;
-  flex-direction: column;
-  gap: 8px; /* OCD: 8px between checkboxes */
-}
-
-/* RESPONSIVE: Stack vertically on mobile */
+/* RESPONSIVE */
 @media (max-width: 992px) {
-  .user-settings-row:not(.user-settings-column) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px; /* OCD: Tighter gap on mobile */
-  }
-
-  .user-settings-title-section {
-    flex: none;
-    min-width: 0;
-  }
-
-  .user-settings-controls {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .user-form-item {
-    width: 100%;
-  }
-
-  .user-form-item input,
-  .user-form-item .ant-select {
-    width: 100% !important;
-  }
-
-  .permissions-landscape-grid-4col {
-    grid-template-columns: 1fr; /* Single column on mobile */
-    gap: 12px; /* OCD: 12px gap on mobile */
-  }
-
   .user-settings-row-horizontal {
-    grid-template-columns: 1fr 1fr; /* 2 columns on tablet */
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
   }
+}
 
-  @media (max-width: 576px) {
-    .user-settings-row-horizontal {
-      grid-template-columns: 1fr; /* Single column on mobile */
-    }
+@media (max-width: 576px) {
+  .user-settings-row-horizontal {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1901,9 +1734,7 @@ onMounted(async () => {
   }
 }
 
-/* Sub-User Badges */
-.sub-users-badge,
-.parent-user-badge {
+.sub-users-badge {
   display: inline-flex;
   align-items: center;
   padding: 4px 12px;
@@ -1911,18 +1742,9 @@ onMounted(async () => {
   font-size: 12px;
   font-weight: 500;
   margin-bottom: 8px;
-}
-
-.sub-users-badge {
   background: rgba(255, 140, 0, 0.1);
   color: #ff8c00;
   border: 1px solid rgba(255, 140, 0, 0.3);
-}
-
-.parent-user-badge {
-  background: rgba(82, 196, 26, 0.1);
-  color: #52c41a;
-  border: 1px solid rgba(82, 196, 26, 0.3);
 }
 
 /* Modern Sub-User Cards */
