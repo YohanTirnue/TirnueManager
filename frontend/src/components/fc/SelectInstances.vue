@@ -302,105 +302,105 @@ const handleChangeNode = async (item: NodeStatus) => {
 
 /* Fix modal dark mode colors */
 :deep(.ant-modal-content) {
-  background: var(--color-bg-2);
-  color: var(--color-text-1);
+  background: var(--background-color-white);
+  color: var(--text-color);
 }
 
 :deep(.ant-modal-header) {
-  background: var(--color-bg-2);
-  border-bottom-color: var(--color-border-2);
+  background: var(--background-color-white);
+  border-bottom-color: var(--gray-border-color);
 }
 
 :deep(.ant-modal-title) {
-  color: var(--color-text-1);
+  color: var(--text-color);
 }
 
 :deep(.ant-modal-close-x) {
-  color: var(--color-text-2);
+  color: var(--color-gray-8);
 }
 
 :deep(.ant-modal-footer) {
-  background: var(--color-bg-2);
-  border-top-color: var(--color-border-2);
+  background: var(--background-color-white);
+  border-top-color: var(--gray-border-color);
 }
 
 /* Table in modal */
 :deep(.ant-table) {
   background: transparent;
-  color: var(--color-text-1);
+  color: var(--text-color);
 }
 
 :deep(.ant-table-thead > tr > th) {
-  background: var(--color-bg-3);
-  color: var(--color-text-2);
-  border-bottom-color: var(--color-border-2);
+  background: var(--color-gray-4);
+  color: var(--color-gray-8);
+  border-bottom-color: var(--gray-border-color);
 }
 
 :deep(.ant-table-tbody > tr > td) {
-  background: var(--color-bg-2);
-  color: var(--color-text-1);
-  border-bottom-color: var(--color-border-2);
+  background: var(--background-color-white);
+  color: var(--text-color);
+  border-bottom-color: var(--gray-border-color);
 }
 
 :deep(.ant-table-tbody > tr:hover > td) {
-  background: var(--color-bg-3);
+  background: var(--color-gray-4);
 }
 
 /* Form controls */
 :deep(.ant-select-selector) {
-  background: var(--color-bg-3) !important;
-  border-color: var(--color-border-2) !important;
-  color: var(--color-text-1) !important;
+  background: var(--color-gray-4) !important;
+  border-color: var(--gray-border-color) !important;
+  color: var(--text-color) !important;
 }
 
 :deep(.ant-select-arrow) {
-  color: var(--color-text-2);
+  color: var(--color-gray-8);
 }
 
 :deep(.ant-input) {
-  background: var(--color-bg-3);
-  border-color: var(--color-border-2);
-  color: var(--color-text-1);
+  background: var(--color-gray-4);
+  border-color: var(--gray-border-color);
+  color: var(--text-color);
 }
 
 :deep(.ant-input::placeholder) {
-  color: var(--color-text-3);
+  color: var(--color-gray-7);
 }
 
 :deep(.ant-btn) {
-  color: var(--color-text-1);
+  color: var(--text-color);
 }
 
 :deep(.ant-btn-default) {
-  background: var(--color-bg-3);
-  border-color: var(--color-border-2);
+  background: var(--color-gray-4);
+  border-color: var(--gray-border-color);
 }
 
 :deep(.ant-pagination) {
-  color: var(--color-text-1);
+  color: var(--text-color);
 }
 
 :deep(.ant-pagination-item a) {
-  color: var(--color-text-1);
+  color: var(--text-color);
 }
 
 :deep(.ant-dropdown-menu) {
-  background: var(--color-bg-2);
+  background: var(--background-color-white);
 }
 
 :deep(.ant-dropdown-menu-item) {
-  color: var(--color-text-1);
+  color: var(--text-color);
 }
 
 :deep(.ant-dropdown-menu-item:hover) {
-  background: var(--color-bg-3);
+  background: var(--color-gray-4);
 }
 
 :deep(.ant-typography) {
-  color: var(--color-text-1);
+  color: var(--text-color);
 }
 
 :deep(.ant-typography-secondary) {
-  color: var(--color-text-3) !important;
+  color: var(--color-gray-7) !important;
 }
 </style>

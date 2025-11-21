@@ -267,8 +267,8 @@ const columns = computed(() => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  background: var(--color-bg-2);
-  border: 1px solid var(--color-border-2);
+  background: var(--background-color-white);
+  border: 1px solid var(--gray-border-color);
   border-radius: 12px;
 }
 
@@ -294,12 +294,12 @@ const columns = computed(() => {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: var(--color-text-1);
+  color: var(--text-color);
 }
 
 .header-subtitle {
   font-size: 13px;
-  color: var(--color-text-3);
+  color: var(--color-gray-7);
 }
 
 .header-actions {
@@ -332,20 +332,20 @@ const columns = computed(() => {
 }
 
 .action-btn.secondary {
-  background: var(--color-bg-3);
-  border: 1px solid var(--color-border-2);
-  color: var(--color-text-2);
+  background: var(--background-color-white);
+  border: 1px solid var(--gray-border-color);
+  color: var(--text-color);
 }
 
 .action-btn.secondary:hover {
-  background: var(--color-bg-4);
+  background: var(--color-gray-4);
 }
 
 /* Table Container */
 .table-container {
   flex: 1;
-  background: var(--color-bg-2);
-  border: 1px solid var(--color-border-2);
+  background: var(--background-color-white);
+  border: 1px solid var(--gray-border-color);
   border-radius: 12px;
   padding: 20px;
   overflow: hidden;
@@ -355,36 +355,36 @@ const columns = computed(() => {
 .modern-table {
   :deep(.ant-table) {
     background: transparent;
-    color: var(--color-text-1);
+    color: var(--text-color);
   }
 
   :deep(.ant-table-thead > tr > th) {
-    background: var(--color-bg-3);
-    border-bottom: 1px solid var(--color-border-2);
+    background: var(--color-gray-4);
+    border-bottom: 1px solid var(--gray-border-color);
     font-weight: 600;
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--color-text-2);
+    color: var(--color-gray-8);
   }
 
   :deep(.ant-table-tbody > tr > td) {
-    border-bottom: 1px solid var(--color-border-2);
+    border-bottom: 1px solid var(--gray-border-color);
     padding: 16px;
-    color: var(--color-text-1);
-    background: var(--color-bg-2);
+    color: var(--text-color);
+    background: var(--background-color-white);
   }
 
   :deep(.ant-table-tbody > tr:hover > td) {
-    background: var(--color-bg-3);
+    background: var(--color-gray-4);
   }
 
   :deep(.ant-pagination) {
-    color: var(--color-text-1);
+    color: var(--text-color);
   }
 
   :deep(.ant-pagination-item a) {
-    color: var(--color-text-1);
+    color: var(--text-color);
   }
 
   :deep(.ant-pagination-item-active a) {
@@ -392,17 +392,17 @@ const columns = computed(() => {
   }
 
   :deep(.ant-select-selector) {
-    background: var(--color-bg-3) !important;
-    border-color: var(--color-border-2) !important;
-    color: var(--color-text-1) !important;
+    background: var(--color-gray-4) !important;
+    border-color: var(--gray-border-color) !important;
+    color: var(--text-color) !important;
   }
 
   :deep(.ant-select-arrow) {
-    color: var(--color-text-2);
+    color: var(--color-gray-8);
   }
 
   :deep(.ant-empty-description) {
-    color: var(--color-text-3);
+    color: var(--color-gray-7);
   }
 }
 
@@ -438,25 +438,25 @@ const columns = computed(() => {
   height: 80px;
   margin: 0 auto 20px;
   border-radius: 20px;
-  background: var(--color-bg-3);
+  background: var(--color-gray-4);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 36px;
-  color: var(--color-text-3);
+  color: var(--color-gray-7);
 }
 
 .empty-state h4 {
   margin: 0 0 8px;
   font-size: 18px;
   font-weight: 600;
-  color: var(--color-text-1);
+  color: var(--text-color);
 }
 
 .empty-state p {
   margin: 0 0 24px;
   font-size: 14px;
-  color: var(--color-text-3);
+  color: var(--color-gray-7);
 }
 
 /* Responsive */
