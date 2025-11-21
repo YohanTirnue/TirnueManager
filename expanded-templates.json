@@ -1,5 +1,11 @@
 {
-  "version": "2.0.1",
+  "version": "3.0.0",
+  "languages": [
+    {
+      "label": "English",
+      "value": "en_us"
+    }
+  ],
   "packages": [
     {
       "title": "Paper 1.21.4 (Latest)",
@@ -10,6 +16,10 @@
       "size": "45 MB",
       "gameType": "Minecraft",
       "category": "Performance",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Java 21+",
+      "hardware": "RAM 4G+",
       "remark": "Recommended for most servers. Includes performance optimizations and extensive plugin support.",
       "image": "https://avatars.githubusercontent.com/u/7608950?s=400",
       "setupInfo": {
@@ -21,19 +31,23 @@
       }
     },
     {
-      "title": "Paper 1.20.1 (Stable)",
-      "description": "High-performance Minecraft 1.20.1 server - Most popular stable version",
-      "addr": "https://api.papermc.io/v2/projects/paper/versions/1.20.1/builds/196/downloads/paper-1.20.1-196.jar",
+      "title": "Paper 1.20.4 (Stable)",
+      "description": "High-performance Minecraft 1.20.4 server - Popular stable version with great plugin support",
+      "addr": "https://api.papermc.io/v2/projects/paper/versions/1.20.4/builds/497/downloads/paper-1.20.4-497.jar",
       "tags": ["mc-paper", "Performance"],
       "author": "PaperMC",
       "size": "44 MB",
       "gameType": "Minecraft",
       "category": "Performance",
-      "remark": "Stable 1.20.1 release with excellent plugin compatibility.",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Java 17+",
+      "hardware": "RAM 4G+",
+      "remark": "Stable 1.20.4 release with excellent plugin compatibility.",
       "image": "https://avatars.githubusercontent.com/u/7608950?s=400",
       "setupInfo": {
         "type": "minecraft/java/paper",
-        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar paper-1.20.1-196.jar nogui",
+        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar paper-1.20.4-497.jar nogui",
         "stopCommand": "stop",
         "ie": "utf-8",
         "oe": "utf-8"
@@ -48,30 +62,15 @@
       "size": "47 MB",
       "gameType": "Minecraft",
       "category": "Performance",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Java 21+",
+      "hardware": "RAM 4G+",
       "remark": "Advanced features and performance tweaks beyond Paper.",
       "image": "https://avatars.githubusercontent.com/u/71507949?s=400",
       "setupInfo": {
         "type": "minecraft/java/purpur",
-        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar download nogui",
-        "stopCommand": "stop",
-        "ie": "utf-8",
-        "oe": "utf-8"
-      }
-    },
-    {
-      "title": "Folia 1.21.1 (Multithreaded)",
-      "description": "Experimental multithreaded Paper fork for massive player counts",
-      "addr": "https://api.papermc.io/v2/projects/folia/versions/1.21.1/builds/126/downloads/folia-1.21.1-126.jar",
-      "tags": ["mc-folia", "Performance"],
-      "author": "PaperMC",
-      "size": "48 MB",
-      "gameType": "Minecraft",
-      "category": "Performance",
-      "remark": "⚠️ Experimental! Not all plugins are compatible. Requires 4GB+ RAM.",
-      "image": "https://avatars.githubusercontent.com/u/7608950?s=400",
-      "setupInfo": {
-        "type": "minecraft/java/folia",
-        "startCommand": "java -Xms4G -Xmx8G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar folia-1.21.1-126.jar nogui",
+        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar purpur.jar nogui",
         "stopCommand": "stop",
         "ie": "utf-8",
         "oe": "utf-8"
@@ -86,31 +85,16 @@
       "size": "10 MB",
       "gameType": "Minecraft",
       "category": "Proxy",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Java 17+",
+      "hardware": "RAM 1G+",
       "remark": "Modern replacement for BungeeCord with better performance and security.",
       "image": "https://avatars.githubusercontent.com/u/7608950?s=400",
       "setupInfo": {
         "type": "minecraft/java/proxy",
         "startCommand": "java -Xms512M -Xmx512M -XX:+UseG1GC -XX:G1HeapRegionSize=4M -XX:+UnlockExperimentalVMOptions -XX:+ParallelRefProcEnabled -XX:+AlwaysPreTouch -XX:MaxInlineLevel=15 -jar velocity-3.3.0-SNAPSHOT-490.jar",
         "stopCommand": "end",
-        "ie": "utf-8",
-        "oe": "utf-8"
-      }
-    },
-    {
-      "title": "Geyser Standalone (Bedrock Bridge)",
-      "description": "Standalone proxy allowing Bedrock Edition players to join Java servers",
-      "addr": "https://ci.opencollab.dev/job/GeyserMC/job/Geyser/job/master/lastSuccessfulBuild/artifact/bootstrap/standalone/build/libs/Geyser-Standalone.jar",
-      "tags": ["mc-geyser", "Proxy"],
-      "author": "GeyserMC",
-      "size": "30 MB",
-      "gameType": "Minecraft",
-      "category": "Proxy",
-      "remark": "Enables cross-play between Java and Bedrock editions. Standalone version.",
-      "image": "https://avatars.githubusercontent.com/u/53838535?s=400",
-      "setupInfo": {
-        "type": "minecraft/java/geyser",
-        "startCommand": "java -Xms512M -Xmx1G -jar Geyser-Standalone.jar",
-        "stopCommand": "stop",
         "ie": "utf-8",
         "oe": "utf-8"
       }
@@ -124,11 +108,15 @@
       "size": "40 MB",
       "gameType": "Minecraft",
       "category": "Modded",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Java 21+",
+      "hardware": "RAM 4G+",
       "remark": "Modern modding framework. Requires Fabric API mod for most mods.",
       "image": "https://avatars.githubusercontent.com/u/21025855?s=400",
       "setupInfo": {
         "type": "minecraft/java/fabric",
-        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -jar jar nogui",
+        "startCommand": "java -Xms2G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -jar fabric-server-launch.jar nogui",
         "stopCommand": "stop",
         "ie": "utf-8",
         "oe": "utf-8"
@@ -143,6 +131,10 @@
       "size": "52 MB",
       "gameType": "Minecraft",
       "category": "Vanilla",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Java 21+",
+      "hardware": "RAM 4G+",
       "remark": "Official unmodified server. No plugins or mods supported.",
       "image": "https://avatars.githubusercontent.com/u/4369924?s=400",
       "setupInfo": {
@@ -155,14 +147,18 @@
     },
     {
       "title": "Bedrock Dedicated Server (Latest)",
-      "description": "Official Minecraft Bedrock Edition dedicated server",
+      "description": "Official Minecraft Bedrock Edition dedicated server for mobile and console cross-play",
       "addr": "https://minecraft.azureedge.net/bin-linux/bedrock-server-1.21.60.21.zip",
       "tags": ["mc-bedrock", "Bedrock"],
       "author": "Mojang Studios",
       "size": "90 MB",
       "gameType": "Minecraft",
       "category": "Bedrock",
-      "remark": "Official Bedrock server for mobile and console cross-play. Runs natively (no Java required).",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Native",
+      "hardware": "RAM 2G+",
+      "remark": "Official Bedrock server. Runs natively (no Java required).",
       "image": "https://avatars.githubusercontent.com/u/4369924?s=400",
       "setupInfo": {
         "type": "minecraft/bedrock",
@@ -173,22 +169,471 @@
       }
     },
     {
-      "title": "Waterfall Proxy (Latest)",
-      "description": "BungeeCord fork with improved performance and stability",
-      "addr": "https://api.papermc.io/v2/projects/waterfall/versions/1.21/builds/593/downloads/waterfall-1.21-593.jar",
-      "tags": ["mc-waterfall", "Proxy"],
-      "author": "PaperMC",
-      "size": "12 MB",
-      "gameType": "Minecraft",
-      "category": "Proxy",
-      "remark": "Enhanced BungeeCord fork for server networks.",
-      "image": "https://avatars.githubusercontent.com/u/7608950?s=400",
+      "title": "Terraria Server (Docker)",
+      "description": "Terraria dedicated server using Docker for easy deployment. Build, explore, and battle in this 2D sandbox adventure!",
+      "targetLink": "",
+      "tags": ["Docker", "Sandbox"],
+      "author": "MCSManager",
+      "size": "Variable",
+      "gameType": "Terraria",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 2G+",
+      "remark": "Requires Docker installed on Linux server.",
+      "image": "https://mcsmanager.oss-cn-guangzhou.aliyuncs.com/package-images/terraria.webp",
       "setupInfo": {
-        "type": "minecraft/java/proxy",
-        "startCommand": "java -Xms512M -Xmx512M -XX:+UseG1GC -jar waterfall-1.21-593.jar",
-        "stopCommand": "end",
+        "startCommand": "",
+        "stopCommand": "exit",
         "ie": "utf-8",
-        "oe": "utf-8"
+        "oe": "utf-8",
+        "type": "steam/terraria",
+        "processType": "docker",
+        "docker": {
+          "image": "ryshe/terraria:latest",
+          "containerName": "terraria-server",
+          "ports": ["{mcsm_port1}:7777/tcp"],
+          "extraVolumes": [],
+          "networkMode": "bridge",
+          "workingDir": "/root/.local/share/Terraria/Worlds",
+          "env": [],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Palworld Server (Docker)",
+      "description": "Palworld dedicated server using Docker. Catch, battle, and work alongside mysterious creatures called Pals!",
+      "targetLink": "",
+      "tags": ["Docker", "Survival"],
+      "author": "MCSManager",
+      "size": "Variable",
+      "gameType": "Palworld",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 8G+",
+      "remark": "Default admin password is 123456. Change via environment variables.",
+      "image": "https://mcsmanager.oss-cn-guangzhou.aliyuncs.com/package-images/palworld.webp",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "stop",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "kagurazakanyaa/palworld:latest",
+          "containerName": "palworld-server",
+          "ports": ["{mcsm_port1}:8211/udp", "{mcsm_port2}:25575/tcp"],
+          "extraVolumes": [],
+          "networkMode": "bridge",
+          "workingDir": "/opt/palworld/Pal/Saved",
+          "env": [
+            "SERVER_NAME=Private PalWorld Server",
+            "SERVER_DESC=Private PalWorld Server",
+            "ADMIN_PASSWORD=123456"
+          ],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Project Zomboid Server (Docker)",
+      "description": "Project Zomboid dedicated server using Docker. Survive the zombie apocalypse in this hardcore survival RPG!",
+      "targetLink": "",
+      "tags": ["Docker", "Survival"],
+      "author": "MCSManager",
+      "size": "Variable",
+      "gameType": "Project Zomboid",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 8G+",
+      "remark": "Requires Docker. World saves stored in workspace.",
+      "image": "https://mcsmanager.oss-cn-guangzhou.aliyuncs.com/package-images/pzomboid.webp",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "quit",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "renegademaster/zomboid-dedicated-server:latest",
+          "containerName": "zomboid-dedicated-server",
+          "ports": ["{mcsm_port1}:16261/udp", "{mcsm_port2}:16262/udp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/ZomboidConfig|/home/steam/Zomboid",
+            "{mcsm_workspace}/ZomboidDedicatedServer|/home/steam/ZomboidDedicatedServer"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Valheim Server (Docker)",
+      "description": "Valheim dedicated server using Docker. Explore, build, and conquer in this Viking survival game!",
+      "targetLink": "",
+      "tags": ["Docker", "Survival"],
+      "author": "lloesche",
+      "size": "Variable",
+      "gameType": "Valheim",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 4G+",
+      "remark": "Configure server name and password via environment variables.",
+      "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/892970/header.jpg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "lloesche/valheim-server:latest",
+          "containerName": "valheim-server",
+          "ports": ["{mcsm_port1}:2456-2458/udp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/config|/config",
+            "{mcsm_workspace}/data|/opt/valheim"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [
+            "SERVER_NAME=Valheim Server",
+            "WORLD_NAME=Dedicated",
+            "SERVER_PASS=secret",
+            "SERVER_PUBLIC=false"
+          ],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "7 Days to Die Server (Docker)",
+      "description": "7 Days to Die dedicated server using Docker. Survive the zombie horde in this open-world survival horror!",
+      "targetLink": "",
+      "tags": ["Docker", "Survival"],
+      "author": "vinanrra",
+      "size": "Variable",
+      "gameType": "7 Days to Die",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 8G+",
+      "remark": "Requires Docker. Configure via serverconfig.xml.",
+      "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/251570/header.jpg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "shutdown",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "vinanrra/7dtd-server:latest",
+          "containerName": "7dtd-server",
+          "ports": ["{mcsm_port1}:26900/tcp", "{mcsm_port2}:26900-26902/udp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/serverfiles|/home/sdtdserver/serverfiles",
+            "{mcsm_workspace}/7daystodie|/home/sdtdserver/.local/share/7DaysToDie"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [
+            "START_MODE=1",
+            "VERSION=stable"
+          ],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "ARK: Survival Evolved Server (Docker)",
+      "description": "ARK dedicated server using Docker. Tame dinosaurs, craft, build, and survive on a mysterious island!",
+      "targetLink": "",
+      "tags": ["Docker", "Survival"],
+      "author": "TuRz4m",
+      "size": "Variable",
+      "gameType": "ARK: Survival Evolved",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 16G+",
+      "remark": "ARK requires significant resources. 16GB+ RAM recommended.",
+      "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/346110/header.jpg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "saveworld",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "turzam/ark-dedicated-server:latest",
+          "containerName": "ark-server",
+          "ports": ["{mcsm_port1}:7777/udp", "{mcsm_port2}:7778/udp", "{mcsm_port3}:27015/udp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/ark|/ark"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [
+            "SESSIONNAME=ARK Server",
+            "SERVERMAP=TheIsland",
+            "SERVERPASSWORD=",
+            "ADMINPASSWORD=adminpassword"
+          ],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Rust Server (Docker)",
+      "description": "Rust dedicated server using Docker. Survive, build, and dominate in this harsh multiplayer survival game!",
+      "targetLink": "",
+      "tags": ["Docker", "Survival"],
+      "author": "Didstopia",
+      "size": "Variable",
+      "gameType": "Rust",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 8G+",
+      "remark": "Configure server settings via environment variables.",
+      "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/252490/header.jpg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "quit",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "didstopia/rust-server:latest",
+          "containerName": "rust-server",
+          "ports": ["{mcsm_port1}:28015/udp", "{mcsm_port2}:28016/tcp", "{mcsm_port3}:8080/tcp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/rust|/steamcmd/rust"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [
+            "RUST_SERVER_NAME=Rust Server",
+            "RUST_SERVER_DESCRIPTION=A Rust Server",
+            "RUST_SERVER_MAXPLAYERS=50",
+            "RUST_RCON_PASSWORD=rconpassword"
+          ],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Satisfactory Server (Docker)",
+      "description": "Satisfactory dedicated server using Docker. Build massive factories with friends in this first-person factory building game!",
+      "targetLink": "",
+      "tags": ["Docker", "Factory"],
+      "author": "wolveix",
+      "size": "Variable",
+      "gameType": "Satisfactory",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 8G+",
+      "remark": "Factory game with multiplayer support. Requires significant CPU.",
+      "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/526870/header.jpg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "wolveix/satisfactory-server:latest",
+          "containerName": "satisfactory-server",
+          "ports": ["{mcsm_port1}:7777/udp", "{mcsm_port2}:15000/udp", "{mcsm_port3}:15777/udp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/satisfactory|/config"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [
+            "MAXPLAYERS=4",
+            "PGID=1000",
+            "PUID=1000",
+            "STEAMBETA=false"
+          ],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "V Rising Server (Docker)",
+      "description": "V Rising dedicated server using Docker. Build your vampire empire in this gothic survival game!",
+      "targetLink": "",
+      "tags": ["Docker", "Survival"],
+      "author": "TrueOsiris",
+      "size": "Variable",
+      "gameType": "V Rising",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 4G+",
+      "remark": "Vampire survival game. Configure via ServerHostSettings.json.",
+      "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/1604030/header.jpg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "trueosiris/vrising:latest",
+          "containerName": "vrising-server",
+          "ports": ["{mcsm_port1}:9876/udp", "{mcsm_port2}:9877/udp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/vrising/server|/mnt/vrising/server",
+            "{mcsm_workspace}/vrising/data|/mnt/vrising/persistentdata"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [
+            "SERVERNAME=V Rising Server"
+          ],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Don't Starve Together Server (Docker)",
+      "description": "Don't Starve Together dedicated server using Docker. Survive the wilderness with friends!",
+      "targetLink": "",
+      "tags": ["Docker", "Survival"],
+      "author": "Jamesits",
+      "size": "Variable",
+      "gameType": "Don't Starve Together",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 2G+",
+      "remark": "Requires Klei account token. See documentation for setup.",
+      "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/322330/header.jpg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "c_shutdown()",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "jamesits/dst-server:latest",
+          "containerName": "dst-server",
+          "ports": ["{mcsm_port1}:10999/udp", "{mcsm_port2}:10998/udp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/dst|/data"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Factorio Server (Docker)",
+      "description": "Factorio dedicated server using Docker. Build and maintain factories in this automation game!",
+      "targetLink": "",
+      "tags": ["Docker", "Factory"],
+      "author": "factoriotools",
+      "size": "Variable",
+      "gameType": "Factorio",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 2G+",
+      "remark": "Build automated factories. Great for multiplayer co-op.",
+      "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/427520/header.jpg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "/quit",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "factoriotools/factorio:stable",
+          "containerName": "factorio-server",
+          "ports": ["{mcsm_port1}:34197/udp", "{mcsm_port2}:27015/tcp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/factorio|/factorio"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Counter-Strike 2 Server (Docker)",
+      "description": "CS2 dedicated server using Docker. Host competitive matches in Valve's latest Counter-Strike!",
+      "targetLink": "",
+      "tags": ["Docker", "FPS"],
+      "author": "joedwards32",
+      "size": "Variable",
+      "gameType": "Counter-Strike 2",
+      "category": "Latest Version",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 4G+",
+      "remark": "Requires Steam Game Server Login Token (GSLT).",
+      "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "quit",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "steam/universal",
+        "processType": "docker",
+        "docker": {
+          "image": "joedwards32/cs2:latest",
+          "containerName": "cs2-server",
+          "ports": ["{mcsm_port1}:27015/tcp", "{mcsm_port2}:27015/udp", "{mcsm_port3}:27020/udp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/cs2|/home/steam/cs2-dedicated"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [
+            "STEAMAPPVALIDATE=0",
+            "CS2_SERVERNAME=CS2 Server",
+            "CS2_PORT=27015",
+            "CS2_MAXPLAYERS=10",
+            "CS2_GAMETYPE=0",
+            "CS2_GAMEMODE=1"
+          ],
+          "changeWorkdir": false
+        }
       }
     }
   ]
