@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CardPanel from "@/components/CardPanel.vue";
-import { openInstanceTagsEditor, useDeleteInstanceDialog } from "@/components/fc/index";
+import { openInstanceTagsEditor, useDeleteInstanceDialog, openMarketDialog } from "@/components/fc/index";
 import PermissionBanner from "@/components/PermissionBanner.vue";
 import TextContainer from "@/components/TextContainer.vue";
 import { useAppRouters } from "@/hooks/useAppRouters";
@@ -32,6 +32,7 @@ import {
   PauseCircleOutlined,
   PlayCircleOutlined,
   RedoOutlined,
+  ShopOutlined,
   TagsOutlined,
   UserOutlined
 } from "@ant-design/icons-vue";
@@ -220,6 +221,31 @@ const instanceOperations = computed(() =>
       disabled: containerState.isDesignMode,
       danger: true,
       condition: () => !isStopped.value
+    },
+    {
+      title: "Server Market",
+      icon: ShopOutlined,
+      click: async (event: MouseEvent) => {
+        event.stopPropagation();
+        Modal.confirm({
+          title: "Replace Server",
+          content: "WARNING: This will DELETE ALL FILES in this instance and replace it with a new server template. This action cannot be undone. Are you sure you want to continue?",
+          okText: "Yes, Replace Server",
+          okType: "danger",
+          onOk: async () => {
+            try {
+              await openMarketDialog(daemonId ?? "", instanceId ?? "", {
+                autoInstall: true
+              });
+              refreshList();
+            } catch (error: any) {
+              // User cancelled or error occurred
+            }
+          }
+        });
+      },
+      disabled: containerState.isDesignMode,
+      condition: () => isStopped.value
     },
     {
       area: true
