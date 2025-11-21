@@ -29,6 +29,8 @@ const formData = reactive({
   code: ""
 });
 
+const turnstileToken = ref("");
+
 const { execute: login } = loginUser();
 const { updateUserInfo, isAdmin, state: appConfig } = useAppStateStore();
 
@@ -44,11 +46,17 @@ const handleLogin = async () => {
   if (!formData.username.trim() || !formData.password.trim()) {
     return reportErrorMsg({ message: t("TXT_CODE_c846074d") });
   }
+  if (!turnstileToken.value) {
+    return reportErrorMsg({ message: "Please complete the security check" });
+  }
   try {
     loginStep.value++;
     await sleep(600);
     const result = await login({
-      data: formData
+      data: {
+        ...formData,
+        turnstileToken: turnstileToken.value
+      }
     });
     if (result.value === "NEED_2FA") {
       loginStep.value = 0;
@@ -121,6 +129,14 @@ const startLoginAnimation = () => {
     showLoginForm.value = true;
   }, 1200);
 };
+
+// Turnstile callback
+const onTurnstileCallback = (token: string) => {
+  turnstileToken.value = token;
+};
+
+// Expose callback to window for Turnstile
+(window as any).onTurnstileCallback = onTurnstileCallback;
 </script>
 
 <template>
@@ -250,6 +266,16 @@ const startLoginAnimation = () => {
                     </template>
                   </a-input>
                 </div>
+              </div>
+
+              <!-- Cloudflare Turnstile Widget -->
+              <div class="turnstile-container">
+                <div
+                  class="cf-turnstile"
+                  data-sitekey="0x4AAAAAACCDkhLA6W9H8wEW"
+                  data-callback="onTurnstileCallback"
+                  data-theme="dark"
+                ></div>
               </div>
 
               <div class="form-actions">
@@ -654,6 +680,12 @@ const startLoginAnimation = () => {
 .input-icon {
   color: rgba(255, 140, 66, 0.8);
   font-size: 18px;
+}
+
+.turnstile-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
 }
 
 .form-actions {

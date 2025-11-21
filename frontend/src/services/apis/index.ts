@@ -44,6 +44,8 @@ export const loginUser = useDefineApi<
       data: {
         username: string;
         password: string;
+        code?: string;
+        turnstileToken?: string;
       };
     }
   | undefined,

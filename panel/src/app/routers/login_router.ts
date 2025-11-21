@@ -15,6 +15,28 @@ import { operationLogger } from "../service/operation_logger";
 
 const router = new Router({ prefix: "/auth" });
 
+// Turnstile verification helper
+async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+  const secretKey = "0x4AAAAAACCDktwg8qhv003oPlD4yZr09P0";
+  try {
+    const response = await axios.post(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      new URLSearchParams({
+        secret: secretKey,
+        response: token,
+        remoteip: ip
+      }).toString(),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      }
+    );
+    return response.data.success === true;
+  } catch (error) {
+    logger.error("Turnstile verification failed:", error);
+    return false;
+  }
+}
+
 // [Public Permission]
 // login route
 router.post(
@@ -25,6 +47,16 @@ router.post(
     const userName = String(ctx.request.body.username);
     const passWord = String(ctx.request.body.password);
     const code = String(ctx.request.body.code);
+    const turnstileToken = String(ctx.request.body.turnstileToken || "");
+
+    // Verify Turnstile token
+    if (turnstileToken) {
+      const isValidTurnstile = await verifyTurnstile(turnstileToken, ctx.ip);
+      if (!isValidTurnstile) {
+        throw new Error("Security verification failed. Please try again.");
+      }
+    }
+
     if (!checkBanIp(ctx)) throw new Error($t("TXT_CODE_router.login.ban"));
     if (check(ctx)) return (ctx.body = "Logined");
     try {
