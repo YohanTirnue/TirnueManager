@@ -185,6 +185,29 @@ const quickOperations = computed(() =>
         }
       },
       condition: () => isRunning.value
+    },
+    {
+      title: "Remake Your Server!",
+      icon: InteractionOutlined,
+      type: "default",
+      noConfirm: true,
+      class: "button-color-info",
+      click: async () => {
+        try {
+          clearTerminal();
+          await openMarketDialog(daemonId ?? "", instanceId ?? "", {
+            autoInstall: true,
+            onlyDockerTemplate: isDockerMode.value
+          });
+        } catch (error: any) {
+          // ignore
+        }
+      },
+      props: {},
+      condition: () =>
+        isStopped.value &&
+        !isGlobalTerminal.value &&
+        (isAdmin.value || userPermissions.value.canAccessServerMarket)
     }
   ])
 );
@@ -231,27 +254,6 @@ const instanceOperations = computed(() =>
         }
       },
       condition: () => isStopped.value && updateCmd.value
-    },
-    {
-      title: t("TXT_CODE_b19ed1dd"),
-      icon: InteractionOutlined,
-      noConfirm: true,
-      click: async () => {
-        try {
-          clearTerminal();
-          await openMarketDialog(daemonId ?? "", instanceId ?? "", {
-            autoInstall: true,
-            onlyDockerTemplate: isDockerMode.value
-          });
-        } catch (error: any) {
-          // ignore
-        }
-      },
-      props: {},
-      condition: () =>
-        isStopped.value &&
-        !isGlobalTerminal.value &&
-        (isAdmin.value || userPermissions.value.canAccessServerMarket)
     },
     {
       title: t("TXT_CODE_f77093c8"),
