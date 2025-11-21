@@ -30,6 +30,14 @@ const showAppLayout = computed(() => {
   return isLoggedIn && !isGuestPage;
 });
 
+// Check if we should show router content (logged in OR on a guest page)
+const showRouterContent = computed(() => {
+  const guestPages = ['/login', '/install', '/welcome', '/shop', '/404'];
+  const isGuestPage = guestPages.includes(route.path);
+  const isLoggedIn = !!state.userInfo?.token;
+  return isLoggedIn || isGuestPage;
+});
+
 // Apply global security restrictions based on user permissions
 useSecurityRestrictions();
 
@@ -81,11 +89,14 @@ onMounted(async () => {
           <PermissionBanner type="security" theme="red" />
         </div>
 
-        <router-view v-slot="{ Component }">
-          <transition name="page-fade" mode="out-in">
-            <component :is="Component" :key="$route.fullPath" />
-          </transition>
-        </router-view>
+        <!-- Only render content for logged-in users or guest pages -->
+        <template v-if="showRouterContent">
+          <router-view v-slot="{ Component }">
+            <transition name="page-fade" mode="out-in">
+              <component :is="Component" :key="$route.fullPath" />
+            </transition>
+          </router-view>
+        </template>
         <UploadBubble />
       </div>
     </div>
