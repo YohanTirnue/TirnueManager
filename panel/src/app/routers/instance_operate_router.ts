@@ -575,7 +575,12 @@ router.post(
     body: { description: String, title: String }
   }),
   async (ctx) => {
-    if (systemConfig?.allowUsePreset === false && !isTopPermissionByUuid(getUserUuid(ctx))) {
+    const userUuid = getUserUuid(ctx);
+    const user = userSystem.getInstance(userUuid);
+    const hasServerMarketPermission = user?.permissions?.canAccessServerMarket === true;
+
+    // Allow access if: admin, global setting enabled, or user has canAccessServerMarket permission
+    if (systemConfig?.allowUsePreset === false && !isTopPermissionByUuid(userUuid) && !hasServerMarketPermission) {
       ctx.status = 403;
       ctx.body = new Error($t("TXT_CODE_b5a47731"));
       return;
