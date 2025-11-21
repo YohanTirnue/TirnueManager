@@ -244,12 +244,12 @@ const instanceOperations = computed(() =>
         }
       },
       disabled: containerState.isDesignMode,
-      // Admins always see it, regular users need allowUsePreset, sub-users never
+      // Admins always see it, regular users need canAccessServerMarket permission
       condition: () => {
         if (!isStopped.value) return false;
         if (isSubUser.value) return false;
         if (isAdmin.value) return true;
-        return state.settings?.allowUsePreset ?? false;
+        return userPermissions.value.canAccessServerMarket ?? false;
       }
     },
     {

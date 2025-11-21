@@ -190,6 +190,7 @@ const userDialog = ref({
               canAccessScheduledTasks: true,
               canAccessEventTasks: true,
               canAccessInstanceSettings: true,
+              canAccessServerMarket: true,
               disableRightClick: false,
               disableKeyboardShortcuts: false,
               disableTextSelection: false,
@@ -249,6 +250,7 @@ const formDataOrigin: EditUserInfo = {
     canAccessScheduledTasks: true,
     canAccessEventTasks: true,
     canAccessInstanceSettings: true,
+    canAccessServerMarket: true,
     disableRightClick: false,
     disableKeyboardShortcuts: false,
     disableTextSelection: false,
@@ -568,6 +570,10 @@ onMounted(async () => {
                 <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessMinecraftQuery }">
                   <a-checkbox v-model:checked="formData.permissions!.canAccessMinecraftQuery" />
                   <span class="perm-label">MC Query</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessServerMarket }">
+                  <a-checkbox v-model:checked="formData.permissions!.canAccessServerMarket" />
+                  <span class="perm-label">Server Market</span>
                 </label>
               </div>
             </div>

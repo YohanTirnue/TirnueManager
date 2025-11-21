@@ -21,6 +21,7 @@ export interface UserPermissions {
   canAccessScheduledTasks: boolean;
   canAccessEventTasks: boolean;
   canAccessInstanceSettings: boolean;
+  canAccessServerMarket: boolean;
 
   // Security Restrictions (global to user session)
   disableRightClick: boolean;
