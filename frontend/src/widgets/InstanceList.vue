@@ -670,6 +670,27 @@ onMounted(async () => {
   }
 }
 
+@media (max-width: 768px) {
+  .mr-10 {
+    margin-right: 6px !important;
+  }
+
+  .ml-10 {
+    margin-left: 6px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .mr-10 {
+    margin-right: 4px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .ml-10 {
+    margin-left: 4px !important;
+  }
+}
+
 .search-input:hover {
   width: 100%;
 }

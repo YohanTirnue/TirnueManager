@@ -44,6 +44,33 @@
   justify-content: flex-end;
 }
 
+@media (max-width: 768px) {
+  .between-menus-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .menus-item-left,
+  .menus-item-center,
+  .menus-item-right {
+    width: 100% !important;
+    flex: unset !important;
+    justify-content: center !important;
+  }
+
+  .menus-item-left {
+    order: 2;
+  }
+
+  .menus-item-center {
+    order: 1;
+  }
+
+  .menus-item-right {
+    order: 3;
+  }
+}
+
 @media (max-width: 585px) {
   .menus-item-center {
     flex: unset !important;

@@ -583,5 +583,25 @@ onMounted(() => {
   .node-icon {
     font-size: 20px;
   }
+
+  .quick-actions {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .node-header {
+    gap: 12px;
+  }
+
+  .quick-actions {
+    justify-content: center;
+  }
+
+  .action-btn {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
 }
 </style>
