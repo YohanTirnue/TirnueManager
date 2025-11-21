@@ -1667,10 +1667,10 @@ onMounted(async () => {
 /* FULLY HORIZONTAL LAYOUT */
 .user-settings-row-horizontal {
   display: grid;
-  grid-template-columns: 140px 200px 200px 1fr;
-  gap: 20px;
-  padding: 20px;
-  align-items: end; /* Align inputs at bottom so they line up */
+  grid-template-columns: 1fr 1.5fr 1.5fr 2fr;
+  gap: 24px;
+  padding: 24px;
+  align-items: end;
 }
 
 .user-form-item-horizontal {
