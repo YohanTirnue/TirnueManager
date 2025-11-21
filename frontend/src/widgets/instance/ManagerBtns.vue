@@ -22,6 +22,7 @@ import {
   DashboardOutlined,
   FieldTimeOutlined,
   FolderOpenOutlined,
+  ShopOutlined,
   UsergroupDeleteOutlined
 } from "@ant-design/icons-vue";
 
@@ -37,6 +38,8 @@ import McPingSettings from "./dialogs/McPingSettings.vue";
 import PingConfig from "./dialogs/PingConfig.vue";
 import RconSettings from "./dialogs/RconSettings.vue";
 import TermConfig from "./dialogs/TermConfig.vue";
+import { openMarketDialog } from "@/components/fc";
+import { INSTANCE_STATUS_CODE } from "@/types/const";
 
 const terminalConfigDialog = ref<InstanceType<typeof TermConfig>>();
 const rconSettingsDialog = ref<InstanceType<typeof RconSettings>>();
@@ -134,6 +137,19 @@ const btns = computed(() => {
         (state.settings.canFileManager || isAdmin.value) &&
         hasInstanceAccess(instanceId ?? "") &&
         (isAdmin.value || userPermissions.value.canAccessFileManager)
+    },
+    {
+      title: "Remake Your Server!",
+      icon: ShopOutlined,
+      click: async () => {
+        await openMarketDialog(daemonId ?? "", instanceId ?? "", {
+          autoInstall: true
+        });
+      },
+      condition: () =>
+        !isGlobalTerminal.value &&
+        instanceInfo.value?.status === INSTANCE_STATUS_CODE.STOPPED &&
+        (isAdmin.value || userPermissions.value.canAccessServerMarket)
     },
     {
       title: t("TXT_CODE_40241d8e"),
