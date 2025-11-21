@@ -230,13 +230,12 @@ const instanceOperations = computed(() =>
       condition: () => !isStopped.value
     },
     {
-      title: "Server Market",
+      title: t("TXT_CODE_ae533703") || "Server Market",
       icon: ShopOutlined,
       click: async (event: MouseEvent): Promise<void> => {
         event.stopPropagation();
         try {
-          // Open market without instanceId to trigger instance selection
-          await openMarketDialog("", "", {
+          await openMarketDialog(instanceId ?? "", daemonId ?? "", {
             autoInstall: true
           });
           refreshList();
@@ -245,8 +244,13 @@ const instanceOperations = computed(() =>
         }
       },
       disabled: containerState.isDesignMode,
-      // Sub-users NEVER have access to market, only admins and regular users
-      condition: () => isStopped.value && !isSubUser.value && (state.settings?.allowUsePreset || isAdmin.value)
+      // Admins always see it, regular users need allowUsePreset, sub-users never
+      condition: () => {
+        if (!isStopped.value) return false;
+        if (isSubUser.value) return false;
+        if (isAdmin.value) return true;
+        return state.settings?.allowUsePreset ?? false;
+      }
     },
     {
       area: true
