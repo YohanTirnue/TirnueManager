@@ -139,19 +139,6 @@ const btns = computed(() => {
         (isAdmin.value || userPermissions.value.canAccessFileManager)
     },
     {
-      title: "Remake Your Server!",
-      icon: ShopOutlined,
-      click: async () => {
-        await openMarketDialog(daemonId ?? "", instanceId ?? "", {
-          autoInstall: true
-        });
-      },
-      condition: () =>
-        !isGlobalTerminal.value &&
-        instanceInfo.value?.status === INSTANCE_STATUS_CODE.STOPPED &&
-        (isAdmin.value || userPermissions.value.canAccessServerMarket)
-    },
-    {
       title: t("TXT_CODE_40241d8e"),
       icon: UsergroupDeleteOutlined,
       click: () => {
@@ -221,6 +208,23 @@ const btns = computed(() => {
       click: () => {
         instanceFundamentalDetailDialog.value?.openDialog();
       }
+    },
+    {
+      title: "Remake Your Server!",
+      icon: ShopOutlined,
+      click: async () => {
+        try {
+          await openMarketDialog(daemonId ?? "", instanceId ?? "", {
+            autoInstall: true
+          });
+        } catch (error) {
+          // User cancelled - ignore
+        }
+      },
+      condition: () =>
+        !isGlobalTerminal.value &&
+        instanceInfo.value?.status === INSTANCE_STATUS_CODE.STOPPED &&
+        (isAdmin.value || userPermissions.value.canAccessServerMarket)
     }
   ]);
 });
