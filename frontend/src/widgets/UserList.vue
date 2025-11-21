@@ -16,7 +16,8 @@ import {
   SafetyOutlined,
   ClockCircleOutlined,
   IdcardOutlined,
-  ControlOutlined
+  ControlOutlined,
+  SettingOutlined
 } from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
 import { throttle } from "lodash";
@@ -479,107 +480,148 @@ onMounted(async () => {
             <span>Configure specific permissions for this user</span>
           </div>
         </div>
-        <div class="permissions-landscape-grid-4col">
+        <div class="permissions-grid-ultra">
             <!-- File Operations -->
-            <div class="permission-category-landscape">
-              <h4 class="category-title-landscape">
-                <DatabaseOutlined class="category-icon-landscape" />
-                File Operations
-              </h4>
-              <div class="permission-items-landscape">
-                <a-checkbox v-model:checked="formData.permissions!.canUploadFiles">
-                  Upload Files
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canDownloadFiles">
-                  Download Files
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canDeleteFiles">
-                  Delete Files
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canModifyFiles">
-                  Modify Files
-                </a-checkbox>
+            <div class="permission-category-ultra">
+              <div class="category-header-ultra">
+                <div class="category-icon-ultra">
+                  <DatabaseOutlined />
+                </div>
+                <div class="category-info-ultra">
+                  <h4>File Operations</h4>
+                  <span>Manage file upload, download, and editing</span>
+                </div>
+              </div>
+              <div class="permission-cards-ultra">
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canUploadFiles }">
+                  <a-checkbox v-model:checked="formData.permissions!.canUploadFiles" />
+                  <span class="perm-label">Upload</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canDownloadFiles }">
+                  <a-checkbox v-model:checked="formData.permissions!.canDownloadFiles" />
+                  <span class="perm-label">Download</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canDeleteFiles }">
+                  <a-checkbox v-model:checked="formData.permissions!.canDeleteFiles" />
+                  <span class="perm-label">Delete</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canModifyFiles }">
+                  <a-checkbox v-model:checked="formData.permissions!.canModifyFiles" />
+                  <span class="perm-label">Modify</span>
+                </label>
               </div>
             </div>
 
             <!-- Instance Control -->
-            <div class="permission-category-landscape">
-              <h4 class="category-title-landscape">
-                <DatabaseOutlined class="category-icon-landscape" />
-                Instance Control
-              </h4>
-              <div class="permission-items-landscape">
-                <a-checkbox v-model:checked="formData.permissions!.canAccessConsole">
-                  Access Console
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canStartInstances">
-                  Start Instances
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canRestartInstances">
-                  Restart Instances
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canStopInstances">
-                  Stop Instances
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canViewLogs">
-                  View Logs
-                </a-checkbox>
+            <div class="permission-category-ultra">
+              <div class="category-header-ultra">
+                <div class="category-icon-ultra">
+                  <ControlOutlined />
+                </div>
+                <div class="category-info-ultra">
+                  <h4>Instance Control</h4>
+                  <span>Start, stop, and manage instances</span>
+                </div>
+              </div>
+              <div class="permission-cards-ultra">
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessConsole }">
+                  <a-checkbox v-model:checked="formData.permissions!.canAccessConsole" />
+                  <span class="perm-label">Console</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canStartInstances }">
+                  <a-checkbox v-model:checked="formData.permissions!.canStartInstances" />
+                  <span class="perm-label">Start</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canRestartInstances }">
+                  <a-checkbox v-model:checked="formData.permissions!.canRestartInstances" />
+                  <span class="perm-label">Restart</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canStopInstances }">
+                  <a-checkbox v-model:checked="formData.permissions!.canStopInstances" />
+                  <span class="perm-label">Stop</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canViewLogs }">
+                  <a-checkbox v-model:checked="formData.permissions!.canViewLogs" />
+                  <span class="perm-label">Logs</span>
+                </label>
               </div>
             </div>
 
             <!-- Instance Management Access -->
-            <div class="permission-category-landscape">
-              <h4 class="category-title-landscape">
-                <ControlOutlined class="category-icon-landscape" />
-                Instance Management Access
-              </h4>
-              <div class="permission-items-landscape">
-                <a-checkbox v-model:checked="formData.permissions!.canAccessConfigFiles">
-                  Configuration Files
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canAccessFileManager">
-                  File Management
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canAccessMinecraftQuery">
-                  Minecraft Players Query
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canAccessTerminalSettings">
-                  Terminal Settings
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canAccessScheduledTasks">
-                  Scheduled Tasks
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canAccessEventTasks">
-                  Event Tasks
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canAccessInstanceSettings">
-                  Instance Settings
-                </a-checkbox>
+            <div class="permission-category-ultra">
+              <div class="category-header-ultra">
+                <div class="category-icon-ultra">
+                  <SettingOutlined />
+                </div>
+                <div class="category-info-ultra">
+                  <h4>Management Access</h4>
+                  <span>Advanced configuration access</span>
+                </div>
+              </div>
+              <div class="permission-cards-ultra">
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessConfigFiles }">
+                  <a-checkbox v-model:checked="formData.permissions!.canAccessConfigFiles" />
+                  <span class="perm-label">Config</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessFileManager }">
+                  <a-checkbox v-model:checked="formData.permissions!.canAccessFileManager" />
+                  <span class="perm-label">Files</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessTerminalSettings }">
+                  <a-checkbox v-model:checked="formData.permissions!.canAccessTerminalSettings" />
+                  <span class="perm-label">Terminal</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessScheduledTasks }">
+                  <a-checkbox v-model:checked="formData.permissions!.canAccessScheduledTasks" />
+                  <span class="perm-label">Schedule</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessEventTasks }">
+                  <a-checkbox v-model:checked="formData.permissions!.canAccessEventTasks" />
+                  <span class="perm-label">Events</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessInstanceSettings }">
+                  <a-checkbox v-model:checked="formData.permissions!.canAccessInstanceSettings" />
+                  <span class="perm-label">Settings</span>
+                </label>
+                <label class="permission-card-ultra" :class="{ active: formData.permissions!.canAccessMinecraftQuery }">
+                  <a-checkbox v-model:checked="formData.permissions!.canAccessMinecraftQuery" />
+                  <span class="perm-label">MC Query</span>
+                </label>
               </div>
             </div>
 
             <!-- Security Restrictions -->
-            <div class="permission-category-landscape">
-              <h4 class="category-title-landscape">
-                <SafetyOutlined class="category-icon-landscape" />
-                Security Restrictions
-              </h4>
-              <div class="permission-items-landscape">
-                <a-checkbox v-model:checked="formData.permissions!.disableRightClick">
-                  Disable Right Click
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.disableKeyboardShortcuts">
-                  Disable Keyboard Shortcuts
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.disableTextSelection">
-                  Prevent Text Selection
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.disableCopy">
-                  Disable Copy
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.disablePaste">
-                  Disable Paste
-                </a-checkbox>
+            <div class="permission-category-ultra security">
+              <div class="category-header-ultra">
+                <div class="category-icon-ultra warning">
+                  <SafetyOutlined />
+                </div>
+                <div class="category-info-ultra">
+                  <h4>Security Restrictions</h4>
+                  <span>Restrict user interactions</span>
+                </div>
+              </div>
+              <div class="permission-cards-ultra">
+                <label class="permission-card-ultra restriction" :class="{ active: formData.permissions!.disableRightClick }">
+                  <a-checkbox v-model:checked="formData.permissions!.disableRightClick" />
+                  <span class="perm-label">No Right-Click</span>
+                </label>
+                <label class="permission-card-ultra restriction" :class="{ active: formData.permissions!.disableKeyboardShortcuts }">
+                  <a-checkbox v-model:checked="formData.permissions!.disableKeyboardShortcuts" />
+                  <span class="perm-label">No Shortcuts</span>
+                </label>
+                <label class="permission-card-ultra restriction" :class="{ active: formData.permissions!.disableTextSelection }">
+                  <a-checkbox v-model:checked="formData.permissions!.disableTextSelection" />
+                  <span class="perm-label">No Selection</span>
+                </label>
+                <label class="permission-card-ultra restriction" :class="{ active: formData.permissions!.disableCopy }">
+                  <a-checkbox v-model:checked="formData.permissions!.disableCopy" />
+                  <span class="perm-label">No Copy</span>
+                </label>
+                <label class="permission-card-ultra restriction" :class="{ active: formData.permissions!.disablePaste }">
+                  <a-checkbox v-model:checked="formData.permissions!.disablePaste" />
+                  <span class="perm-label">No Paste</span>
+                </label>
               </div>
             </div>
           </div>
@@ -1935,5 +1977,187 @@ onMounted(async () => {
   font-size: 11px;
   color: var(--color-text-3);
   margin-top: 2px;
+}
+
+/* ========================================
+   ULTRA INDUSTRIAL PERMISSIONS GRID
+   ======================================== */
+
+.permissions-grid-ultra {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 0 20px 20px 20px;
+}
+
+.permission-category-ultra {
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba(255, 140, 0, 0.4);
+    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.1);
+  }
+
+  &.security {
+    border-color: rgba(250, 173, 20, 0.3);
+    background: rgba(250, 173, 20, 0.05);
+
+    &:hover {
+      border-color: rgba(250, 173, 20, 0.5);
+      box-shadow: 0 4px 16px rgba(250, 173, 20, 0.15);
+    }
+  }
+}
+
+.category-header-ultra {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.category-icon-ultra {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+
+  &.warning {
+    background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
+    box-shadow: 0 4px 12px rgba(250, 173, 20, 0.3);
+  }
+}
+
+.category-info-ultra {
+  flex: 1;
+  min-width: 0;
+
+  h4 {
+    margin: 0 0 4px 0;
+    padding: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-1);
+    line-height: 1.3;
+  }
+
+  span {
+    font-size: 12px;
+    color: var(--color-text-3);
+    line-height: 1.4;
+  }
+}
+
+.permission-cards-ultra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.permission-card-ultra {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+
+  &:hover {
+    border-color: #ff8c00;
+    background: rgba(255, 140, 0, 0.08);
+  }
+
+  &.active {
+    border-color: #ff8c00;
+    background: rgba(255, 140, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.2);
+
+    .perm-label {
+      color: #ff8c00;
+      font-weight: 600;
+    }
+  }
+
+  &.restriction {
+    &:hover {
+      border-color: #faad14;
+      background: rgba(250, 173, 20, 0.08);
+    }
+
+    &.active {
+      border-color: #faad14;
+      background: rgba(250, 173, 20, 0.15);
+      box-shadow: 0 2px 8px rgba(250, 173, 20, 0.2);
+
+      .perm-label {
+        color: #faad14;
+      }
+    }
+  }
+
+  :deep(.ant-checkbox) {
+    .ant-checkbox-inner {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+  }
+}
+
+.perm-label {
+  font-size: 13px;
+  color: var(--color-text-2);
+  line-height: 1;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+/* Responsive for permissions grid */
+@media (max-width: 768px) {
+  .permissions-grid-ultra {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 16px 16px 16px;
+  }
+
+  .permission-category-ultra {
+    padding: 12px;
+  }
+
+  .category-icon-ultra {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .permission-cards-ultra {
+    gap: 6px;
+  }
+
+  .permission-card-ultra {
+    padding: 6px 10px;
+    gap: 6px;
+
+    .perm-label {
+      font-size: 12px;
+    }
+  }
 }
 </style>
