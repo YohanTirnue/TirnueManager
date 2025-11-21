@@ -282,7 +282,7 @@ const columns = computed(() => {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -322,13 +322,13 @@ const columns = computed(() => {
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
   color: white;
 }
 
 .action-btn.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
 }
 
 .action-btn.secondary {

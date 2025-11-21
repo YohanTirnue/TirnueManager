@@ -606,7 +606,7 @@ const handleSubmit = async () => {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -615,11 +615,11 @@ const handleSubmit = async () => {
 }
 
 .header-icon.edit {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #ffa500 0%, #ff6b00 100%);
 }
 
 .header-icon.create {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #ffb347 0%, #ffd700 100%);
 }
 
 .header-content h3 {
@@ -685,7 +685,7 @@ const handleSubmit = async () => {
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
   border: none;
   border-radius: 8px;
   color: white;
@@ -697,7 +697,7 @@ const handleSubmit = async () => {
 
 .add-user-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
 }
 
 .add-user-btn:disabled {
@@ -725,7 +725,7 @@ const handleSubmit = async () => {
 }
 
 .slot-dot.filled {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
 }
 
 /* Users Grid */
@@ -744,7 +744,7 @@ const handleSubmit = async () => {
 }
 
 .user-card:hover {
-  border-color: rgba(102, 126, 234, 0.5);
+  border-color: rgba(255, 140, 0, 0.5);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -759,7 +759,7 @@ const handleSubmit = async () => {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -777,8 +777,8 @@ const handleSubmit = async () => {
 .parent-badge {
   font-size: 11px;
   padding: 2px 8px;
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
+  background: rgba(255, 140, 0, 0.1);
+  color: #ff8c00;
   border-radius: 4px;
 }
 
@@ -829,12 +829,12 @@ const handleSubmit = async () => {
 }
 
 .action-btn.edit {
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
+  background: rgba(255, 140, 0, 0.1);
+  color: #ff8c00;
 }
 
 .action-btn.edit:hover {
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(255, 140, 0, 0.2);
 }
 
 .action-btn.delete {
@@ -921,7 +921,7 @@ const handleSubmit = async () => {
 }
 
 .section-header > span:first-of-type {
-  color: #667eea;
+  color: #ff8c00;
 }
 
 /* Permissions Container */
@@ -949,7 +949,7 @@ const handleSubmit = async () => {
 }
 
 .group-header > span:first-of-type {
-  color: #667eea;
+  color: #ff8c00;
 }
 
 .permission-items {
@@ -1004,7 +1004,7 @@ const handleSubmit = async () => {
 
 .btn-submit {
   padding: 10px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
   border: none;
   border-radius: 8px;
   color: white;
@@ -1016,7 +1016,7 @@ const handleSubmit = async () => {
 
 .btn-submit:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
 }
 
 /* Responsive */
