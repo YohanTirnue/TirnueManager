@@ -306,7 +306,7 @@ const instanceOperations = computed(() =>
       <div class="instance-title">
         {{ instanceInfo?.config.nickname }}
       </div>
-      <div v-if="daemonName" class="daemon-name">
+      <div v-if="daemonName && isAdmin" class="daemon-name">
         <DatabaseOutlined />
         {{ daemonName }}
       </div>
