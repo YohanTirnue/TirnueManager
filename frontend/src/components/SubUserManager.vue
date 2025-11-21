@@ -101,6 +101,7 @@ const defaultPermissions: UserPermissions = {
   canAccessScheduledTasks: false,
   canAccessEventTasks: false,
   canAccessInstanceSettings: false,
+  canAccessServerMarket: false,
   disableRightClick: false,
   disableKeyboardShortcuts: false,
   disableTextSelection: false,
