@@ -29,7 +29,6 @@ import {
   deleteUser as deleteUserApi,
   addUser as addUserApi,
   editUserInfo,
-  updateSubUserPermissions,
   getSubUsers
 } from "@/services/apis";
 import type { UserPermissions } from "@/types/user";
@@ -456,12 +455,13 @@ const handleEditSubUser = async (subUserUuid: string, instanceUuid: string, daem
 const saveSubUserPermissions = async () => {
   try {
     subUserDialog.value.loading = true;
-    await updateSubUserPermissions().execute({
-      params: {
-        subUserUuid: subUserDialog.value.uuid
-      },
+    // Use editUserInfo API which works for any user including sub-users
+    await editUserInfo().execute({
       data: {
-        permissions: subUserDialog.value.permissions
+        uuid: subUserDialog.value.uuid,
+        config: {
+          permissions: subUserDialog.value.permissions
+        } as any
       }
     });
     message.success("Sub-user permissions updated");
