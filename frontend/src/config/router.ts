@@ -416,23 +416,16 @@ router.beforeEach((to, from, next) => {
     return next();
   }
 
-  if (!state.isInstall) {
-    return next("/install");
-  }
-
   if (!to.name) return next("/404");
 
   if (!state.userInfo?.token) return next("/welcome");
 
+  // Check permission - redirect to customer page if insufficient permission
   if (toPagePermission > userPermission && userPermission !== ROLE.ADMIN) {
     return next("/customer");
   }
 
-  if (toPagePermission <= userPermission) {
-    next();
-  } else {
-    next("/404");
-  }
+  next();
 });
 
 export { originRouterConfig, router };

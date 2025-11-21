@@ -235,7 +235,7 @@ const instanceOperations = computed(() =>
       click: async (event: MouseEvent): Promise<void> => {
         event.stopPropagation();
         try {
-          await openMarketDialog(instanceId ?? "", daemonId ?? "", {
+          await openMarketDialog(daemonId ?? "", instanceId ?? "", {
             autoInstall: true
           });
           refreshList();

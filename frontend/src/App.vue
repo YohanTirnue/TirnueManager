@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import AppConfigProvider from "./components/AppConfigProvider.vue";
-import { RouterView, useRoute } from "vue-router";
-import AppHeader from "./components/AppHeader.vue";
+import { useRoute } from "vue-router";
 import AppHeaderSimple from "./components/AppHeaderSimple.vue";
 import AppSidebar from "./components/AppSidebar.vue";
 import { useAppConfigStore } from "@/stores/useAppConfigStore";
@@ -22,18 +21,19 @@ const { getSettingsConfig, hasBgImage } = useLayoutConfigStore();
 const { state } = useAppStateStore();
 const route = useRoute();
 
+// Pages accessible without login
+const GUEST_PAGES = ['/login', '/install', '/welcome', '/shop', '/404'];
+
 // Only show sidebar/header when user is logged in and not on guest pages
 const showAppLayout = computed(() => {
-  const guestPages = ['/login', '/install', '/welcome', '/shop', '/404'];
-  const isGuestPage = guestPages.includes(route.path);
+  const isGuestPage = GUEST_PAGES.includes(route.path);
   const isLoggedIn = !!state.userInfo?.token;
   return isLoggedIn && !isGuestPage;
 });
 
 // Check if we should show router content (logged in OR on a guest page)
 const showRouterContent = computed(() => {
-  const guestPages = ['/login', '/install', '/welcome', '/shop', '/404'];
-  const isGuestPage = guestPages.includes(route.path);
+  const isGuestPage = GUEST_PAGES.includes(route.path);
   const isLoggedIn = !!state.userInfo?.token;
   return isLoggedIn || isGuestPage;
 });
