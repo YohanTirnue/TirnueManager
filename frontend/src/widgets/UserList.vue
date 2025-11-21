@@ -416,7 +416,7 @@ onMounted(async () => {
             <div class="user-control-label">
               <span class="user-label-text required">{{ t("TXT_CODE_511aea70") }}</span>
             </div>
-            <a-select v-model:value="formData.permission" style="width: 180px" size="large">
+            <a-select v-model:value="formData.permission" size="large">
               <a-select-option v-for="(item, key, i) in PERMISSION_MAP" :key="i" :value="Number(key)">
                 {{ item }}
               </a-select-option>
@@ -432,7 +432,6 @@ onMounted(async () => {
             <a-input
               v-model:value="formData.userName"
               :placeholder="t('TXT_CODE_4ea93630')"
-              style="width: 220px"
               size="large"
             />
           </a-form-item>
@@ -446,7 +445,6 @@ onMounted(async () => {
             <a-input-password
               v-model:value="formData.passWord"
               :placeholder="t('TXT_CODE_4ea93630')"
-              style="width: 220px"
               size="large"
             />
           </a-form-item>
@@ -461,7 +459,6 @@ onMounted(async () => {
               v-if="formData.apiKey"
               v-model:value="formData.apiKey"
               :readonly="true"
-              style="width: 100%"
               size="large"
             />
             <span v-else class="user-apikey-empty">{{ t("TXT_CODE_6c274bdc") }}</span>
@@ -1724,24 +1721,28 @@ onMounted(async () => {
 /* Permissions Grid - Three columns landscape */
 /* FULLY HORIZONTAL LAYOUT */
 .user-settings-row-horizontal {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px; /* OCD: 16px between form items */
-  padding: 20px; /* OCD: 20px padding */
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: 140px 200px 200px 1fr;
+  gap: 20px;
+  padding: 20px;
+  align-items: start;
 }
 
 .user-form-item-horizontal {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* OCD: 8px between label and input */
+  gap: 8px;
   margin-bottom: 0 !important;
-  flex-shrink: 0;
+}
+
+.user-form-item-horizontal input,
+.user-form-item-horizontal .ant-select,
+.user-form-item-horizontal .ant-input-password {
+  width: 100% !important;
 }
 
 .user-form-item-grow {
-  flex: 1;
-  min-width: 0;
+  /* Grid will handle the sizing */
 }
 
 /* Permissions Header */
@@ -1859,15 +1860,13 @@ onMounted(async () => {
   }
 
   .user-settings-row-horizontal {
-    flex-wrap: wrap; /* Allow wrapping on mobile */
+    grid-template-columns: 1fr 1fr; /* 2 columns on tablet */
+    gap: 16px;
   }
 
-  .user-form-item-horizontal {
-    width: 100%;
-
-    input,
-    .ant-select {
-      width: 100% !important;
+  @media (max-width: 576px) {
+    .user-settings-row-horizontal {
+      grid-template-columns: 1fr; /* Single column on mobile */
     }
   }
 }
