@@ -40,16 +40,6 @@ export function useUserPermissions() {
       };
     }
 
-    // DEBUG: Log permissions state for troubleshooting
-    if (state.userInfo) {
-      console.log("[useUserPermissions] User Info:", {
-        username: state.userInfo.userName,
-        permission: state.userInfo.permission,
-        hasPermissionsField: state.userInfo.permissions !== undefined,
-        permissions: state.userInfo.permissions
-      });
-    }
-
     // Default permissions - grant all access permissions, no restrictions
     const defaults: UserPermissions = {
       canUploadFiles: true,
