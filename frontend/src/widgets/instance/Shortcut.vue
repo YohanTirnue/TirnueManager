@@ -57,12 +57,6 @@ const { toPage } = useAppRouters();
 const instanceId = props.targetInstanceInfo?.instanceUuid || getMetaOrRouteValue("instanceId");
 const daemonId = props.targetDaemonId || getMetaOrRouteValue("daemonId");
 
-// Check if user is a sub-user (has assigned instances but not admin)
-const isSubUser = computed(() => {
-  if (isAdmin.value) return false;
-  return state.userInfo?.instances && state.userInfo.instances.length > 0;
-});
-
 const { statusText, isRunning, isStopped, instanceTypeText, instanceInfo } = useInstanceInfo({
   instanceId: props.targetInstanceInfo ? undefined : instanceId,
   daemonId: props.targetInstanceInfo ? undefined : daemonId,
@@ -71,6 +65,12 @@ const { statusText, isRunning, isStopped, instanceTypeText, instanceInfo } = use
 });
 
 const { canPerformInstanceAction, userPermissions, isAdmin } = useUserPermissions();
+
+// Check if user is a sub-user (has assigned instances but not admin)
+const isSubUser = computed(() => {
+  if (isAdmin.value) return false;
+  return state.userInfo?.instances && state.userInfo.instances.length > 0;
+});
 
 // Get user's available instance permissions
 const availablePermissions = computed(() => {
