@@ -6,9 +6,18 @@ import { reinstallInstance } from "@/services/apis/instance";
 import { remoteAllInstances } from "@/services/apis";
 import { reportErrorMsg } from "@/tools/validator";
 import type { MountComponent, QuickStartPackages, InstanceDetail } from "@/types";
+import { INSTANCE_STATUS_CODE } from "@/types/const";
 import AppPackages from "@/widgets/setupApp/AppPackages.vue";
 import { Modal, message } from "ant-design-vue";
 import { ref } from "vue";
+
+// Extended instance type with daemon info
+type InstanceWithDaemon = InstanceDetail & {
+  daemonId: string;
+  daemonRemarks: string;
+  daemonIp: string;
+  daemonPort: number;
+};
 
 interface Props extends OpenMarketDialogProps, MountComponent<QuickStartPackages> {}
 
@@ -25,7 +34,7 @@ const appPackages = ref<InstanceType<typeof AppPackages>>();
 
 // Instance selection state
 const showInstanceSelector = ref(false);
-const userInstances = ref<any[]>([]);
+const userInstances = ref<InstanceWithDaemon[]>([]);
 const selectedInstance = ref<{ uuid: string; daemonId: string } | null>(null);
 const pendingTemplate = ref<QuickStartPackages | null>(null);
 const loadingInstances = ref(false);
@@ -52,7 +61,12 @@ const fetchUserInstances = async () => {
   }
 };
 
-const handleSelectInstance = (instance: any) => {
+const handleSelectInstance = (instance: InstanceWithDaemon) => {
+  // Don't allow selecting running instances
+  if (instance.status === INSTANCE_STATUS_CODE.RUNNING) {
+    message.warning("Cannot replace a running instance. Please stop it first.");
+    return;
+  }
   selectedInstance.value = {
     uuid: instance.instanceUuid,
     daemonId: instance.daemonId
@@ -204,12 +218,16 @@ defineExpose({
       <p class="selector-description">
         Select which instance you want to replace with <strong>{{ pendingTemplate?.title }}</strong>:
       </p>
+      <p class="selector-warning">Note: Only stopped instances can be replaced.</p>
       <div class="instance-list">
         <div
           v-for="instance in userInstances"
           :key="instance.instanceUuid"
           class="instance-item"
-          :class="{ selected: selectedInstance?.uuid === instance.instanceUuid }"
+          :class="{
+            selected: selectedInstance?.uuid === instance.instanceUuid,
+            disabled: instance.status === 3
+          }"
           @click="handleSelectInstance(instance)"
         >
           <div class="instance-info">
@@ -246,8 +264,14 @@ defineExpose({
 }
 
 .selector-description {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   color: var(--color-gray-8);
+}
+
+.selector-warning {
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: #faad14;
 }
 
 .instance-list {
@@ -277,6 +301,16 @@ defineExpose({
 .instance-item.selected {
   border-color: #FF8C42;
   background: rgba(255, 140, 66, 0.1);
+}
+
+.instance-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.instance-item.disabled:hover {
+  border-color: var(--color-gray-4);
+  background: transparent;
 }
 
 .instance-info {
