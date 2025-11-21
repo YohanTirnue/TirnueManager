@@ -66,10 +66,9 @@ const { statusText, isRunning, isStopped, instanceTypeText, instanceInfo } = use
 
 const { canPerformInstanceAction, userPermissions, isAdmin } = useUserPermissions();
 
-// Check if user is a sub-user (has assigned instances but not admin)
+// Check if user is a sub-user (backend property)
 const isSubUser = computed(() => {
-  if (isAdmin.value) return false;
-  return state.userInfo?.instances && state.userInfo.instances.length > 0;
+  return state.userInfo?.isSubUser ?? false;
 });
 
 // Get user's available instance permissions

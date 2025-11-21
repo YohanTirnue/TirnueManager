@@ -174,7 +174,6 @@ const userDialog = ref({
               canStartInstances: true,
               canRestartInstances: true,
               canStopInstances: true,
-              canTerminateInstances: true,
               canViewLogs: true,
               canAccessConfigFiles: true,
               canAccessFileManager: true,
@@ -233,7 +232,6 @@ const formDataOrigin: EditUserInfo = {
     canStartInstances: true,
     canRestartInstances: true,
     canStopInstances: true,
-    canTerminateInstances: true,
     canViewLogs: true,
     canAccessConfigFiles: true,
     canAccessFileManager: true,
@@ -482,9 +480,6 @@ onMounted(async () => {
                 </a-checkbox>
                 <a-checkbox v-model:checked="formData.permissions!.canStopInstances">
                   Stop Instances
-                </a-checkbox>
-                <a-checkbox v-model:checked="formData.permissions!.canTerminateInstances">
-                  Terminate Instances
                 </a-checkbox>
                 <a-checkbox v-model:checked="formData.permissions!.canViewLogs">
                   View Logs
