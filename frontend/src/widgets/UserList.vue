@@ -29,7 +29,8 @@ import {
   deleteUser as deleteUserApi,
   addUser as addUserApi,
   editUserInfo,
-  updateSubUserPermissions
+  updateSubUserPermissions,
+  getSubUsers
 } from "@/services/apis";
 import type { UserPermissions } from "@/types/user";
 import type { LayoutCard } from "@/types/index";
@@ -398,41 +399,58 @@ const subUserDialog = ref({
   } as UserPermissions
 });
 
-const handleEditSubUser = (subUserUuid: string) => {
-  const subUser = data.value?.data.find(u => u.uuid === subUserUuid);
-  if (!subUser) {
-    message.error("Sub-user not found");
-    return;
-  }
+const handleEditSubUser = async (subUserUuid: string, instanceUuid: string, daemonId: string) => {
+  try {
+    subUserDialog.value.loading = true;
 
-  subUserDialog.value.uuid = subUser.uuid;
-  subUserDialog.value.userName = subUser.userName;
-  subUserDialog.value.permissions = subUser.permissions ? _.cloneDeep(subUser.permissions) : {
-    canUploadFiles: true,
-    canDownloadFiles: true,
-    canDeleteFiles: false,
-    canModifyFiles: true,
-    canAccessConsole: true,
-    canStartInstances: true,
-    canRestartInstances: true,
-    canStopInstances: true,
-    canTerminateInstances: false,
-    canViewLogs: true,
-    canAccessConfigFiles: false,
-    canAccessFileManager: true,
-    canAccessMinecraftQuery: true,
-    canAccessTerminalSettings: false,
-    canAccessScheduledTasks: false,
-    canAccessEventTasks: false,
-    canAccessInstanceSettings: false,
-    canAccessServerMarket: false,
-    disableRightClick: false,
-    disableKeyboardShortcuts: false,
-    disableTextSelection: false,
-    disableCopy: false,
-    disablePaste: false
-  };
-  subUserDialog.value.visible = true;
+    // Fetch sub-users for this instance to get full user data with permissions
+    const { execute } = getSubUsers();
+    const result = await execute({
+      params: {
+        daemonId,
+        instanceUuid
+      }
+    });
+
+    const subUser = result.value?.find((u: any) => u.uuid === subUserUuid);
+    if (!subUser) {
+      message.error("Sub-user not found");
+      return;
+    }
+
+    subUserDialog.value.uuid = subUser.uuid;
+    subUserDialog.value.userName = subUser.userName;
+    subUserDialog.value.permissions = subUser.permissions ? _.cloneDeep(subUser.permissions) : {
+      canUploadFiles: true,
+      canDownloadFiles: true,
+      canDeleteFiles: false,
+      canModifyFiles: true,
+      canAccessConsole: true,
+      canStartInstances: true,
+      canRestartInstances: true,
+      canStopInstances: true,
+      canTerminateInstances: false,
+      canViewLogs: true,
+      canAccessConfigFiles: false,
+      canAccessFileManager: true,
+      canAccessMinecraftQuery: true,
+      canAccessTerminalSettings: false,
+      canAccessScheduledTasks: false,
+      canAccessEventTasks: false,
+      canAccessInstanceSettings: false,
+      canAccessServerMarket: false,
+      disableRightClick: false,
+      disableKeyboardShortcuts: false,
+      disableTextSelection: false,
+      disableCopy: false,
+      disablePaste: false
+    };
+    subUserDialog.value.visible = true;
+  } catch (error: any) {
+    reportErrorMsg(error.message || "Failed to load sub-user data");
+  } finally {
+    subUserDialog.value.loading = false;
+  }
 };
 
 const saveSubUserPermissions = async () => {
@@ -724,7 +742,7 @@ onMounted(async () => {
             v-for="item in formData.subUsers"
             :key="item.uuid"
             class="sub-user-card-modern clickable"
-            @click="handleEditSubUser(item.uuid)"
+            @click="handleEditSubUser(item.uuid, item.instanceUuid, item.daemonId)"
             title="Click to edit permissions"
           >
             <div class="sub-user-avatar">
