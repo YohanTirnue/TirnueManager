@@ -57,7 +57,11 @@ const operationForm = ref({
 
 const total = ref(0);
 const data = ref<dataType>();
-const dataSource = computed(() => data?.value?.data || []);
+// Filter out sub-users - they are managed at instance level only
+const dataSource = computed(() => {
+  const users = data?.value?.data || [];
+  return users.filter((user: any) => !user.isSubUser);
+});
 const selectedUsers = ref<string[]>([]);
 const currentRole = ref("");
 const actionModalUser = ref<BaseUserInfo | null>(null);
@@ -332,8 +336,8 @@ const getPermissionIcon = (permission: string) => {
 
 const getPermissionColor = (permission: string) => {
   if (permission === "10") return "#FF8C42";
-  if (permission === "1") return "#52c41a";
-  return "#1890ff";
+  if (permission === "1") return "#ffa500";
+  return "#ff8c00";
 };
 
 const toggleUserSelection = (uuid: string) => {
@@ -686,12 +690,6 @@ onMounted(async () => {
           <div v-if="user.subUsers && user.subUsers.length > 0" class="sub-users-badge">
             <TeamOutlined style="margin-right: 4px" />
             <span>{{ user.subUsers.length }} Sub-User{{ user.subUsers.length > 1 ? 's' : '' }}</span>
-          </div>
-
-          <!-- Parent User Badge (if sub-user) -->
-          <div v-if="user.isSubUser" class="parent-user-badge">
-            <UserOutlined style="margin-right: 4px" />
-            <span>Sub-User</span>
           </div>
 
           <!-- UUID -->
@@ -1151,14 +1149,14 @@ onMounted(async () => {
   }
 
   &.edit-btn {
-    border-color: rgba(24, 144, 255, 0.3);
+    border-color: rgba(255, 140, 0, 0.3);
     color: var(--color-blue-6);
 
     &:hover {
-      background: rgba(24, 144, 255, 0.12);
+      background: rgba(255, 140, 0, 0.12);
       border-color: var(--color-blue-6);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
     }
   }
 
@@ -1686,9 +1684,9 @@ onMounted(async () => {
 }
 
 .sub-users-badge {
-  background: rgba(24, 144, 255, 0.1);
-  color: #1890ff;
-  border: 1px solid rgba(24, 144, 255, 0.3);
+  background: rgba(255, 140, 0, 0.1);
+  color: #ff8c00;
+  border: 1px solid rgba(255, 140, 0, 0.3);
 }
 
 .parent-user-badge {
@@ -1709,7 +1707,7 @@ onMounted(async () => {
 
 .sub-user-icon {
   font-size: 24px;
-  color: #1890ff;
+  color: #ff8c00;
 }
 
 .sub-user-info {
