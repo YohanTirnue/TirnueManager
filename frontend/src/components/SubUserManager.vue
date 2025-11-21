@@ -471,9 +471,6 @@ const handleSubmit = async () => {
             <a-checkbox v-model:checked="formData.permissions.canStopInstances">
               Stop Instances
             </a-checkbox>
-            <a-checkbox v-model:checked="formData.permissions.canTerminateInstances">
-              Terminate Instances
-            </a-checkbox>
             <a-checkbox v-model:checked="formData.permissions.canAccessConsole">
               Access Console
             </a-checkbox>
