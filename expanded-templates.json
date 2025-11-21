@@ -729,6 +729,294 @@
           "changeWorkdir": false
         }
       }
+    },
+    {
+      "title": "Discord.js Bot (Node.js)",
+      "description": "Generic Node.js Discord bot template. Supports discord.js v14 and other Node.js libraries.",
+      "targetLink": "",
+      "tags": ["Bot", "Node.js"],
+      "author": "Community",
+      "size": "Variable",
+      "gameType": "Discord Bot",
+      "category": "Node.js",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Node.js 18+",
+      "hardware": "RAM 512MB+",
+      "remark": "Upload your bot files and set the start command to 'node index.js' or 'npm start'.",
+      "image": "https://discord.com/assets/847541504914fd33810e70a0ea73177e.ico",
+      "setupInfo": {
+        "type": "universal/nodejs",
+        "startCommand": "node index.js",
+        "stopCommand": "^C",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "Python Discord Bot",
+      "description": "Generic Python Discord bot template. Supports discord.py, py-cord, and other Python libraries.",
+      "targetLink": "",
+      "tags": ["Bot", "Python"],
+      "author": "Community",
+      "size": "Variable",
+      "gameType": "Discord Bot",
+      "category": "Python",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Python 3.10+",
+      "hardware": "RAM 512MB+",
+      "remark": "Upload your bot files. Install dependencies with 'pip install -r requirements.txt'.",
+      "image": "https://discord.com/assets/847541504914fd33810e70a0ea73177e.ico",
+      "setupInfo": {
+        "type": "universal/python",
+        "startCommand": "python bot.py",
+        "stopCommand": "^C",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "RedBot (Python Discord Bot)",
+      "description": "Fully modular Discord bot with cogs/plugins system. Music, moderation, games, and more!",
+      "targetLink": "",
+      "tags": ["Bot", "Python", "Modular"],
+      "author": "Cog-Creators",
+      "size": "Variable",
+      "gameType": "Discord Bot",
+      "category": "Python",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Python 3.9+",
+      "hardware": "RAM 1G+",
+      "remark": "Run 'redbot-setup' first to configure. Supports Lavalink for music.",
+      "image": "https://raw.githubusercontent.com/Cog-Creators/Red-DiscordBot/V3/develop/docs/red_small.png",
+      "setupInfo": {
+        "type": "universal/python",
+        "startCommand": "redbot mybot --no-prompt",
+        "stopCommand": "^C",
+        "updateCommand": "pip install -U Red-DiscordBot",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "Lavalink (Audio Server)",
+      "description": "Standalone audio server for Discord bots. Used with discord.js, JDA, discord.py, etc.",
+      "targetLink": "",
+      "tags": ["Bot", "Audio", "Java"],
+      "author": "lavalink-devs",
+      "size": "70 MB",
+      "gameType": "Discord Bot",
+      "category": "Audio",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Java 17+",
+      "hardware": "RAM 1G+",
+      "remark": "Configure application.yml with your password. Default port: 2333.",
+      "image": "https://raw.githubusercontent.com/lavalink-devs/Lavalink/master/branding/lavalink.svg",
+      "setupInfo": {
+        "type": "universal/java",
+        "startCommand": "java -jar Lavalink.jar",
+        "stopCommand": "^C",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "SinusBot (Music Bot)",
+      "description": "Advanced music bot for Discord and TeamSpeak. Web interface, playlists, and more!",
+      "targetLink": "",
+      "tags": ["Bot", "Music", "Docker"],
+      "author": "SinusBot",
+      "size": "Variable",
+      "gameType": "Discord Bot",
+      "category": "Music",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 1G+",
+      "remark": "Web interface on port 8087. Default login: admin/foobar",
+      "image": "https://www.sinusbot.com/favicon.ico",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "universal/docker",
+        "processType": "docker",
+        "docker": {
+          "image": "sinusbot/docker:latest",
+          "containerName": "sinusbot",
+          "ports": ["{mcsm_port1}:8087/tcp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/scripts|/opt/sinusbot/scripts",
+            "{mcsm_workspace}/data|/opt/sinusbot/data"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "TeamSpeak 3 Server (Docker)",
+      "description": "Voice communication server for gaming communities. Crystal clear voice quality!",
+      "targetLink": "",
+      "tags": ["Voice", "Docker"],
+      "author": "TeamSpeak",
+      "size": "Variable",
+      "gameType": "Voice Server",
+      "category": "TeamSpeak",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 512MB+",
+      "remark": "Check logs for server admin token on first run. Default port: 9987 (voice).",
+      "image": "https://www.teamspeak.com/user/themes/flavor/images/logo_inverse.svg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "universal/docker",
+        "processType": "docker",
+        "docker": {
+          "image": "teamspeak:latest",
+          "containerName": "teamspeak-server",
+          "ports": ["{mcsm_port1}:9987/udp", "{mcsm_port2}:10011/tcp", "{mcsm_port3}:30033/tcp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/data|/var/ts3server"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [
+            "TS3SERVER_LICENSE=accept"
+          ],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Mumble Server (Docker)",
+      "description": "Open-source, low-latency voice chat. Great for gaming with minimal resource usage!",
+      "targetLink": "",
+      "tags": ["Voice", "Docker", "Open Source"],
+      "author": "mumble-voip",
+      "size": "Variable",
+      "gameType": "Voice Server",
+      "category": "Mumble",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 256MB+",
+      "remark": "SuperUser password shown in logs on first run. Default port: 64738.",
+      "image": "https://www.mumble.info/favicon.ico",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "universal/docker",
+        "processType": "docker",
+        "docker": {
+          "image": "mumblevoip/mumble-server:latest",
+          "containerName": "mumble-server",
+          "ports": ["{mcsm_port1}:64738/tcp", "{mcsm_port2}:64738/udp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/data|/data"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Uptime Kuma (Monitoring)",
+      "description": "Self-hosted monitoring tool. Monitor HTTP, TCP, Ping, DNS, Docker, and game servers!",
+      "targetLink": "",
+      "tags": ["Monitoring", "Docker", "Dashboard"],
+      "author": "louislam",
+      "size": "Variable",
+      "gameType": "Monitoring",
+      "category": "Tools",
+      "language": "en_us",
+      "platform": "Linux",
+      "runtime": "Docker",
+      "hardware": "RAM 512MB+",
+      "remark": "Web dashboard on port 3001. 90+ notification services supported.",
+      "image": "https://uptime.kuma.pet/img/icon.svg",
+      "setupInfo": {
+        "startCommand": "",
+        "stopCommand": "",
+        "ie": "utf-8",
+        "oe": "utf-8",
+        "type": "universal/docker",
+        "processType": "docker",
+        "docker": {
+          "image": "louislam/uptime-kuma:latest",
+          "containerName": "uptime-kuma",
+          "ports": ["{mcsm_port1}:3001/tcp"],
+          "extraVolumes": [
+            "{mcsm_workspace}/data|/app/data"
+          ],
+          "networkMode": "bridge",
+          "workingDir": "",
+          "env": [],
+          "changeWorkdir": false
+        }
+      }
+    },
+    {
+      "title": "Node.js Application",
+      "description": "Generic Node.js runtime for web apps, APIs, bots, and more.",
+      "targetLink": "",
+      "tags": ["Runtime", "Node.js"],
+      "author": "Community",
+      "size": "Variable",
+      "gameType": "Application",
+      "category": "Node.js",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Node.js 18+",
+      "hardware": "RAM 256MB+",
+      "remark": "Upload your project. Run 'npm install' to install dependencies.",
+      "image": "https://nodejs.org/static/logos/nodejsLight.svg",
+      "setupInfo": {
+        "type": "universal/nodejs",
+        "startCommand": "npm start",
+        "stopCommand": "^C",
+        "updateCommand": "npm install",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
+    },
+    {
+      "title": "Python Application",
+      "description": "Generic Python runtime for web apps, APIs, bots, scripts, and more.",
+      "targetLink": "",
+      "tags": ["Runtime", "Python"],
+      "author": "Community",
+      "size": "Variable",
+      "gameType": "Application",
+      "category": "Python",
+      "language": "en_us",
+      "platform": "ALL",
+      "runtime": "Python 3.10+",
+      "hardware": "RAM 256MB+",
+      "remark": "Upload your project. Run 'pip install -r requirements.txt' to install dependencies.",
+      "image": "https://www.python.org/static/favicon.ico",
+      "setupInfo": {
+        "type": "universal/python",
+        "startCommand": "python main.py",
+        "stopCommand": "^C",
+        "updateCommand": "pip install -r requirements.txt",
+        "ie": "utf-8",
+        "oe": "utf-8"
+      }
     }
   ]
 }
