@@ -748,6 +748,20 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
+// Theme Variables - Gold/Orange Industrial Theme
+:root {
+  --theme-card-bg: var(--color-bg-2);
+  --theme-card-bg-hover: var(--color-bg-3);
+  --theme-card-border: var(--color-border-2);
+  --theme-card-border-hover: #ff8c00;
+  --theme-title-color: var(--color-text-1);
+  --theme-subtitle-color: var(--color-text-3);
+  --theme-label-color: var(--color-text-2);
+  --theme-hint-color: var(--color-text-3);
+  --theme-shadow: rgba(0, 0, 0, 0.1);
+  --theme-shadow-hover: rgba(255, 140, 0, 0.15);
+}
+
 .modern-users-page {
   padding: 24px;
   min-height: 100vh;
@@ -1528,17 +1542,30 @@ onMounted(async () => {
 
 /* Permissions Header */
 .permissions-header {
-  padding: 20px 20px 0 20px; /* OCD: 20px padding, 0 bottom */
+  padding: 20px 20px 16px 20px;
   border-bottom: 1px solid var(--theme-card-border);
-  margin-bottom: 16px; /* OCD: 16px gap */
+  margin-bottom: 16px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    background: linear-gradient(180deg, #ff8c00, #ff6b00);
+    border-radius: 2px;
+  }
 }
 
 .permissions-main-title {
-  margin: 0 0 4px 0; /* OCD: 4px gap */
+  margin: 0 0 4px 0;
   padding: 0;
   font-size: 18px;
   font-weight: 600;
-  color: var(--theme-title-color);
+  color: #ff8c00;
   line-height: 1.4;
 }
 
