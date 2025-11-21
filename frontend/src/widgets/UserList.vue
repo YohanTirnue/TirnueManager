@@ -883,9 +883,9 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px 20px;
+  padding: 20px;
   border-bottom: 1px solid var(--theme-card-border);
-  margin-bottom: 16px;
+  background: var(--color-bg-3);
 }
 
 .section-icon {
@@ -916,9 +916,11 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding: 20px 0 0;
-  margin-top: 20px;
+  padding: 20px;
+  margin-top: 8px;
+  background: var(--color-bg-3);
   border-top: 1px solid var(--theme-card-border);
+  border-radius: 0 0 12px 12px;
 }
 
 .btn-cancel-industrial {
@@ -1618,8 +1620,9 @@ onMounted(async () => {
   background: var(--theme-card-bg);
   border: 2px solid var(--theme-card-border);
   border-radius: 12px;
-  padding: 24px; /* OCD: 24px all around */
-  margin-bottom: 16px; /* OCD: 16px between cards */
+  padding: 0; /* Content areas handle their own padding */
+  margin-bottom: 16px;
+  overflow: hidden; /* Clip content to border radius */
   transition: all 0.3s ease;
 
   &:hover {
@@ -1928,7 +1931,7 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 12px;
-  padding: 0 20px 20px;
+  padding: 20px; /* Consistent with other sections */
 }
 
 .sub-user-card-modern {
@@ -1987,7 +1990,7 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  padding: 0 20px 20px 20px;
+  padding: 20px; /* Consistent with account info section */
 }
 
 .permission-category-ultra {
@@ -2134,7 +2137,7 @@ onMounted(async () => {
   .permissions-grid-ultra {
     grid-template-columns: 1fr;
     gap: 12px;
-    padding: 0 16px 16px 16px;
+    padding: 16px;
   }
 
   .permission-category-ultra {
