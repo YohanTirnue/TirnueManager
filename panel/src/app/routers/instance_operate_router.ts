@@ -577,7 +577,8 @@ router.post(
   async (ctx) => {
     const userUuid = getUserUuid(ctx);
     const user = userSystem.getInstance(userUuid);
-    const hasServerMarketPermission = user?.permissions?.canAccessServerMarket === true;
+    // Default to true if permission field is undefined (for backwards compatibility)
+    const hasServerMarketPermission = user?.permissions?.canAccessServerMarket ?? true;
 
     // Allow access if: admin, global setting enabled, or user has canAccessServerMarket permission
     if (systemConfig?.allowUsePreset === false && !isTopPermissionByUuid(userUuid) && !hasServerMarketPermission) {
