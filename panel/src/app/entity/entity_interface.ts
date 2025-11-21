@@ -28,6 +28,16 @@ export interface UserPermissions {
   canTerminateInstances: boolean;
   canViewLogs: boolean;
 
+  // Instance Management Access (scoped to assigned instances)
+  canAccessConfigFiles: boolean;
+  canAccessFileManager: boolean;
+  canAccessMinecraftQuery: boolean;
+  canAccessTerminalSettings: boolean;
+  canAccessScheduledTasks: boolean;
+  canAccessEventTasks: boolean;
+  canAccessInstanceSettings: boolean;
+  canAccessServerMarket: boolean;
+
   // Security Restrictions (global to user session)
   disableRightClick: boolean;
   disableKeyboardShortcuts: boolean;

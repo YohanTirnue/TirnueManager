@@ -230,7 +230,7 @@ const instanceOperations = computed(() =>
       condition: () => !isStopped.value
     },
     {
-      title: t("TXT_CODE_ae533703") || "Server Market",
+      title: t("TXT_CODE_88249aee") || "Server Market",
       icon: ShopOutlined,
       click: async (event: MouseEvent): Promise<void> => {
         event.stopPropagation();
