@@ -99,7 +99,7 @@ const confirmInstallToInstance = async () => {
         });
         message.success("Server replacement started successfully");
         showInstanceSelector.value = false;
-        await submit(pendingTemplate.value);
+        await submit(pendingTemplate.value ?? undefined);
       } catch (err: any) {
         console.error(err);
         return reportErrorMsg(err.message);

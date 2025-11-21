@@ -233,7 +233,7 @@ const instanceOperations = computed(() =>
     {
       title: "Server Market",
       icon: ShopOutlined,
-      click: async (event: MouseEvent) => {
+      click: async (event: MouseEvent): Promise<void> => {
         event.stopPropagation();
         try {
           // Open market without instanceId to trigger instance selection
