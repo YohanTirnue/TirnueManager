@@ -12,6 +12,7 @@ import {
 const InstallPage = () => import("@/views/Install.vue");
 const LayoutContainer = () => import("@/views/LayoutContainer.vue");
 const LoginPage = () => import("@/views/Login.vue");
+const LandingPage = () => import("@/views/Landing.vue");
 
 export interface RouterMetaInfo {
   icon?: string;
@@ -101,7 +102,7 @@ const originRouterConfig: RouterConfig[] = [
         if (user?.permission && user.permission >= ROLE.USER) {
           return "/customer";
         }
-        return "/login";
+        return "/welcome";
       },
       permission: ROLE.USER
     }
@@ -304,6 +305,15 @@ const originRouterConfig: RouterConfig[] = [
     }
   },
   {
+    path: "/welcome",
+    name: "Welcome",
+    component: LandingPage,
+    meta: {
+      permission: ROLE.GUEST,
+      mainMenu: false
+    }
+  },
+  {
     path: "/login",
     name: t("TXT_CODE_24873a8a"),
     component: LoginPage,
@@ -386,9 +396,9 @@ router.beforeEach((to, from, next) => {
     return next("/install");
   }
 
-  // Immediately redirect guests at root to login page
+  // Immediately redirect guests at root to welcome page
   if (toRoutePath === "/" && !state.userInfo?.token) {
-    return next("/login");
+    return next("/welcome");
   }
 
   if (to.meta?.redirect) {
@@ -401,7 +411,7 @@ router.beforeEach((to, from, next) => {
 
   if (
     toRoutePath.includes("_open_page") ||
-    ["/shop", "/login", "/install", "/404"].includes(toRoutePath)
+    ["/shop", "/login", "/welcome", "/install", "/404"].includes(toRoutePath)
   ) {
     return next();
   }
@@ -412,7 +422,7 @@ router.beforeEach((to, from, next) => {
 
   if (!to.name) return next("/404");
 
-  if (!state.userInfo?.token) return next("/login");
+  if (!state.userInfo?.token) return next("/welcome");
 
   if (toPagePermission > userPermission && userPermission !== ROLE.ADMIN) {
     return next("/customer");
