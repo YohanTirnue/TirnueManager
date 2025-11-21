@@ -227,22 +227,15 @@ const instanceOperations = computed(() =>
       icon: ShopOutlined,
       click: async (event: MouseEvent) => {
         event.stopPropagation();
-        Modal.confirm({
-          title: "Replace Server",
-          content: "WARNING: This will DELETE ALL FILES in this instance and replace it with a new server template. This action cannot be undone. Are you sure you want to continue?",
-          okText: "Yes, Replace Server",
-          okType: "danger",
-          onOk: async () => {
-            try {
-              await openMarketDialog(daemonId ?? "", instanceId ?? "", {
-                autoInstall: true
-              });
-              refreshList();
-            } catch (error: any) {
-              // User cancelled or error occurred
-            }
-          }
-        });
+        try {
+          // Open market without instanceId to trigger instance selection
+          await openMarketDialog("", "", {
+            autoInstall: true
+          });
+          refreshList();
+        } catch (error: any) {
+          // User cancelled or error occurred
+        }
       },
       disabled: containerState.isDesignMode,
       condition: () => isStopped.value
