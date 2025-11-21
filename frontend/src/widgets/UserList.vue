@@ -1618,74 +1618,64 @@ onMounted(async () => {
   }
 }
 
-.user-control-label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.user-label-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--theme-label-color);
-  line-height: 1.2;
-
-  &.required::after {
-    content: " *";
-    color: var(--theme-card-border-hover); /* ORANGE asterisk */
-  }
-}
-
-.user-label-hint {
-  font-size: 12px;
-  color: var(--theme-hint-color);
-  line-height: 1.2;
-}
-
-.user-apikey-empty {
-  margin: 0;
-  color: var(--theme-subtitle-color);
-  font-style: italic;
-}
-
-/* Permissions Grid - Three columns landscape */
-/* FULLY HORIZONTAL LAYOUT */
-.user-settings-row-horizontal {
+/* Form Grid - 2 column layout */
+.form-grid {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1.5fr 2fr;
+  grid-template-columns: 1fr 2fr;
   gap: 24px;
   padding: 24px;
-  align-items: end;
 }
 
-.user-form-item-horizontal {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.form-field {
   margin-bottom: 0 !important;
-}
 
-.user-form-item-horizontal input,
-.user-form-item-horizontal .ant-select,
-.user-form-item-horizontal .ant-input-password {
-  width: 100% !important;
-}
+  .ant-form-item-label {
+    padding-bottom: 8px;
 
-.user-form-item-grow {
-  /* Grid will handle the sizing */
-}
+    > label {
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
 
-/* RESPONSIVE */
-@media (max-width: 992px) {
-  .user-settings-row-horizontal {
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+      &::after {
+        display: none;
+      }
+    }
   }
 }
 
-@media (max-width: 576px) {
-  .user-settings-row-horizontal {
+.field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  line-height: 1.4;
+}
+
+.field-hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-3);
+  line-height: 1.4;
+}
+
+.empty-field {
+  padding: 8px 12px;
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: 6px;
+  color: var(--color-text-3);
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
   }
 }
 
