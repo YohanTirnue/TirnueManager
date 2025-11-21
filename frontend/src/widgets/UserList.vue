@@ -14,7 +14,9 @@ import {
   CrownOutlined,
   TeamOutlined,
   SafetyOutlined,
-  ClockCircleOutlined
+  ClockCircleOutlined,
+  IdcardOutlined,
+  ControlOutlined
 } from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
 import { throttle } from "lodash";
@@ -369,26 +371,51 @@ onMounted(async () => {
     v-model:open="userDialog.status"
     centered
     :destroy-on-close="true"
-    :title="userDialog.title"
-    :confirm-loading="userDialog.confirmBtnLoading"
+    :footer="null"
     :width="1400"
-    @ok="userDialog.resolve()"
+    class="industrial-modal"
+    @cancel="userDialog.status = false"
   >
+    <template #title>
+      <div class="modal-header-industrial">
+        <div class="header-icon-industrial">
+          <UserOutlined v-if="isAddMode" />
+          <EditOutlined v-else />
+        </div>
+        <div class="header-content-industrial">
+          <h3>{{ userDialog.title }}</h3>
+          <span class="header-subtitle-industrial">
+            {{ isAddMode ? 'Create a new user account' : 'Modify user settings and permissions' }}
+          </span>
+        </div>
+      </div>
+    </template>
+
     <a-form
       ref="formRef"
       :rules="isAddMode ? addUserRules : editUserRules"
       :model="formData"
       layout="vertical"
+      class="industrial-form"
     >
-      <!-- Basic Information + APIKEY - FULLY LANDSCAPE -->
+      <!-- Account Information Section -->
       <div class="user-settings-card">
+        <div class="section-header-industrial">
+          <div class="section-icon">
+            <IdcardOutlined />
+          </div>
+          <div class="section-title">
+            <h4>Account Information</h4>
+            <span>Basic user credentials and role</span>
+          </div>
+        </div>
         <div class="user-settings-row-horizontal">
           <!-- Permission -->
           <a-form-item required name="permission" class="user-form-item-horizontal">
             <div class="user-control-label">
               <span class="user-label-text required">{{ t("TXT_CODE_511aea70") }}</span>
             </div>
-            <a-select v-model:value="formData.permission" style="width: 180px">
+            <a-select v-model:value="formData.permission" style="width: 180px" size="large">
               <a-select-option v-for="(item, key, i) in PERMISSION_MAP" :key="i" :value="Number(key)">
                 {{ item }}
               </a-select-option>
@@ -405,6 +432,7 @@ onMounted(async () => {
               v-model:value="formData.userName"
               :placeholder="t('TXT_CODE_4ea93630')"
               style="width: 220px"
+              size="large"
             />
           </a-form-item>
 
@@ -414,11 +442,11 @@ onMounted(async () => {
               <span class="user-label-text" :class="{ required: isAddMode }">{{ t("TXT_CODE_551b0348") }}</span>
               <span class="user-label-hint">{{ !isAddMode ? t("TXT_CODE_af1f921d") : t("TXT_CODE_1f2062c7") }}</span>
             </div>
-            <a-input
+            <a-input-password
               v-model:value="formData.passWord"
               :placeholder="t('TXT_CODE_4ea93630')"
               style="width: 220px"
-              type="password"
+              size="large"
             />
           </a-form-item>
 
@@ -433,17 +461,23 @@ onMounted(async () => {
               v-model:value="formData.apiKey"
               :readonly="true"
               style="width: 100%"
+              size="large"
             />
             <span v-else class="user-apikey-empty">{{ t("TXT_CODE_6c274bdc") }}</span>
           </a-form-item>
         </div>
       </div>
 
-      <!-- User Permissions Card - FULLY HORIZONTAL 4-COLUMN GRID -->
+      <!-- User Permissions Card -->
       <div class="user-settings-card">
-        <div class="permissions-header">
-          <h4 class="permissions-main-title">Access Control & Security</h4>
-          <p class="permissions-main-subtitle">Configure specific permissions for this user</p>
+        <div class="section-header-industrial">
+          <div class="section-icon">
+            <SafetyOutlined />
+          </div>
+          <div class="section-title">
+            <h4>Access Control & Security</h4>
+            <span>Configure specific permissions for this user</span>
+          </div>
         </div>
         <div class="permissions-landscape-grid-4col">
             <!-- File Operations -->
@@ -580,6 +614,22 @@ onMounted(async () => {
             </template>
           </a-list>
         </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer-industrial">
+        <button type="button" class="btn-cancel-industrial" @click="userDialog.status = false">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn-submit-industrial"
+          :disabled="userDialog.confirmBtnLoading"
+          @click="userDialog.resolve()"
+        >
+          <span v-if="userDialog.confirmBtnLoading">Saving...</span>
+          <span v-else>{{ isAddMode ? 'Create User' : 'Save Changes' }}</span>
+        </button>
       </div>
     </a-form>
   </a-modal>
@@ -760,6 +810,122 @@ onMounted(async () => {
   --theme-hint-color: var(--color-text-3);
   --theme-shadow: rgba(0, 0, 0, 0.1);
   --theme-shadow-hover: rgba(255, 140, 0, 0.15);
+}
+
+/* Industrial Modal Styles */
+.modal-header-industrial {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon-industrial {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+}
+
+.header-content-industrial h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.header-subtitle-industrial {
+  font-size: 13px;
+  color: var(--color-text-3);
+}
+
+.section-header-industrial {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--theme-card-border);
+  margin-bottom: 16px;
+}
+
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: white;
+}
+
+.section-title h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.section-title span {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.modal-footer-industrial {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 0 0;
+  margin-top: 20px;
+  border-top: 1px solid var(--theme-card-border);
+}
+
+.btn-cancel-industrial {
+  padding: 10px 24px;
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: 8px;
+  color: var(--color-text-2);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel-industrial:hover {
+  background: var(--color-bg-4);
+}
+
+.btn-submit-industrial {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-submit-industrial:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+}
+
+.btn-submit-industrial:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.industrial-form {
+  padding: 8px 0;
 }
 
 .modern-users-page {
