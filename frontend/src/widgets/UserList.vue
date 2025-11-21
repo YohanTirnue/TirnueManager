@@ -410,58 +410,43 @@ onMounted(async () => {
             <span>Basic user credentials and role</span>
           </div>
         </div>
-        <div class="user-settings-row-horizontal">
-          <!-- Permission -->
-          <a-form-item required name="permission" class="user-form-item-horizontal">
-            <div class="user-control-label">
-              <span class="user-label-text required">{{ t("TXT_CODE_511aea70") }}</span>
-            </div>
-            <a-select v-model:value="formData.permission" size="large">
+        <div class="form-grid">
+          <!-- Row 1 -->
+          <a-form-item required name="permission" class="form-field">
+            <template #label>
+              <span class="field-label">{{ t("TXT_CODE_511aea70") }}</span>
+            </template>
+            <a-select v-model:value="formData.permission" size="large" style="width: 100%">
               <a-select-option v-for="(item, key, i) in PERMISSION_MAP" :key="i" :value="Number(key)">
                 {{ item }}
               </a-select-option>
             </a-select>
           </a-form-item>
 
-          <!-- Username -->
-          <a-form-item required name="userName" class="user-form-item-horizontal">
-            <div class="user-control-label">
-              <span class="user-label-text required">{{ t("TXT_CODE_eb9fcdad") }}</span>
-              <span class="user-label-hint">{{ t("TXT_CODE_1987587b") }}</span>
-            </div>
-            <a-input
-              v-model:value="formData.userName"
-              :placeholder="t('TXT_CODE_4ea93630')"
-              size="large"
-            />
+          <a-form-item required name="userName" class="form-field">
+            <template #label>
+              <span class="field-label">{{ t("TXT_CODE_eb9fcdad") }}</span>
+              <span class="field-hint">{{ t("TXT_CODE_1987587b") }}</span>
+            </template>
+            <a-input v-model:value="formData.userName" :placeholder="t('TXT_CODE_4ea93630')" size="large" />
           </a-form-item>
 
-          <!-- Password -->
-          <a-form-item :required="isAddMode" name="passWord" class="user-form-item-horizontal">
-            <div class="user-control-label">
-              <span class="user-label-text" :class="{ required: isAddMode }">{{ t("TXT_CODE_551b0348") }}</span>
-              <span class="user-label-hint">{{ !isAddMode ? t("TXT_CODE_af1f921d") : t("TXT_CODE_1f2062c7") }}</span>
-            </div>
-            <a-input-password
-              v-model:value="formData.passWord"
-              :placeholder="t('TXT_CODE_4ea93630')"
-              size="large"
-            />
+          <!-- Row 2 -->
+          <a-form-item :required="isAddMode" name="passWord" class="form-field">
+            <template #label>
+              <span class="field-label">{{ t("TXT_CODE_551b0348") }}</span>
+              <span class="field-hint">{{ !isAddMode ? 'Leave blank to keep unchanged' : t("TXT_CODE_1f2062c7") }}</span>
+            </template>
+            <a-input-password v-model:value="formData.passWord" :placeholder="t('TXT_CODE_4ea93630')" size="large" />
           </a-form-item>
 
-          <!-- APIKEY (Edit Mode Only) -->
-          <a-form-item v-if="!isAddMode" class="user-form-item-horizontal user-form-item-grow">
-            <div class="user-control-label">
-              <span class="user-label-text">APIKEY</span>
-              <span class="user-label-hint">API authentication key</span>
-            </div>
-            <a-input
-              v-if="formData.apiKey"
-              v-model:value="formData.apiKey"
-              :readonly="true"
-              size="large"
-            />
-            <span v-else class="user-apikey-empty">{{ t("TXT_CODE_6c274bdc") }}</span>
+          <a-form-item v-if="!isAddMode" class="form-field">
+            <template #label>
+              <span class="field-label">APIKEY</span>
+              <span class="field-hint">API authentication key</span>
+            </template>
+            <a-input v-if="formData.apiKey" v-model:value="formData.apiKey" :readonly="true" size="large" />
+            <div v-else class="empty-field">{{ t("TXT_CODE_6c274bdc") }}</div>
           </a-form-item>
         </div>
       </div>
