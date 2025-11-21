@@ -28,8 +28,10 @@ import {
   getUserInfo,
   deleteUser as deleteUserApi,
   addUser as addUserApi,
-  editUserInfo
+  editUserInfo,
+  updateSubUserPermissions
 } from "@/services/apis";
+import type { UserPermissions } from "@/types/user";
 import type { LayoutCard } from "@/types/index";
 import type { BaseUserInfo, EditUserInfo } from "@/types/user";
 import _ from "lodash";
@@ -363,6 +365,97 @@ const getUserNameById = (uuid: string) => {
   return user?.userName || null;
 };
 
+// Sub-user permissions edit dialog
+const subUserDialog = ref({
+  visible: false,
+  loading: false,
+  uuid: "",
+  userName: "",
+  permissions: {
+    canUploadFiles: true,
+    canDownloadFiles: true,
+    canDeleteFiles: false,
+    canModifyFiles: true,
+    canAccessConsole: true,
+    canStartInstances: true,
+    canRestartInstances: true,
+    canStopInstances: true,
+    canTerminateInstances: false,
+    canViewLogs: true,
+    canAccessConfigFiles: false,
+    canAccessFileManager: true,
+    canAccessMinecraftQuery: true,
+    canAccessTerminalSettings: false,
+    canAccessScheduledTasks: false,
+    canAccessEventTasks: false,
+    canAccessInstanceSettings: false,
+    canAccessServerMarket: false,
+    disableRightClick: false,
+    disableKeyboardShortcuts: false,
+    disableTextSelection: false,
+    disableCopy: false,
+    disablePaste: false
+  } as UserPermissions
+});
+
+const handleEditSubUser = (subUserUuid: string) => {
+  const subUser = data.value?.data.find(u => u.uuid === subUserUuid);
+  if (!subUser) {
+    message.error("Sub-user not found");
+    return;
+  }
+
+  subUserDialog.value.uuid = subUser.uuid;
+  subUserDialog.value.userName = subUser.userName;
+  subUserDialog.value.permissions = subUser.permissions ? _.cloneDeep(subUser.permissions) : {
+    canUploadFiles: true,
+    canDownloadFiles: true,
+    canDeleteFiles: false,
+    canModifyFiles: true,
+    canAccessConsole: true,
+    canStartInstances: true,
+    canRestartInstances: true,
+    canStopInstances: true,
+    canTerminateInstances: false,
+    canViewLogs: true,
+    canAccessConfigFiles: false,
+    canAccessFileManager: true,
+    canAccessMinecraftQuery: true,
+    canAccessTerminalSettings: false,
+    canAccessScheduledTasks: false,
+    canAccessEventTasks: false,
+    canAccessInstanceSettings: false,
+    canAccessServerMarket: false,
+    disableRightClick: false,
+    disableKeyboardShortcuts: false,
+    disableTextSelection: false,
+    disableCopy: false,
+    disablePaste: false
+  };
+  subUserDialog.value.visible = true;
+};
+
+const saveSubUserPermissions = async () => {
+  try {
+    subUserDialog.value.loading = true;
+    await updateSubUserPermissions().execute({
+      params: {
+        subUserUuid: subUserDialog.value.uuid
+      },
+      data: {
+        permissions: subUserDialog.value.permissions
+      }
+    });
+    message.success("Sub-user permissions updated");
+    subUserDialog.value.visible = false;
+    await fetchData();
+  } catch (error: any) {
+    reportErrorMsg(error.message);
+  } finally {
+    subUserDialog.value.loading = false;
+  }
+};
+
 onMounted(async () => {
   fetchData();
 });
@@ -627,13 +720,22 @@ onMounted(async () => {
           </div>
         </div>
         <div class="sub-users-grid">
-          <div v-for="item in formData.subUsers" :key="item.uuid" class="sub-user-card-modern">
+          <div
+            v-for="item in formData.subUsers"
+            :key="item.uuid"
+            class="sub-user-card-modern clickable"
+            @click="handleEditSubUser(item.uuid)"
+            title="Click to edit permissions"
+          >
             <div class="sub-user-avatar">
               <UserOutlined />
             </div>
             <div class="sub-user-details">
               <div class="sub-user-name">{{ getUserNameById(item.uuid) || 'Unknown' }}</div>
               <div class="sub-user-instance">Instance: {{ item.instanceUuid.substring(0, 8) }}...</div>
+            </div>
+            <div class="sub-user-edit-icon">
+              <EditOutlined />
             </div>
           </div>
         </div>
@@ -816,6 +918,153 @@ onMounted(async () => {
         <DeleteOutlined class="action-icon" />
         <span>{{ t("TXT_CODE_ecbd7449") || "Delete User" }}</span>
       </button>
+    </div>
+  </a-modal>
+
+  <!-- Sub-User Permissions Edit Modal -->
+  <a-modal
+    v-model:open="subUserDialog.visible"
+    :title="'Edit Sub-User Permissions: ' + subUserDialog.userName"
+    :footer="null"
+    width="600px"
+    class="sub-user-permissions-modal"
+  >
+    <div class="sub-user-permissions-content">
+      <!-- Instance Control Permissions -->
+      <div class="permission-section">
+        <div class="section-header">
+          <ControlOutlined />
+          <span>Instance Control</span>
+        </div>
+        <div class="permissions-grid">
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessConsole }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessConsole" />
+            <span>Console Access</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canStartInstances }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canStartInstances" />
+            <span>Start</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canStopInstances }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canStopInstances" />
+            <span>Stop</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canRestartInstances }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canRestartInstances" />
+            <span>Restart</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canTerminateInstances }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canTerminateInstances" />
+            <span>Terminate</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canViewLogs }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canViewLogs" />
+            <span>View Logs</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- File Permissions -->
+      <div class="permission-section">
+        <div class="section-header">
+          <SettingOutlined />
+          <span>File Operations</span>
+        </div>
+        <div class="permissions-grid">
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessFileManager }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessFileManager" />
+            <span>File Manager</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canUploadFiles }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canUploadFiles" />
+            <span>Upload</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canDownloadFiles }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canDownloadFiles" />
+            <span>Download</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canModifyFiles }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canModifyFiles" />
+            <span>Modify</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canDeleteFiles }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canDeleteFiles" />
+            <span>Delete</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Advanced Access -->
+      <div class="permission-section">
+        <div class="section-header">
+          <SettingOutlined />
+          <span>Advanced Access</span>
+        </div>
+        <div class="permissions-grid">
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessConfigFiles }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessConfigFiles" />
+            <span>Config Files</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessMinecraftQuery }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessMinecraftQuery" />
+            <span>MC Query</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessTerminalSettings }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessTerminalSettings" />
+            <span>Terminal Settings</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessScheduledTasks }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessScheduledTasks" />
+            <span>Scheduled Tasks</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessEventTasks }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessEventTasks" />
+            <span>Event Tasks</span>
+          </label>
+          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessInstanceSettings }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessInstanceSettings" />
+            <span>Instance Settings</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Security Restrictions -->
+      <div class="permission-section security-section">
+        <div class="section-header">
+          <SafetyOutlined />
+          <span>Security Restrictions</span>
+        </div>
+        <div class="permissions-grid">
+          <label class="permission-item restriction" :class="{ active: subUserDialog.permissions.disableRightClick }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.disableRightClick" />
+            <span>Disable Right Click</span>
+          </label>
+          <label class="permission-item restriction" :class="{ active: subUserDialog.permissions.disableKeyboardShortcuts }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.disableKeyboardShortcuts" />
+            <span>Disable Shortcuts</span>
+          </label>
+          <label class="permission-item restriction" :class="{ active: subUserDialog.permissions.disableTextSelection }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.disableTextSelection" />
+            <span>Disable Selection</span>
+          </label>
+          <label class="permission-item restriction" :class="{ active: subUserDialog.permissions.disableCopy }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.disableCopy" />
+            <span>Disable Copy</span>
+          </label>
+          <label class="permission-item restriction" :class="{ active: subUserDialog.permissions.disablePaste }">
+            <a-checkbox v-model:checked="subUserDialog.permissions.disablePaste" />
+            <span>Disable Paste</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button class="btn-cancel" @click="subUserDialog.visible = false">Cancel</button>
+        <button class="btn-save" :disabled="subUserDialog.loading" @click="saveSubUserPermissions">
+          {{ subUserDialog.loading ? 'Saving...' : 'Save Permissions' }}
+        </button>
+      </div>
     </div>
   </a-modal>
 </template>
@@ -1782,6 +2031,127 @@ onMounted(async () => {
   font-size: 11px;
   color: var(--color-text-3);
   margin-top: 2px;
+}
+
+.sub-user-card-modern.clickable {
+  cursor: pointer;
+}
+
+.sub-user-edit-icon {
+  color: var(--color-text-3);
+  font-size: 14px;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.sub-user-card-modern.clickable:hover .sub-user-edit-icon {
+  opacity: 1;
+  color: #ff8c00;
+}
+
+/* Sub-User Permissions Modal */
+.sub-user-permissions-content {
+  padding: 16px 0;
+}
+
+.sub-user-permissions-content .permission-section {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--color-bg-3);
+  border-radius: 8px;
+  border: 1px solid var(--color-border-2);
+}
+
+.sub-user-permissions-content .permission-section.security-section {
+  border-color: rgba(250, 173, 20, 0.3);
+  background: rgba(250, 173, 20, 0.05);
+}
+
+.sub-user-permissions-content .section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.sub-user-permissions-content .permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.sub-user-permissions-content .permission-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+.sub-user-permissions-content .permission-item:hover {
+  border-color: #ff8c00;
+}
+
+.sub-user-permissions-content .permission-item.active {
+  border-color: #ff8c00;
+  background: rgba(255, 140, 0, 0.1);
+}
+
+.sub-user-permissions-content .permission-item.restriction.active {
+  border-color: #faad14;
+  background: rgba(250, 173, 20, 0.15);
+}
+
+.sub-user-permissions-content .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-2);
+}
+
+.sub-user-permissions-content .btn-cancel {
+  padding: 8px 16px;
+  border: 1px solid var(--color-border-2);
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--color-text-2);
+  transition: all 0.2s ease;
+}
+
+.sub-user-permissions-content .btn-cancel:hover {
+  border-color: var(--color-text-3);
+}
+
+.sub-user-permissions-content .btn-save {
+  padding: 8px 16px;
+  border: none;
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.sub-user-permissions-content .btn-save:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+}
+
+.sub-user-permissions-content .btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ========================================
