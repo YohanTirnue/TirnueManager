@@ -57,6 +57,12 @@ const { toPage } = useAppRouters();
 const instanceId = props.targetInstanceInfo?.instanceUuid || getMetaOrRouteValue("instanceId");
 const daemonId = props.targetDaemonId || getMetaOrRouteValue("daemonId");
 
+// Check if user is a sub-user (has assigned instances but not admin)
+const isSubUser = computed(() => {
+  if (isAdmin.value) return false;
+  return state.userInfo?.instances && state.userInfo.instances.length > 0;
+});
+
 const { statusText, isRunning, isStopped, instanceTypeText, instanceInfo } = useInstanceInfo({
   instanceId: props.targetInstanceInfo ? undefined : instanceId,
   daemonId: props.targetInstanceInfo ? undefined : daemonId,
@@ -240,7 +246,8 @@ const instanceOperations = computed(() =>
         }
       },
       disabled: containerState.isDesignMode,
-      condition: () => isStopped.value && (state.settings.allowUsePreset || isAdmin.value)
+      // Sub-users NEVER have access to market, only admins and regular users
+      condition: () => isStopped.value && !isSubUser.value && (state.settings.allowUsePreset || isAdmin.value)
     },
     {
       area: true
