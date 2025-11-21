@@ -177,13 +177,13 @@ const systemResources = computed(() => {
   const freeMem = sys.freemem / 1024 / 1024 / 1024;
   const usedMem = totalMem - freeMem;
 
-  const cpuUsage = daemon ? (sys.cpuUsage || 0) * 100 : (overviewInfo.value?.cpu || 0);
+  const cpuUsage = daemon ? ((sys as any).cpuUsage || 0) * 100 : (overviewInfo.value?.cpu || 0);
   const memPercentage = daemon ? ((sys.totalmem - sys.freemem) / sys.totalmem) * 100 : (overviewInfo.value?.mem || 0);
 
   return {
     cpu: {
       usage: cpuUsage,
-      cores: sys.cpuCount || 0
+      cores: 0
     },
     memory: {
       used: usedMem,
@@ -769,8 +769,8 @@ onUnmounted(() => {
                 <span class="info-value">{{ selectedDaemonData.system?.platform || 'N/A' }}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">CPU Cores</span>
-                <span class="info-value">{{ selectedDaemonData.system?.cpuCount || 'N/A' }}</span>
+                <span class="info-label">CPU Usage</span>
+                <span class="info-value">{{ ((selectedDaemonData.system?.cpuUsage || 0) * 100).toFixed(1) }}%</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Uptime</span>
