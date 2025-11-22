@@ -1,5 +1,6 @@
 import Koa from "koa";
 import Router from "@koa/router";
+import { v4 as uuidv4 } from "uuid";
 import permission from "../middleware/permission";
 import validator from "../middleware/validator";
 import { ROLE, type User } from "../entity/user";
@@ -12,6 +13,22 @@ import subUserService from "../service/sub_user_service";
 import userSystem from "../service/user_service";
 import { operationLogger } from "../service/operation_logger";
 import { $t } from "../i18n";
+import { singletonMemoryRedis } from "../service/mini_redis";
+import { emailService } from "../service/email_service";
+import RemoteServiceSubsystem from "../service/remote_service";
+
+// Interface for invite data stored in Redis
+interface InviteData {
+  token: string;
+  inviteeEmail: string;
+  parentUuid: string;
+  parentName: string;
+  instanceUuid: string;
+  daemonId: string;
+  instanceName: string;
+  permissions: any;
+  expiresAt: number;
+}
 
 const router = new Router({ prefix: "/sub-users" });
 
@@ -351,6 +368,345 @@ router.del(
     } catch (error: any) {
       ctx.throw(403, error.message);
     }
+  }
+);
+
+// ==================== INVITE ENDPOINTS ====================
+
+// Initiate an invitation - send email with invite link
+router.post(
+  "/invite/initiate",
+  permission({ level: ROLE.USER }),
+  validator({
+    query: { daemonId: String, instanceUuid: String },
+    body: { inviteeEmail: String, permissions: Object, expiryMinutes: Number }
+  }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const userUuid = getUserUuid(ctx);
+    const { daemonId, instanceUuid } = ctx.query;
+    const { inviteeEmail, permissions, expiryMinutes, parentUuid } = ctx.request.body;
+
+    // Check if user can manage sub-users for this instance
+    if (!canManageSubUsersByUuid(userUuid, String(daemonId), String(instanceUuid))) {
+      ctx.throw(403, "You do not have permission to invite sub-users for this instance");
+    }
+
+    // Determine the parent
+    let actualParentUuid = userUuid;
+    if (isTopPermissionByUuid(userUuid)) {
+      if (!parentUuid) {
+        ctx.throw(400, "Admin must specify parentUuid when inviting sub-users");
+      }
+      actualParentUuid = String(parentUuid);
+    }
+
+    const parentUser = userSystem.getInstance(actualParentUuid);
+    if (!parentUser) {
+      ctx.throw(400, "Parent user not found");
+    }
+
+    // Get instance name
+    const remoteService = RemoteServiceSubsystem.getInstance(String(daemonId));
+    let instanceName = "Unknown Instance";
+    if (remoteService) {
+      const instance = remoteService.instanceMap.get(String(instanceUuid));
+      if (instance) {
+        instanceName = instance.config.nickname || instance.instanceUuid;
+      }
+    }
+
+    // Generate invite token
+    const token = uuidv4();
+    const expiryMs = (expiryMinutes || 60) * 60 * 1000;
+
+    // Store invite data in Redis
+    const inviteData: InviteData = {
+      token,
+      inviteeEmail: String(inviteeEmail).toLowerCase(),
+      parentUuid: actualParentUuid,
+      parentName: parentUser.userName,
+      instanceUuid: String(instanceUuid),
+      daemonId: String(daemonId),
+      instanceName,
+      permissions,
+      expiresAt: Date.now() + expiryMs
+    };
+
+    singletonMemoryRedis.set(`invite:${token}`, inviteData, expiryMinutes * 60);
+
+    // Send invitation email
+    const emailSent = await emailService.sendInvitationEmail(
+      String(inviteeEmail),
+      parentUser.userName,
+      instanceName,
+      token,
+      expiryMinutes
+    );
+
+    if (!emailSent) {
+      singletonMemoryRedis.set(`invite:${token}`, null, 0); // Clean up
+      ctx.throw(500, "Failed to send invitation email");
+    }
+
+    operationLogger.log("sub_user_invite", {
+      operator_ip: ctx.ip,
+      operator_name: String(ctx.session?.["userName"] || ""),
+      invitee_email: inviteeEmail,
+      instance_uuid: String(instanceUuid)
+    });
+
+    ctx.body = {
+      success: true,
+      message: "Invitation sent successfully",
+      expiresAt: inviteData.expiresAt
+    };
+  }
+);
+
+// Verify invite token - returns invite details and whether email has account
+router.get(
+  "/invite/verify",
+  async (ctx: Koa.ParameterizedContext) => {
+    const { token } = ctx.query;
+
+    if (!token) {
+      ctx.throw(400, "Token is required");
+    }
+
+    const inviteKey = `invite:${token}`;
+    const stored = singletonMemoryRedis.get<{ value: InviteData }>(inviteKey);
+
+    if (!stored || !stored.value) {
+      ctx.throw(404, "Invalid or expired invitation");
+    }
+
+    const inviteData = stored.value;
+
+    // Check if expired
+    if (Date.now() > inviteData.expiresAt) {
+      ctx.throw(410, "Invitation has expired");
+    }
+
+    // Check if email already has an account
+    let hasAccount = false;
+    let existingUserUuid: string | null = null;
+    for (const [uuid, user] of userSystem.objects) {
+      if (user.email?.toLowerCase() === inviteData.inviteeEmail.toLowerCase()) {
+        hasAccount = true;
+        existingUserUuid = uuid;
+        break;
+      }
+    }
+
+    ctx.body = {
+      email: inviteData.inviteeEmail,
+      inviterName: inviteData.parentName,
+      instanceName: inviteData.instanceName,
+      hasAccount,
+      existingUserUuid,
+      expiresAt: inviteData.expiresAt
+    };
+  }
+);
+
+// Accept invite and register (no OTP needed - email verified by clicking link)
+router.post(
+  "/invite/accept-register",
+  validator({
+    body: {
+      token: String,
+      userName: String,
+      password: String,
+      firstName: String,
+      lastName: String
+    }
+  }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const { token, userName, password, firstName, lastName } = ctx.request.body;
+
+    const inviteKey = `invite:${token}`;
+    const stored = singletonMemoryRedis.get<{ value: InviteData }>(inviteKey);
+
+    if (!stored || !stored.value) {
+      ctx.throw(404, "Invalid or expired invitation");
+    }
+
+    const inviteData = stored.value;
+
+    // Check if expired
+    if (Date.now() > inviteData.expiresAt) {
+      ctx.throw(410, "Invitation has expired");
+    }
+
+    // Check if email already has account
+    for (const [, user] of userSystem.objects) {
+      if (user.email?.toLowerCase() === inviteData.inviteeEmail.toLowerCase()) {
+        ctx.throw(400, "An account with this email already exists. Please login instead.");
+      }
+    }
+
+    // Check if username already exists
+    for (const [, user] of userSystem.objects) {
+      if (user.userName.toLowerCase() === userName.toLowerCase()) {
+        ctx.throw(400, "Username already taken");
+      }
+    }
+
+    try {
+      // Create the sub-user account with email already verified
+      const subUser = await subUserService.createSubUser(
+        inviteData.parentUuid,
+        inviteData.instanceUuid,
+        inviteData.daemonId,
+        {
+          userName: String(userName),
+          passWord: String(password),
+          permissions: inviteData.permissions
+        }
+      );
+
+      // Update user with email and profile info
+      subUser.email = inviteData.inviteeEmail;
+      subUser.emailVerified = true; // Already verified by clicking invite link
+      subUser.firstName = String(firstName);
+      subUser.lastName = String(lastName);
+      subUser.accountStatus = "active";
+      userSystem.edit(subUser);
+
+      // Delete the invite token
+      singletonMemoryRedis.set(inviteKey, null, 0);
+
+      operationLogger.log("sub_user_register_via_invite", {
+        operator_ip: ctx.ip,
+        user_name: userName,
+        email: inviteData.inviteeEmail,
+        instance_uuid: inviteData.instanceUuid
+      });
+
+      // Send welcome email
+      emailService.sendWelcomeEmail(inviteData.inviteeEmail, firstName);
+
+      ctx.body = {
+        success: true,
+        uuid: subUser.uuid,
+        userName: subUser.userName,
+        message: "Account created successfully"
+      };
+    } catch (error: any) {
+      ctx.throw(400, error.message);
+    }
+  }
+);
+
+// Accept invite for logged-in user
+router.post(
+  "/invite/accept",
+  permission({ level: ROLE.USER }),
+  validator({ body: { token: String } }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const userUuid = getUserUuid(ctx);
+    const { token } = ctx.request.body;
+
+    const inviteKey = `invite:${token}`;
+    const stored = singletonMemoryRedis.get<{ value: InviteData }>(inviteKey);
+
+    if (!stored || !stored.value) {
+      ctx.throw(404, "Invalid or expired invitation");
+    }
+
+    const inviteData = stored.value;
+
+    // Check if expired
+    if (Date.now() > inviteData.expiresAt) {
+      ctx.throw(410, "Invitation has expired");
+    }
+
+    // Get current user
+    const currentUser = userSystem.getInstance(userUuid);
+    if (!currentUser) {
+      ctx.throw(401, "User not found");
+    }
+
+    // Verify email matches
+    if (currentUser.email?.toLowerCase() !== inviteData.inviteeEmail.toLowerCase()) {
+      ctx.throw(403, "This invitation was sent to a different email address");
+    }
+
+    try {
+      // Add user as sub-user for this instance
+      await subUserService.addExistingUserAsSubUser(
+        inviteData.parentUuid,
+        userUuid,
+        inviteData.instanceUuid,
+        inviteData.daemonId,
+        inviteData.permissions
+      );
+
+      // Delete the invite token
+      singletonMemoryRedis.set(inviteKey, null, 0);
+
+      operationLogger.log("sub_user_accept_invite", {
+        operator_ip: ctx.ip,
+        user_uuid: userUuid,
+        user_name: currentUser.userName,
+        instance_uuid: inviteData.instanceUuid
+      });
+
+      ctx.body = {
+        success: true,
+        message: "Invitation accepted successfully"
+      };
+    } catch (error: any) {
+      ctx.throw(400, error.message);
+    }
+  }
+);
+
+// Get pending invitations for an instance
+router.get(
+  "/invite/list",
+  permission({ level: ROLE.USER }),
+  validator({ query: { daemonId: String, instanceUuid: String } }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const userUuid = getUserUuid(ctx);
+    const { daemonId, instanceUuid } = ctx.query;
+
+    if (!canManageSubUsersByUuid(userUuid, String(daemonId), String(instanceUuid))) {
+      ctx.throw(403, "You do not have permission to view invitations for this instance");
+    }
+
+    // Note: In a real implementation, you'd want to store invites in a way that's queryable
+    // For now, this returns an empty array as we can't easily query Redis by pattern
+    ctx.body = [];
+  }
+);
+
+// Cancel a pending invitation
+router.delete(
+  "/invite/:token",
+  permission({ level: ROLE.USER }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const userUuid = getUserUuid(ctx);
+    const { token } = ctx.params;
+
+    const inviteKey = `invite:${token}`;
+    const stored = singletonMemoryRedis.get<{ value: InviteData }>(inviteKey);
+
+    if (!stored || !stored.value) {
+      ctx.throw(404, "Invitation not found");
+    }
+
+    const inviteData = stored.value;
+
+    // Check if user is admin or the parent who sent the invite
+    if (!isTopPermissionByUuid(userUuid) && inviteData.parentUuid !== userUuid) {
+      ctx.throw(403, "You do not have permission to cancel this invitation");
+    }
+
+    // Delete the invite
+    singletonMemoryRedis.set(inviteKey, null, 0);
+
+    ctx.body = { success: true };
   }
 );
 

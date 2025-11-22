@@ -6,7 +6,6 @@ import {
   MailOutlined,
   UserOutlined,
   LockOutlined,
-  GlobalOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   LoadingOutlined,
@@ -14,10 +13,6 @@ import {
 } from "@ant-design/icons-vue";
 import { request } from "@/tools/request";
 import { useAppStateStore } from "@/stores/useAppStateStore";
-import countries from "i18n-iso-countries";
-import enLocale from "i18n-iso-countries/langs/en.json";
-
-countries.registerLocale(enLocale);
 
 const route = useRoute();
 const router = useRouter();
@@ -41,18 +36,8 @@ const formData = ref({
   password: "",
   confirmPassword: "",
   firstName: "",
-  lastName: "",
-  location: ""
+  lastName: ""
 });
-
-// Get country options
-const countryNames = countries.getNames("en", { select: "official" });
-const locationOptions = Object.entries(countryNames)
-  .map(([code, name]) => ({
-    value: code,
-    label: name as string
-  }))
-  .sort((a, b) => a.label.localeCompare(b.label));
 
 // Password requirements
 const passwordRequirements = computed(() => {
@@ -78,8 +63,7 @@ const isFormValid = computed(() => {
     isPasswordValid.value &&
     formData.value.password === formData.value.confirmPassword &&
     formData.value.firstName.length > 0 &&
-    formData.value.lastName.length > 0 &&
-    formData.value.location.length > 0
+    formData.value.lastName.length > 0
   );
 });
 
@@ -95,10 +79,17 @@ const fetchInvitationDetails = async () => {
 
   try {
     const res = await request({
-      url: `/api/sub-users/invite/details/${token.value}`,
-      method: "GET"
+      url: `/api/sub-users/invite/verify`,
+      method: "GET",
+      params: { token: token.value }
     });
-    invitationDetails.value = res.data;
+    invitationDetails.value = {
+      inviteeEmail: res.data.email,
+      parentUserName: res.data.inviterName,
+      instanceName: res.data.instanceName,
+      expiresAt: res.data.expiresAt,
+      hasAccount: res.data.hasAccount
+    };
   } catch (err: any) {
     error.value = err.response?.data?.message || "Invitation not found or expired";
   } finally {
@@ -115,14 +106,14 @@ const handleRegisterAndAccept = async () => {
   submitting.value = true;
   try {
     await request({
-      url: `/api/sub-users/invite/register/${token.value}`,
+      url: `/api/sub-users/invite/accept-register`,
       method: "POST",
       data: {
+        token: token.value,
         userName: formData.value.userName,
         password: formData.value.password,
         firstName: formData.value.firstName,
-        lastName: formData.value.lastName,
-        location: formData.value.location
+        lastName: formData.value.lastName
       }
     });
     message.success("Account created! You can now log in.");
@@ -153,8 +144,9 @@ const handleAcceptInvitation = async () => {
   submitting.value = true;
   try {
     await request({
-      url: `/api/sub-users/invite/accept/${token.value}`,
-      method: "POST"
+      url: `/api/sub-users/invite/accept`,
+      method: "POST",
+      data: { token: token.value }
     });
     message.success("Invitation accepted! You now have access to the instance.");
     router.push("/");
@@ -290,22 +282,6 @@ const handleAcceptInvitation = async () => {
                   <UserOutlined style="color: rgba(0, 0, 0, 0.25)" />
                 </template>
               </a-input>
-            </div>
-
-            <div class="form-group">
-              <label>Location</label>
-              <a-select
-                v-model:value="formData.location"
-                placeholder="Select your country"
-                size="large"
-                show-search
-                :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
-                :options="locationOptions"
-              >
-                <template #prefix>
-                  <GlobalOutlined style="color: rgba(0, 0, 0, 0.25)" />
-                </template>
-              </a-select>
             </div>
 
             <div class="form-group">
