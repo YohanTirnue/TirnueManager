@@ -60,6 +60,12 @@ const handleDelete = async (deletedInstance: UserInstance) => {
 
 const assignApp = async () => {
   try {
+    // Track existing instances before selection
+    const previousInstances = dataSource.value.map(inst => ({
+      daemonId: inst.daemonId,
+      instanceUuid: inst.instanceUuid
+    }));
+
     const selectedInstances = await useSelectInstances(dataSource.value);
     let warningInstances: string[] = [];
     for (const instance of selectedInstances || []) {
@@ -81,8 +87,29 @@ const assignApp = async () => {
       ).load<InstanceType<typeof WarningDialog>>(WarningDialog);
       await component.openDialog();
     }
-    if (selectedInstances) dataSource.value = selectedInstances;
-    await saveData();
+    if (selectedInstances) {
+      dataSource.value = selectedInstances;
+      await saveData();
+
+      // Find newly added instances (not in previous list)
+      const newInstanceIndices: number[] = [];
+      selectedInstances.forEach((inst, index) => {
+        const wasExisting = previousInstances.some(
+          prev => prev.daemonId === inst.daemonId && prev.instanceUuid === inst.instanceUuid
+        );
+        if (!wasExisting) {
+          newInstanceIndices.push(index);
+        }
+      });
+
+      // Queue new instances for permission setup
+      if (newInstanceIndices.length > 0) {
+        pendingPermissionSetup.value = newInstanceIndices;
+        message.info(`Setting up permissions for ${newInstanceIndices.length} new instance(s)`);
+        // Start processing the queue
+        processNextPermissionSetup();
+      }
+    }
   } catch (err: any) {
     reportErrorMsg(err);
   }
@@ -170,6 +197,9 @@ const permissionsDialog = ref({
   permissions: getDefaultPermissions()
 });
 
+// Queue for new instances needing permission setup
+const pendingPermissionSetup = ref<number[]>([]);
+
 const openPermissionsDialog = (record: UserInstance, index: number) => {
   permissionsDialog.value.instanceIndex = index;
   permissionsDialog.value.instanceName = record.nickname || "Instance";
@@ -177,6 +207,19 @@ const openPermissionsDialog = (record: UserInstance, index: number) => {
     ? _.cloneDeep(record.permissions)
     : getDefaultPermissions();
   permissionsDialog.value.visible = true;
+};
+
+// Process next instance in the permission setup queue
+const processNextPermissionSetup = () => {
+  if (pendingPermissionSetup.value.length > 0) {
+    const nextIndex = pendingPermissionSetup.value.shift()!;
+    if (nextIndex >= 0 && nextIndex < dataSource.value.length) {
+      openPermissionsDialog(dataSource.value[nextIndex], nextIndex);
+    } else {
+      // Index no longer valid, try next
+      processNextPermissionSetup();
+    }
+  }
 };
 
 const saveInstancePermissions = async () => {
@@ -188,12 +231,26 @@ const saveInstancePermissions = async () => {
       await saveData();
       permissionsDialog.value.visible = false;
       message.success("Instance permissions updated");
+
+      // Process next in queue after a short delay
+      setTimeout(() => {
+        processNextPermissionSetup();
+      }, 300);
     }
   } catch (error: any) {
     reportErrorMsg(error.message);
   } finally {
     permissionsDialog.value.loading = false;
   }
+};
+
+// Handle dialog cancel - still process queue
+const handlePermissionDialogCancel = () => {
+  permissionsDialog.value.visible = false;
+  // Process next in queue after a short delay
+  setTimeout(() => {
+    processNextPermissionSetup();
+  }, 300);
 };
 
 const getPermissionCount = (instance: UserInstance): string => {
@@ -347,6 +404,7 @@ const columns = computed(() => {
     :footer="null"
     width="700px"
     class="permissions-modal"
+    @cancel="handlePermissionDialogCancel"
   >
     <div class="permissions-content">
       <!-- File Operations -->
@@ -483,7 +541,7 @@ const columns = computed(() => {
 
       <!-- Footer -->
       <div class="modal-footer">
-        <button class="btn-cancel" @click="permissionsDialog.visible = false">Cancel</button>
+        <button class="btn-cancel" @click="handlePermissionDialogCancel">Cancel</button>
         <button class="btn-save" :disabled="permissionsDialog.loading" @click="saveInstancePermissions">
           {{ permissionsDialog.loading ? 'Saving...' : 'Save Permissions' }}
         </button>
