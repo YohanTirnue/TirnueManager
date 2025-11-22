@@ -40,6 +40,7 @@
     "node-schedule": "^2.0.0",
     "nodemailer": "^6.10.1",
     "open": "^8.4.0",
+    "opossum": "^9.0.0",
     "os-utils": "0.0.14",
     "otplib": "^12.0.1",
     "qrcode": "^1.5.3",

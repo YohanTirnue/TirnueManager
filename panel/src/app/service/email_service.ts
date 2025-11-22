@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
+import CircuitBreaker from "opossum";
 import { logger } from "./log";
 
 // Hardcoded SMTP configuration
@@ -21,9 +22,45 @@ const FROM_EMAIL = {
 class EmailService {
   private transporter: Transporter | null = null;
   private maxRetries: number = 3;
+  private circuitBreaker: CircuitBreaker | null = null;
 
   constructor() {
     this.initializeTransporter();
+    this.initializeCircuitBreaker();
+  }
+
+  private initializeCircuitBreaker() {
+    // Create circuit breaker for email sending
+    this.circuitBreaker = new CircuitBreaker(
+      async (mailOptions: any) => {
+        return await this.sendWithRetryInternal(mailOptions);
+      },
+      {
+        timeout: 30000, // 30 second timeout
+        errorThresholdPercentage: 50, // Open circuit if 50% of requests fail
+        resetTimeout: 30000, // Try again after 30 seconds
+        rollingCountTimeout: 60000, // Count errors in 60 second window
+        rollingCountBuckets: 10, // Split window into 10 buckets
+        name: "email-service"
+      }
+    );
+
+    // Circuit opened - stop trying
+    this.circuitBreaker.on("open", () => {
+      logger.error("[EmailService] Circuit breaker opened - email service is failing");
+    });
+
+    // Circuit half-open - testing if service recovered
+    this.circuitBreaker.on("halfOpen", () => {
+      logger.warn("[EmailService] Circuit breaker half-open - testing email service");
+    });
+
+    // Circuit closed - service recovered
+    this.circuitBreaker.on("close", () => {
+      logger.info("[EmailService] Circuit breaker closed - email service recovered");
+    });
+
+    logger.info("[EmailService] Circuit breaker initialized");
   }
 
   private initializeTransporter() {
@@ -45,9 +82,29 @@ class EmailService {
   }
 
   /**
-   * Send email with retry logic and exponential backoff
+   * Send email with circuit breaker protection
    */
   private async sendWithRetry(mailOptions: any): Promise<void> {
+    if (!this.circuitBreaker) {
+      // Fallback if circuit breaker not initialized
+      return await this.sendWithRetryInternal(mailOptions);
+    }
+
+    try {
+      await this.circuitBreaker.fire(mailOptions);
+    } catch (error: any) {
+      if (error.message === "Breaker is open") {
+        logger.error("[EmailService] Circuit breaker is open - email service temporarily unavailable");
+        throw new Error("Email service temporarily unavailable. Please try again later.");
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Internal send with retry logic and exponential backoff
+   */
+  private async sendWithRetryInternal(mailOptions: any): Promise<void> {
     if (!this.transporter) {
       throw new Error("Transporter not initialized");
     }
@@ -88,6 +145,19 @@ class EmailService {
     }
 
     throw lastError;
+  }
+
+  /**
+   * Get circuit breaker status for monitoring
+   */
+  getCircuitBreakerStatus(): { state: string; stats: any } | null {
+    if (!this.circuitBreaker) return null;
+
+    return {
+      state: this.circuitBreaker.opened ? "open" :
+             this.circuitBreaker.halfOpen ? "half-open" : "closed",
+      stats: this.circuitBreaker.stats
+    };
   }
 
   /**
