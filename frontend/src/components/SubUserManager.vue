@@ -353,7 +353,9 @@ const handleUpdatePermissions = async () => {
     loading.value = true;
     await updateSubUserPermissions().execute({
       params: {
-        subUserUuid: editFormData.value.uuid
+        subUserUuid: editFormData.value.uuid,
+        daemonId: props.daemonId,
+        instanceUuid: props.instanceUuid
       },
       data: {
         permissions: editFormData.value.permissions
@@ -381,7 +383,9 @@ const handleDeleteSubUser = (subUser: SubUser) => {
       try {
         await deleteSubUser().execute({
           params: {
-            subUserUuid: subUser.uuid
+            subUserUuid: subUser.uuid,
+            daemonId: props.daemonId,
+            instanceUuid: props.instanceUuid
           }
         });
         message.success("Sub-user removed");
