@@ -245,16 +245,6 @@ const instanceOperations = computed(() =>
       },
       props: {},
       condition: () => !!instanceInfo.value?.config?.category
-    },
-    {
-      title: "Manage Sub-Users",
-      icon: TeamOutlined,
-      noConfirm: true,
-      click: () => {
-        subUserManagerVisible.value = true;
-      },
-      props: {},
-      condition: () => canManageSubUsers.value
     }
   ])
 );
@@ -419,6 +409,18 @@ const terminalTopTags = computed<TagInfo[]>(() => {
             {{ item.title }}
           </a-button>
         </template>
+        <!-- Manage Users Button -->
+        <a-button
+          v-if="canManageSubUsers"
+          size="large"
+          class="action-btn manage-users-btn"
+          @click="subUserManagerVisible = true"
+        >
+          <template #icon>
+            <TeamOutlined />
+          </template>
+          Manage Users
+        </a-button>
         <a-dropdown>
           <template #overlay>
             <a-menu>
@@ -437,6 +439,18 @@ const terminalTopTags = computed<TagInfo[]>(() => {
         </a-dropdown>
       </div>
       <div class="buttons-section" v-else>
+        <!-- Manage Users Button for mobile -->
+        <a-button
+          v-if="canManageSubUsers"
+          size="large"
+          class="action-btn manage-users-btn"
+          @click="subUserManagerVisible = true"
+        >
+          <template #icon>
+            <TeamOutlined />
+          </template>
+          Manage Users
+        </a-button>
         <a-dropdown>
           <template #overlay>
             <a-menu>
@@ -648,6 +662,25 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   :deep(.anticon) {
     color: #FF8C42 !important;
     font-size: 16px !important;
+  }
+
+  // Manage Users button - purple theme
+  &.manage-users-btn {
+    background: linear-gradient(135deg, rgba(114, 46, 209, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
+    border-color: rgba(114, 46, 209, 0.6) !important;
+    color: #9254de !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(114, 46, 209, 0.3) !important;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(114, 46, 209, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
+      border-color: #9254de !important;
+      color: #b37feb !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(114, 46, 209, 0.4) !important;
+    }
+
+    :deep(.anticon) {
+      color: #9254de !important;
+    }
   }
 
   // Green Start button
