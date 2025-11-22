@@ -106,8 +106,10 @@ const assignApp = async () => {
       if (newInstanceIndices.length > 0) {
         pendingPermissionSetup.value = newInstanceIndices;
         message.info(`Setting up permissions for ${newInstanceIndices.length} new instance(s)`);
-        // Start processing the queue
-        processNextPermissionSetup();
+        // Start processing the queue after a delay to ensure UI is ready
+        setTimeout(() => {
+          processNextPermissionSetup();
+        }, 500);
       }
     }
   } catch (err: any) {
