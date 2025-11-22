@@ -1,6 +1,12 @@
 import crypto from "crypto";
 import { logger } from "./log";
 
+// Constant-time string comparison to prevent timing attacks
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
+
 interface OTPRecord {
   token: string;
   type: "registration" | "password_reset" | "email_change";
@@ -112,8 +118,9 @@ class OTPService {
     userId: string,
     newEmail: string
   ): Promise<string> {
-    // Clear any existing OTPs for this user's email change
+    // Clear any existing OTPs for this user's email change (both old and new email)
     await this.invalidateOTPs(email, "email_change");
+    await this.invalidateOTPs(newEmail, "email_change");
 
     const otp = this.generateOTP();
     const key = this.generateKey("email_change", newEmail);
@@ -149,8 +156,8 @@ class OTPService {
           return null;
         }
 
-        // Check if OTP matches
-        if (record.token === otp) {
+        // Check if OTP matches (constant-time comparison)
+        if (safeCompare(record.token, otp)) {
           // Valid OTP - delete it (one-time use)
           this.otpStore.delete(key);
           logger.info(`[OTPService] OTP verified successfully for ${email}`);

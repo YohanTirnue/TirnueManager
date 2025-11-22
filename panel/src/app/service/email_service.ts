@@ -174,6 +174,54 @@ class EmailService {
     }
   }
 
+  async sendEmailChangedNotification(oldEmail: string, newEmail: string): Promise<boolean> {
+    if (!this.transporter) return false;
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
+          <tr>
+            <td align="center" style="padding: 40px 20px;">
+              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 140, 66, 0.2);">
+                <tr>
+                  <td style="padding: 40px; text-align: center;">
+                    <h1 style="color: #FF8C42; font-size: 28px; margin: 0 0 16px 0;">Email Address Changed</h1>
+                    <p style="color: rgba(255, 255, 255, 0.8); font-size: 16px; margin: 0 0 24px 0;">
+                      Your email has been changed to: <strong style="color: #FF8C42;">${newEmail}</strong>
+                    </p>
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin: 0;">
+                      If you didn't make this change, please contact support immediately.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: `"${FROM_EMAIL.name}" <${FROM_EMAIL.address}>`,
+        to: oldEmail,
+        subject: "Email Address Changed - Tirnue Manager",
+        html
+      });
+      return true;
+    } catch (error) {
+      logger.error(`[EmailService] Failed to send email changed notification:`, error);
+      return false;
+    }
+  }
+
   private generateOTPEmailHTML(
     otp: string,
     type: "registration" | "password_reset" | "email_change",

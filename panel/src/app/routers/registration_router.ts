@@ -468,7 +468,7 @@ router.post(
 
     // Send notification to old email
     if (oldEmail) {
-      await emailService.sendPasswordChangedNotification(oldEmail); // Reuse for notification
+      await emailService.sendEmailChangedNotification(oldEmail, newEmail);
     }
 
     logger.info(`[EmailChange] Email changed for user ${userId}: ${oldEmail} -> ${newEmail}`);
