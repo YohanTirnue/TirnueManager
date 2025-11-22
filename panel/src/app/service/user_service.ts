@@ -10,6 +10,7 @@ import { IUserApp, User, UserPassWordType } from "../entity/user";
 import { $t } from "../i18n";
 import { logger } from "./log";
 import { migratePermissions } from "./migrations/permission_migration";
+import { subUserIndex } from "./sub_user_index_service";
 
 export class TwoFactorError extends Error {}
 
@@ -25,6 +26,9 @@ class UserSubsystem {
 
     // Run permission format migration for existing users
     await migratePermissions();
+
+    // Build sub-user index for O(1) lookups
+    subUserIndex.buildIndex();
   }
 
   async create(config: IUser): Promise<User> {

@@ -7,6 +7,7 @@ import { logger } from "./log";
 import { $t } from "../i18n";
 import { lockService } from "./lock_service";
 import { permissionCache } from "./permission_cache_service";
+import { subUserIndex } from "./sub_user_index_service";
 
 const MAX_SUB_USERS_PER_INSTANCE = 3;
 
@@ -34,9 +35,24 @@ export class SubUserService {
   /**
    * Check if a user is a sub-user for a specific instance
    * Returns the sub-user entry with permissions if found
+   * Uses index for O(1) parent lookup
    */
   getSubUserEntry(userUuid: string, instanceUuid: string, daemonId: string): ISubUserEntry | null {
-    // Search all users' subUsers arrays for this user+instance combination
+    // Use index for fast parent lookup
+    const parentUuid = subUserIndex.getParentUserUuid(userUuid);
+    if (parentUuid) {
+      const parentUser = userSystem.getInstance(parentUuid);
+      if (parentUser) {
+        const entry = parentUser.subUsers.find(
+          (su) => su.uuid === userUuid && su.instanceUuid === instanceUuid && su.daemonId === daemonId
+        );
+        if (entry) {
+          return entry;
+        }
+      }
+    }
+
+    // Fallback: Search all users (for non-indexed entries)
     for (const [parentUuid, parentUser] of userSystem.objects) {
       const entry = parentUser.subUsers.find(
         (su) => su.uuid === userUuid && su.instanceUuid === instanceUuid && su.daemonId === daemonId
@@ -192,6 +208,9 @@ export class SubUserService {
       });
       await Storage.getStorage().store("User", parentUuid, parentUser);
 
+      // Update index
+      subUserIndex.addSubUser(parentUuid, subUser.uuid, instanceUuid);
+
       logger.info(
         `Sub-user ${subUser.userName} (${subUser.uuid}) created by ${parentUser.userName} for instance ${instanceUuid}`
       );
@@ -262,6 +281,9 @@ export class SubUserService {
         permissions
       });
       await Storage.getStorage().store("User", parentUuid, parentUser);
+
+      // Update index
+      subUserIndex.addSubUser(parentUuid, subUserUuid, instanceUuid);
 
       logger.info(
         `User ${subUser.userName} (${subUserUuid}) added as sub-user by ${parentUser.userName} for instance ${instanceUuid}`
@@ -337,6 +359,10 @@ export class SubUserService {
       (inst) => !(inst.instanceUuid === instanceUuid && inst.daemonId === daemonId)
     );
     await Storage.getStorage().store("User", subUserUuid, subUser);
+
+    // Update index and cache
+    subUserIndex.removeSubUser(parentUuid, subUserUuid, instanceUuid);
+    permissionCache.invalidate(subUserUuid, instanceUuid);
 
     // If user has no instances left and no other sub-user entries, they might be orphaned
     // but we don't delete them - they could still log in and get new invitations
