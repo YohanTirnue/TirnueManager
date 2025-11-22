@@ -9,7 +9,7 @@ function safeCompare(a: string, b: string): boolean {
 
 interface OTPRecord {
   token: string;
-  type: "registration" | "password_reset" | "email_change";
+  type: "registration" | "password_reset" | "email_change" | "invitation";
   email: string;
   userId?: string;
   metadata?: {
@@ -142,10 +142,33 @@ class OTPService {
     return otp;
   }
 
+  async createInvitationOTP(email: string, userId: string): Promise<string> {
+    // Clear any existing invitation OTPs for this email
+    await this.invalidateOTPs(email, "invitation");
+
+    const otp = this.generateOTP();
+    const key = this.generateKey("invitation", email);
+
+    const record: OTPRecord = {
+      token: otp,
+      type: "invitation",
+      email,
+      userId,
+      attempts: 0,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + this.defaultConfig.expirySeconds * 1000
+    };
+
+    this.otpStore.set(key, record);
+    logger.info(`[OTPService] Invitation OTP created for ${email}`);
+
+    return otp;
+  }
+
   async verifyOTP(
     email: string,
     otp: string,
-    type: "registration" | "password_reset" | "email_change"
+    type: "registration" | "password_reset" | "email_change" | "invitation"
   ): Promise<OTPRecord | null> {
     for (const [key, record] of this.otpStore.entries()) {
       if (record.email === email && record.type === type) {
@@ -179,7 +202,7 @@ class OTPService {
 
   async hasPendingOTP(
     email: string,
-    type: "registration" | "password_reset" | "email_change"
+    type: "registration" | "password_reset" | "email_change" | "invitation"
   ): Promise<boolean> {
     for (const record of this.otpStore.values()) {
       if (record.email === email && record.type === type) {

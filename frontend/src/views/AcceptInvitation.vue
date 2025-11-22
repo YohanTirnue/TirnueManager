@@ -9,7 +9,8 @@ import {
   GlobalOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  LoadingOutlined
+  LoadingOutlined,
+  ExclamationCircleOutlined
 } from "@ant-design/icons-vue";
 import { request } from "@/tools/request";
 import { useAppStateStore } from "@/stores/useAppStateStore";
@@ -70,7 +71,7 @@ const isPasswordValid = computed(() => {
 });
 
 const isFormValid = computed(() => {
-  if (!invitationDetails.value || invitationDetails.value.hasAccount) return true;
+  if (!invitationDetails.value) return false;
 
   return (
     formData.value.userName.length >= 3 &&
@@ -102,22 +103,6 @@ const fetchInvitationDetails = async () => {
     error.value = err.response?.data?.message || "Invitation not found or expired";
   } finally {
     loading.value = false;
-  }
-};
-
-const handleAcceptAsLoggedInUser = async () => {
-  submitting.value = true;
-  try {
-    await request({
-      url: `/api/sub-users/invite/accept/${token.value}`,
-      method: "POST"
-    });
-    message.success("Invitation accepted! You now have access to the instance.");
-    router.push("/");
-  } catch (err: any) {
-    message.error(err.response?.data?.message || "Failed to accept invitation");
-  } finally {
-    submitting.value = false;
   }
 };
 
@@ -186,28 +171,123 @@ const goToLogin = () => {
 
         <!-- For users who already have an account -->
         <div v-if="invitationDetails.hasAccount" class="existing-user-section">
-          <div class="info-box">
-            <CheckCircleOutlined class="info-icon" />
-            <p>An account exists for <strong>{{ invitationDetails.inviteeEmail }}</strong></p>
+          <div class="info-box warning">
+            <ExclamationCircleOutlined class="info-icon" />
+            <div>
+              <p>An account already exists for <strong>{{ invitationDetails.inviteeEmail }}</strong></p>
+              <p class="info-note">Sub-user access requires a separate account. Please create a new account with a different username below.</p>
+            </div>
           </div>
 
-          <div v-if="isLoggedIn" class="action-section">
-            <p>Click below to accept the invitation and gain access to the instance.</p>
+          <!-- Show registration form even for existing email users -->
+          <form class="registration-form" @submit.prevent="handleRegisterAndAccept">
+            <div class="form-row">
+              <div class="form-group">
+                <label>First Name</label>
+                <a-input
+                  v-model:value="formData.firstName"
+                  placeholder="First name"
+                  size="large"
+                >
+                  <template #prefix>
+                    <UserOutlined style="color: rgba(0, 0, 0, 0.25)" />
+                  </template>
+                </a-input>
+              </div>
+              <div class="form-group">
+                <label>Last Name</label>
+                <a-input
+                  v-model:value="formData.lastName"
+                  placeholder="Last name"
+                  size="large"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Username (must be different from your main account)</label>
+              <a-input
+                v-model:value="formData.userName"
+                placeholder="Choose a new username"
+                size="large"
+              >
+                <template #prefix>
+                  <UserOutlined style="color: rgba(0, 0, 0, 0.25)" />
+                </template>
+              </a-input>
+            </div>
+
+            <div class="form-group">
+              <label>Location</label>
+              <a-select
+                v-model:value="formData.location"
+                placeholder="Select your country"
+                size="large"
+                show-search
+                :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
+                :options="locationOptions"
+              >
+                <template #prefix>
+                  <GlobalOutlined style="color: rgba(0, 0, 0, 0.25)" />
+                </template>
+              </a-select>
+            </div>
+
+            <div class="form-group">
+              <label>Password</label>
+              <a-input-password
+                v-model:value="formData.password"
+                placeholder="Create a password"
+                size="large"
+              >
+                <template #prefix>
+                  <LockOutlined style="color: rgba(0, 0, 0, 0.25)" />
+                </template>
+              </a-input-password>
+
+              <div class="password-requirements">
+                <span :class="{ met: passwordRequirements.minLength }">
+                  {{ passwordRequirements.minLength ? "✓" : "○" }} 9+ characters
+                </span>
+                <span :class="{ met: passwordRequirements.hasUppercase }">
+                  {{ passwordRequirements.hasUppercase ? "✓" : "○" }} Uppercase
+                </span>
+                <span :class="{ met: passwordRequirements.hasLowercase }">
+                  {{ passwordRequirements.hasLowercase ? "✓" : "○" }} Lowercase
+                </span>
+                <span :class="{ met: passwordRequirements.hasNumber }">
+                  {{ passwordRequirements.hasNumber ? "✓" : "○" }} Number
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <a-input-password
+                v-model:value="formData.confirmPassword"
+                placeholder="Confirm your password"
+                size="large"
+              >
+                <template #prefix>
+                  <LockOutlined style="color: rgba(0, 0, 0, 0.25)" />
+                </template>
+              </a-input-password>
+              <span
+                v-if="formData.confirmPassword && formData.password !== formData.confirmPassword"
+                class="error-text"
+              >
+                Passwords do not match
+              </span>
+            </div>
+
             <button
+              type="submit"
               class="primary-btn"
-              :disabled="submitting"
-              @click="handleAcceptAsLoggedInUser"
+              :disabled="!isFormValid || submitting"
             >
-              {{ submitting ? "Accepting..." : "Accept Invitation" }}
+              {{ submitting ? "Creating Account..." : "Create Sub-User Account" }}
             </button>
-          </div>
-
-          <div v-else class="action-section">
-            <p>Please log in to accept this invitation.</p>
-            <button class="primary-btn" @click="goToLogin">
-              Log In to Accept
-            </button>
-          </div>
+          </form>
         </div>
 
         <!-- For new users - registration form -->
@@ -446,6 +526,22 @@ const goToLogin = () => {
 
 .info-box strong {
   color: #ff8c42;
+}
+
+.info-box.warning {
+  background: rgba(250, 173, 20, 0.1);
+  border-color: rgba(250, 173, 20, 0.3);
+  align-items: flex-start;
+}
+
+.info-box.warning .info-icon {
+  color: #faad14;
+}
+
+.info-note {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 4px !important;
 }
 
 .action-section {

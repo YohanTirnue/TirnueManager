@@ -88,18 +88,13 @@ router.post(
     );
 
     // Create and send OTP to owner
-    const otp = await otpService.createRegistrationOTP(parentUser.email, {
-      firstName: parentUser.firstName || "",
-      lastName: parentUser.lastName || "",
-      location: parentUser.location || "",
-      password: "" // Not used for this OTP type
-    });
+    const otp = await otpService.createInvitationOTP(parentUser.email, userUuid);
 
     // Send OTP email to owner
     const emailSent = await emailService.sendOTP(
       parentUser.email,
       otp,
-      "registration", // Using registration template for OTP
+      "registration", // Using registration template for visual consistency
       parentUser.firstName
     );
 
@@ -134,7 +129,7 @@ router.post(
     }
 
     // Verify OTP
-    const otpRecord = await otpService.verifyOTP(parentUser.email, String(otp), "registration");
+    const otpRecord = await otpService.verifyOTP(parentUser.email, String(otp), "invitation");
     if (!otpRecord) {
       ctx.throw(400, "Invalid or expired verification code");
     }
@@ -204,6 +199,8 @@ router.get(
 );
 
 // Accept invitation (for existing users)
+// Note: Existing users cannot directly accept as themselves - they need to create a sub-user account
+// This endpoint informs them to use the register endpoint instead
 router.post(
   "/accept/:token",
   permission({ level: ROLE.USER }),
@@ -232,58 +229,12 @@ router.post(
       ctx.throw(403, "This invitation was sent to a different email address");
     }
 
-    // Create the sub-user relationship
-    try {
-      // Map invitation permissions to UserPermissions format
-      const userPermissions = {
-        start: invitation.permissions.canStart,
-        stop: invitation.permissions.canStop,
-        restart: invitation.permissions.canRestart,
-        kill: invitation.permissions.canKill,
-        terminal: invitation.permissions.canTerminal,
-        fileManager: invitation.permissions.canFileManager,
-        fileEdit: invitation.permissions.canFileEdit,
-        schedule: invitation.permissions.canSchedule
-      };
-
-      // Since this user already exists, we need to link them as a sub-user
-      // This is a special case - existing user becoming sub-user for specific instance
-      await userSystem.edit(userUuid, {
-        isSubUser: true,
-        parentUserId: invitation.parentUserId,
-        permissions: userPermissions,
-        instances: [{ instanceUuid: invitation.instanceUuid, daemonId: invitation.daemonId }]
-      });
-
-      // Update parent's subUsers array
-      const parentUser = userSystem.getInstance(invitation.parentUserId);
-      if (parentUser) {
-        parentUser.subUsers.push({
-          uuid: userUuid,
-          instanceUuid: invitation.instanceUuid,
-          daemonId: invitation.daemonId
-        });
-        await Storage.getStorage().store("User", parentUser.uuid, parentUser);
-      }
-
-      // Mark invitation as accepted
-      invitationService.acceptInvitation(invitation.invitationId);
-
-      operationLogger.log("sub_user_accept_invite", {
-        operator_ip: ctx.ip,
-        operator_name: currentUser.userName,
-        parent_name: invitation.parentUserName,
-        instance_uuid: invitation.instanceUuid
-      });
-
-      ctx.body = {
-        success: true,
-        message: "Invitation accepted successfully"
-      };
-    } catch (error: any) {
-      logger.error(`[Invitation] Failed to accept invitation: ${error.message}`);
-      ctx.throw(500, error.message);
-    }
+    // Existing users cannot become sub-users with their main account
+    // They need to create a separate sub-user account via the registration form
+    ctx.throw(
+      400,
+      "You already have an account. To accept this invitation, please log out and use the invitation link to create a separate sub-user account with a different username."
+    );
   }
 );
 
@@ -327,14 +278,30 @@ router.post(
 
       // Map invitation permissions to UserPermissions format
       const userPermissions = {
-        start: invitation.permissions.canStart,
-        stop: invitation.permissions.canStop,
-        restart: invitation.permissions.canRestart,
-        kill: invitation.permissions.canKill,
-        terminal: invitation.permissions.canTerminal,
-        fileManager: invitation.permissions.canFileManager,
-        fileEdit: invitation.permissions.canFileEdit,
-        schedule: invitation.permissions.canSchedule
+        canStartInstances: invitation.permissions.canStart,
+        canStopInstances: invitation.permissions.canStop,
+        canRestartInstances: invitation.permissions.canRestart,
+        canTerminateInstances: invitation.permissions.canKill,
+        canAccessConsole: invitation.permissions.canTerminal,
+        canAccessFileManager: invitation.permissions.canFileManager,
+        canModifyFiles: invitation.permissions.canFileEdit,
+        canAccessScheduledTasks: invitation.permissions.canSchedule,
+        // Default file permissions
+        canUploadFiles: invitation.permissions.canFileManager,
+        canDownloadFiles: invitation.permissions.canFileManager,
+        canDeleteFiles: false,
+        canViewLogs: true,
+        canAccessConfigFiles: false,
+        canAccessMinecraftQuery: true,
+        canAccessTerminalSettings: false,
+        canAccessEventTasks: false,
+        canAccessInstanceSettings: false,
+        canAccessServerMarket: false,
+        disableRightClick: false,
+        disableKeyboardShortcuts: false,
+        disableTextSelection: false,
+        disableCopy: false,
+        disablePaste: false
       };
 
       // Create the sub-user directly
