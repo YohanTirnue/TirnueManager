@@ -20,6 +20,7 @@ const FROM_EMAIL = {
 
 class EmailService {
   private transporter: Transporter | null = null;
+  private maxRetries: number = 3;
 
   constructor() {
     this.initializeTransporter();
@@ -43,6 +44,98 @@ class EmailService {
     }
   }
 
+  /**
+   * Send email with retry logic and exponential backoff
+   */
+  private async sendWithRetry(mailOptions: any): Promise<void> {
+    if (!this.transporter) {
+      throw new Error("Transporter not initialized");
+    }
+
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+      try {
+        await this.transporter.sendMail(mailOptions);
+
+        if (attempt > 0) {
+          logger.info(`[EmailService] Email sent successfully after ${attempt} retries`);
+        }
+
+        return; // Success!
+
+      } catch (error: any) {
+        lastError = error;
+
+        // Check if error is retryable
+        const isRetryable = this.isRetryableError(error);
+
+        if (!isRetryable || attempt === this.maxRetries) {
+          logger.error(`[EmailService] Email failed permanently:`, error.message);
+          throw error;
+        }
+
+        // Exponential backoff: 1s, 2s, 4s
+        const delayMs = Math.pow(2, attempt) * 1000;
+        const jitter = Math.random() * 200; // Add jitter to prevent thundering herd
+
+        logger.warn(
+          `[EmailService] Email attempt ${attempt + 1} failed, retrying in ${delayMs}ms: ${error.message}`
+        );
+
+        await this.sleep(delayMs + jitter);
+      }
+    }
+
+    throw lastError;
+  }
+
+  /**
+   * Check if an error is retryable
+   */
+  private isRetryableError(error: any): boolean {
+    // Retryable: Network errors, timeouts, rate limits
+    const retryableCodes = [
+      "ETIMEDOUT",
+      "ECONNRESET",
+      "ENOTFOUND",
+      "ECONNREFUSED",
+      "ESOCKET",
+      "ECONNECTION"
+    ];
+
+    // Non-retryable: Auth failures, invalid recipients
+    const nonRetryableCodes = [
+      "EAUTH", // Authentication failed
+      "EMESSAGE" // Invalid message format
+    ];
+
+    if (nonRetryableCodes.some(code => error.code === code)) {
+      return false;
+    }
+
+    if (retryableCodes.some(code => error.code === code)) {
+      return true;
+    }
+
+    // Gmail rate limit (HTTP 421)
+    if (error.responseCode === 421) {
+      return true;
+    }
+
+    // Temporary failures (4xx)
+    if (error.responseCode >= 400 && error.responseCode < 500 && error.responseCode !== 401) {
+      return true;
+    }
+
+    // Default: don't retry unknown errors
+    return false;
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   async sendOTP(
     email: string,
     otp: string,
@@ -63,7 +156,7 @@ class EmailService {
     const html = this.generateOTPEmailHTML(otp, type, firstName);
 
     try {
-      await this.transporter.sendMail({
+      await this.sendWithRetry({
         from: `"${FROM_EMAIL.name}" <${FROM_EMAIL.address}>`,
         to: email,
         subject: subjects[type],
@@ -113,7 +206,7 @@ class EmailService {
     `;
 
     try {
-      await this.transporter.sendMail({
+      await this.sendWithRetry({
         from: `"${FROM_EMAIL.name}" <${FROM_EMAIL.address}>`,
         to: email,
         subject: "Welcome to Tirnue Manager!",
@@ -161,7 +254,7 @@ class EmailService {
     `;
 
     try {
-      await this.transporter.sendMail({
+      await this.sendWithRetry({
         from: `"${FROM_EMAIL.name}" <${FROM_EMAIL.address}>`,
         to: email,
         subject: "Password Changed - Tirnue Manager",
@@ -209,7 +302,7 @@ class EmailService {
     `;
 
     try {
-      await this.transporter.sendMail({
+      await this.sendWithRetry({
         from: `"${FROM_EMAIL.name}" <${FROM_EMAIL.address}>`,
         to: oldEmail,
         subject: "Email Address Changed - Tirnue Manager",
@@ -316,7 +409,7 @@ class EmailService {
     `;
 
     try {
-      await this.transporter.sendMail({
+      await this.sendWithRetry({
         from: `"${FROM_EMAIL.name}" <${FROM_EMAIL.address}>`,
         to: email,
         subject: `${inviterName} invited you to access "${instanceName}" - Tirnue Manager`,
