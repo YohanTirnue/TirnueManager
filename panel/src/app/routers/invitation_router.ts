@@ -20,7 +20,135 @@ import { singletonMemoryRedis } from "../service/mini_redis";
 
 const router = new Router({ prefix: "/sub-users/invite" });
 
-// Initiate invitation - sends OTP to owner for verification
+// Direct invitation - creates and sends invitation immediately (no OTP)
+router.post(
+  "/send",
+  permission({ level: ROLE.USER }),
+  validator({
+    query: { daemonId: String, instanceUuid: String },
+    body: { inviteeEmail: String, expiryMinutes: Number }
+  }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const userUuid = getUserUuid(ctx);
+    const { daemonId, instanceUuid } = ctx.query;
+    const { inviteeEmail, permissions, expiryMinutes, instanceName } = ctx.request.body;
+
+    // Validate expiry
+    if (expiryMinutes !== 30 && expiryMinutes !== 60) {
+      ctx.throw(400, "Expiry must be 30 or 60 minutes");
+    }
+
+    // Check if user can manage sub-users for this instance
+    if (!canManageSubUsersByUuid(userUuid, String(daemonId), String(instanceUuid))) {
+      ctx.throw(403, "You do not have permission to invite sub-users for this instance");
+    }
+
+    // Get parent user
+    const parentUser = userSystem.getInstance(userUuid);
+    if (!parentUser) {
+      ctx.throw(404, "User not found");
+      return;
+    }
+
+    // Check if parent has email set
+    if (!parentUser.email) {
+      ctx.throw(400, "You must have an email set to invite sub-users");
+    }
+
+    // Check if there's already a pending invitation for this invitee + instance
+    if (invitationService.hasPendingInvitation(inviteeEmail, String(instanceUuid))) {
+      ctx.throw(400, "There is already a pending invitation for this email and instance");
+    }
+
+    // Rate limit check
+    if (!otpService.checkRateLimit(`invite:${userUuid}`, 5, 3600000)) {
+      ctx.throw(429, "Too many invitation attempts. Please wait before trying again.");
+    }
+
+    // Validate permissions object
+    const validPermissions: UserPermissions = {
+      canUploadFiles: Boolean(permissions?.canUploadFiles ?? true),
+      canDownloadFiles: Boolean(permissions?.canDownloadFiles ?? true),
+      canDeleteFiles: Boolean(permissions?.canDeleteFiles ?? false),
+      canModifyFiles: Boolean(permissions?.canModifyFiles ?? true),
+      canAccessConsole: Boolean(permissions?.canAccessConsole ?? true),
+      canStartInstances: Boolean(permissions?.canStartInstances ?? true),
+      canRestartInstances: Boolean(permissions?.canRestartInstances ?? true),
+      canStopInstances: Boolean(permissions?.canStopInstances ?? true),
+      canTerminateInstances: Boolean(permissions?.canTerminateInstances ?? false),
+      canViewLogs: Boolean(permissions?.canViewLogs ?? true),
+      canAccessConfigFiles: Boolean(permissions?.canAccessConfigFiles ?? false),
+      canAccessFileManager: Boolean(permissions?.canAccessFileManager ?? true),
+      canAccessMinecraftQuery: Boolean(permissions?.canAccessMinecraftQuery ?? true),
+      canAccessTerminalSettings: Boolean(permissions?.canAccessTerminalSettings ?? false),
+      canAccessScheduledTasks: Boolean(permissions?.canAccessScheduledTasks ?? false),
+      canAccessEventTasks: Boolean(permissions?.canAccessEventTasks ?? false),
+      canAccessInstanceSettings: Boolean(permissions?.canAccessInstanceSettings ?? false),
+      canAccessServerMarket: Boolean(permissions?.canAccessServerMarket ?? false),
+      disableRightClick: Boolean(permissions?.disableRightClick ?? false),
+      disableKeyboardShortcuts: Boolean(permissions?.disableKeyboardShortcuts ?? false),
+      disableTextSelection: Boolean(permissions?.disableTextSelection ?? false),
+      disableCopy: Boolean(permissions?.disableCopy ?? false),
+      disablePaste: Boolean(permissions?.disablePaste ?? false)
+    };
+
+    try {
+      // Create invitation directly (no OTP verification needed)
+      const token = crypto.randomBytes(32).toString("hex");
+
+      const invitation = invitationService.createInvitation(
+        userUuid,
+        parentUser.userName,
+        String(inviteeEmail).toLowerCase().trim(),
+        String(daemonId),
+        String(instanceUuid),
+        String(instanceName || "Instance"),
+        validPermissions,
+        expiryMinutes,
+        token
+      );
+
+      // Send invitation email to invitee
+      const emailSent = await emailService.sendInvitationEmail(
+        invitation.inviteeEmail,
+        invitation.parentUserName,
+        invitation.instanceName,
+        invitation.token,
+        invitation.expiryMinutes
+      );
+
+      if (!emailSent) {
+        logger.error(`[Invitation] Failed to send invitation email to ${invitation.inviteeEmail}`);
+        // Don't fail - invitation is still created
+      }
+
+      operationLogger.log("sub_user_invite", {
+        operator_ip: ctx.ip,
+        operator_name: parentUser.userName,
+        target_email: invitation.inviteeEmail,
+        instance_uuid: invitation.instanceUuid
+      });
+
+      logger.info(`[Invitation] Direct invitation sent from ${parentUser.userName} to ${invitation.inviteeEmail}`);
+
+      ctx.body = {
+        success: true,
+        message: "Invitation sent successfully",
+        invitation: {
+          invitationId: invitation.invitationId,
+          inviteeEmail: invitation.inviteeEmail,
+          instanceName: invitation.instanceName,
+          expiresAt: invitation.expiresAt
+        }
+      };
+    } catch (error: any) {
+      logger.error(`[Invitation] Failed to create direct invitation: ${error.message}`);
+      ctx.throw(500, error.message || "Failed to send invitation");
+    }
+  }
+);
+
+// Initiate invitation - sends OTP to owner for verification (legacy flow)
 router.post(
   "/initiate",
   permission({ level: ROLE.USER }),

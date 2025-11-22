@@ -287,7 +287,7 @@ const handleSendInvitation = async () => {
     loading.value = true;
 
     const { state } = useAppStateStore();
-    const res = await axios.post("./api/sub-users/invite/initiate", {
+    const res = await axios.post("./api/sub-users/invite/send", {
       inviteeEmail: inviteFormData.value.inviteeEmail,
       expiryMinutes: inviteFormData.value.expiryMinutes,
       permissions: inviteFormData.value.permissions,
@@ -301,7 +301,7 @@ const handleSendInvitation = async () => {
       }
     });
 
-    message.success("Invitation sent successfully");
+    message.success("Invitation sent! An email has been sent to " + inviteFormData.value.inviteeEmail);
     inviteDialogVisible.value = false;
     fetchPendingInvitations();
     emit("refresh");

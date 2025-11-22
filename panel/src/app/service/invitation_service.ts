@@ -84,7 +84,47 @@ class InvitationService {
     return key;
   }
 
-  // After owner OTP verification, create the actual invitation
+  // Create invitation directly without OTP verification
+  createInvitation(
+    parentUserId: string,
+    parentUserName: string,
+    inviteeEmail: string,
+    daemonId: string,
+    instanceUuid: string,
+    instanceName: string,
+    permissions: UserPermissions,
+    expiryMinutes: 30 | 60,
+    token?: string
+  ): InvitationRecord {
+    const invitationId = this.generateInvitationId();
+    const inviteToken = token || this.generateToken();
+    const now = Date.now();
+
+    const invitation: InvitationRecord = {
+      invitationId,
+      parentUserId,
+      parentEmail: "", // Not needed for direct invitations
+      parentUserName,
+      inviteeEmail,
+      daemonId,
+      instanceUuid,
+      instanceName,
+      permissions,
+      ownerOtpVerified: false, // No OTP used in direct flow
+      token: inviteToken,
+      expiryMinutes,
+      createdAt: now,
+      expiresAt: now + expiryMinutes * 60 * 1000,
+      status: "pending_invitee"
+    };
+
+    this.invitationStore.set(invitationId, invitation);
+    logger.info(`[InvitationService] Created direct invitation ${invitationId} for ${inviteeEmail}`);
+
+    return invitation;
+  }
+
+  // After owner OTP verification, create the actual invitation (legacy OTP flow)
   createInvitationAfterOtpVerification(pendingKey: string): InvitationRecord | null {
     const pending = this.pendingOwnerOtpStore.get(pendingKey);
     if (!pending) {
