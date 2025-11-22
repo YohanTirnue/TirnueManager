@@ -233,6 +233,11 @@ export class SubUserService {
       );
     }
 
+    // Check if user is already an owner of this instance
+    if (this.isInstanceOwner(subUserUuid, instanceUuid, daemonId)) {
+      throw new Error("User is already an owner of this instance and cannot be added as a sub-user");
+    }
+
     // Check if user is already a sub-user for this instance
     const existingEntry = this.getSubUserEntry(subUserUuid, instanceUuid, daemonId);
     if (existingEntry) {

@@ -244,15 +244,21 @@ router.put(
       String(daemonId)
     );
 
+    // Parent must exist (data consistency check)
+    if (!parent) {
+      ctx.throw(500, "Data inconsistency: could not find parent for this sub-user entry");
+      return;
+    }
+
     // Allow if user is admin OR if user is the parent
-    if (!isTopPermissionByUuid(userUuid) && (!parent || parent.uuid !== userUuid)) {
+    if (!isTopPermissionByUuid(userUuid) && parent.uuid !== userUuid) {
       ctx.throw(403, "You do not have permission to modify this sub-user");
       return;
     }
 
     try {
       await subUserService.updateSubUserPermissions(
-        parent!.uuid,
+        parent.uuid,
         String(subUserUuid),
         String(instanceUuid),
         String(daemonId),
@@ -309,15 +315,21 @@ router.del(
       String(daemonId)
     );
 
+    // Parent must exist (data consistency check)
+    if (!parent) {
+      ctx.throw(500, "Data inconsistency: could not find parent for this sub-user entry");
+      return;
+    }
+
     // Allow if user is admin OR if user is the parent
-    if (!isTopPermissionByUuid(userUuid) && (!parent || parent.uuid !== userUuid)) {
+    if (!isTopPermissionByUuid(userUuid) && parent.uuid !== userUuid) {
       ctx.throw(403, "You do not have permission to remove this sub-user");
       return;
     }
 
     try {
       await subUserService.removeSubUserFromInstance(
-        parent!.uuid,
+        parent.uuid,
         String(subUserUuid),
         String(instanceUuid),
         String(daemonId)
