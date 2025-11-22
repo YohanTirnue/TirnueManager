@@ -76,6 +76,14 @@ const fetchInvitationDetails = async () => {
 
   console.log("fetchInvitationDetails called with token:", token.value);
 
+  // Safety check - don't call API if token is empty
+  if (!token.value) {
+    loading.value = false;
+    error.value = "Invalid invitation link - no token in URL";
+    console.error("Token is empty, cannot fetch invitation details");
+    return;
+  }
+
   try {
     const res = await axios.get(`/api/sub-users/invite/verify`, {
       params: { token: token.value }
