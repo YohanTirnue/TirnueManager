@@ -22,7 +22,7 @@ const { state } = useAppStateStore();
 const route = useRoute();
 
 // Pages accessible without login
-const GUEST_PAGES = ['/login', '/install', '/welcome', '/shop', '/404'];
+const GUEST_PAGES = ['/login', '/install', '/welcome', '/shop', '/404', '/register', '/forgot-password'];
 
 // Only show sidebar/header when user is logged in and not on guest pages
 const showAppLayout = computed(() => {
