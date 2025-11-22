@@ -206,6 +206,36 @@ router.post(
   }
 );
 
+// Verify invitation token (query param version for frontend)
+router.get(
+  "/verify",
+  async (ctx: Koa.ParameterizedContext) => {
+    const token = ctx.query.token as string;
+
+    if (!token) {
+      ctx.throw(400, "Token is required");
+      return;
+    }
+
+    const invitation = invitationService.getInvitationByToken(String(token));
+    if (!invitation) {
+      ctx.throw(404, "Invitation not found or expired");
+      return;
+    }
+
+    // Check if invitee has an account
+    const existingUser = userSystem.getUserByEmail(invitation.inviteeEmail);
+
+    ctx.body = {
+      email: invitation.inviteeEmail,
+      inviterName: invitation.parentUserName,
+      instanceName: invitation.instanceName,
+      expiresAt: invitation.expiresAt,
+      hasAccount: !!existingUser
+    };
+  }
+);
+
 // Get invitation details (for accept page)
 router.get(
   "/details/:token",
@@ -231,15 +261,21 @@ router.get(
   }
 );
 
-// Accept invitation (for existing users)
+// Accept invitation (for existing users) - supports both body and path parameter
 // Existing users can accept invitations - they become sub-users for this specific instance
 // while remaining full owners of their own instances
 router.post(
-  "/accept/:token",
+  "/accept/:token?",
   permission({ level: ROLE.USER }),
   async (ctx: Koa.ParameterizedContext) => {
     const userUuid = getUserUuid(ctx);
-    const { token } = ctx.params;
+    // Support both path param and body token
+    const token = ctx.params.token || ctx.request.body?.token;
+
+    if (!token) {
+      ctx.throw(400, "Token is required");
+      return;
+    }
 
     const invitation = invitationService.getInvitationByToken(String(token));
     if (!invitation) {
@@ -297,14 +333,14 @@ router.post(
 );
 
 // Register new user via invitation (no OTP needed - link click = email verification)
+// Supports both /accept-register and /register/:token paths
 router.post(
-  "/register/:token",
+  "/accept-register",
   validator({
-    body: { userName: String, password: String, firstName: String, lastName: String, location: String }
+    body: { token: String, userName: String, password: String, firstName: String, lastName: String }
   }),
   async (ctx: Koa.ParameterizedContext) => {
-    const { token } = ctx.params;
-    const { userName, password, firstName, lastName, location } = ctx.request.body;
+    const { token, userName, password, firstName, lastName, location } = ctx.request.body;
 
     const invitation = invitationService.getInvitationByToken(String(token));
     if (!invitation) {
