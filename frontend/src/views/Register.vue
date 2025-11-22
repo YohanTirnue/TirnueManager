@@ -487,10 +487,10 @@ onUnmounted(() => {
   max-width: 1200px;
   height: 90vh;
   max-height: 850px;
-  background: rgba(10, 10, 10, 0.85);
+  background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 24px;
-  border: 1px solid rgba(255, 140, 66, 0.2);
+  border: 1px solid rgba(255, 140, 66, 0.3);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   overflow: hidden;
 }
