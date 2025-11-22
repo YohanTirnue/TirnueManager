@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import {
@@ -69,9 +69,12 @@ const isFormValid = computed(() => {
 
 const isLoggedIn = computed(() => !!appStateStore.state.userInfo?.token);
 
-onMounted(async () => {
-  await fetchInvitationDetails();
-});
+// Watch for token to be available (route params may not be ready on mount)
+watch(token, async (newToken) => {
+  if (newToken) {
+    await fetchInvitationDetails();
+  }
+}, { immediate: true });
 
 const fetchInvitationDetails = async () => {
   loading.value = true;
