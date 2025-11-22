@@ -67,19 +67,59 @@ export function useUserPermissions() {
       disablePaste: false
     };
 
-    // Merge defaults with stored permissions
-    // This handles: 1) No permissions object, 2) Partial permissions (missing fields)
-    const stored = state.userInfo?.permissions;
-    if (!stored) return defaults;
+    // With per-instance permissions, we return defaults here
+    // Actual permissions are checked per-instance via getInstancePermissions
+    return defaults;
+  });
 
-    // Merge: defaults first, then override with stored values (only defined ones)
+  // Get permissions for a specific instance
+  const getInstancePermissions = (instanceId: string, daemonId?: string): UserPermissions => {
+    // Admins have full permissions
+    if (isAdmin.value) {
+      return userPermissions.value;
+    }
+
+    const defaults: UserPermissions = {
+      canUploadFiles: true,
+      canDownloadFiles: true,
+      canDeleteFiles: true,
+      canModifyFiles: true,
+      canAccessConsole: true,
+      canStartInstances: true,
+      canRestartInstances: true,
+      canStopInstances: true,
+      canTerminateInstances: true,
+      canViewLogs: true,
+      canAccessConfigFiles: true,
+      canAccessFileManager: true,
+      canAccessMinecraftQuery: true,
+      canAccessTerminalSettings: true,
+      canAccessScheduledTasks: true,
+      canAccessEventTasks: true,
+      canAccessInstanceSettings: true,
+      canAccessServerMarket: true,
+      disableRightClick: false,
+      disableKeyboardShortcuts: false,
+      disableTextSelection: false,
+      disableCopy: false,
+      disablePaste: false
+    };
+
+    // Find the instance entry
+    const instance = state.userInfo?.instances?.find(
+      (inst) => inst.instanceUuid === instanceId && (!daemonId || inst.daemonId === daemonId)
+    );
+
+    if (!instance?.permissions) return defaults;
+
+    // Merge defaults with instance permissions
     return {
       ...defaults,
       ...Object.fromEntries(
-        Object.entries(stored).filter(([_, v]) => v !== undefined)
+        Object.entries(instance.permissions).filter(([_, v]) => v !== undefined)
       )
     } as UserPermissions;
-  });
+  };
 
   // File operation permissions
   const canUploadFiles = computed(() => userPermissions.value.canUploadFiles);
@@ -123,7 +163,9 @@ export function useUserPermissions() {
     >
   ): boolean => {
     if (isAdmin.value) return true;
-    return hasInstanceAccess(instanceId) && userPermissions.value[action];
+    if (!hasInstanceAccess(instanceId)) return false;
+    const perms = getInstancePermissions(instanceId);
+    return perms[action];
   };
 
   // Combined permission check for file operations
@@ -135,7 +177,9 @@ export function useUserPermissions() {
     >
   ): boolean => {
     if (isAdmin.value) return true;
-    return hasInstanceAccess(instanceId) && userPermissions.value[action];
+    if (!hasInstanceAccess(instanceId)) return false;
+    const perms = getInstancePermissions(instanceId);
+    return perms[action];
   };
 
   return {
@@ -162,6 +206,7 @@ export function useUserPermissions() {
     // Helper functions
     hasInstanceAccess,
     canPerformInstanceAction,
-    canPerformFileAction
+    canPerformFileAction,
+    getInstancePermissions
   };
 }

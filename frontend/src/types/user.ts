@@ -41,6 +41,7 @@ export interface UserInstance {
   processType?: string;
   lastDatetime?: number;
   endTime?: number;
+  permissions?: UserPermissions;
 }
 
 export interface BaseUserInfo {
@@ -54,10 +55,9 @@ export interface BaseUserInfo {
   isInit: boolean;
   secret: string;
   open2FA: boolean;
-  permissions?: UserPermissions;
   isSubUser?: boolean;
   parentUserId?: string;
-  subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string }>;
+  subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string; permissions?: UserPermissions }>;
   // Email registration fields
   email?: string;
   emailVerified?: boolean;
