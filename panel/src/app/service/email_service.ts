@@ -395,7 +395,7 @@ class EmailService {
     if (!this.transporter) return false;
 
     // Generate the invitation link - adjust baseUrl as needed
-    const baseUrl = process.env.PANEL_URL || "http://localhost:5173";
+    const baseUrl = process.env.PANEL_URL || "https://hosting.tirnue.space";
     const inviteLink = `${baseUrl}/accept-invitation/${token}`;
 
     const html = `
