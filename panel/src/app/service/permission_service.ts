@@ -1,6 +1,7 @@
 import userSystem from "./user_service";
 import subUserService from "./sub_user_service";
 import { User } from "../entity/user";
+import { UserPermissions } from "../entity/entity_interface";
 
 export function isHaveInstance(user: User, daemonId: string, instanceUuid: string) {
   if (isTopPermission(user)) return true;
@@ -49,4 +50,65 @@ export function canManageSubUsersByUuid(uuid: string, daemonId: string, instance
   const user = userSystem.getInstance(uuid);
   if (!user) return false;
   return canManageSubUsers(user, daemonId, instanceUuid);
+}
+
+/**
+ * Get the permissions for a user on a specific instance.
+ * This is the unified permission lookup that handles both:
+ * - Sub-users (permissions from parent's subUsers array)
+ * - Direct instance owners (permissions from their own instance entry)
+ *
+ * Returns undefined if user has no permissions for this instance.
+ */
+export function getUserInstancePermissions(
+  userUuid: string,
+  instanceUuid: string,
+  daemonId: string
+): UserPermissions | undefined {
+  // First check if user is a sub-user for this instance
+  const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+  if (subUserEntry) {
+    return subUserEntry.permissions;
+  }
+
+  // Otherwise get from user's own instance assignment
+  const user = userSystem.getInstance(userUuid);
+  if (!user) return undefined;
+
+  const instance = user.instances.find(
+    (i) => i.instanceUuid === instanceUuid && i.daemonId === daemonId
+  );
+  return instance?.permissions;
+}
+
+/**
+ * Get default full permissions (all enabled, no restrictions)
+ * Used when admin assigns instance without specifying permissions
+ */
+export function getDefaultFullPermissions(): UserPermissions {
+  return {
+    canUploadFiles: true,
+    canDownloadFiles: true,
+    canDeleteFiles: true,
+    canModifyFiles: true,
+    canAccessConsole: true,
+    canStartInstances: true,
+    canRestartInstances: true,
+    canStopInstances: true,
+    canTerminateInstances: true,
+    canViewLogs: true,
+    canAccessConfigFiles: true,
+    canAccessFileManager: true,
+    canAccessMinecraftQuery: true,
+    canAccessTerminalSettings: true,
+    canAccessScheduledTasks: true,
+    canAccessEventTasks: true,
+    canAccessInstanceSettings: true,
+    canAccessServerMarket: true,
+    disableRightClick: false,
+    disableKeyboardShortcuts: false,
+    disableTextSelection: false,
+    disableCopy: false,
+    disablePaste: false
+  };
 }

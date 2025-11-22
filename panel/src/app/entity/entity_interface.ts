@@ -54,6 +54,14 @@ export interface ISubUserEntry {
   permissions: UserPermissions;
 }
 
+// Instance entry with per-instance permissions
+export interface IUserInstance {
+  instanceUuid: string;
+  daemonId: string;
+  instanceInfo?: any;
+  permissions?: UserPermissions;
+}
+
 export interface IUser {
   uuid?: string;
   userName?: string;
@@ -62,12 +70,11 @@ export interface IUser {
   permission?: number;
   registerTime?: string;
   loginTime?: string;
-  instances?: Array<any>;
+  instances?: Array<IUserInstance>;
   isInit?: boolean;
   passWordType?: number;
   secret?: string;
   open2FA?: boolean;
-  permissions?: UserPermissions;
   // Per-instance sub-user management (user can be owner of some instances, sub-user of others)
   subUsers?: Array<ISubUserEntry>;
   // Email registration fields
@@ -85,10 +92,9 @@ export interface ICompleteUser {
   uuid: string;
   userName: string;
   permission: number;
-  instances: Array<any>;
+  instances: Array<IUserInstance>;
   registerTime: string;
   loginTime: string;
-  permissions?: UserPermissions;
   // Per-instance sub-user management
   subUsers?: Array<ISubUserEntry>;
   // Email registration fields

@@ -132,7 +132,8 @@ class UserSubsystem {
     instanceIds.forEach((value) => {
       user.instances.push({
         instanceUuid: String(value.instanceUuid),
-        daemonId: String(value.daemonId)
+        daemonId: String(value.daemonId),
+        permissions: value.permissions // Include per-instance permissions if provided
       });
     });
   }

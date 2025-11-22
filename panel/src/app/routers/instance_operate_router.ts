@@ -10,12 +10,11 @@ import { checkInstanceAdvancedParams } from "../service/instance_service";
 import { operationLogger } from "../service/operation_logger";
 import { getUserUuid } from "../service/passport_service";
 import { timeUuid } from "../service/password";
-import { isHaveInstanceByUuid, isTopPermissionByUuid } from "../service/permission_service";
+import { isHaveInstanceByUuid, isTopPermissionByUuid, getUserInstancePermissions } from "../service/permission_service";
 import RemoteRequest, { RemoteRequestTimeoutError } from "../service/remote_command";
 import RemoteServiceSubsystem from "../service/remote_service";
 import { systemConfig } from "../setting";
 import userSystem from "../service/user_service";
-import subUserService from "../service/sub_user_service";
 
 const router = new Router({ prefix: "/protected_instance" });
 
@@ -44,9 +43,9 @@ router.all(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canStartInstances) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canStartInstances) {
         ctx.status = 403;
         ctx.body = "You do not have permission to start this instance";
         return;
@@ -86,9 +85,9 @@ router.all(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canStopInstances) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canStopInstances) {
         ctx.status = 403;
         ctx.body = "You do not have permission to stop this instance";
         return;
@@ -126,9 +125,9 @@ router.all(
       const command = String(ctx.query.command);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canAccessConsole) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canAccessConsole) {
         ctx.status = 403;
         ctx.body = "You do not have permission to send commands to this instance";
         return;
@@ -166,9 +165,9 @@ router.post(
       const command = String(ctx.request.body.command || "");
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canAccessConsole) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canAccessConsole) {
         ctx.status = 403;
         ctx.body = "You do not have permission to access console for this instance";
         return;
@@ -200,9 +199,9 @@ router.all(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canRestartInstances) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canRestartInstances) {
         ctx.status = 403;
         ctx.body = "You do not have permission to restart this instance";
         return;
@@ -238,9 +237,9 @@ router.all(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canTerminateInstances) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canTerminateInstances) {
         ctx.status = 403;
         ctx.body = "You do not have permission to terminate this instance";
         return;
@@ -372,9 +371,9 @@ router.post(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions - stream channel is for console access
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canAccessConsole) {
+      // Check permissions - stream channel is for console access
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canAccessConsole) {
         ctx.status = 403;
         ctx.body = "You do not have permission to access console for this instance";
         return;
@@ -418,9 +417,9 @@ router.post(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canAccessConfigFiles) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canAccessConfigFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to access config files for this instance";
         return;
@@ -454,9 +453,9 @@ router.get(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canAccessConfigFiles) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canAccessConfigFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to access config files for this instance";
         return;
@@ -493,9 +492,9 @@ router.put(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canAccessConfigFiles) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canAccessConfigFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to modify config files for this instance";
         return;
@@ -540,20 +539,20 @@ router.put(
       const userUuid = getUserUuid(ctx);
       const config = ctx.request.body;
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canAccessInstanceSettings) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canAccessInstanceSettings) {
         ctx.status = 403;
         ctx.body = "You do not have permission to modify instance settings";
         return;
       }
 
-      // Filter out config sections based on granular permissions for sub-users
-      if (subUserEntry) {
-        if (!subUserEntry.permissions?.canAccessEventTasks) {
+      // Filter out config sections based on granular permissions
+      if (permissions) {
+        if (!permissions.canAccessEventTasks) {
           config.eventTask = null;
         }
-        if (!subUserEntry.permissions?.canAccessTerminalSettings) {
+        if (!permissions.canAccessTerminalSettings) {
           config.terminalOption = null;
         }
       }
@@ -661,9 +660,9 @@ router.get(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user permissions
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canViewLogs) {
+      // Check permissions
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canViewLogs) {
         ctx.status = 403;
         ctx.body = "You do not have permission to view logs for this instance";
         return;
@@ -710,19 +709,16 @@ router.post(
     const instanceUuid = String(ctx.query.uuid);
     const user = userSystem.getInstance(userUuid);
 
-    // Check sub-user permissions
-    const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-    if (subUserEntry && !subUserEntry.permissions?.canAccessServerMarket) {
+    // Check instance permissions
+    const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+    if (permissions && !permissions.canAccessServerMarket) {
       ctx.status = 403;
       ctx.body = "You do not have permission to access server market for this instance";
       return;
     }
 
-    // Default to true if permission field is undefined (for backwards compatibility)
-    const hasServerMarketPermission = user?.permissions?.canAccessServerMarket ?? true;
-
-    // Allow access if: admin, global setting enabled, or user has canAccessServerMarket permission
-    if (systemConfig?.allowUsePreset === false && !isTopPermissionByUuid(userUuid) && !hasServerMarketPermission) {
+    // Check global system setting (admins bypass this)
+    if (systemConfig?.allowUsePreset === false && !isTopPermissionByUuid(userUuid)) {
       ctx.status = 403;
       ctx.body = new Error($t("TXT_CODE_b5a47731"));
       return;
@@ -777,25 +773,15 @@ router.get(
       const instanceUuid = String(ctx.query.uuid);
       const user = userSystem.getInstance(userUuid);
 
-      // Check if user is a sub-user for this specific instance
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      // Check permissions for this instance
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
 
-      // Sub-users use per-instance permissions for log viewing
-      if (subUserEntry) {
-        const canViewLogs = subUserEntry.permissions?.canViewLogs ?? true;
-        if (!canViewLogs) {
-          ctx.status = 403;
-          ctx.body = $t("TXT_CODE_permission.forbiddenInstance");
-          return;
-        }
-      } else if (!isTopPermissionByUuid(userUuid)) {
-        // For non-admin instance owners, check their user-level permissions
-        const canViewLogs = user?.permissions?.canViewLogs ?? true;
-        if (!canViewLogs) {
-          ctx.status = 403;
-          ctx.body = $t("TXT_CODE_permission.forbiddenInstance");
-          return;
-        }
+      // Check canViewLogs permission (default to true if no permissions defined)
+      const canViewLogs = permissions?.canViewLogs ?? true;
+      if (!canViewLogs) {
+        ctx.status = 403;
+        ctx.body = $t("TXT_CODE_permission.forbiddenInstance");
+        return;
       }
 
       // Admins and regular users can view logs for their instances

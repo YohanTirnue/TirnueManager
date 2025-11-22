@@ -7,11 +7,10 @@ import validator from "../middleware/validator";
 import { operationLogger } from "../service/operation_logger";
 import { getUserPermission, getUserUuid } from "../service/passport_service";
 import { timeUuid } from "../service/password";
-import { isHaveInstanceByUuid, isTopPermissionByUuid } from "../service/permission_service";
+import { isHaveInstanceByUuid, isTopPermissionByUuid, getUserInstancePermissions } from "../service/permission_service";
 import RemoteRequest from "../service/remote_command";
 import RemoteServiceSubsystem from "../service/remote_service";
 import { systemConfig } from "../setting";
-import subUserService from "../service/sub_user_service";
 
 const router = new Router({ prefix: "/files" });
 
@@ -25,9 +24,9 @@ router.use(async (ctx, next) => {
     return;
   }
   if (isHaveInstanceByUuid(userUuid, daemonId, instanceUuid)) {
-    // Check sub-user file manager permission
-    const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-    if (subUserEntry && !subUserEntry.permissions?.canAccessFileManager) {
+    // Check file manager permission
+    const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+    if (permissions && !permissions.canAccessFileManager) {
       ctx.status = 403;
       ctx.body = "You do not have permission to access the file manager for this instance";
       return;
@@ -104,9 +103,9 @@ router.put(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user modify permission
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canModifyFiles) {
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to modify files for this instance";
         return;
@@ -149,9 +148,9 @@ router.post(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user modify permission
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canModifyFiles) {
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to create files for this instance";
         return;
@@ -189,9 +188,9 @@ router.post(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user modify permission
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canModifyFiles) {
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to create directories for this instance";
         return;
@@ -229,9 +228,9 @@ router.put(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user modify permission
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canModifyFiles) {
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to edit files for this instance";
         return;
@@ -275,9 +274,9 @@ router.post(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user modify permission
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canModifyFiles) {
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to copy files for this instance";
         return;
@@ -314,9 +313,9 @@ router.put(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user modify permission
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canModifyFiles) {
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to move files for this instance";
         return;
@@ -353,9 +352,9 @@ router.delete(
       const instanceUuid = ctx.query.uuid;
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user delete permission
+      // Check delete permission
       const subUserEntry = subUserService.getSubUserEntry(userUuid, String(instanceUuid), daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canDeleteFiles) {
+      if (permissions && !permissions.canDeleteFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to delete files for this instance";
         return;
@@ -396,9 +395,9 @@ router.post(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user modify permission
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canModifyFiles) {
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to compress files for this instance";
         return;
@@ -446,9 +445,9 @@ router.all(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user download permission
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canDownloadFiles) {
+      // Check download permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canDownloadFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to download files for this instance";
         return;
@@ -497,9 +496,9 @@ router.all(
       const instanceUuid = String(ctx.query.uuid);
       const userUuid = getUserUuid(ctx);
 
-      // Check sub-user upload permission
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
-      if (subUserEntry && !subUserEntry.permissions?.canUploadFiles) {
+      // Check upload permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canUploadFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to upload files for this instance";
         return;

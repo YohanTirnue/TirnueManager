@@ -1,4 +1,4 @@
-import { IUser, UserPermissions, ISubUserEntry } from "./entity_interface";
+import { IUser, ISubUserEntry } from "./entity_interface";
 
 export enum UserPassWordType {
   md5 = 0,
@@ -9,6 +9,7 @@ export interface IUserApp {
   instanceUuid: string;
   daemonId: string;
   instanceInfo?: any;
+  permissions?: import("./entity_interface").UserPermissions;
 }
 
 export class User implements IUser {
@@ -25,7 +26,6 @@ export class User implements IUser {
   isInit: boolean = false;
   secret = "";
   open2FA = false;
-  permissions?: UserPermissions;
 
   // Per-instance sub-user management
   // A user can own some instances (full control) and be a sub-user of others (limited permissions)
