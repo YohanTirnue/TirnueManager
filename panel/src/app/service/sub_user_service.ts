@@ -5,6 +5,17 @@ import type { UserPermissions } from "../entity/entity_interface";
 import userSystem from "./user_service";
 import { logger } from "./log";
 import { $t } from "../i18n";
+import { singletonMemoryRedis } from "./mini_redis";
+import emailService from "./email_service";
+
+interface InviteData {
+  email: string;
+  parentUuid: string;
+  instanceUuid: string;
+  daemonId: string;
+  permissions: UserPermissions;
+  createdAt: number;
+}
 
 const MAX_SUB_USERS_PER_INSTANCE = 3;
 
@@ -270,6 +281,237 @@ export class SubUserService {
     const subUser = userSystem.getInstance(subUserUuid);
     if (!subUser || !subUser.isSubUser || !subUser.parentUserId) return null;
     return userSystem.getInstance(subUser.parentUserId) || null;
+  }
+
+  /**
+   * Create an invitation for a sub-user
+   */
+  async createInvite(
+    parentUuid: string,
+    instanceUuid: string,
+    daemonId: string,
+    email: string,
+    permissions: UserPermissions,
+    panelUrl: string
+  ): Promise<{ token: string; inviteLink: string }> {
+    const parentUser = userSystem.getInstance(parentUuid);
+    if (!parentUser) throw new Error("Parent user not found");
+
+    // Validation
+    if (parentUser.isSubUser) {
+      throw new Error("Sub-users cannot invite their own sub-users");
+    }
+
+    if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
+      throw new Error(
+        `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+      );
+    }
+
+    // Check if email already has an account
+    const existingUser = Array.from(userSystem.objects.values()).find(
+      (u) => u.email?.toLowerCase() === email.toLowerCase()
+    );
+
+    // Generate invite token
+    const token = v4();
+    const inviteData: InviteData = {
+      email: email.toLowerCase(),
+      parentUuid,
+      instanceUuid,
+      daemonId,
+      permissions,
+      createdAt: Date.now()
+    };
+
+    // Store in Redis with 72 hour TTL
+    const INVITE_TTL = 72 * 60 * 60; // 72 hours in seconds
+    singletonMemoryRedis.set(`invite:${token}`, inviteData, INVITE_TTL);
+
+    const inviteLink = `${panelUrl}/#/accept-invite?token=${token}`;
+
+    // Send email
+    const instanceName = `Instance ${instanceUuid.substring(0, 8)}...`;
+    const emailSent = await emailService.sendInviteEmail(
+      email,
+      inviteLink,
+      instanceName,
+      parentUser.userName
+    );
+
+    if (!emailSent) {
+      // Remove token if email failed
+      singletonMemoryRedis.set(`invite:${token}`, null, 0);
+      throw new Error("Failed to send invitation email. Please check email configuration.");
+    }
+
+    logger.info(
+      `Invitation sent to ${email} by ${parentUser.userName} for instance ${instanceUuid}`
+    );
+
+    return { token, inviteLink };
+  }
+
+  /**
+   * Verify an invite token
+   */
+  verifyInvite(token: string): {
+    valid: boolean;
+    invite?: InviteData;
+    hasAccount?: boolean;
+    parentName?: string;
+  } {
+    const data = singletonMemoryRedis.get<{ value: InviteData }>(`invite:${token}`);
+    if (!data || !data.value) {
+      return { valid: false };
+    }
+
+    const invite = data.value;
+
+    // Check if email already has account
+    const existingUser = Array.from(userSystem.objects.values()).find(
+      (u) => u.email?.toLowerCase() === invite.email.toLowerCase()
+    );
+
+    // Get parent name
+    const parent = userSystem.getInstance(invite.parentUuid);
+
+    return {
+      valid: true,
+      invite,
+      hasAccount: !!existingUser,
+      parentName: parent?.userName
+    };
+  }
+
+  /**
+   * Accept invite for logged-in user
+   */
+  async acceptInvite(token: string, userUuid: string): Promise<User> {
+    const verification = this.verifyInvite(token);
+    if (!verification.valid || !verification.invite) {
+      throw new Error("Invalid or expired invitation");
+    }
+
+    const invite = verification.invite;
+    const user = userSystem.getInstance(userUuid);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Check email matches
+    if (user.email?.toLowerCase() !== invite.email.toLowerCase()) {
+      throw new Error("This invitation was sent to a different email address");
+    }
+
+    // Re-check if parent can still create sub-users
+    if (!this.canCreateSubUser(invite.parentUuid, invite.instanceUuid, invite.daemonId)) {
+      throw new Error("Parent user has reached maximum sub-users for this instance");
+    }
+
+    const parentUser = userSystem.getInstance(invite.parentUuid);
+    if (!parentUser) {
+      throw new Error("Parent user no longer exists");
+    }
+
+    // Convert user to sub-user
+    await userSystem.edit(userUuid, {
+      isSubUser: true,
+      parentUserId: invite.parentUuid,
+      permissions: invite.permissions,
+      instances: [{ instanceUuid: invite.instanceUuid, daemonId: invite.daemonId }]
+    });
+
+    // Add to parent's subUsers array
+    parentUser.subUsers.push({
+      uuid: userUuid,
+      instanceUuid: invite.instanceUuid,
+      daemonId: invite.daemonId
+    });
+    await Storage.getStorage().store("User", invite.parentUuid, parentUser);
+
+    // Invalidate token
+    singletonMemoryRedis.set(`invite:${token}`, null, 0);
+
+    logger.info(
+      `User ${user.userName} accepted invitation from ${parentUser.userName} for instance ${invite.instanceUuid}`
+    );
+
+    return user;
+  }
+
+  /**
+   * Accept invite with new registration (no OTP needed - email link proves ownership)
+   */
+  async acceptInviteWithRegistration(
+    token: string,
+    userData: {
+      userName: string;
+      passWord: string;
+    }
+  ): Promise<User> {
+    const verification = this.verifyInvite(token);
+    if (!verification.valid || !verification.invite) {
+      throw new Error("Invalid or expired invitation");
+    }
+
+    const invite = verification.invite;
+
+    // Check if username exists
+    if (userSystem.existUserName(userData.userName)) {
+      throw new Error("Username already exists");
+    }
+
+    // Validate password
+    if (!userSystem.validatePassword(userData.passWord)) {
+      throw new Error(
+        "Password must be 9-36 characters and contain uppercase, lowercase, and numbers"
+      );
+    }
+
+    // Re-check if parent can still create sub-users
+    if (!this.canCreateSubUser(invite.parentUuid, invite.instanceUuid, invite.daemonId)) {
+      throw new Error("Parent user has reached maximum sub-users for this instance");
+    }
+
+    const parentUser = userSystem.getInstance(invite.parentUuid);
+    if (!parentUser) {
+      throw new Error("Parent user no longer exists");
+    }
+
+    // Create the sub-user account
+    const subUser = await userSystem.create({
+      userName: userData.userName,
+      passWord: userData.passWord,
+      email: invite.email,
+      permission: 1, // USER role
+      permissions: invite.permissions,
+      isSubUser: true,
+      parentUserId: invite.parentUuid
+    });
+
+    // Assign only the specific instance
+    await userSystem.edit(subUser.uuid, {
+      instances: [{ instanceUuid: invite.instanceUuid, daemonId: invite.daemonId }]
+    });
+
+    // Add to parent's subUsers array
+    parentUser.subUsers.push({
+      uuid: subUser.uuid,
+      instanceUuid: invite.instanceUuid,
+      daemonId: invite.daemonId
+    });
+    await Storage.getStorage().store("User", invite.parentUuid, parentUser);
+
+    // Invalidate token
+    singletonMemoryRedis.set(`invite:${token}`, null, 0);
+
+    logger.info(
+      `Sub-user ${subUser.userName} registered via invitation from ${parentUser.userName} for instance ${invite.instanceUuid}`
+    );
+
+    return subUser;
   }
 }
 

@@ -332,8 +332,7 @@ export const createSubUser = useDefineApi<
       instanceUuid: string;
     };
     data: {
-      userName: string;
-      passWord: string;
+      email: string;
       permissions?: UserPermissions;
       parentUuid?: string;
     };
@@ -341,6 +340,58 @@ export const createSubUser = useDefineApi<
   any
 >({
   url: "/api/sub-users",
+  method: "POST"
+});
+
+// Invite verification and acceptance APIs
+export const verifyInvite = useDefineApi<
+  {
+    params: {
+      token: string;
+    };
+  },
+  {
+    valid: boolean;
+    email?: string;
+    hasAccount?: boolean;
+    parentName?: string;
+    message?: string;
+  }
+>({
+  url: "/api/sub-users/invite/verify",
+  method: "GET"
+});
+
+export const acceptInvite = useDefineApi<
+  {
+    data: {
+      token: string;
+    };
+  },
+  {
+    success: boolean;
+    userName: string;
+  }
+>({
+  url: "/api/sub-users/invite/accept",
+  method: "POST"
+});
+
+export const acceptInviteRegister = useDefineApi<
+  {
+    data: {
+      token: string;
+      userName: string;
+      passWord: string;
+    };
+  },
+  {
+    success: boolean;
+    userName: string;
+    uuid: string;
+  }
+>({
+  url: "/api/sub-users/invite/accept-register",
   method: "POST"
 });
 

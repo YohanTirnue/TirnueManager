@@ -13,6 +13,7 @@ const InstallPage = () => import("@/views/Install.vue");
 const LayoutContainer = () => import("@/views/LayoutContainer.vue");
 const LoginPage = () => import("@/views/Login.vue");
 const LandingPage = () => import("@/views/Landing.vue");
+const AcceptInvitePage = () => import("@/views/AcceptInvite.vue");
 
 export interface RouterMetaInfo {
   icon?: string;
@@ -324,6 +325,15 @@ const originRouterConfig: RouterConfig[] = [
     }
   },
   {
+    path: "/accept-invite",
+    name: "Accept Invitation",
+    component: AcceptInvitePage,
+    meta: {
+      permission: ROLE.GUEST,
+      mainMenu: false
+    }
+  },
+  {
     path: "/_open_page",
     name: t("TXT_CODE_2cf59872"),
     component: LayoutContainer,
@@ -411,7 +421,7 @@ router.beforeEach((to, from, next) => {
 
   if (
     toRoutePath.includes("_open_page") ||
-    ["/shop", "/login", "/welcome", "/install", "/404"].includes(toRoutePath)
+    ["/shop", "/login", "/welcome", "/install", "/404", "/accept-invite"].includes(toRoutePath)
   ) {
     return next();
   }

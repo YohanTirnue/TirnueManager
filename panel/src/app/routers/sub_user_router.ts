@@ -120,18 +120,18 @@ router.get(
   }
 );
 
-// Create a sub-user
+// Send invitation to create a sub-user
 router.post(
   "/",
   permission({ level: ROLE.USER }),
   validator({
     query: { daemonId: String, instanceUuid: String },
-    body: { userName: String, passWord: String }
+    body: { email: String }
   }),
   async (ctx: Koa.ParameterizedContext) => {
     const userUuid = getUserUuid(ctx);
     const { daemonId, instanceUuid } = ctx.query;
-    const { userName, passWord, permissions, parentUuid } = ctx.request.body;
+    const { email, permissions, parentUuid } = ctx.request.body;
 
     // Check if user can manage sub-users for this instance
     if (!canManageSubUsersByUuid(userUuid, String(daemonId), String(instanceUuid))) {
@@ -149,29 +149,119 @@ router.post(
     }
 
     try {
-      const subUser = await subUserService.createSubUser(
+      // Get panel URL from request
+      const protocol = ctx.request.protocol;
+      const host = ctx.request.host;
+      const panelUrl = `${protocol}://${host}`;
+
+      const result = await subUserService.createInvite(
         actualParentUuid,
         String(instanceUuid),
         String(daemonId),
-        {
-          userName: String(userName),
-          passWord: String(passWord),
-          permissions
-        }
+        String(email),
+        permissions || {},
+        panelUrl
       );
 
-      operationLogger.log("sub_user_create", {
+      operationLogger.log("sub_user_invite", {
         operator_ip: ctx.ip,
         operator_name: String(ctx.session?.["userName"] || ""),
-        target_user_name: subUser.userName,
+        target_email: String(email),
         instance_uuid: String(instanceUuid)
       });
 
       ctx.body = {
-        uuid: subUser.uuid,
-        userName: subUser.userName,
-        registerTime: subUser.registerTime,
-        permissions: subUser.permissions
+        success: true,
+        message: "Invitation sent successfully"
+      };
+    } catch (error: any) {
+      ctx.throw(400, error.message);
+    }
+  }
+);
+
+// Verify invite token (public endpoint)
+router.get(
+  "/invite/verify",
+  permission({ token: false, level: null }),
+  validator({ query: { token: String } }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const { token } = ctx.query;
+
+    const result = subUserService.verifyInvite(String(token));
+
+    if (!result.valid) {
+      ctx.body = {
+        valid: false,
+        message: "Invalid or expired invitation"
+      };
+      return;
+    }
+
+    ctx.body = {
+      valid: true,
+      email: result.invite?.email,
+      hasAccount: result.hasAccount,
+      parentName: result.parentName
+    };
+  }
+);
+
+// Accept invite (logged-in user)
+router.post(
+  "/invite/accept",
+  permission({ level: ROLE.USER }),
+  validator({ body: { token: String } }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const userUuid = getUserUuid(ctx);
+    const { token } = ctx.request.body;
+
+    try {
+      const user = await subUserService.acceptInvite(String(token), userUuid);
+
+      operationLogger.log("sub_user_accept_invite", {
+        operator_ip: ctx.ip,
+        operator_name: user.userName,
+        target_user_uuid: user.uuid
+      });
+
+      ctx.body = {
+        success: true,
+        userName: user.userName
+      };
+    } catch (error: any) {
+      ctx.throw(400, error.message);
+    }
+  }
+);
+
+// Accept invite with registration (public endpoint - no OTP needed)
+router.post(
+  "/invite/accept-register",
+  permission({ token: false, level: null }),
+  validator({ body: { token: String, userName: String, passWord: String } }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const { token, userName, passWord } = ctx.request.body;
+
+    try {
+      const user = await subUserService.acceptInviteWithRegistration(
+        String(token),
+        {
+          userName: String(userName),
+          passWord: String(passWord)
+        }
+      );
+
+      operationLogger.log("sub_user_register_invite", {
+        operator_ip: ctx.ip,
+        operator_name: user.userName,
+        target_user_uuid: user.uuid
+      });
+
+      ctx.body = {
+        success: true,
+        userName: user.userName,
+        uuid: user.uuid
       };
     } catch (error: any) {
       ctx.throw(400, error.message);
