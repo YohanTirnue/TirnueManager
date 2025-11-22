@@ -70,7 +70,7 @@ class OTPService {
           reconnectStrategy: (retries) => {
             if (retries > 10) {
               logger.error("[OTPService] Redis max retries reached, falling back to in-memory");
-              return false;
+              return new Error("Max retries reached");
             }
             // Exponential backoff: 50ms, 100ms, 200ms... up to 2s
             return Math.min(retries * 50, 2000);

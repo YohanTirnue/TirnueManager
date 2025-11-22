@@ -26,7 +26,7 @@ class IdempotencyService {
         url: redisUrl.startsWith("redis://") ? redisUrl : `redis://${redisUrl}`,
         socket: {
           reconnectStrategy: (retries) => {
-            if (retries > 10) return false;
+            if (retries > 10) return new Error("Max retries reached");
             return Math.min(retries * 50, 2000);
           }
         }

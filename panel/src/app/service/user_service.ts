@@ -58,7 +58,12 @@ class UserSubsystem {
     if (config.secret != null) instance.secret = String(config.secret);
     if (config.open2FA != null) instance.open2FA = Boolean(config.open2FA);
     if (config.instances) this.setUserInstances(uuid, config.instances);
-    if (config.permissions != null) instance.permissions = config.permissions;
+    // Email registration fields
+    if (config.email != null) instance.email = String(config.email);
+    if (config.emailVerified != null) instance.emailVerified = Boolean(config.emailVerified);
+    if (config.firstName != null) instance.firstName = String(config.firstName);
+    if (config.lastName != null) instance.lastName = String(config.lastName);
+    if (config.accountStatus != null) instance.accountStatus = String(config.accountStatus);
     if (config.passWord) {
       instance.passWordType = UserPassWordType.bcrypt;
       instance.passWord = bcrypt.hashSync(config.passWord, 10);

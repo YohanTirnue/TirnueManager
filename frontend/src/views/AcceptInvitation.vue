@@ -11,7 +11,7 @@ import {
   LoadingOutlined,
   ExclamationCircleOutlined
 } from "@ant-design/icons-vue";
-import { request } from "@/tools/request";
+import axios from "axios";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 
 const route = useRoute();
@@ -78,20 +78,18 @@ const fetchInvitationDetails = async () => {
   error.value = "";
 
   try {
-    const res = await request({
-      url: `/api/sub-users/invite/verify`,
-      method: "GET",
+    const res = await axios.get(`./api/sub-users/invite/verify`, {
       params: { token: token.value }
     });
     invitationDetails.value = {
-      inviteeEmail: res.data.email,
-      parentUserName: res.data.inviterName,
-      instanceName: res.data.instanceName,
-      expiresAt: res.data.expiresAt,
-      hasAccount: res.data.hasAccount
+      inviteeEmail: res.data.data.email,
+      parentUserName: res.data.data.inviterName,
+      instanceName: res.data.data.instanceName,
+      expiresAt: res.data.data.expiresAt,
+      hasAccount: res.data.data.hasAccount
     };
   } catch (err: any) {
-    error.value = err.response?.data?.message || "Invitation not found or expired";
+    error.value = err.response?.data?.data || "Invitation not found or expired";
   } finally {
     loading.value = false;
   }
@@ -105,21 +103,17 @@ const handleRegisterAndAccept = async () => {
 
   submitting.value = true;
   try {
-    await request({
-      url: `/api/sub-users/invite/accept-register`,
-      method: "POST",
-      data: {
-        token: token.value,
-        userName: formData.value.userName,
-        password: formData.value.password,
-        firstName: formData.value.firstName,
-        lastName: formData.value.lastName
-      }
+    await axios.post(`./api/sub-users/invite/accept-register`, {
+      token: token.value,
+      userName: formData.value.userName,
+      password: formData.value.password,
+      firstName: formData.value.firstName,
+      lastName: formData.value.lastName
     });
     message.success("Account created! You can now log in.");
     router.push("/login");
   } catch (err: any) {
-    message.error(err.response?.data?.message || "Failed to register");
+    message.error(err.response?.data?.data || "Failed to register");
   } finally {
     submitting.value = false;
   }
@@ -143,15 +137,13 @@ const handleAcceptInvitation = async () => {
 
   submitting.value = true;
   try {
-    await request({
-      url: `/api/sub-users/invite/accept`,
-      method: "POST",
-      data: { token: token.value }
+    await axios.post(`./api/sub-users/invite/accept`, { token: token.value }, {
+      params: { token: appStateStore.state.userInfo?.token }
     });
     message.success("Invitation accepted! You now have access to the instance.");
     router.push("/");
   } catch (err: any) {
-    message.error(err.response?.data?.message || "Failed to accept invitation");
+    message.error(err.response?.data?.data || "Failed to accept invitation");
   } finally {
     submitting.value = false;
   }

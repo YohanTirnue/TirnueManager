@@ -26,7 +26,7 @@ class DistributedLockService {
           reconnectStrategy: (retries) => {
             if (retries > 10) {
               logger.error("[LockService] Redis max retries reached");
-              return false;
+              return new Error("Max retries reached");
             }
             return Math.min(retries * 50, 2000);
           }

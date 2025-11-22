@@ -4,6 +4,7 @@ import RemoteRequest from "../service/remote_command";
 import { t } from "i18next";
 import { systemConfig } from "../setting";
 import { toText } from "mcsmanager-common";
+import type { UserPermissions } from "../entity/entity_interface";
 
 export enum INSTANCE_STATUS {
   BUSY = -1,
@@ -35,7 +36,7 @@ export interface IAdvancedInstanceInfo {
   processType?: string;
   docker?: Record<string, any>;
   info?: Record<string, any>;
-  permissions?: Record<string, boolean>;
+  permissions?: UserPermissions;
 }
 
 // Multi-forward operation method

@@ -27,7 +27,7 @@ import {
   getParentUsers
 } from "@/services/apis";
 import { useAppStateStore } from "@/stores/useAppStateStore";
-import { request } from "@/tools/request";
+import axios from "axios";
 import _ from "lodash";
 
 interface SubUser {
@@ -250,12 +250,12 @@ const fetchParentUsers = async () => {
 
 const fetchPendingInvitations = async () => {
   try {
-    const res = await request({
-      url: "/api/sub-users/invite/list",
-      method: "GET"
+    const { state } = useAppStateStore();
+    const res = await axios.get("./api/sub-users/invite/list", {
+      params: { token: state.userInfo?.token }
     });
     // Filter to only show invitations for this instance (use stable identifiers, not mutable names)
-    pendingInvitations.value = (res.data || []).filter(
+    pendingInvitations.value = (res.data.data || []).filter(
       (inv: PendingInvitation) =>
         inv.instanceUuid === props.instanceUuid && inv.daemonId === props.daemonId
     );
@@ -286,27 +286,26 @@ const handleSendInvitation = async () => {
     await formRef.value?.validate();
     loading.value = true;
 
-    const res = await request({
-      url: "/api/sub-users/invite/initiate",
-      method: "POST",
+    const { state } = useAppStateStore();
+    const res = await axios.post("./api/sub-users/invite/initiate", {
+      inviteeEmail: inviteFormData.value.inviteeEmail,
+      expiryMinutes: inviteFormData.value.expiryMinutes,
+      permissions: inviteFormData.value.permissions,
+      instanceName: props.instanceName || "Instance",
+      parentUuid: isAdmin.value ? inviteFormData.value.parentUuid : undefined
+    }, {
       params: {
+        token: state.userInfo?.token,
         daemonId: props.daemonId,
         instanceUuid: props.instanceUuid
-      },
-      data: {
-        inviteeEmail: inviteFormData.value.inviteeEmail,
-        expiryMinutes: inviteFormData.value.expiryMinutes,
-        permissions: inviteFormData.value.permissions,
-        instanceName: props.instanceName || "Instance",
-        parentUuid: isAdmin.value ? inviteFormData.value.parentUuid : undefined
       }
     });
 
-    pendingKey.value = res.data.pendingKey;
+    pendingKey.value = res.data.data.pendingKey;
     inviteStep.value = "otp";
     message.success("Verification code sent to your email");
   } catch (error: any) {
-    reportErrorMsg(error.response?.data?.message || error.message);
+    reportErrorMsg(error.response?.data?.data || error.message);
   } finally {
     loading.value = false;
   }
@@ -320,13 +319,12 @@ const handleVerifyOtp = async () => {
 
   otpLoading.value = true;
   try {
-    await request({
-      url: "/api/sub-users/invite/verify-owner",
-      method: "POST",
-      data: {
-        pendingKey: pendingKey.value,
-        otp: otpCode.value
-      }
+    const { state } = useAppStateStore();
+    await axios.post("./api/sub-users/invite/verify-owner", {
+      pendingKey: pendingKey.value,
+      otp: otpCode.value
+    }, {
+      params: { token: state.userInfo?.token }
     });
 
     message.success("Invitation sent successfully");
@@ -334,7 +332,7 @@ const handleVerifyOtp = async () => {
     fetchPendingInvitations();
     emit("refresh");
   } catch (error: any) {
-    reportErrorMsg(error.response?.data?.message || error.message);
+    reportErrorMsg(error.response?.data?.data || error.message);
   } finally {
     otpLoading.value = false;
   }
@@ -403,14 +401,14 @@ const handleDeleteSubUser = (subUser: SubUser) => {
 
 const handleCancelInvitation = async (invitationId: string) => {
   try {
-    await request({
-      url: `/api/sub-users/invite/${invitationId}`,
-      method: "DELETE"
+    const { state } = useAppStateStore();
+    await axios.delete(`./api/sub-users/invite/${invitationId}`, {
+      params: { token: state.userInfo?.token }
     });
     message.success("Invitation cancelled");
     fetchPendingInvitations();
   } catch (error: any) {
-    reportErrorMsg(error.response?.data?.message || error.message);
+    reportErrorMsg(error.response?.data?.data || error.message);
   }
 };
 

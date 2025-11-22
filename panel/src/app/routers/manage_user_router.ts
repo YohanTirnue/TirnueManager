@@ -32,7 +32,7 @@ router.post(
       operator_name: ctx.session?.["userName"],
       target_user_name: userName
     });
-    const result = await register(ctx, userName, passWord, permission, permissions);
+    const result = await register(ctx, userName, passWord, permission);
     ctx.body = result;
   }
 );

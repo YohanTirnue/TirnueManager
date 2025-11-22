@@ -419,15 +419,8 @@ router.post(
       ctx.throw(400, "Parent user not found");
     }
 
-    // Get instance name
-    const remoteService = RemoteServiceSubsystem.getInstance(String(daemonId));
-    let instanceName = "Unknown Instance";
-    if (remoteService) {
-      const instance = remoteService.instanceMap.get(String(instanceUuid));
-      if (instance) {
-        instanceName = instance.config.nickname || instance.instanceUuid;
-      }
-    }
+    // Use instanceUuid as name (getting instance name would require async request)
+    const instanceName = String(instanceUuid);
 
     // Generate invite token
     const token = uuidv4();
@@ -593,12 +586,13 @@ router.post(
       );
 
       // Update user with email and profile info
-      subUser.email = inviteData.inviteeEmail;
-      subUser.emailVerified = true; // Already verified by clicking invite link
-      subUser.firstName = String(firstName);
-      subUser.lastName = String(lastName);
-      subUser.accountStatus = "active";
-      userSystem.edit(subUser);
+      await userSystem.edit(subUser.uuid, {
+        email: inviteData.inviteeEmail,
+        emailVerified: true, // Already verified by clicking invite link
+        firstName: String(firstName),
+        lastName: String(lastName),
+        accountStatus: "active"
+      });
 
       // Race condition protection: check for duplicate email after creation
       let duplicateFound = false;

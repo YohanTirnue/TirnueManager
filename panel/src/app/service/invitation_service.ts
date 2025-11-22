@@ -59,7 +59,7 @@ class InvitationService {
     daemonId: string,
     instanceUuid: string,
     instanceName: string,
-    permissions: InvitationPermissions,
+    permissions: UserPermissions,
     expiryMinutes: 30 | 60
   ): string {
     // Clear any existing pending invitation for same owner+invitee+instance combo
