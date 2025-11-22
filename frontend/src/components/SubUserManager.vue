@@ -467,7 +467,9 @@ const formatExpiry = (expiresAt: number) => {
           <MailOutlined />
           <span>Invite Sub-User</span>
         </button>
-        <div class="slot-indicator">
+
+        <!-- Slot indicator for regular users -->
+        <div v-if="!isAdmin" class="slot-indicator">
           <div class="slot-dots">
             <span
               v-for="i in MAX_SUB_USERS"
@@ -476,6 +478,12 @@ const formatExpiry = (expiresAt: number) => {
               :class="{ filled: i <= subUsers.length }"
             ></span>
           </div>
+        </div>
+
+        <!-- User count for admins -->
+        <div v-else class="admin-user-count">
+          <span class="count-badge">{{ subUsers.length }}</span>
+          <span class="count-label">users from {{ parentUsers.length }} parent{{ parentUsers.length !== 1 ? 's' : '' }}</span>
         </div>
       </div>
 
@@ -517,9 +525,11 @@ const formatExpiry = (expiresAt: number) => {
               </div>
               <div class="user-info">
                 <h4>{{ item.userName }}</h4>
-                <span v-if="isAdmin && item.parentUserId" class="parent-badge">
-                  {{ parentUserMap.get(item.parentUserId) || "Unknown" }}
-                </span>
+                <!-- Show parent info prominently for admins -->
+                <div v-if="isAdmin && item.parentUserId" class="parent-info">
+                  <UserOutlined class="parent-icon" />
+                  <span class="parent-name">{{ parentUserMap.get(item.parentUserId) || "Unknown" }}</span>
+                </div>
               </div>
             </div>
 
@@ -978,6 +988,27 @@ const formatExpiry = (expiresAt: number) => {
   background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
 }
 
+/* Admin user count */
+.admin-user-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.count-badge {
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.count-label {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
 /* Pending Invitations */
 .pending-section {
   margin-bottom: 20px;
@@ -1095,6 +1126,24 @@ const formatExpiry = (expiresAt: number) => {
   background: rgba(255, 140, 0, 0.1);
   color: #ff8c00;
   border-radius: 4px;
+}
+
+.parent-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.parent-icon {
+  font-size: 12px;
+  color: #ff8c00;
+}
+
+.parent-name {
+  font-size: 12px;
+  color: #ff8c00;
+  font-weight: 500;
 }
 
 .user-card-body {
