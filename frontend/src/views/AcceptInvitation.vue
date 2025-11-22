@@ -78,7 +78,7 @@ const fetchInvitationDetails = async () => {
   error.value = "";
 
   try {
-    const res = await axios.get(`./api/sub-users/invite/verify`, {
+    const res = await axios.get(`/api/sub-users/invite/verify`, {
       params: { token: token.value }
     });
     invitationDetails.value = {
@@ -103,7 +103,7 @@ const handleRegisterAndAccept = async () => {
 
   submitting.value = true;
   try {
-    await axios.post(`./api/sub-users/invite/accept-register`, {
+    await axios.post(`/api/sub-users/invite/accept-register`, {
       token: token.value,
       userName: formData.value.userName,
       password: formData.value.password,
@@ -137,7 +137,7 @@ const handleAcceptInvitation = async () => {
 
   submitting.value = true;
   try {
-    await axios.post(`./api/sub-users/invite/accept`, { token: token.value }, {
+    await axios.post(`/api/sub-users/invite/accept`, { token: token.value }, {
       params: { token: appStateStore.state.userInfo?.token }
     });
     message.success("Invitation accepted! You now have access to the instance.");
