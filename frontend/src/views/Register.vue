@@ -8,10 +8,16 @@ import {
   UserOutlined,
   MailOutlined,
   LockOutlined,
-  ArrowLeftOutlined
+  ArrowLeftOutlined,
+  CloseCircleOutlined
 } from "@ant-design/icons-vue";
 import { ref, reactive, computed, onUnmounted } from "vue";
 import axios from "axios";
+import countries from "i18n-iso-countries";
+import enLocale from "i18n-iso-countries/langs/en.json";
+
+// Register English locale for countries
+countries.registerLocale(enLocale);
 
 const { updateUserInfo } = useAppStateStore();
 
@@ -28,49 +34,14 @@ const formData = reactive({
 const otp = ref("");
 const turnstileToken = ref("");
 
-// Location options
-const locationOptions = [
-  { value: "United States", label: "United States" },
-  { value: "United Kingdom", label: "United Kingdom" },
-  { value: "Canada", label: "Canada" },
-  { value: "Australia", label: "Australia" },
-  { value: "Germany", label: "Germany" },
-  { value: "France", label: "France" },
-  { value: "Netherlands", label: "Netherlands" },
-  { value: "Singapore", label: "Singapore" },
-  { value: "Japan", label: "Japan" },
-  { value: "Brazil", label: "Brazil" },
-  { value: "India", label: "India" },
-  { value: "South Korea", label: "South Korea" },
-  { value: "Mexico", label: "Mexico" },
-  { value: "Spain", label: "Spain" },
-  { value: "Italy", label: "Italy" },
-  { value: "Poland", label: "Poland" },
-  { value: "Sweden", label: "Sweden" },
-  { value: "Norway", label: "Norway" },
-  { value: "Denmark", label: "Denmark" },
-  { value: "Finland", label: "Finland" },
-  { value: "Philippines", label: "Philippines" },
-  { value: "Indonesia", label: "Indonesia" },
-  { value: "Malaysia", label: "Malaysia" },
-  { value: "Thailand", label: "Thailand" },
-  { value: "Vietnam", label: "Vietnam" },
-  { value: "South Africa", label: "South Africa" },
-  { value: "New Zealand", label: "New Zealand" },
-  { value: "Ireland", label: "Ireland" },
-  { value: "Switzerland", label: "Switzerland" },
-  { value: "Austria", label: "Austria" },
-  { value: "Belgium", label: "Belgium" },
-  { value: "Portugal", label: "Portugal" },
-  { value: "Czech Republic", label: "Czech Republic" },
-  { value: "Romania", label: "Romania" },
-  { value: "Hungary", label: "Hungary" },
-  { value: "Greece", label: "Greece" },
-  { value: "Argentina", label: "Argentina" },
-  { value: "Chile", label: "Chile" },
-  { value: "Colombia", label: "Colombia" },
-  { value: "Other", label: "Other" }
-];
+// Generate country options from ISO library
+const countryNames = countries.getNames("en", { select: "official" });
+const locationOptions = Object.entries(countryNames)
+  .map(([code, name]) => ({
+    value: code,
+    label: name as string
+  }))
+  .sort((a, b) => a.label.localeCompare(b.label));
 
 // UI State
 const currentStep = ref(0); // 0: form, 1: OTP, 2: success
@@ -78,23 +49,15 @@ const isLoading = ref(false);
 const countdown = ref(0);
 let countdownInterval: any = null;
 
-// Password strength
-const passwordStrength = computed(() => {
+// Password requirements
+const passwordRequirements = computed(() => {
   const pwd = formData.password;
-  if (!pwd) return { score: 0, label: "", color: "" };
-
-  let score = 0;
-  if (pwd.length >= 9) score++;
-  if (pwd.length >= 12) score++;
-  if (/[a-z]/.test(pwd)) score++;
-  if (/[A-Z]/.test(pwd)) score++;
-  if (/[0-9]/.test(pwd)) score++;
-  if (/[^a-zA-Z0-9]/.test(pwd)) score++;
-
-  if (score <= 2) return { score: 25, label: "Weak", color: "#ff4d4f" };
-  if (score <= 4) return { score: 50, label: "Fair", color: "#faad14" };
-  if (score <= 5) return { score: 75, label: "Good", color: "#52c41a" };
-  return { score: 100, label: "Strong", color: "#52c41a" };
+  return {
+    minLength: pwd.length >= 9,
+    hasUppercase: /[A-Z]/.test(pwd),
+    hasLowercase: /[a-z]/.test(pwd),
+    hasNumber: /[0-9]/.test(pwd)
+  };
 });
 
 // Validation
@@ -350,14 +313,27 @@ onUnmounted(() => {
                     <LockOutlined class="input-icon" />
                   </template>
                 </a-input-password>
-                <div v-if="formData.password" class="password-strength">
-                  <div class="strength-bar">
-                    <div
-                      class="strength-fill"
-                      :style="{ width: passwordStrength.score + '%', background: passwordStrength.color }"
-                    ></div>
+                <div v-if="formData.password" class="password-requirements">
+                  <div class="requirement" :class="{ met: passwordRequirements.minLength }">
+                    <CheckCircleOutlined v-if="passwordRequirements.minLength" class="req-icon met" />
+                    <CloseCircleOutlined v-else class="req-icon" />
+                    <span>At least 9 characters</span>
                   </div>
-                  <span :style="{ color: passwordStrength.color }">{{ passwordStrength.label }}</span>
+                  <div class="requirement" :class="{ met: passwordRequirements.hasUppercase }">
+                    <CheckCircleOutlined v-if="passwordRequirements.hasUppercase" class="req-icon met" />
+                    <CloseCircleOutlined v-else class="req-icon" />
+                    <span>Uppercase letter (A-Z)</span>
+                  </div>
+                  <div class="requirement" :class="{ met: passwordRequirements.hasLowercase }">
+                    <CheckCircleOutlined v-if="passwordRequirements.hasLowercase" class="req-icon met" />
+                    <CloseCircleOutlined v-else class="req-icon" />
+                    <span>Lowercase letter (a-z)</span>
+                  </div>
+                  <div class="requirement" :class="{ met: passwordRequirements.hasNumber }">
+                    <CheckCircleOutlined v-if="passwordRequirements.hasNumber" class="req-icon met" />
+                    <CloseCircleOutlined v-else class="req-icon" />
+                    <span>Number (0-9)</span>
+                  </div>
                 </div>
               </div>
 
@@ -739,29 +715,32 @@ onUnmounted(() => {
   font-size: 16px;
 }
 
-.password-strength {
+.password-requirements {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
 
-  .strength-bar {
-    flex: 1;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    overflow: hidden;
+  .requirement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.2s;
 
-    .strength-fill {
-      height: 100%;
-      transition: all 0.3s;
-      border-radius: 2px;
+    &.met {
+      color: #52c41a;
     }
-  }
 
-  span {
-    font-size: 11px;
-    font-weight: 600;
+    .req-icon {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.3);
+
+      &.met {
+        color: #52c41a;
+      }
+    }
   }
 }
 
