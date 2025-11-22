@@ -5,6 +5,7 @@ import type { UserPermissions, ISubUserEntry } from "../entity/entity_interface"
 import userSystem from "./user_service";
 import { logger } from "./log";
 import { $t } from "../i18n";
+import { lockService } from "./lock_service";
 
 const MAX_SUB_USERS_PER_INSTANCE = 3;
 
@@ -125,6 +126,7 @@ export class SubUserService {
 
   /**
    * Create a sub-user for a specific instance
+   * Uses distributed lock to prevent race conditions
    */
   async createSubUser(
     parentUuid: string,
@@ -136,78 +138,71 @@ export class SubUserService {
       permissions: UserPermissions;
     }
   ): Promise<User> {
-    const parentUser = userSystem.getInstance(parentUuid);
-    if (!parentUser) throw new Error("Parent user not found");
+    // Use distributed lock to prevent race conditions when multiple requests
+    // try to create sub-users for the same instance simultaneously
+    const lockKey = `subuser:create:${parentUuid}:${instanceUuid}`;
+    const lockTTL = 10000; // 10 seconds
 
-    // Validation - must be owner of this instance
-    if (!this.isInstanceOwner(parentUuid, instanceUuid, daemonId)) {
-      throw new Error("You must be the owner of this instance to create sub-users");
-    }
+    return await lockService.withLock(lockKey, lockTTL, async () => {
+      const parentUser = userSystem.getInstance(parentUuid);
+      if (!parentUser) throw new Error("Parent user not found");
 
-    if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
-      throw new Error(
-        `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+      // Validation - must be owner of this instance
+      if (!this.isInstanceOwner(parentUuid, instanceUuid, daemonId)) {
+        throw new Error("You must be the owner of this instance to create sub-users");
+      }
+
+      if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
+        throw new Error(
+          `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+        );
+      }
+
+      // Check if username already exists
+      if (userSystem.existUserName(userData.userName)) {
+        throw new Error("Username already exists");
+      }
+
+      // Validate password
+      if (!userSystem.validatePassword(userData.passWord)) {
+        throw new Error(
+          "Password must be 9-36 characters and contain uppercase, lowercase, and numbers"
+        );
+      }
+
+      // Create the user (just a regular user - sub-user status is per-instance)
+      const subUser = await userSystem.create({
+        userName: userData.userName,
+        passWord: userData.passWord,
+        permission: 1 // USER role
+      });
+
+      // Assign only the specific instance to sub-user
+      await userSystem.edit(subUser.uuid, {
+        instances: [{ instanceUuid, daemonId }]
+      });
+
+      // Add to parent's subUsers with per-instance permissions
+      parentUser.subUsers.push({
+        uuid: subUser.uuid,
+        instanceUuid,
+        daemonId,
+        permissions: userData.permissions
+      });
+      await Storage.getStorage().store("User", parentUuid, parentUser);
+
+      logger.info(
+        `Sub-user ${subUser.userName} (${subUser.uuid}) created by ${parentUser.userName} for instance ${instanceUuid}`
       );
-    }
 
-    // Check if username already exists
-    if (userSystem.existUserName(userData.userName)) {
-      throw new Error("Username already exists");
-    }
-
-    // Validate password
-    if (!userSystem.validatePassword(userData.passWord)) {
-      throw new Error(
-        "Password must be 9-36 characters and contain uppercase, lowercase, and numbers"
-      );
-    }
-
-    // Create the user (just a regular user - sub-user status is per-instance)
-    const subUser = await userSystem.create({
-      userName: userData.userName,
-      passWord: userData.passWord,
-      permission: 1 // USER role
+      return subUser;
     });
-
-    // Assign only the specific instance to sub-user
-    await userSystem.edit(subUser.uuid, {
-      instances: [{ instanceUuid, daemonId }]
-    });
-
-    // Update parent's subUsers array with race condition protection
-    // Re-check count to prevent concurrent creation bypassing limit
-    const currentCount = parentUser.subUsers.filter(
-      (su) => su.instanceUuid === instanceUuid && su.daemonId === daemonId
-    ).length;
-
-    if (currentCount >= MAX_SUB_USERS_PER_INSTANCE) {
-      // Race condition detected: another request created a sub-user
-      // Delete the sub-user we just created and throw error
-      await userSystem.deleteInstance(subUser.uuid);
-      throw new Error(
-        `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
-      );
-    }
-
-    // Add to parent's subUsers with per-instance permissions
-    parentUser.subUsers.push({
-      uuid: subUser.uuid,
-      instanceUuid,
-      daemonId,
-      permissions: userData.permissions
-    });
-    await Storage.getStorage().store("User", parentUuid, parentUser);
-
-    logger.info(
-      `Sub-user ${subUser.userName} (${subUser.uuid}) created by ${parentUser.userName} for instance ${instanceUuid}`
-    );
-
-    return subUser;
   }
 
   /**
    * Add an existing user as a sub-user for a specific instance
    * This allows a user to be owner of their own instances while being sub-user of others
+   * Uses distributed lock to prevent race conditions
    */
   async addExistingUserAsSubUser(
     parentUuid: string,
@@ -216,55 +211,61 @@ export class SubUserService {
     subUserUuid: string,
     permissions: UserPermissions
   ): Promise<void> {
-    const parentUser = userSystem.getInstance(parentUuid);
-    const subUser = userSystem.getInstance(subUserUuid);
+    // Use distributed lock to prevent race conditions
+    const lockKey = `subuser:create:${parentUuid}:${instanceUuid}`;
+    const lockTTL = 10000; // 10 seconds
 
-    if (!parentUser) throw new Error("Parent user not found");
-    if (!subUser) throw new Error("Sub-user not found");
+    return await lockService.withLock(lockKey, lockTTL, async () => {
+      const parentUser = userSystem.getInstance(parentUuid);
+      const subUser = userSystem.getInstance(subUserUuid);
 
-    // Validation - must be owner of this instance
-    if (!this.isInstanceOwner(parentUuid, instanceUuid, daemonId)) {
-      throw new Error("You must be the owner of this instance to add sub-users");
-    }
+      if (!parentUser) throw new Error("Parent user not found");
+      if (!subUser) throw new Error("Sub-user not found");
 
-    if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
-      throw new Error(
-        `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+      // Validation - must be owner of this instance
+      if (!this.isInstanceOwner(parentUuid, instanceUuid, daemonId)) {
+        throw new Error("You must be the owner of this instance to add sub-users");
+      }
+
+      if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
+        throw new Error(
+          `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+        );
+      }
+
+      // Check if user is already an owner of this instance
+      if (this.isInstanceOwner(subUserUuid, instanceUuid, daemonId)) {
+        throw new Error("User is already an owner of this instance and cannot be added as a sub-user");
+      }
+
+      // Check if user is already a sub-user for this instance
+      const existingEntry = this.getSubUserEntry(subUserUuid, instanceUuid, daemonId);
+      if (existingEntry) {
+        throw new Error("User is already a sub-user for this instance");
+      }
+
+      // Add instance to sub-user's instances if not already there
+      const hasInstance = subUser.instances.some(
+        (inst) => inst.instanceUuid === instanceUuid && inst.daemonId === daemonId
       );
-    }
+      if (!hasInstance) {
+        subUser.instances.push({ instanceUuid, daemonId });
+        await Storage.getStorage().store("User", subUserUuid, subUser);
+      }
 
-    // Check if user is already an owner of this instance
-    if (this.isInstanceOwner(subUserUuid, instanceUuid, daemonId)) {
-      throw new Error("User is already an owner of this instance and cannot be added as a sub-user");
-    }
+      // Add to parent's subUsers with per-instance permissions
+      parentUser.subUsers.push({
+        uuid: subUserUuid,
+        instanceUuid,
+        daemonId,
+        permissions
+      });
+      await Storage.getStorage().store("User", parentUuid, parentUser);
 
-    // Check if user is already a sub-user for this instance
-    const existingEntry = this.getSubUserEntry(subUserUuid, instanceUuid, daemonId);
-    if (existingEntry) {
-      throw new Error("User is already a sub-user for this instance");
-    }
-
-    // Add instance to sub-user's instances if not already there
-    const hasInstance = subUser.instances.some(
-      (inst) => inst.instanceUuid === instanceUuid && inst.daemonId === daemonId
-    );
-    if (!hasInstance) {
-      subUser.instances.push({ instanceUuid, daemonId });
-      await Storage.getStorage().store("User", subUserUuid, subUser);
-    }
-
-    // Add to parent's subUsers with per-instance permissions
-    parentUser.subUsers.push({
-      uuid: subUserUuid,
-      instanceUuid,
-      daemonId,
-      permissions
+      logger.info(
+        `User ${subUser.userName} (${subUserUuid}) added as sub-user by ${parentUser.userName} for instance ${instanceUuid}`
+      );
     });
-    await Storage.getStorage().store("User", parentUuid, parentUser);
-
-    logger.info(
-      `User ${subUser.userName} (${subUserUuid}) added as sub-user by ${parentUser.userName} for instance ${instanceUuid}`
-    );
   }
 
   /**
