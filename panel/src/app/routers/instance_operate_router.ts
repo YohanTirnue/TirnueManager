@@ -42,11 +42,21 @@ router.all(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canStartInstances) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to start this instance";
+        return;
+      }
+
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("instance/open", {
         instanceUuids: [instanceUuid]
       });
-      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      const isAdmin = isTopPermissionByUuid(userUuid);
       operationLogger.log("instance_start", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
@@ -74,11 +84,21 @@ router.all(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canStopInstances) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to stop this instance";
+        return;
+      }
+
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("instance/stop", {
         instanceUuids: [instanceUuid]
       });
-      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      const isAdmin = isTopPermissionByUuid(userUuid);
       operationLogger.log("instance_stop", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
@@ -104,12 +124,22 @@ router.all(
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
       const command = String(ctx.query.command);
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canAccessConsole) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to send commands to this instance";
+        return;
+      }
+
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("instance/command", {
         instanceUuid,
         command
       });
-      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      const isAdmin = isTopPermissionByUuid(userUuid);
       operationLogger.log("instance_command", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
@@ -134,7 +164,17 @@ router.post(
       const daemonId = String(ctx.query.daemonId || "");
       const instanceUuid = String(ctx.query.uuid || "");
       const command = String(ctx.request.body.command || "");
-      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canAccessConsole) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to access console for this instance";
+        return;
+      }
+
+      const isAdmin = isTopPermissionByUuid(userUuid);
       operationLogger.log("instance_command", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
@@ -158,11 +198,21 @@ router.all(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canRestartInstances) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to restart this instance";
+        return;
+      }
+
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("instance/restart", {
         instanceUuids: [instanceUuid]
       });
-      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      const isAdmin = isTopPermissionByUuid(userUuid);
       operationLogger.log("instance_restart", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
@@ -186,11 +236,21 @@ router.all(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canTerminateInstances) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to terminate this instance";
+        return;
+      }
+
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("instance/kill", {
         instanceUuids: [instanceUuid]
       });
-      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      const isAdmin = isTopPermissionByUuid(userUuid);
       operationLogger.log("instance_kill", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
@@ -310,6 +370,16 @@ router.post(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions - stream channel is for console access
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canAccessConsole) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to access console for this instance";
+        return;
+      }
+
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       if (!remoteService)
         throw new Error($t("TXT_CODE_dd559000") + ` Daemon ID: ${daemonId}`);
@@ -346,6 +416,16 @@ router.post(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canAccessConfigFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to access config files for this instance";
+        return;
+      }
+
       const files = ctx.request.body.files;
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request(
@@ -372,6 +452,16 @@ router.get(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canAccessConfigFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to access config files for this instance";
+        return;
+      }
+
       const fileName = String(ctx.query.fileName);
       const type = String(ctx.query.type);
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
@@ -401,6 +491,16 @@ router.put(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canAccessConfigFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to modify config files for this instance";
+        return;
+      }
+
       const fileName = String(ctx.query.fileName);
       const type = String(ctx.query.type);
       const config = ctx.request.body;
@@ -437,11 +537,20 @@ router.put(
       // in order to prevent data injection, a layer of filtering must be performed
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
       const config = ctx.request.body;
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canAccessInstanceSettings) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to modify instance settings";
+        return;
+      }
 
       let instanceTags: string[] | null = null;
 
-      if (config.tag instanceof Array && isTopPermissionByUuid(getUserUuid(ctx))) {
+      if (config.tag instanceof Array && isTopPermissionByUuid(userUuid)) {
         instanceTags = (config.tag as any[]).map((tag: any) => {
           const tmp = String(tag).trim();
           if (tmp.length > 20) throw new Error($t("TXT_CODE_1556989"));
@@ -492,7 +601,7 @@ router.put(
       const fileCode = toText(config.fileCode);
       const stopCommand = config.stopCommand ? toText(config.stopCommand) : null;
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId || "");
-      const isTopPermission = isTopPermissionByUuid(getUserUuid(ctx));
+      const isTopPermission = isTopPermissionByUuid(userUuid);
 
       let advancedConfig = {};
       advancedConfig = checkInstanceAdvancedParams(config, isTopPermission);
@@ -517,7 +626,7 @@ router.put(
           ...advancedConfig
         }
       });
-      const isAdmin = isTopPermissionByUuid(getUserUuid(ctx));
+      const isAdmin = isTopPermissionByUuid(userUuid);
       operationLogger.log("instance_config_change", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
@@ -577,7 +686,18 @@ router.post(
   }),
   async (ctx) => {
     const userUuid = getUserUuid(ctx);
+    const daemonId = String(ctx.query.daemonId);
+    const instanceUuid = String(ctx.query.uuid);
     const user = userSystem.getInstance(userUuid);
+
+    // Check sub-user permissions
+    const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+    if (subUserEntry && !subUserEntry.permissions?.canAccessServerMarket) {
+      ctx.status = 403;
+      ctx.body = "You do not have permission to access server market for this instance";
+      return;
+    }
+
     // Default to true if permission field is undefined (for backwards compatibility)
     const hasServerMarketPermission = user?.permissions?.canAccessServerMarket ?? true;
 
@@ -588,9 +708,6 @@ router.post(
       return;
     }
     try {
-      const daemonId = String(ctx.query.daemonId);
-      const instanceUuid = String(ctx.query.uuid);
-
       // Use "description" and "title" as Package ID
       // Do NOT use other parameters from frontend, it may be a malicious attack
       const description = String(ctx.request.body.description);
