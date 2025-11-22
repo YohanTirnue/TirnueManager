@@ -16,6 +16,10 @@ import { $t } from "../i18n";
 import { singletonMemoryRedis } from "../service/mini_redis";
 import { emailService } from "../service/email_service";
 import RemoteServiceSubsystem from "../service/remote_service";
+import { otpService } from "../service/otp_service";
+
+// Email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Interface for invite data stored in Redis
 interface InviteData {
@@ -386,6 +390,16 @@ router.post(
     const { daemonId, instanceUuid } = ctx.query;
     const { inviteeEmail, permissions, expiryMinutes, parentUuid } = ctx.request.body;
 
+    // Rate limit: 5 invites per hour per user
+    if (!otpService.checkRateLimit(`invite:${userUuid}`, 5, 3600000)) {
+      ctx.throw(429, "Too many invitations. Please wait before sending more.");
+    }
+
+    // Validate email format
+    if (!EMAIL_REGEX.test(inviteeEmail)) {
+      ctx.throw(400, "Invalid email format");
+    }
+
     // Check if user can manage sub-users for this instance
     if (!canManageSubUsersByUuid(userUuid, String(daemonId), String(instanceUuid))) {
       ctx.throw(403, "You do not have permission to invite sub-users for this instance");
@@ -476,6 +490,11 @@ router.get(
   "/invite/verify",
   async (ctx: Koa.ParameterizedContext) => {
     const { token } = ctx.query;
+
+    // Rate limit: 10 verifications per minute per IP
+    if (!otpService.checkRateLimit(`verify:${ctx.ip}`, 10, 60000)) {
+      ctx.throw(429, "Too many requests. Please wait.");
+    }
 
     if (!token) {
       ctx.throw(400, "Token is required");
@@ -581,6 +600,22 @@ router.post(
       subUser.accountStatus = "active";
       userSystem.edit(subUser);
 
+      // Race condition protection: check for duplicate email after creation
+      let duplicateFound = false;
+      for (const [uuid, user] of userSystem.objects) {
+        if (uuid !== subUser.uuid &&
+            user.email?.toLowerCase() === inviteData.inviteeEmail.toLowerCase()) {
+          duplicateFound = true;
+          break;
+        }
+      }
+
+      if (duplicateFound) {
+        // Rollback: delete the just-created user
+        userSystem.deleteInstance(subUser.uuid);
+        ctx.throw(409, "An account with this email was just created. Please login instead.");
+      }
+
       // Delete the invite token
       singletonMemoryRedis.set(inviteKey, null, 0);
 
@@ -644,9 +679,9 @@ router.post(
       // Add user as sub-user for this instance
       await subUserService.addExistingUserAsSubUser(
         inviteData.parentUuid,
-        userUuid,
         inviteData.instanceUuid,
         inviteData.daemonId,
+        userUuid,
         inviteData.permissions
       );
 
