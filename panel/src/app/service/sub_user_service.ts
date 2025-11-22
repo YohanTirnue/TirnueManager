@@ -6,6 +6,7 @@ import userSystem from "./user_service";
 import { logger } from "./log";
 import { $t } from "../i18n";
 import { lockService } from "./lock_service";
+import { permissionCache } from "./permission_cache_service";
 
 const MAX_SUB_USERS_PER_INSTANCE = 3;
 
@@ -295,6 +296,9 @@ export class SubUserService {
     // Update permissions in the subUsers entry
     parentUser.subUsers[entryIndex].permissions = permissions;
     await Storage.getStorage().store("User", parentUuid, parentUser);
+
+    // Invalidate permission cache
+    permissionCache.invalidate(subUserUuid, instanceUuid);
 
     logger.info(
       `Sub-user ${subUser.userName} permissions for instance ${instanceUuid} updated by ${parentUser.userName}`

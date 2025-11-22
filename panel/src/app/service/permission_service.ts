@@ -2,6 +2,7 @@ import userSystem from "./user_service";
 import subUserService from "./sub_user_service";
 import { User } from "../entity/user";
 import { UserPermissions } from "../entity/entity_interface";
+import { permissionCache } from "./permission_cache_service";
 
 export function isHaveInstance(user: User, daemonId: string, instanceUuid: string) {
   if (isTopPermission(user)) return true;
@@ -58,6 +59,7 @@ export function canManageSubUsersByUuid(uuid: string, daemonId: string, instance
  * - Sub-users (permissions from parent's subUsers array)
  * - Direct instance owners (permissions from their own instance entry)
  *
+ * Uses caching for performance - permissions are cached for 5 minutes.
  * Returns undefined if user has no permissions for this instance.
  */
 export function getUserInstancePermissions(
@@ -65,9 +67,16 @@ export function getUserInstancePermissions(
   instanceUuid: string,
   daemonId: string
 ): UserPermissions | undefined {
+  // Check cache first
+  const cached = permissionCache.get(userUuid, instanceUuid);
+  if (cached) {
+    return cached;
+  }
+
   // First check if user is a sub-user for this instance
   const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
   if (subUserEntry) {
+    permissionCache.set(userUuid, instanceUuid, subUserEntry.permissions);
     return subUserEntry.permissions;
   }
 
@@ -78,7 +87,20 @@ export function getUserInstancePermissions(
   const instance = user.instances.find(
     (i) => i.instanceUuid === instanceUuid && i.daemonId === daemonId
   );
+
+  if (instance?.permissions) {
+    permissionCache.set(userUuid, instanceUuid, instance.permissions);
+  }
+
   return instance?.permissions;
+}
+
+/**
+ * Invalidate cached permissions for a user
+ * Call this after updating permissions
+ */
+export function invalidatePermissionCache(userUuid: string, instanceUuid?: string): void {
+  permissionCache.invalidate(userUuid, instanceUuid);
 }
 
 /**
