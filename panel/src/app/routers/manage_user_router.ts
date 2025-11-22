@@ -8,6 +8,7 @@ import subUserService from "../service/sub_user_service";
 import { $t } from "../i18n";
 import { ROLE } from "../entity/user";
 import { operationLogger } from "../service/operation_logger";
+import Storage from "../common/storage/sys_storage";
 import { error } from "console";
 
 const router = new Router({ prefix: "/auth" });
@@ -61,8 +62,18 @@ router.del("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Parameterized
             subUser.instances = subUser.instances.filter(
               (inst) => !(inst.instanceUuid === subUserRef.instanceUuid && inst.daemonId === subUserRef.daemonId)
             );
-            // Note: We don't delete the sub-user entirely - they might have other instances
+            // Save the sub-user changes
+            await Storage.getStorage().store("User", subUserRef.uuid, subUser);
           }
+        }
+      }
+
+      // If this user is a sub-user of other parents, clean up those references
+      for (const [parentUuid, parentUser] of userSystem.objects) {
+        const hadEntries = parentUser.subUsers.some((su) => su.uuid === iterator);
+        if (hadEntries) {
+          parentUser.subUsers = parentUser.subUsers.filter((su) => su.uuid !== iterator);
+          await Storage.getStorage().store("User", parentUuid, parentUser);
         }
       }
 

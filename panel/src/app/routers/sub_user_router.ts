@@ -126,7 +126,7 @@ router.post(
   permission({ level: ROLE.USER }),
   validator({
     query: { daemonId: String, instanceUuid: String },
-    body: { userName: String, passWord: String }
+    body: { userName: String, passWord: String, permissions: Object }
   }),
   async (ctx: Koa.ParameterizedContext) => {
     const userUuid = getUserUuid(ctx);
@@ -148,6 +148,33 @@ router.post(
       actualParentUuid = String(parentUuid);
     }
 
+    // Build full UserPermissions object with defaults for missing fields
+    const fullPermissions = {
+      canUploadFiles: Boolean(permissions?.canUploadFiles),
+      canDownloadFiles: Boolean(permissions?.canDownloadFiles),
+      canDeleteFiles: Boolean(permissions?.canDeleteFiles),
+      canModifyFiles: Boolean(permissions?.canModifyFiles),
+      canAccessConsole: Boolean(permissions?.canAccessConsole),
+      canStartInstances: Boolean(permissions?.canStartInstances),
+      canRestartInstances: Boolean(permissions?.canRestartInstances),
+      canStopInstances: Boolean(permissions?.canStopInstances),
+      canTerminateInstances: Boolean(permissions?.canTerminateInstances),
+      canViewLogs: permissions?.canViewLogs !== false, // Default true
+      canAccessConfigFiles: Boolean(permissions?.canAccessConfigFiles),
+      canAccessFileManager: Boolean(permissions?.canAccessFileManager),
+      canAccessMinecraftQuery: Boolean(permissions?.canAccessMinecraftQuery),
+      canAccessTerminalSettings: Boolean(permissions?.canAccessTerminalSettings),
+      canAccessScheduledTasks: Boolean(permissions?.canAccessScheduledTasks),
+      canAccessEventTasks: Boolean(permissions?.canAccessEventTasks),
+      canAccessInstanceSettings: Boolean(permissions?.canAccessInstanceSettings),
+      canAccessServerMarket: Boolean(permissions?.canAccessServerMarket),
+      disableRightClick: Boolean(permissions?.disableRightClick),
+      disableKeyboardShortcuts: Boolean(permissions?.disableKeyboardShortcuts),
+      disableTextSelection: Boolean(permissions?.disableTextSelection),
+      disableCopy: Boolean(permissions?.disableCopy),
+      disablePaste: Boolean(permissions?.disablePaste)
+    };
+
     try {
       const subUser = await subUserService.createSubUser(
         actualParentUuid,
@@ -156,7 +183,7 @@ router.post(
         {
           userName: String(userName),
           passWord: String(passWord),
-          permissions
+          permissions: fullPermissions
         }
       );
 
@@ -171,7 +198,7 @@ router.post(
         uuid: subUser.uuid,
         userName: subUser.userName,
         registerTime: subUser.registerTime,
-        permissions: subUser.permissions
+        permissions: fullPermissions // Return the per-instance permissions
       };
     } catch (error: any) {
       ctx.throw(400, error.message);
