@@ -548,6 +548,16 @@ router.put(
         return;
       }
 
+      // Filter out config sections based on granular permissions for sub-users
+      if (subUserEntry) {
+        if (!subUserEntry.permissions?.canAccessEventTasks) {
+          config.eventTask = null;
+        }
+        if (!subUserEntry.permissions?.canAccessTerminalSettings) {
+          config.terminalOption = null;
+        }
+      }
+
       let instanceTags: string[] | null = null;
 
       if (config.tag instanceof Array && isTopPermissionByUuid(userUuid)) {
@@ -649,6 +659,16 @@ router.get(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check sub-user permissions
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
+      if (subUserEntry && !subUserEntry.permissions?.canViewLogs) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to view logs for this instance";
+        return;
+      }
+
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       let result = await new RemoteRequest(remoteService).request("instance/outputlog", {
         instanceUuid
