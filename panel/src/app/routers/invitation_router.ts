@@ -1,5 +1,6 @@
 import Koa from "koa";
 import Router from "@koa/router";
+import crypto from "crypto";
 import permission from "../middleware/permission";
 import validator from "../middleware/validator";
 import { ROLE } from "../entity/user";
@@ -14,6 +15,7 @@ import subUserService from "../service/sub_user_service";
 import { operationLogger } from "../service/operation_logger";
 import { logger } from "../service/log";
 import Storage from "../common/storage/sys_storage";
+import { idempotencyService } from "../service/idempotency_service";
 
 const router = new Router({ prefix: "/sub-users/invite" });
 
@@ -89,40 +91,56 @@ router.post(
       disablePaste: Boolean(permissions?.disablePaste ?? false)
     };
 
-    // Store pending invitation
-    const pendingKey = invitationService.storePendingInvitation(
-      userUuid,
-      parentUser.email,
-      parentUser.userName,
-      String(inviteeEmail).toLowerCase().trim(),
-      String(daemonId),
-      String(instanceUuid),
-      String(instanceName || "Instance"),
-      validPermissions,
-      expiryMinutes
+    // Generate idempotency key from request parameters
+    const idempotencyKey = ctx.request.headers["idempotency-key"] as string ||
+      crypto.createHash("sha256")
+        .update(`${userUuid}:${inviteeEmail}:${instanceUuid}`)
+        .digest("hex");
+
+    // Process with idempotency to prevent duplicate requests
+    const { result, cached } = await idempotencyService.processIdempotent(
+      idempotencyKey,
+      async () => {
+        // Store pending invitation
+        const pendingKey = invitationService.storePendingInvitation(
+          userUuid,
+          parentUser.email,
+          parentUser.userName,
+          String(inviteeEmail).toLowerCase().trim(),
+          String(daemonId),
+          String(instanceUuid),
+          String(instanceName || "Instance"),
+          validPermissions,
+          expiryMinutes
+        );
+
+        // Create and send OTP to owner
+        const otp = await otpService.createInvitationOTP(parentUser.email, userUuid);
+
+        // Send OTP email to owner
+        const emailSent = await emailService.sendOTP(
+          parentUser.email,
+          otp,
+          "registration", // Using registration template for visual consistency
+          parentUser.firstName
+        );
+
+        if (!emailSent) {
+          throw new Error("Failed to send verification email. Please try again.");
+        }
+
+        logger.info(`[Invitation] OTP sent to ${parentUser.email} for invitation to ${inviteeEmail}`);
+
+        return { pendingKey };
+      },
+      300 // 5 minute TTL for idempotency
     );
-
-    // Create and send OTP to owner
-    const otp = await otpService.createInvitationOTP(parentUser.email, userUuid);
-
-    // Send OTP email to owner
-    const emailSent = await emailService.sendOTP(
-      parentUser.email,
-      otp,
-      "registration", // Using registration template for visual consistency
-      parentUser.firstName
-    );
-
-    if (!emailSent) {
-      ctx.throw(500, "Failed to send verification email. Please try again.");
-    }
-
-    logger.info(`[Invitation] OTP sent to ${parentUser.email} for invitation to ${inviteeEmail}`);
 
     ctx.body = {
       success: true,
-      message: "Verification code sent to your email",
-      pendingKey
+      message: cached ? "Request already in progress" : "Verification code sent to your email",
+      pendingKey: result.pendingKey,
+      cached
     };
   }
 );
