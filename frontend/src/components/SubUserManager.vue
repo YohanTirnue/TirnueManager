@@ -14,7 +14,6 @@ import {
   FolderOutlined
 } from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
-import { PASSWORD_REGEX } from "@/tools/validator";
 import { reportErrorMsg } from "@/tools/validator";
 import type { UserPermissions } from "@/types/user";
 import {
@@ -111,8 +110,7 @@ const defaultPermissions: UserPermissions = {
 
 const formData = ref({
   uuid: "",
-  userName: "",
-  passWord: "",
+  email: "",
   permissions: _.cloneDeep(defaultPermissions),
   parentUuid: ""
 });
@@ -127,21 +125,9 @@ const canAddMore = computed(() => {
 });
 
 const formRules: Record<string, Rule[]> = {
-  userName: [
-    { required: true, message: t("TXT_CODE_2695488c") },
-    { min: 3, max: 20, message: t("TXT_CODE_3f477ec"), trigger: "blur" }
-  ],
-  passWord: [
-    {
-      required: true,
-      min: 9,
-      max: 36,
-      validator: async (_rule: Rule, value: string) => {
-        if (!value && !isEditMode.value) throw new Error("Password is required");
-        if (value && !PASSWORD_REGEX.test(value)) throw new Error(t("TXT_CODE_6032f5a3"));
-      },
-      trigger: "blur"
-    }
+  email: [
+    { required: true, message: "Email is required" },
+    { type: "email", message: "Please enter a valid email address", trigger: "blur" }
   ],
   parentUuid: [
     {
@@ -223,8 +209,7 @@ const handleAddSubUser = () => {
   isEditMode.value = false;
   formData.value = {
     uuid: "",
-    userName: "",
-    passWord: "",
+    email: "",
     permissions: _.cloneDeep(defaultPermissions),
     parentUuid: ""
   };
@@ -235,8 +220,7 @@ const handleEditSubUser = (subUser: SubUser) => {
   isEditMode.value = true;
   formData.value = {
     uuid: subUser.uuid,
-    userName: subUser.userName,
-    passWord: "",
+    email: "",
     permissions: subUser.permissions
       ? { ...defaultPermissions, ...subUser.permissions }
       : _.cloneDeep(defaultPermissions),
@@ -286,16 +270,15 @@ const handleSubmit = async () => {
       });
       message.success(t("TXT_CODE_27efac3b"));
     } else {
-      // Create new sub-user
-      const createData: any = {
-        userName: formData.value.userName,
-        passWord: formData.value.passWord,
+      // Send invitation to sub-user via email
+      const inviteData: any = {
+        email: formData.value.email,
         permissions: formData.value.permissions
       };
 
       // If admin, include parentUuid
       if (isAdmin.value && formData.value.parentUuid) {
-        createData.parentUuid = formData.value.parentUuid;
+        inviteData.parentUuid = formData.value.parentUuid;
       }
 
       await createSubUser().execute({
@@ -303,9 +286,9 @@ const handleSubmit = async () => {
           daemonId: props.daemonId,
           instanceUuid: props.instanceUuid
         },
-        data: createData
+        data: inviteData
       });
-      message.success(t("TXT_CODE_c7c04c00"));
+      message.success("Invitation sent successfully");
     }
 
     dialogVisible.value = false;
@@ -365,7 +348,7 @@ const handleSubmit = async () => {
           @click="handleAddSubUser"
         >
           <PlusOutlined />
-          <span>Add Sub-User</span>
+          <span>Invite Sub-User</span>
         </button>
         <div class="slot-indicator">
           <div class="slot-dots">
@@ -455,9 +438,9 @@ const handleSubmit = async () => {
             <PlusOutlined v-else />
           </div>
           <div class="header-content">
-            <h3>{{ isEditMode ? 'Edit Permissions' : 'Create Sub-User' }}</h3>
+            <h3>{{ isEditMode ? 'Edit Permissions' : 'Invite Sub-User' }}</h3>
             <span class="header-subtitle">
-              {{ isEditMode ? 'Configure access permissions' : 'Set up a new sub-user account' }}
+              {{ isEditMode ? 'Configure access permissions' : 'Send an invitation email to add a new sub-user' }}
             </span>
           </div>
         </div>
@@ -493,24 +476,18 @@ const handleSubmit = async () => {
           </a-form-item>
         </div>
 
-        <!-- Account Details -->
+        <!-- Email Invitation -->
         <div v-if="!isEditMode" class="form-section">
           <div class="section-header">
             <UserOutlined />
-            <span>Account Details</span>
+            <span>Invitation Details</span>
           </div>
-          <a-form-item name="userName" label="Username">
+          <a-form-item name="email" label="Email Address">
             <a-input
-              v-model:value="formData.userName"
-              placeholder="Enter username"
+              v-model:value="formData.email"
+              placeholder="Enter email address to send invitation"
               size="large"
-            />
-          </a-form-item>
-          <a-form-item name="passWord" label="Password">
-            <a-input-password
-              v-model:value="formData.passWord"
-              placeholder="Min 9 chars with mixed case and numbers"
-              size="large"
+              type="email"
             />
           </a-form-item>
         </div>
@@ -587,7 +564,7 @@ const handleSubmit = async () => {
         <div class="form-actions">
           <button type="button" class="btn-cancel" @click="dialogVisible = false">Cancel</button>
           <button type="button" class="btn-submit" @click="handleSubmit">
-            {{ isEditMode ? 'Save Changes' : 'Create User' }}
+            {{ isEditMode ? 'Save Changes' : 'Send Invite' }}
           </button>
         </div>
       </a-form>
