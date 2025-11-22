@@ -102,15 +102,30 @@ const availableParents = computed(() => {
   });
 });
 
-const defaultPermissions = {
-  canStart: true,
-  canStop: true,
-  canRestart: true,
-  canKill: false,
-  canTerminal: true,
-  canFileManager: true,
-  canFileEdit: true,
-  canSchedule: false
+const defaultPermissions: UserPermissions = {
+  canUploadFiles: true,
+  canDownloadFiles: true,
+  canDeleteFiles: false,
+  canModifyFiles: true,
+  canAccessConsole: true,
+  canStartInstances: true,
+  canRestartInstances: true,
+  canStopInstances: true,
+  canTerminateInstances: false,
+  canViewLogs: true,
+  canAccessConfigFiles: false,
+  canAccessFileManager: true,
+  canAccessMinecraftQuery: true,
+  canAccessTerminalSettings: false,
+  canAccessScheduledTasks: false,
+  canAccessEventTasks: false,
+  canAccessInstanceSettings: false,
+  canAccessServerMarket: false,
+  disableRightClick: false,
+  disableKeyboardShortcuts: false,
+  disableTextSelection: false,
+  disableCopy: false,
+  disablePaste: false
 };
 
 const inviteFormData = ref({
@@ -636,20 +651,24 @@ const formatExpiry = (expiresAt: number) => {
                 </div>
                 <div class="permission-items">
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canStart" />
+                    <a-checkbox v-model:checked="inviteFormData.permissions.canStartInstances" />
                     <span>Start</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canStop" />
+                    <a-checkbox v-model:checked="inviteFormData.permissions.canStopInstances" />
                     <span>Stop</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canRestart" />
+                    <a-checkbox v-model:checked="inviteFormData.permissions.canRestartInstances" />
                     <span>Restart</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canTerminal" />
-                    <span>Terminal</span>
+                    <a-checkbox v-model:checked="inviteFormData.permissions.canAccessConsole" />
+                    <span>Console</span>
+                  </label>
+                  <label class="permission-item">
+                    <a-checkbox v-model:checked="inviteFormData.permissions.canViewLogs" />
+                    <span>View Logs</span>
                   </label>
                 </div>
               </div>
@@ -661,15 +680,23 @@ const formatExpiry = (expiresAt: number) => {
                 </div>
                 <div class="permission-items">
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canFileManager" />
+                    <a-checkbox v-model:checked="inviteFormData.permissions.canAccessFileManager" />
                     <span>File Manager</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canFileEdit" />
-                    <span>Edit Files</span>
+                    <a-checkbox v-model:checked="inviteFormData.permissions.canUploadFiles" />
+                    <span>Upload</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canSchedule" />
+                    <a-checkbox v-model:checked="inviteFormData.permissions.canDownloadFiles" />
+                    <span>Download</span>
+                  </label>
+                  <label class="permission-item">
+                    <a-checkbox v-model:checked="inviteFormData.permissions.canModifyFiles" />
+                    <span>Modify</span>
+                  </label>
+                  <label class="permission-item">
+                    <a-checkbox v-model:checked="inviteFormData.permissions.canAccessScheduledTasks" />
                     <span>Schedules</span>
                   </label>
                 </div>

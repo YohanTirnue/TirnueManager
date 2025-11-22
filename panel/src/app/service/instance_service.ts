@@ -65,7 +65,8 @@ export function multiOperationForwarding(
 export async function getInstancesByUuid(
   uuid: string,
   targetDaemonId?: string,
-  advanced: boolean = false
+  advanced: boolean = false,
+  includePermissions: boolean = false
 ) {
   const user = userSystem.getInstance(uuid);
   if (!user) throw new Error("The UID does not exist");
@@ -121,10 +122,20 @@ export async function getInstancesByUuid(
       });
     }
   } else {
-    resInstances = user.instances;
+    // When not advanced, return instances but conditionally strip permissions
+    if (includePermissions) {
+      resInstances = user.instances;
+    } else {
+      // Strip permissions from instances for non-admin users
+      resInstances = user.instances.map(inst => ({
+        instanceUuid: inst.instanceUuid,
+        daemonId: inst.daemonId
+      }));
+    }
   }
+
   // respond to user data
-  return {
+  const response: any = {
     uuid: user.uuid,
     userName: user.userName,
     loginTime: user.loginTime,
@@ -135,13 +146,18 @@ export async function getInstancesByUuid(
     isInit: user.isInit,
     open2FA: user.open2FA,
     secret: user.secret,
-    permissions: user.permissions,
-    subUsers: user.subUsers,
     email: user.email,
     firstName: user.firstName,
     lastName: user.lastName,
     token: ""
   };
+
+  // Only include subUsers for admin requests
+  if (includePermissions) {
+    response.subUsers = user.subUsers;
+  }
+
+  return response;
 }
 
 export function checkInstanceAdvancedParams(
