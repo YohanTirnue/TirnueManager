@@ -106,7 +106,20 @@ const subUserManagerVisible = ref(false);
 const canManageSubUsers = computed(() => {
   const userInfo = state.userInfo;
   if (!userInfo) return false;
-  return !userInfo.isSubUser && (userInfo.permission === 10 || userInfo.permission === 1);
+  if (userInfo.isSubUser) return false;
+
+  // Admins can always manage
+  if (userInfo.permission === 10) return true;
+
+  // Regular users must own this instance
+  if (userInfo.permission === 1) {
+    const ownsInstance = userInfo.instances?.some(
+      (inst: any) => inst.instanceUuid === instanceInfo.value?.instanceUuid
+    );
+    return !!ownsInstance;
+  }
+
+  return false;
 });
 
 const { execute: requestOpenInstance, isLoading: isOpenInstanceLoading } = openInstance();
