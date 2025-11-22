@@ -77,22 +77,39 @@ class UserSubsystem {
 
   checkUser(info: IUser, code2FA?: string, totpDriftToleranceSteps: number = 0) {
     const inputPassword = info.passWord || "";
+    const loginIdentifier = info.userName || "";
+
+    // Find user by username OR email
+    let foundUser: User | null = null;
     for (const [uuid, user] of this.objects) {
-      if (user.userName === info.userName) {
-        if (
-          user.open2FA &&
-          user.secret &&
-          !this.check2FA(code2FA || "", user, totpDriftToleranceSteps)
-        )
-          throw new TwoFactorError(t("TXT_CODE_3d68e43b"));
-        if (user.passWordType === UserPassWordType.bcrypt) {
-          if (!bcrypt.compareSync(inputPassword, user.passWord))
-            throw new Error($t("TXT_CODE_fefbb457"));
-        } else {
-          if (!(md5(inputPassword) === user.passWord)) throw new Error($t("TXT_CODE_fefbb457"));
-        }
+      if (user.userName === loginIdentifier || (user.email && user.email === loginIdentifier)) {
+        foundUser = user;
+        break;
       }
     }
+
+    if (!foundUser) {
+      throw new Error($t("TXT_CODE_fefbb457"));
+    }
+
+    // Check 2FA if enabled
+    if (
+      foundUser.open2FA &&
+      foundUser.secret &&
+      !this.check2FA(code2FA || "", foundUser, totpDriftToleranceSteps)
+    )
+      throw new TwoFactorError(t("TXT_CODE_3d68e43b"));
+
+    // Check password
+    if (foundUser.passWordType === UserPassWordType.bcrypt) {
+      if (!bcrypt.compareSync(inputPassword, foundUser.passWord))
+        throw new Error($t("TXT_CODE_fefbb457"));
+    } else {
+      if (!(md5(inputPassword) === foundUser.passWord))
+        throw new Error($t("TXT_CODE_fefbb457"));
+    }
+
+    return foundUser;
   }
 
   existUserName(userName: string): boolean {
@@ -152,6 +169,17 @@ class UserSubsystem {
     for (const map of this.objects) {
       const user = map[1];
       if (user.email === email) return user;
+    }
+    return null;
+  }
+
+  // Find user by username OR email (for dual authentication)
+  getUserByIdentifier(identifier: string) {
+    for (const map of this.objects) {
+      const user = map[1];
+      if (user.userName === identifier || (user.email && user.email === identifier)) {
+        return user;
+      }
     }
     return null;
   }
