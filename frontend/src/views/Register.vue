@@ -8,7 +8,6 @@ import {
   UserOutlined,
   MailOutlined,
   LockOutlined,
-  EnvironmentOutlined,
   ArrowLeftOutlined
 } from "@ant-design/icons-vue";
 import { ref, reactive, computed, onUnmounted } from "vue";
@@ -28,6 +27,50 @@ const formData = reactive({
 
 const otp = ref("");
 const turnstileToken = ref("");
+
+// Location options
+const locationOptions = [
+  { value: "United States", label: "United States" },
+  { value: "United Kingdom", label: "United Kingdom" },
+  { value: "Canada", label: "Canada" },
+  { value: "Australia", label: "Australia" },
+  { value: "Germany", label: "Germany" },
+  { value: "France", label: "France" },
+  { value: "Netherlands", label: "Netherlands" },
+  { value: "Singapore", label: "Singapore" },
+  { value: "Japan", label: "Japan" },
+  { value: "Brazil", label: "Brazil" },
+  { value: "India", label: "India" },
+  { value: "South Korea", label: "South Korea" },
+  { value: "Mexico", label: "Mexico" },
+  { value: "Spain", label: "Spain" },
+  { value: "Italy", label: "Italy" },
+  { value: "Poland", label: "Poland" },
+  { value: "Sweden", label: "Sweden" },
+  { value: "Norway", label: "Norway" },
+  { value: "Denmark", label: "Denmark" },
+  { value: "Finland", label: "Finland" },
+  { value: "Philippines", label: "Philippines" },
+  { value: "Indonesia", label: "Indonesia" },
+  { value: "Malaysia", label: "Malaysia" },
+  { value: "Thailand", label: "Thailand" },
+  { value: "Vietnam", label: "Vietnam" },
+  { value: "South Africa", label: "South Africa" },
+  { value: "New Zealand", label: "New Zealand" },
+  { value: "Ireland", label: "Ireland" },
+  { value: "Switzerland", label: "Switzerland" },
+  { value: "Austria", label: "Austria" },
+  { value: "Belgium", label: "Belgium" },
+  { value: "Portugal", label: "Portugal" },
+  { value: "Czech Republic", label: "Czech Republic" },
+  { value: "Romania", label: "Romania" },
+  { value: "Hungary", label: "Hungary" },
+  { value: "Greece", label: "Greece" },
+  { value: "Argentina", label: "Argentina" },
+  { value: "Chile", label: "Chile" },
+  { value: "Colombia", label: "Colombia" },
+  { value: "Other", label: "Other" }
+];
 
 // UI State
 const currentStep = ref(0); // 0: form, 1: OTP, 2: success
@@ -60,7 +103,7 @@ const isFormValid = computed(() => {
     formData.firstName.trim().length >= 1 &&
     formData.lastName.trim().length >= 1 &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
-    formData.location.trim().length >= 2 &&
+    formData.location.length >= 1 &&
     formData.password.length >= 9 &&
     formData.password === formData.confirmPassword &&
     /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(formData.password)
@@ -207,15 +250,15 @@ onUnmounted(() => {
           <div class="features-list">
             <div class="feature-item">
               <CheckCircleOutlined class="feature-icon" />
-              <span>Instant server deployment</span>
+              <span>Full server control</span>
             </div>
             <div class="feature-item">
               <CheckCircleOutlined class="feature-icon" />
-              <span>Easy server management</span>
+              <span>Simple dashboard</span>
             </div>
             <div class="feature-item">
               <CheckCircleOutlined class="feature-icon" />
-              <span>Premium support included</span>
+              <span>Multiple server types</span>
             </div>
           </div>
         </div>
@@ -283,16 +326,16 @@ onUnmounted(() => {
 
               <div class="input-group">
                 <label>Location</label>
-                <a-input
+                <a-select
                   v-model:value="formData.location"
                   size="large"
-                  placeholder="New York, USA"
-                  class="modern-input"
+                  placeholder="Select your country"
+                  class="modern-select"
+                  :options="locationOptions"
+                  show-search
+                  :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
                 >
-                  <template #prefix>
-                    <EnvironmentOutlined class="input-icon" />
-                  </template>
-                </a-input>
+                </a-select>
               </div>
 
               <div class="input-group">
@@ -654,6 +697,40 @@ onUnmounted(() => {
       border-color: #ff8c42 !important;
       box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15) !important;
     }
+  }
+}
+
+.modern-select {
+  :deep(.ant-select-selector) {
+    font-size: 14px !important;
+    padding: 6px 14px !important;
+    height: 44px !important;
+    border: 2px solid rgba(255, 140, 66, 0.25) !important;
+    border-radius: 10px !important;
+    background: rgba(10, 10, 10, 0.7) !important;
+    color: white !important;
+    transition: all 0.3s ease !important;
+
+    .ant-select-selection-placeholder {
+      color: rgba(255, 255, 255, 0.35) !important;
+    }
+
+    .ant-select-selection-item {
+      color: white !important;
+    }
+  }
+
+  &:hover :deep(.ant-select-selector) {
+    border-color: rgba(255, 140, 66, 0.5) !important;
+  }
+
+  &.ant-select-focused :deep(.ant-select-selector) {
+    border-color: #ff8c42 !important;
+    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15) !important;
+  }
+
+  :deep(.ant-select-arrow) {
+    color: rgba(255, 140, 66, 0.8) !important;
   }
 }
 
