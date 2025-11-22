@@ -86,19 +86,30 @@ const fetchInvitationDetails = async () => {
   loading.value = true;
   error.value = "";
 
+  console.log("fetchInvitationDetails called with token:", token.value);
+
   try {
     const res = await axios.get(`/api/sub-users/invite/verify`, {
       params: { token: token.value }
     });
+
+    console.log("API response:", res.data);
+
+    // Handle both wrapped (res.data.data) and unwrapped (res.data) responses
+    const data = res.data.data || res.data;
+
     invitationDetails.value = {
-      inviteeEmail: res.data.data.email,
-      parentUserName: res.data.data.inviterName,
-      instanceName: res.data.data.instanceName,
-      expiresAt: res.data.data.expiresAt,
-      hasAccount: res.data.data.hasAccount
+      inviteeEmail: data.email,
+      parentUserName: data.inviterName,
+      instanceName: data.instanceName,
+      expiresAt: data.expiresAt,
+      hasAccount: data.hasAccount
     };
+
+    console.log("Invitation details set:", invitationDetails.value);
   } catch (err: any) {
-    error.value = err.response?.data?.data || "Invitation not found or expired";
+    console.error("API error:", err);
+    error.value = err.response?.data?.data || err.response?.data || "Invitation not found or expired";
   } finally {
     loading.value = false;
   }
