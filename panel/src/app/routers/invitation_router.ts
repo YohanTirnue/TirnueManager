@@ -384,6 +384,7 @@ router.get(
       inviteeEmail: inv.inviteeEmail,
       instanceName: inv.instanceName,
       instanceUuid: inv.instanceUuid,
+      daemonId: inv.daemonId,
       status: inv.status,
       createdAt: inv.createdAt,
       expiresAt: inv.expiresAt

@@ -44,6 +44,8 @@ interface PendingInvitation {
   invitationId: string;
   inviteeEmail: string;
   instanceName: string;
+  instanceUuid: string;
+  daemonId: string;
   status: string;
   createdAt: number;
   expiresAt: number;
@@ -252,9 +254,10 @@ const fetchPendingInvitations = async () => {
       url: "/api/sub-users/invite/list",
       method: "GET"
     });
-    // Filter to only show invitations for this instance
+    // Filter to only show invitations for this instance (use stable identifiers, not mutable names)
     pendingInvitations.value = (res.data || []).filter(
-      (inv: PendingInvitation) => inv.instanceName === props.instanceName
+      (inv: PendingInvitation) =>
+        inv.instanceUuid === props.instanceUuid && inv.daemonId === props.daemonId
     );
   } catch (error: any) {
     console.error("Failed to fetch invitations:", error);
