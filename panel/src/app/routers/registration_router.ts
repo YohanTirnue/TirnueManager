@@ -396,6 +396,13 @@ router.post(
       return;
     }
 
+    // Check if email matches an existing username (collision prevention)
+    if (userSystem.existUserName(newEmail.toLowerCase())) {
+      ctx.status = 409;
+      ctx.body = { success: false, message: "Email already in use" };
+      return;
+    }
+
     // Create OTP for new email
     const otp = await otpService.createEmailChangeOTP(
       user.email,

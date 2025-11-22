@@ -78,11 +78,15 @@ class UserSubsystem {
   checkUser(info: IUser, code2FA?: string, totpDriftToleranceSteps: number = 0) {
     const inputPassword = info.passWord || "";
     const loginIdentifier = info.userName || "";
+    const loginIdentifierLower = loginIdentifier.toLowerCase();
 
-    // Find user by username OR email
+    // Find user by username OR email (email is case-insensitive)
     let foundUser: User | null = null;
     for (const [uuid, user] of this.objects) {
-      if (user.userName === loginIdentifier || (user.email && user.email === loginIdentifier)) {
+      if (
+        user.userName === loginIdentifier ||
+        (user.email && user.email.toLowerCase() === loginIdentifierLower)
+      ) {
         foundUser = user;
         break;
       }
@@ -166,18 +170,23 @@ class UserSubsystem {
   }
 
   getUserByEmail(email: string) {
+    const emailLower = email.toLowerCase();
     for (const map of this.objects) {
       const user = map[1];
-      if (user.email === email) return user;
+      if (user.email && user.email.toLowerCase() === emailLower) return user;
     }
     return null;
   }
 
   // Find user by username OR email (for dual authentication)
   getUserByIdentifier(identifier: string) {
+    const identifierLower = identifier.toLowerCase();
     for (const map of this.objects) {
       const user = map[1];
-      if (user.userName === identifier || (user.email && user.email === identifier)) {
+      if (
+        user.userName === identifier ||
+        (user.email && user.email.toLowerCase() === identifierLower)
+      ) {
         return user;
       }
     }
