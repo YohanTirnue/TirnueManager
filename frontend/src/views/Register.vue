@@ -521,6 +521,7 @@ onUnmounted(() => {
 .brand-title {
   font-size: 48px;
   font-weight: 800;
+  color: #ff8c42;
   background: linear-gradient(135deg, #ff8c42, #d4af37);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -589,6 +590,7 @@ onUnmounted(() => {
   h2 {
     font-size: 32px;
     font-weight: 800;
+    color: #ff8c42;
     background: linear-gradient(135deg, #ff8c42, #d4af37);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
