@@ -22,6 +22,7 @@ import exchangeRouter from "./routers/instance_exchange_router";
 import subUserRouter from "./routers/sub_user_router";
 import invitationRouter from "./routers/invitation_router";
 import registrationRouter from "./routers/registration_router";
+import metricsRouter from "./routers/metrics_router";
 
 export function mountRouters(app: Koa<Koa.DefaultState, Koa.DefaultContext>) {
   const apiRouter = new Router({ prefix: "/api" });
@@ -41,6 +42,7 @@ export function mountRouters(app: Koa<Koa.DefaultState, Koa.DefaultContext>) {
   apiRouter.use(subUserRouter.routes()).use(subUserRouter.allowedMethods());
   apiRouter.use(invitationRouter.routes()).use(invitationRouter.allowedMethods());
   apiRouter.use(registrationRouter.routes()).use(registrationRouter.allowedMethods());
+  apiRouter.use(metricsRouter.routes()).use(metricsRouter.allowedMethods());
 
   app.use(apiRouter.routes()).use(apiRouter.allowedMethods());
 }
