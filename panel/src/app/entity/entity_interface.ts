@@ -46,6 +46,14 @@ export interface UserPermissions {
   disablePaste: boolean;
 }
 
+// Sub-user relationship with per-instance permissions
+export interface ISubUserEntry {
+  uuid: string;
+  instanceUuid: string;
+  daemonId: string;
+  permissions: UserPermissions;
+}
+
 export interface IUser {
   uuid?: string;
   userName?: string;
@@ -60,9 +68,8 @@ export interface IUser {
   secret?: string;
   open2FA?: boolean;
   permissions?: UserPermissions;
-  isSubUser?: boolean;
-  parentUserId?: string;
-  subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string }>;
+  // Per-instance sub-user management (user can be owner of some instances, sub-user of others)
+  subUsers?: Array<ISubUserEntry>;
   // Email registration fields
   email?: string;
   emailVerified?: boolean;
@@ -82,9 +89,8 @@ export interface ICompleteUser {
   registerTime: string;
   loginTime: string;
   permissions?: UserPermissions;
-  isSubUser?: boolean;
-  parentUserId?: string;
-  subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string }>;
+  // Per-instance sub-user management
+  subUsers?: Array<ISubUserEntry>;
   // Email registration fields
   email?: string;
   emailVerified?: boolean;

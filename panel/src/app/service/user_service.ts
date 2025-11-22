@@ -51,9 +51,6 @@ class UserSubsystem {
     if (config.open2FA != null) instance.open2FA = Boolean(config.open2FA);
     if (config.instances) this.setUserInstances(uuid, config.instances);
     if (config.permissions != null) instance.permissions = config.permissions;
-    // Sub-user management fields
-    if (config.isSubUser != null) instance.isSubUser = Boolean(config.isSubUser);
-    if (config.parentUserId != null) instance.parentUserId = config.parentUserId;
     if (config.passWord) {
       instance.passWordType = UserPassWordType.bcrypt;
       instance.passWord = bcrypt.hashSync(config.passWord, 10);

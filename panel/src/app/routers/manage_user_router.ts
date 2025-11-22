@@ -52,10 +52,17 @@ router.del("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Parameterized
         "warning"
       );
 
-      // If this is a parent user, delete all their sub-users first
-      if (user && !user.isSubUser && user.subUsers && user.subUsers.length > 0) {
+      // If this user has granted sub-user access, clean up those relationships
+      if (user && user.subUsers && user.subUsers.length > 0) {
         for (const subUserRef of user.subUsers) {
-          await userSystem.deleteInstance(subUserRef.uuid);
+          // Remove the instance from the sub-user's instances
+          const subUser = userSystem.getInstance(subUserRef.uuid);
+          if (subUser) {
+            subUser.instances = subUser.instances.filter(
+              (inst) => !(inst.instanceUuid === subUserRef.instanceUuid && inst.daemonId === subUserRef.daemonId)
+            );
+            // Note: We don't delete the sub-user entirely - they might have other instances
+          }
         }
       }
 

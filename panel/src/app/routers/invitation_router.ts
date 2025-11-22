@@ -199,8 +199,8 @@ router.get(
 );
 
 // Accept invitation (for existing users)
-// Note: Existing users cannot directly accept as themselves - they need to create a sub-user account
-// This endpoint informs them to use the register endpoint instead
+// Existing users can accept invitations - they become sub-users for this specific instance
+// while remaining full owners of their own instances
 router.post(
   "/accept/:token",
   permission({ level: ROLE.USER }),
@@ -229,12 +229,64 @@ router.post(
       ctx.throw(403, "This invitation was sent to a different email address");
     }
 
-    // Existing users cannot become sub-users with their main account
-    // They need to create a separate sub-user account via the registration form
-    ctx.throw(
-      400,
-      "You already have an account. To accept this invitation, please log out and use the invitation link to create a separate sub-user account with a different username."
-    );
+    try {
+      // Map invitation permissions to UserPermissions format
+      const userPermissions = {
+        canStartInstances: invitation.permissions.canStart,
+        canStopInstances: invitation.permissions.canStop,
+        canRestartInstances: invitation.permissions.canRestart,
+        canTerminateInstances: invitation.permissions.canKill,
+        canAccessConsole: invitation.permissions.canTerminal,
+        canAccessFileManager: invitation.permissions.canFileManager,
+        canModifyFiles: invitation.permissions.canFileEdit,
+        canAccessScheduledTasks: invitation.permissions.canSchedule,
+        // Default file permissions
+        canUploadFiles: invitation.permissions.canFileManager,
+        canDownloadFiles: invitation.permissions.canFileManager,
+        canDeleteFiles: false,
+        canViewLogs: true,
+        canAccessConfigFiles: false,
+        canAccessMinecraftQuery: true,
+        canAccessTerminalSettings: false,
+        canAccessEventTasks: false,
+        canAccessInstanceSettings: false,
+        canAccessServerMarket: false,
+        disableRightClick: false,
+        disableKeyboardShortcuts: false,
+        disableTextSelection: false,
+        disableCopy: false,
+        disablePaste: false
+      };
+
+      // Add existing user as sub-user for this instance
+      await subUserService.addExistingUserAsSubUser(
+        invitation.parentUserId,
+        invitation.instanceUuid,
+        invitation.daemonId,
+        userUuid,
+        userPermissions
+      );
+
+      // Mark invitation as accepted
+      invitationService.acceptInvitation(invitation.invitationId);
+
+      operationLogger.log("sub_user_accept_invite", {
+        operator_ip: ctx.ip,
+        operator_name: currentUser.userName,
+        parent_name: invitation.parentUserName,
+        instance_uuid: invitation.instanceUuid
+      });
+
+      logger.info(`[Invitation] Existing user ${currentUser.userName} accepted invitation from ${invitation.parentUserName}`);
+
+      ctx.body = {
+        success: true,
+        message: "Invitation accepted successfully. You now have access to the instance."
+      };
+    } catch (error: any) {
+      logger.error(`[Invitation] Failed to accept invitation: ${error.message}`);
+      ctx.throw(400, error.message);
+    }
   }
 );
 
@@ -304,14 +356,11 @@ router.post(
         disablePaste: false
       };
 
-      // Create the sub-user directly
+      // Create the new user (regular user - sub-user status is per-instance)
       const newUser = await userSystem.create({
         userName: String(userName),
         passWord: hashedPassword,
         permission: 1, // USER role
-        permissions: userPermissions,
-        isSubUser: true,
-        parentUserId: invitation.parentUserId,
         email: invitation.inviteeEmail,
         emailVerified: true, // Clicking the link = email verified
         firstName: String(firstName),
@@ -325,13 +374,14 @@ router.post(
         instances: [{ instanceUuid: invitation.instanceUuid, daemonId: invitation.daemonId }]
       });
 
-      // Update parent's subUsers array
+      // Update parent's subUsers array with per-instance permissions
       const parentUser = userSystem.getInstance(invitation.parentUserId);
       if (parentUser) {
         parentUser.subUsers.push({
           uuid: newUser.uuid,
           instanceUuid: invitation.instanceUuid,
-          daemonId: invitation.daemonId
+          daemonId: invitation.daemonId,
+          permissions: userPermissions
         });
         await Storage.getStorage().store("User", parentUser.uuid, parentUser);
       }

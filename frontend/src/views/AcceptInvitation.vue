@@ -135,7 +135,34 @@ const handleRegisterAndAccept = async () => {
 };
 
 const goToLogin = () => {
-  router.push("/login");
+  // Store the current URL to redirect back after login
+  const returnUrl = route.fullPath;
+  router.push(`/login?redirect=${encodeURIComponent(returnUrl)}`);
+};
+
+// Check if logged-in user's email matches the invitation
+const canAcceptDirectly = computed(() => {
+  if (!isLoggedIn.value || !invitationDetails.value) return false;
+  const userEmail = appStateStore.state.userInfo?.email?.toLowerCase();
+  return userEmail === invitationDetails.value.inviteeEmail.toLowerCase();
+});
+
+const handleAcceptInvitation = async () => {
+  if (!canAcceptDirectly.value) return;
+
+  submitting.value = true;
+  try {
+    await request({
+      url: `/api/sub-users/invite/accept/${token.value}`,
+      method: "POST"
+    });
+    message.success("Invitation accepted! You now have access to the instance.");
+    router.push("/");
+  } catch (err: any) {
+    message.error(err.response?.data?.message || "Failed to accept invitation");
+  } finally {
+    submitting.value = false;
+  }
 };
 </script>
 
@@ -171,123 +198,54 @@ const goToLogin = () => {
 
         <!-- For users who already have an account -->
         <div v-if="invitationDetails.hasAccount" class="existing-user-section">
-          <div class="info-box warning">
-            <ExclamationCircleOutlined class="info-icon" />
-            <div>
-              <p>An account already exists for <strong>{{ invitationDetails.inviteeEmail }}</strong></p>
-              <p class="info-note">Sub-user access requires a separate account. Please create a new account with a different username below.</p>
-            </div>
-          </div>
-
-          <!-- Show registration form even for existing email users -->
-          <form class="registration-form" @submit.prevent="handleRegisterAndAccept">
-            <div class="form-row">
-              <div class="form-group">
-                <label>First Name</label>
-                <a-input
-                  v-model:value="formData.firstName"
-                  placeholder="First name"
-                  size="large"
-                >
-                  <template #prefix>
-                    <UserOutlined style="color: rgba(0, 0, 0, 0.25)" />
-                  </template>
-                </a-input>
+          <!-- Case 1: Logged in with matching email - can accept directly -->
+          <div v-if="canAcceptDirectly" class="accept-section">
+            <div class="info-box success">
+              <CheckCircleOutlined class="info-icon" />
+              <div>
+                <p>You're logged in as <strong>{{ invitationDetails.inviteeEmail }}</strong></p>
+                <p class="info-note">Click below to accept this invitation and gain access to the instance.</p>
               </div>
-              <div class="form-group">
-                <label>Last Name</label>
-                <a-input
-                  v-model:value="formData.lastName"
-                  placeholder="Last name"
-                  size="large"
-                />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Username (must be different from your main account)</label>
-              <a-input
-                v-model:value="formData.userName"
-                placeholder="Choose a new username"
-                size="large"
-              >
-                <template #prefix>
-                  <UserOutlined style="color: rgba(0, 0, 0, 0.25)" />
-                </template>
-              </a-input>
-            </div>
-
-            <div class="form-group">
-              <label>Location</label>
-              <a-select
-                v-model:value="formData.location"
-                placeholder="Select your country"
-                size="large"
-                show-search
-                :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
-                :options="locationOptions"
-              >
-                <template #prefix>
-                  <GlobalOutlined style="color: rgba(0, 0, 0, 0.25)" />
-                </template>
-              </a-select>
-            </div>
-
-            <div class="form-group">
-              <label>Password</label>
-              <a-input-password
-                v-model:value="formData.password"
-                placeholder="Create a password"
-                size="large"
-              >
-                <template #prefix>
-                  <LockOutlined style="color: rgba(0, 0, 0, 0.25)" />
-                </template>
-              </a-input-password>
-
-              <div class="password-requirements">
-                <span :class="{ met: passwordRequirements.minLength }">
-                  {{ passwordRequirements.minLength ? "✓" : "○" }} 9+ characters
-                </span>
-                <span :class="{ met: passwordRequirements.hasUppercase }">
-                  {{ passwordRequirements.hasUppercase ? "✓" : "○" }} Uppercase
-                </span>
-                <span :class="{ met: passwordRequirements.hasLowercase }">
-                  {{ passwordRequirements.hasLowercase ? "✓" : "○" }} Lowercase
-                </span>
-                <span :class="{ met: passwordRequirements.hasNumber }">
-                  {{ passwordRequirements.hasNumber ? "✓" : "○" }} Number
-                </span>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Confirm Password</label>
-              <a-input-password
-                v-model:value="formData.confirmPassword"
-                placeholder="Confirm your password"
-                size="large"
-              >
-                <template #prefix>
-                  <LockOutlined style="color: rgba(0, 0, 0, 0.25)" />
-                </template>
-              </a-input-password>
-              <span
-                v-if="formData.confirmPassword && formData.password !== formData.confirmPassword"
-                class="error-text"
-              >
-                Passwords do not match
-              </span>
             </div>
 
             <button
-              type="submit"
               class="primary-btn"
-              :disabled="!isFormValid || submitting"
+              :disabled="submitting"
+              @click="handleAcceptInvitation"
             >
-              {{ submitting ? "Creating Account..." : "Create Sub-User Account" }}
+              {{ submitting ? "Accepting..." : "Accept Invitation" }}
             </button>
-          </form>
+          </div>
+
+          <!-- Case 2: Logged in but with different email -->
+          <div v-else-if="isLoggedIn" class="wrong-account-section">
+            <div class="info-box warning">
+              <ExclamationCircleOutlined class="info-icon" />
+              <div>
+                <p>This invitation was sent to <strong>{{ invitationDetails.inviteeEmail }}</strong></p>
+                <p class="info-note">You're currently logged in with a different email. Please log out and log in with the correct account to accept this invitation.</p>
+              </div>
+            </div>
+
+            <button class="secondary-btn" @click="goToLogin">
+              Switch Account
+            </button>
+          </div>
+
+          <!-- Case 3: Not logged in - prompt to log in -->
+          <div v-else class="login-prompt-section">
+            <div class="info-box">
+              <UserOutlined class="info-icon" />
+              <div>
+                <p>An account exists for <strong>{{ invitationDetails.inviteeEmail }}</strong></p>
+                <p class="info-note">Please log in to accept this invitation.</p>
+              </div>
+            </div>
+
+            <button class="primary-btn" @click="goToLogin">
+              Log In to Accept
+            </button>
+          </div>
         </div>
 
         <!-- For new users - registration form -->
@@ -536,6 +494,34 @@ const goToLogin = () => {
 
 .info-box.warning .info-icon {
   color: #faad14;
+}
+
+.info-box.success {
+  background: rgba(82, 196, 26, 0.1);
+  border-color: rgba(82, 196, 26, 0.3);
+  align-items: flex-start;
+}
+
+.info-box.success .info-icon {
+  color: #52c41a;
+}
+
+.secondary-btn {
+  width: 100%;
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid rgba(255, 140, 66, 0.5);
+  border-radius: 8px;
+  color: #ff8c42;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 140, 66, 0.1);
+  border-color: #ff8c42;
 }
 
 .info-note {

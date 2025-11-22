@@ -31,31 +31,32 @@ router.get(
 
     // If admin, get ALL sub-users for this instance from all parents
     // If regular user, get only their own sub-users
-    let subUsers;
+    let subUserEntries: Array<{ user: User; permissions: any }>;
     if (isTopPermissionByUuid(userUuid)) {
       const teams = subUserService.getInstanceTeam(String(instanceUuid), String(daemonId));
       // Flatten teams to get all sub-users
-      subUsers = [];
+      subUserEntries = [];
       for (const team of teams) {
-        subUsers.push(...team.subUsers);
+        subUserEntries.push(...team.subUsers);
       }
     } else {
-      subUsers = subUserService.getSubUsers(
+      subUserEntries = subUserService.getSubUsers(
         userUuid,
         String(instanceUuid),
         String(daemonId)
       );
     }
 
-    // Remove sensitive data
-    const sanitizedSubUsers = subUsers.map((user: User) => ({
-      uuid: user.uuid,
-      userName: user.userName,
-      registerTime: user.registerTime,
-      loginTime: user.loginTime,
-      permissions: user.permissions,
-      isSubUser: user.isSubUser,
-      parentUserId: user.parentUserId
+    // Remove sensitive data - permissions are now per-instance
+    const sanitizedSubUsers = subUserEntries.map((entry) => ({
+      uuid: entry.user.uuid,
+      userName: entry.user.userName,
+      email: entry.user.email,
+      firstName: entry.user.firstName,
+      lastName: entry.user.lastName,
+      registerTime: entry.user.registerTime,
+      loginTime: entry.user.loginTime,
+      permissions: entry.permissions // Per-instance permissions
     }));
 
     ctx.body = sanitizedSubUsers;
@@ -72,19 +73,22 @@ router.get(
 
     const teams = subUserService.getInstanceTeam(String(instanceUuid), String(daemonId));
 
-    // Sanitize data
+    // Sanitize data - now includes per-instance permissions
     const sanitizedTeams = teams.map((team) => ({
       parent: {
         uuid: team.parent.uuid,
         userName: team.parent.userName,
         permission: team.parent.permission
       },
-      subUsers: team.subUsers.map((user) => ({
-        uuid: user.uuid,
-        userName: user.userName,
-        permissions: user.permissions,
-        registerTime: user.registerTime,
-        loginTime: user.loginTime
+      subUsers: team.subUsers.map((entry) => ({
+        uuid: entry.user.uuid,
+        userName: entry.user.userName,
+        email: entry.user.email,
+        firstName: entry.user.firstName,
+        lastName: entry.user.lastName,
+        permissions: entry.permissions, // Per-instance permissions
+        registerTime: entry.user.registerTime,
+        loginTime: entry.user.loginTime
       }))
     }));
 
@@ -92,7 +96,7 @@ router.get(
   }
 );
 
-// Get parent users who have access to an instance (admin only)
+// Get parent users (owners) who have access to an instance (admin only)
 router.get(
   "/parents",
   permission({ level: ROLE.ADMIN }),
@@ -102,12 +106,8 @@ router.get(
 
     const parentUsers = [];
     for (const [uuid, user] of userSystem.objects) {
-      // Skip sub-users and users without this instance
-      if (user.isSubUser) continue;
-      const hasInstance = user.instances.some(
-        (inst) => inst.instanceUuid === instanceUuid && inst.daemonId === daemonId
-      );
-      if (hasInstance) {
+      // Check if user is an owner of this instance (not a sub-user for it)
+      if (subUserService.isInstanceOwner(uuid, String(instanceUuid), String(daemonId))) {
         parentUsers.push({
           uuid: user.uuid,
           userName: user.userName,
@@ -179,35 +179,64 @@ router.post(
   }
 );
 
-// Update sub-user permissions
+// Update sub-user permissions for a specific instance
 router.put(
   "/:subUserUuid",
   permission({ level: ROLE.USER }),
-  validator({ body: { permissions: Object } }),
+  validator({
+    query: { daemonId: String, instanceUuid: String },
+    body: { permissions: Object }
+  }),
   async (ctx: Koa.ParameterizedContext) => {
     const userUuid = getUserUuid(ctx);
     const { subUserUuid } = ctx.params;
+    const { daemonId, instanceUuid } = ctx.query;
     const { permissions } = ctx.request.body;
 
     const subUser = userSystem.getInstance(String(subUserUuid));
-    if (!subUser || !subUser.isSubUser) {
-      ctx.throw(404, "Sub-user not found");
+    if (!subUser) {
+      ctx.throw(404, "User not found");
       return;
     }
 
+    // Check if this user is a sub-user for this specific instance
+    const entry = subUserService.getSubUserEntry(
+      String(subUserUuid),
+      String(instanceUuid),
+      String(daemonId)
+    );
+    if (!entry) {
+      ctx.throw(404, "User is not a sub-user for this instance");
+      return;
+    }
+
+    // Find the parent for this sub-user entry
+    const parent = subUserService.getParentForInstance(
+      String(subUserUuid),
+      String(instanceUuid),
+      String(daemonId)
+    );
+
     // Allow if user is admin OR if user is the parent
-    if (!isTopPermissionByUuid(userUuid) && subUser.parentUserId !== userUuid) {
+    if (!isTopPermissionByUuid(userUuid) && (!parent || parent.uuid !== userUuid)) {
       ctx.throw(403, "You do not have permission to modify this sub-user");
       return;
     }
 
     try {
-      await userSystem.edit(String(subUserUuid), { permissions });
+      await subUserService.updateSubUserPermissions(
+        parent!.uuid,
+        String(subUserUuid),
+        String(instanceUuid),
+        String(daemonId),
+        permissions
+      );
 
       operationLogger.log("sub_user_update", {
         operator_ip: ctx.ip,
         operator_name: String(ctx.session?.["userName"] || ""),
-        target_user_uuid: subUserUuid
+        target_user_uuid: subUserUuid,
+        instance_uuid: String(instanceUuid)
       });
 
       ctx.body = { success: true };
@@ -217,35 +246,55 @@ router.put(
   }
 );
 
-// Delete a sub-user
+// Remove a sub-user from a specific instance
 router.del(
   "/:subUserUuid",
   permission({ level: ROLE.USER }),
+  validator({ query: { daemonId: String, instanceUuid: String } }),
   async (ctx: Koa.ParameterizedContext) => {
     const userUuid = getUserUuid(ctx);
     const { subUserUuid } = ctx.params;
+    const { daemonId, instanceUuid } = ctx.query;
 
     const subUser = userSystem.getInstance(String(subUserUuid));
-    if (!subUser || !subUser.isSubUser) {
-      ctx.throw(404, "Sub-user not found");
+    if (!subUser) {
+      ctx.throw(404, "User not found");
       return;
     }
 
     const subUserName = subUser.userName || "Unknown";
 
+    // Check if this user is a sub-user for this specific instance
+    const entry = subUserService.getSubUserEntry(
+      String(subUserUuid),
+      String(instanceUuid),
+      String(daemonId)
+    );
+    if (!entry) {
+      ctx.throw(404, "User is not a sub-user for this instance");
+      return;
+    }
+
+    // Find the parent for this sub-user entry
+    const parent = subUserService.getParentForInstance(
+      String(subUserUuid),
+      String(instanceUuid),
+      String(daemonId)
+    );
+
     // Allow if user is admin OR if user is the parent
-    if (!isTopPermissionByUuid(userUuid) && subUser.parentUserId !== userUuid) {
-      ctx.throw(403, "You do not have permission to delete this sub-user");
+    if (!isTopPermissionByUuid(userUuid) && (!parent || parent.uuid !== userUuid)) {
+      ctx.throw(403, "You do not have permission to remove this sub-user");
       return;
     }
 
     try {
-      if (subUser.parentUserId) {
-        await subUserService.deleteSubUser(subUser.parentUserId, String(subUserUuid));
-      } else {
-        // Orphaned sub-user
-        await userSystem.deleteInstance(String(subUserUuid));
-      }
+      await subUserService.removeSubUserFromInstance(
+        parent!.uuid,
+        String(subUserUuid),
+        String(instanceUuid),
+        String(daemonId)
+      );
 
       operationLogger.log(
         "sub_user_delete",
@@ -253,7 +302,8 @@ router.del(
           operator_ip: ctx.ip,
           operator_name: String(ctx.session?.["userName"] || ""),
           target_user_name: subUserName,
-          target_user_uuid: subUserUuid
+          target_user_uuid: subUserUuid,
+          instance_uuid: String(instanceUuid)
         },
         "warning"
       );

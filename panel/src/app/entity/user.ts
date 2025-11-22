@@ -1,4 +1,4 @@
-import { IUser, UserPermissions } from "./entity_interface";
+import { IUser, UserPermissions, ISubUserEntry } from "./entity_interface";
 
 export enum UserPassWordType {
   md5 = 0,
@@ -27,10 +27,9 @@ export class User implements IUser {
   open2FA = false;
   permissions?: UserPermissions;
 
-  // Sub-user management fields
-  isSubUser: boolean = false;
-  parentUserId?: string;
-  subUsers: Array<{ uuid: string; instanceUuid: string; daemonId: string }> = [];
+  // Per-instance sub-user management
+  // A user can own some instances (full control) and be a sub-user of others (limited permissions)
+  subUsers: Array<ISubUserEntry> = [];
 
   // Email registration fields
   email: string = "";

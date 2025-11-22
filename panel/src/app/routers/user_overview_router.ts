@@ -25,7 +25,7 @@ router.put("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Parameterized
     // Track instance changes for sub-user cleanup
     if (config.instances) {
       const user = userSystem.getInstance(uuid);
-      if (user && !user.isSubUser) {
+      if (user) {
         // Find instances that were removed
         const oldInstances = user.instances || [];
         const newInstances = config.instances || [];
@@ -37,7 +37,7 @@ router.put("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Parameterized
               newInst.daemonId === oldInst.daemonId
           );
           if (!stillHasInstance) {
-            // Parent lost access to this instance, cleanup sub-users
+            // User lost access to this instance, cleanup their sub-users for it
             await subUserService.handleParentInstanceRemoval(
               uuid,
               oldInst.instanceUuid,

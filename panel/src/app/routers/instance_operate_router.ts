@@ -15,6 +15,7 @@ import RemoteRequest, { RemoteRequestTimeoutError } from "../service/remote_comm
 import RemoteServiceSubsystem from "../service/remote_service";
 import { systemConfig } from "../setting";
 import userSystem from "../service/user_service";
+import subUserService from "../service/sub_user_service";
 
 const router = new Router({ prefix: "/protected_instance" });
 
@@ -635,17 +636,23 @@ router.get(
   async (ctx) => {
     try {
       const userUuid = getUserUuid(ctx);
+      const daemonId = String(ctx.query.daemonId);
+      const instanceUuid = String(ctx.query.uuid);
       const user = userSystem.getInstance(userUuid);
 
-      // Sub-users can NEVER view operation logs
-      if (user?.isSubUser) {
-        ctx.status = 403;
-        ctx.body = $t("TXT_CODE_permission.forbiddenInstance");
-        return;
-      }
+      // Check if user is a sub-user for this specific instance
+      const subUserEntry = subUserService.getSubUserEntry(userUuid, instanceUuid, daemonId);
 
-      // For non-admin users, check canViewLogs permission (defaults to true if not set)
-      if (!isTopPermissionByUuid(userUuid)) {
+      // Sub-users use per-instance permissions for log viewing
+      if (subUserEntry) {
+        const canViewLogs = subUserEntry.permissions?.canViewLogs ?? true;
+        if (!canViewLogs) {
+          ctx.status = 403;
+          ctx.body = $t("TXT_CODE_permission.forbiddenInstance");
+          return;
+        }
+      } else if (!isTopPermissionByUuid(userUuid)) {
+        // For non-admin instance owners, check their user-level permissions
         const canViewLogs = user?.permissions?.canViewLogs ?? true;
         if (!canViewLogs) {
           ctx.status = 403;
@@ -655,7 +662,6 @@ router.get(
       }
 
       // Admins and regular users can view logs for their instances
-      const instanceUuid = String(ctx.query.uuid);
       const limit = +(ctx?.query?.limit || 50);
       if (limit < 1 || limit > 200) {
         ctx.body = { error: "limit must be between 1 and 200" };

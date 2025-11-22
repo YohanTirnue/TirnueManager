@@ -1,4 +1,5 @@
 import userSystem from "./user_service";
+import subUserService from "./sub_user_service";
 import { User } from "../entity/user";
 
 export function isHaveInstance(user: User, daemonId: string, instanceUuid: string) {
@@ -34,17 +35,14 @@ export function getUserByUserName(userName: string) {
 
 /**
  * Check if user can manage sub-users for a specific instance
- * Requirements: Admin OR (User must have the instance AND not be a sub-user)
+ * Requirements: Admin OR User must be the owner of the instance (not a sub-user for it)
  */
 export function canManageSubUsers(user: User, daemonId: string, instanceUuid: string): boolean {
   // Admins can manage all sub-users
   if (isTopPermission(user)) return true;
 
-  // Sub-users cannot create sub-users
-  if (user.isSubUser) return false;
-
-  // Must have access to the instance
-  return isHaveInstance(user, daemonId, instanceUuid);
+  // Must be the owner of this instance (not a sub-user)
+  return subUserService.isInstanceOwner(user.uuid, instanceUuid, daemonId);
 }
 
 export function canManageSubUsersByUuid(uuid: string, daemonId: string, instanceUuid: string): boolean {
