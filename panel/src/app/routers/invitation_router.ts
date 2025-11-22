@@ -13,7 +13,6 @@ import subUserService from "../service/sub_user_service";
 import { operationLogger } from "../service/operation_logger";
 import { logger } from "../service/log";
 import Storage from "../common/storage/sys_storage";
-import bcrypt from "bcrypt";
 
 const router = new Router({ prefix: "/sub-users/invite" });
 
@@ -325,10 +324,8 @@ router.post(
     }
 
     try {
-      // Hash password
-      const hashedPassword = await bcrypt.hash(String(password), 10);
-
       // Map invitation permissions to UserPermissions format
+      // Note: userSystem.create automatically hashes the password via edit()
       const userPermissions = {
         canStartInstances: invitation.permissions.canStart,
         canStopInstances: invitation.permissions.canStop,
@@ -359,7 +356,7 @@ router.post(
       // Create the new user (regular user - sub-user status is per-instance)
       const newUser = await userSystem.create({
         userName: String(userName),
-        passWord: hashedPassword,
+        passWord: String(password),
         permission: 1, // USER role
         email: invitation.inviteeEmail,
         emailVerified: true, // Clicking the link = email verified
