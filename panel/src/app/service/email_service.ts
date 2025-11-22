@@ -222,6 +222,114 @@ class EmailService {
     }
   }
 
+  async sendInvitationEmail(
+    email: string,
+    inviterName: string,
+    instanceName: string,
+    token: string,
+    expiryMinutes: number
+  ): Promise<boolean> {
+    if (!this.transporter) return false;
+
+    // Generate the invitation link - adjust baseUrl as needed
+    const baseUrl = process.env.PANEL_URL || "http://localhost:5173";
+    const inviteLink = `${baseUrl}/accept-invitation/${token}`;
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
+          <tr>
+            <td align="center" style="padding: 40px 20px;">
+              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 140, 66, 0.2);">
+                <tr>
+                  <td style="padding: 40px; text-align: center;">
+                    <!-- Logo/Brand -->
+                    <div style="margin-bottom: 24px;">
+                      <h1 style="color: #FF8C42; font-size: 36px; margin: 0; font-weight: 800;">Tirnue</h1>
+                    </div>
+
+                    <!-- Title -->
+                    <h2 style="color: white; font-size: 24px; margin: 0 0 16px 0; font-weight: 600;">
+                      You've Been Invited!
+                    </h2>
+
+                    <!-- Description -->
+                    <p style="color: rgba(255, 255, 255, 0.8); font-size: 16px; margin: 0 0 16px 0;">
+                      <strong style="color: #FF8C42;">${inviterName}</strong> has invited you to access their server instance:
+                    </p>
+
+                    <p style="color: rgba(255, 255, 255, 0.9); font-size: 18px; margin: 0 0 32px 0; font-weight: 600;">
+                      "${instanceName}"
+                    </p>
+
+                    <!-- CTA Button -->
+                    <div style="margin-bottom: 32px;">
+                      <a href="${inviteLink}" style="display: inline-block; background: linear-gradient(135deg, #FF8C42 0%, #FF6B1A 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                        Accept Invitation
+                      </a>
+                    </div>
+
+                    <!-- Expiry Notice -->
+                    <p style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin: 0 0 24px 0;">
+                      This invitation expires in <strong style="color: #FF8C42;">${expiryMinutes} minutes</strong>
+                    </p>
+
+                    <!-- Link fallback -->
+                    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                      <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0 0 8px 0;">
+                        Or copy this link:
+                      </p>
+                      <p style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin: 0; word-break: break-all;">
+                        ${inviteLink}
+                      </p>
+                    </div>
+
+                    <!-- Security Notice -->
+                    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 16px;">
+                      <p style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin: 0; line-height: 1.5;">
+                        If you don't know this person or didn't expect this invitation, you can safely ignore this email.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 24px 40px; border-top: 1px solid rgba(255, 140, 66, 0.1);">
+                    <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px; margin: 0; text-align: center;">
+                      © ${new Date().getFullYear()} Tirnue Manager. All rights reserved.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: `"${FROM_EMAIL.name}" <${FROM_EMAIL.address}>`,
+        to: email,
+        subject: `${inviterName} invited you to access "${instanceName}" - Tirnue Manager`,
+        html
+      });
+      logger.info(`[EmailService] Invitation email sent to ${email}`);
+      return true;
+    } catch (error) {
+      logger.error(`[EmailService] Failed to send invitation email to ${email}:`, error);
+      return false;
+    }
+  }
+
   private generateOTPEmailHTML(
     otp: string,
     type: "registration" | "password_reset" | "email_change",
