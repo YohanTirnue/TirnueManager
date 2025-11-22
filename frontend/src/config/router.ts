@@ -13,6 +13,8 @@ const InstallPage = () => import("@/views/Install.vue");
 const LayoutContainer = () => import("@/views/LayoutContainer.vue");
 const LoginPage = () => import("@/views/Login.vue");
 const LandingPage = () => import("@/views/Landing.vue");
+const RegisterPage = () => import("@/views/Register.vue");
+const ForgotPasswordPage = () => import("@/views/ForgotPassword.vue");
 
 export interface RouterMetaInfo {
   icon?: string;
@@ -324,6 +326,24 @@ const originRouterConfig: RouterConfig[] = [
     }
   },
   {
+    path: "/register",
+    name: "Register",
+    component: RegisterPage,
+    meta: {
+      permission: ROLE.GUEST,
+      mainMenu: false
+    }
+  },
+  {
+    path: "/forgot-password",
+    name: "Forgot Password",
+    component: ForgotPasswordPage,
+    meta: {
+      permission: ROLE.GUEST,
+      mainMenu: false
+    }
+  },
+  {
     path: "/_open_page",
     name: t("TXT_CODE_2cf59872"),
     component: LayoutContainer,
@@ -411,7 +431,7 @@ router.beforeEach((to, from, next) => {
 
   if (
     toRoutePath.includes("_open_page") ||
-    ["/shop", "/login", "/welcome", "/install", "/404"].includes(toRoutePath)
+    ["/shop", "/login", "/welcome", "/install", "/404", "/register", "/forgot-password"].includes(toRoutePath)
   ) {
     return next();
   }

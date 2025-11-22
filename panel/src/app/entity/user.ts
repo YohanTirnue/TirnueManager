@@ -31,6 +31,16 @@ export class User implements IUser {
   isSubUser: boolean = false;
   parentUserId?: string;
   subUsers: Array<{ uuid: string; instanceUuid: string; daemonId: string }> = [];
+
+  // Email registration fields
+  email: string = "";
+  emailVerified: boolean = false;
+  firstName: string = "";
+  lastName: string = "";
+  location: string = "";
+  createdIp: string = "";
+  lastLoginIp: string = "";
+  accountStatus: string = "active"; // 'active' | 'suspended' | 'pending_verification'
 }
 
 export enum ROLE {
