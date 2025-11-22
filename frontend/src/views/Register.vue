@@ -91,14 +91,16 @@ const initiateRegistration = async () => {
       turnstileToken: turnstileToken.value
     });
 
-    if (response.data.success) {
+    const result = response.data.data || response.data;
+    if (result.success) {
       currentStep.value = 1;
       startCountdown();
     } else {
-      reportErrorMsg({ message: response.data.message || "Registration failed" });
+      reportErrorMsg({ message: result.message || "Registration failed" });
     }
   } catch (error: any) {
-    reportErrorMsg({ message: error.response?.data?.message || "Registration failed" });
+    const errorData = error.response?.data?.data || error.response?.data;
+    reportErrorMsg({ message: errorData?.message || "Registration failed" });
   } finally {
     isLoading.value = false;
   }
@@ -117,7 +119,8 @@ const verifyOTP = async () => {
       otp: otp.value
     });
 
-    if (response.data.success) {
+    const result = response.data.data || response.data;
+    if (result.success) {
       currentStep.value = 2;
       // Update user info and redirect
       setTimeout(async () => {
@@ -130,10 +133,11 @@ const verifyOTP = async () => {
         router.push("/customer");
       }, 2000);
     } else {
-      reportErrorMsg({ message: response.data.message || "Verification failed" });
+      reportErrorMsg({ message: result.message || "Verification failed" });
     }
   } catch (error: any) {
-    reportErrorMsg({ message: error.response?.data?.message || "Verification failed" });
+    const errorData = error.response?.data?.data || error.response?.data;
+    reportErrorMsg({ message: errorData?.message || "Verification failed" });
   } finally {
     isLoading.value = false;
   }
