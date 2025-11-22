@@ -17,7 +17,8 @@ import {
   ClockCircleOutlined,
   IdcardOutlined,
   ControlOutlined,
-  SettingOutlined
+  SettingOutlined,
+  MailOutlined
 } from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
 import { throttle } from "lodash";
@@ -234,6 +235,14 @@ const formDataOrigin: EditUserInfo = {
   isInit: false,
   secret: "",
   open2FA: false,
+  email: "",
+  emailVerified: false,
+  firstName: "",
+  lastName: "",
+  location: "",
+  createdIp: "",
+  lastLoginIp: "",
+  accountStatus: "",
   permissions: {
     canUploadFiles: true,
     canDownloadFiles: true,
@@ -560,6 +569,75 @@ onMounted(async () => {
             </template>
             <a-input v-if="formData.apiKey" v-model:value="formData.apiKey" :readonly="true" size="large" />
             <div v-else class="empty-field">{{ t("TXT_CODE_6c274bdc") }}</div>
+          </a-form-item>
+        </div>
+      </div>
+
+      <!-- Profile Information Section (for existing users with email) -->
+      <div v-if="!isAddMode && (formData.email || formData.firstName || formData.lastName)" class="user-settings-card">
+        <div class="section-header-industrial">
+          <div class="section-icon">
+            <MailOutlined />
+          </div>
+          <div class="section-title">
+            <h4>Profile Information</h4>
+            <span>Email registration details</span>
+          </div>
+        </div>
+        <div class="form-grid">
+          <a-form-item v-if="formData.email" class="form-field">
+            <template #label>
+              <span class="field-label">Email</span>
+              <span class="field-hint">
+                <span v-if="formData.emailVerified" style="color: #52c41a;">✓ Verified</span>
+                <span v-else style="color: #faad14;">○ Not verified</span>
+              </span>
+            </template>
+            <a-input :value="formData.email" :readonly="true" size="large" />
+          </a-form-item>
+
+          <a-form-item v-if="formData.accountStatus" class="form-field">
+            <template #label>
+              <span class="field-label">Account Status</span>
+            </template>
+            <a-tag :color="formData.accountStatus === 'active' ? 'green' : formData.accountStatus === 'suspended' ? 'red' : 'orange'">
+              {{ formData.accountStatus }}
+            </a-tag>
+          </a-form-item>
+
+          <a-form-item v-if="formData.firstName" class="form-field">
+            <template #label>
+              <span class="field-label">First Name</span>
+            </template>
+            <a-input :value="formData.firstName" :readonly="true" size="large" />
+          </a-form-item>
+
+          <a-form-item v-if="formData.lastName" class="form-field">
+            <template #label>
+              <span class="field-label">Last Name</span>
+            </template>
+            <a-input :value="formData.lastName" :readonly="true" size="large" />
+          </a-form-item>
+
+          <a-form-item v-if="formData.location" class="form-field">
+            <template #label>
+              <span class="field-label">Location</span>
+            </template>
+            <a-input :value="formData.location" :readonly="true" size="large" />
+          </a-form-item>
+
+          <a-form-item v-if="formData.createdIp" class="form-field">
+            <template #label>
+              <span class="field-label">Registration IP</span>
+            </template>
+            <a-input :value="formData.createdIp" :readonly="true" size="large" />
+          </a-form-item>
+
+          <a-form-item v-if="formData.lastLoginIp" class="form-field">
+            <template #label>
+              <span class="field-label">Last Login IP</span>
+            </template>
+            <a-input :value="formData.lastLoginIp" :readonly="true" size="large" />
           </a-form-item>
         </div>
       </div>
