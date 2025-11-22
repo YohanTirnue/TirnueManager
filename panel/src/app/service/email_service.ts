@@ -390,13 +390,20 @@ class EmailService {
     inviterName: string,
     instanceName: string,
     token: string,
-    expiryMinutes: number
+    expiryMinutes: number,
+    hasAccount: boolean = false
   ): Promise<boolean> {
     if (!this.transporter) return false;
 
     // Generate the invitation link - adjust baseUrl as needed
     const baseUrl = process.env.PANEL_URL || "https://hosting.tirnue.space";
     const inviteLink = `${baseUrl}/#/accept-invitation/${token}`;
+
+    // Customize message based on account status
+    const ctaText = hasAccount ? "Log In to Accept" : "Create Account & Accept";
+    const instructionText = hasAccount
+      ? "You already have an account! Click below to log in and you'll immediately gain access to the instance."
+      : "Click below to create your account. No email verification needed - you'll get instant access after creating your account!";
 
     const html = `
       <!DOCTYPE html>
@@ -427,14 +434,19 @@ class EmailService {
                       <strong style="color: #FF8C42;">${inviterName}</strong> has invited you to access their server instance:
                     </p>
 
-                    <p style="color: rgba(255, 255, 255, 0.9); font-size: 18px; margin: 0 0 32px 0; font-weight: 600;">
+                    <p style="color: rgba(255, 255, 255, 0.9); font-size: 18px; margin: 0 0 16px 0; font-weight: 600;">
                       "${instanceName}"
+                    </p>
+
+                    <!-- Instructions based on account status -->
+                    <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px; margin: 0 0 32px 0; line-height: 1.5;">
+                      ${instructionText}
                     </p>
 
                     <!-- CTA Button -->
                     <div style="margin-bottom: 32px;">
                       <a href="${inviteLink}" style="display: inline-block; background: linear-gradient(135deg, #FF8C42 0%, #FF6B1A 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                        Accept Invitation
+                        ${ctaText}
                       </a>
                     </div>
 

@@ -132,6 +132,7 @@ const handleRegisterAndAccept = async () => {
 
   submitting.value = true;
   try {
+    // Register via invitation
     await axios.post(`/api/sub-users/invite/accept-register`, {
       token: token.value,
       userName: formData.value.userName,
@@ -139,10 +140,27 @@ const handleRegisterAndAccept = async () => {
       firstName: formData.value.firstName,
       lastName: formData.value.lastName
     });
-    message.success("Account created! You can now log in.");
-    router.push("/login");
+
+    // Auto-login after registration
+    const { execute: login } = (await import("@/services/apis")).loginUser();
+    const loginResult = await login({
+      data: {
+        username: formData.value.userName,
+        password: formData.value.password
+      }
+    });
+
+    // Update user info in store
+    await appStateStore.updateUserInfo();
+
+    message.success("Account created and logged in! Redirecting...");
+
+    // Redirect to dashboard
+    setTimeout(() => {
+      router.push("/");
+    }, 1000);
   } catch (err: any) {
-    message.error(err.response?.data?.data || "Failed to register");
+    message.error(err.response?.data?.data || err.message || "Failed to register");
   } finally {
     submitting.value = false;
   }
@@ -183,6 +201,14 @@ watch(canAcceptDirectly, async (can) => {
   if (can && !submitting.value) {
     console.log("Auto-accepting invitation for logged-in user");
     await handleAcceptInvitation();
+  }
+}, { immediate: true });
+
+// Auto-redirect existing users to login if not logged in
+watch(invitationDetails, (details) => {
+  if (details && details.hasAccount && !isLoggedIn.value) {
+    console.log("Existing user not logged in - redirecting to login");
+    goToLogin();
   }
 }, { immediate: true });
 </script>

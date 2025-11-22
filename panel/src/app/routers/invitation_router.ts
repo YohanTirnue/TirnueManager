@@ -96,10 +96,14 @@ router.post(
       // Create invitation directly (no OTP verification needed)
       const token = crypto.randomBytes(32).toString("hex");
 
+      // Check if invitee already has an account
+      const normalizedEmail = String(inviteeEmail).toLowerCase().trim();
+      const existingUser = userSystem.getUserByEmail(normalizedEmail);
+
       const invitation = invitationService.createInvitation(
         userUuid,
         parentUser.userName,
-        String(inviteeEmail).toLowerCase().trim(),
+        normalizedEmail,
         String(daemonId),
         String(instanceUuid),
         String(instanceName || "Instance"),
@@ -108,13 +112,14 @@ router.post(
         token
       );
 
-      // Send invitation email to invitee
+      // Send invitation email to invitee with account status
       const emailSent = await emailService.sendInvitationEmail(
         invitation.inviteeEmail,
         invitation.parentUserName,
         invitation.instanceName,
         invitation.token,
-        invitation.expiryMinutes
+        invitation.expiryMinutes,
+        !!existingUser  // Pass whether they have an account
       );
 
       if (!emailSent) {
