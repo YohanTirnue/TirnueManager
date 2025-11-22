@@ -434,6 +434,14 @@ router.post(
 
     singletonMemoryRedis.set(`invite:${token}`, inviteData, expiryMinutes * 60);
 
+    // Also store in instance's invite list for queryability
+    const listKey = `invite_list:${daemonId}:${instanceUuid}`;
+    const existingList = singletonMemoryRedis.get<{ value: string[] }>(listKey);
+    const tokenList = existingList?.value || [];
+    tokenList.push(token);
+    // Store list with longer TTL (24 hours) - individual invites have their own expiry
+    singletonMemoryRedis.set(listKey, tokenList, 86400);
+
     // Send invitation email
     const emailSent = await emailService.sendInvitationEmail(
       String(inviteeEmail),
@@ -675,9 +683,42 @@ router.get(
       ctx.throw(403, "You do not have permission to view invitations for this instance");
     }
 
-    // Note: In a real implementation, you'd want to store invites in a way that's queryable
-    // For now, this returns an empty array as we can't easily query Redis by pattern
-    ctx.body = [];
+    // Get invite token list for this instance
+    const listKey = `invite_list:${daemonId}:${instanceUuid}`;
+    const tokenListData = singletonMemoryRedis.get<{ value: string[] }>(listKey);
+    const tokenList = tokenListData?.value || [];
+
+    // Fetch each invite and filter valid ones
+    const pendingInvites: Array<{
+      token: string;
+      email: string;
+      expiresAt: number;
+    }> = [];
+    const validTokens: string[] = [];
+
+    for (const token of tokenList) {
+      const inviteKey = `invite:${token}`;
+      const stored = singletonMemoryRedis.get<{ value: InviteData }>(inviteKey);
+
+      if (stored?.value && Date.now() < stored.value.expiresAt) {
+        // Only show invites for current user (or all if admin)
+        if (isTopPermissionByUuid(userUuid) || stored.value.parentUuid === userUuid) {
+          pendingInvites.push({
+            token: stored.value.token,
+            email: stored.value.inviteeEmail,
+            expiresAt: stored.value.expiresAt
+          });
+        }
+        validTokens.push(token);
+      }
+    }
+
+    // Clean up expired tokens from list
+    if (validTokens.length !== tokenList.length) {
+      singletonMemoryRedis.set(listKey, validTokens, 86400);
+    }
+
+    ctx.body = pendingInvites;
   }
 );
 
