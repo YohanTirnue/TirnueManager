@@ -301,9 +301,10 @@ const handleSendInvitation = async () => {
       }
     });
 
-    pendingKey.value = res.data.data.pendingKey;
-    inviteStep.value = "otp";
-    message.success("Verification code sent to your email");
+    message.success("Invitation sent successfully");
+    inviteDialogVisible.value = false;
+    fetchPendingInvitations();
+    emit("refresh");
   } catch (error: any) {
     reportErrorMsg(error.response?.data?.data || error.message);
   } finally {
@@ -588,14 +589,13 @@ const formatExpiry = (expiresAt: number) => {
           <div class="header-content">
             <h3>Invite Sub-User</h3>
             <span class="header-subtitle">
-              {{ inviteStep === "email" ? "Enter email and set permissions" : "Verify your identity" }}
+              Enter email and set permissions
             </span>
           </div>
         </div>
       </template>
 
-      <!-- Step 1: Email & Permissions -->
-      <div v-if="inviteStep === 'email'">
+      <div>
         <a-form
           ref="formRef"
           :model="inviteFormData"
@@ -723,40 +723,10 @@ const formatExpiry = (expiresAt: number) => {
             <button type="button" class="btn-cancel" @click="inviteDialogVisible = false">Cancel</button>
             <button type="button" class="btn-submit" :disabled="loading" @click="handleSendInvitation">
               <SendOutlined />
-              Send Verification Code
+              {{ loading ? "Sending..." : "Send Invitation" }}
             </button>
           </div>
         </a-form>
-      </div>
-
-      <!-- Step 2: OTP Verification -->
-      <div v-else class="otp-step">
-        <div class="otp-info">
-          <CheckCircleOutlined class="otp-info-icon" />
-          <p>A verification code has been sent to your email. Enter it below to send the invitation.</p>
-        </div>
-
-        <div class="otp-input-container">
-          <a-input
-            v-model:value="otpCode"
-            placeholder="Enter 6-digit code"
-            size="large"
-            :maxlength="6"
-            class="otp-input"
-          />
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" @click="inviteStep = 'email'">Back</button>
-          <button
-            type="button"
-            class="btn-submit"
-            :disabled="otpLoading || otpCode.length !== 6"
-            @click="handleVerifyOtp"
-          >
-            {{ otpLoading ? "Verifying..." : "Send Invitation" }}
-          </button>
-        </div>
       </div>
     </a-modal>
 
