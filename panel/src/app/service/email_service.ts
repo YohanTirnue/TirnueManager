@@ -396,7 +396,7 @@ class EmailService {
 
     // Generate the invitation link - adjust baseUrl as needed
     const baseUrl = process.env.PANEL_URL || "https://hosting.tirnue.space";
-    const inviteLink = `${baseUrl}/accept-invitation/${token}`;
+    const inviteLink = `${baseUrl}/#/accept-invitation/${token}`;
 
     const html = `
       <!DOCTYPE html>
