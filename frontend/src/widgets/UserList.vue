@@ -9,11 +9,9 @@ import {
   EditOutlined,
   DatabaseOutlined,
   DeleteOutlined,
-  PlusOutlined,
   ReloadOutlined,
   CrownOutlined,
   TeamOutlined,
-  SafetyOutlined,
   ClockCircleOutlined,
   IdcardOutlined,
   MailOutlined
@@ -26,13 +24,11 @@ import { useAppRouters } from "@/hooks/useAppRouters";
 import {
   getUserInfo,
   deleteUser as deleteUserApi,
-  addUser as addUserApi,
   editUserInfo
 } from "@/services/apis";
 import type { LayoutCard } from "@/types/index";
 import type { BaseUserInfo, EditUserInfo } from "@/types/user";
 import _ from "lodash";
-import { PASSWORD_REGEX } from "../tools/validator";
 import { PERMISSION_MAP } from "@/config/const";
 import { reportErrorMsg } from "@/tools/validator";
 
@@ -149,10 +145,9 @@ const showDeleteConfirm = (user: BaseUserInfo) => {
   });
 };
 
-const isAddMode = ref(true);
 const userDialog = ref({
   status: false,
-  title: t("TXT_CODE_e83ffa03"),
+  title: t("TXT_CODE_79f9a172"),
   confirmBtnLoading: false,
   show: () => {
     userDialog.value.status = true;
@@ -165,24 +160,13 @@ const userDialog = ref({
     }
     try {
       userDialog.value.confirmBtnLoading = true;
-      if (isAddMode.value) {
-        await addUserApi().execute({
-          data: {
-            username: formData.value.userName,
-            password: formData.value.passWord!,
-            permission: formData.value.permission
-          }
-        });
-        message.success(t("TXT_CODE_c855fc29"));
-      } else {
-        await editUserInfo().execute({
-          data: {
-            config: formData.value,
-            uuid: formData.value.uuid
-          }
-        });
-        message.success(t("TXT_CODE_27efac3b"));
-      }
+      await editUserInfo().execute({
+        data: {
+          config: formData.value,
+          uuid: formData.value.uuid
+        }
+      });
+      message.success(t("TXT_CODE_27efac3b"));
       userDialog.value.status = false;
       formData.value = _.cloneDeep(formDataOrigin);
     } catch (error: any) {
@@ -218,54 +202,17 @@ const formDataOrigin: EditUserInfo = {
 
 const formRef = ref<FormInstance>();
 const formData = ref<EditUserInfo>(_.cloneDeep(formDataOrigin));
-const baseRules: Record<string, Rule[]> = {
+const formRules: Record<string, Rule[]> = {
   userName: [
     { required: true, message: t("TXT_CODE_2695488c") },
     { min: 3, max: 20, message: t("TXT_CODE_3f477ec"), trigger: "blur" }
   ],
   permission: [{ required: true, message: t("TXT_CODE_3bb646e4") }]
 };
-const addUserRules: Record<string, Rule[]> = {
-  ...baseRules,
-  passWord: [
-    {
-      min: 9,
-      max: 36,
-      validator: async (_rule: Rule, value: string) => {
-        if (!PASSWORD_REGEX.test(value)) throw new Error(t("TXT_CODE_6032f5a3"));
-      },
-      trigger: "blur"
-    }
-  ]
-};
-const editUserRules: Record<string, Rule[]> = {
-  ...baseRules,
-  passWord: [
-    {
-      required: false
-    },
-    {
-      min: 9,
-      max: 36,
-      validator: async (_rule: Rule, value: string) => {
-        if (value && !PASSWORD_REGEX.test(value)) throw new Error(t("TXT_CODE_6032f5a3"));
-      },
-      trigger: "blur"
-    }
-  ]
-};
-
-const handleAddUser = async () => {
-  userDialog.value.title = t("TXT_CODE_e83ffa03");
-  formData.value = _.cloneDeep(formDataOrigin);
-  isAddMode.value = true;
-  userDialog.value.show();
-};
 
 const handleEditUser = (user: BaseUserInfo) => {
   userDialog.value.title = t("TXT_CODE_79f9a172");
   formData.value = _.cloneDeep(user);
-  isAddMode.value = false;
   userDialog.value.show();
   actionModalUser.value = null;
   actionModalOpen.value = false;
@@ -325,13 +272,12 @@ onMounted(async () => {
     <template #title>
       <div class="modal-header-industrial">
         <div class="header-icon-industrial">
-          <UserOutlined v-if="isAddMode" />
-          <EditOutlined v-else />
+          <EditOutlined />
         </div>
         <div class="header-content-industrial">
           <h3>{{ userDialog.title }}</h3>
           <span class="header-subtitle-industrial">
-            {{ isAddMode ? 'Create a new user account' : 'Modify user settings and permissions' }}
+            Modify user settings and permissions
           </span>
         </div>
       </div>
@@ -339,7 +285,7 @@ onMounted(async () => {
 
     <a-form
       ref="formRef"
-      :rules="isAddMode ? addUserRules : editUserRules"
+      :rules="formRules"
       :model="formData"
       layout="vertical"
       class="industrial-form"
@@ -376,16 +322,7 @@ onMounted(async () => {
             <a-input v-model:value="formData.userName" :placeholder="t('TXT_CODE_4ea93630')" size="large" />
           </a-form-item>
 
-          <!-- Row 2 -->
-          <a-form-item :required="isAddMode" name="passWord" class="form-field">
-            <template #label>
-              <span class="field-label">{{ t("TXT_CODE_551b0348") }}</span>
-              <span class="field-hint">{{ !isAddMode ? 'Leave blank to keep unchanged' : t("TXT_CODE_1f2062c7") }}</span>
-            </template>
-            <a-input-password v-model:value="formData.passWord" :placeholder="t('TXT_CODE_4ea93630')" size="large" />
-          </a-form-item>
-
-          <a-form-item v-if="!isAddMode" class="form-field">
+          <a-form-item class="form-field">
             <template #label>
               <span class="field-label">APIKEY</span>
               <span class="field-hint">API authentication key</span>
@@ -397,7 +334,7 @@ onMounted(async () => {
       </div>
 
       <!-- Profile Information Section (for existing users with email) -->
-      <div v-if="!isAddMode && (formData.email || formData.firstName || formData.lastName)" class="user-settings-card">
+      <div v-if="formData.email || formData.firstName || formData.lastName" class="user-settings-card">
         <div class="section-header-industrial">
           <div class="section-icon">
             <MailOutlined />
@@ -466,7 +403,7 @@ onMounted(async () => {
       </div>
 
       <!-- Sub-Users Section (Edit Mode Only) -->
-      <div v-if="!isAddMode && formData.subUsers && formData.subUsers.length > 0" class="user-settings-card">
+      <div v-if="formData.subUsers && formData.subUsers.length > 0" class="user-settings-card">
         <div class="section-header-industrial">
           <div class="section-icon">
             <TeamOutlined />
@@ -505,7 +442,7 @@ onMounted(async () => {
           @click="userDialog.resolve()"
         >
           <span v-if="userDialog.confirmBtnLoading">Saving...</span>
-          <span v-else>{{ isAddMode ? 'Create User' : 'Save Changes' }}</span>
+          <span v-else>Save Changes</span>
         </button>
       </div>
     </a-form>
@@ -527,10 +464,6 @@ onMounted(async () => {
         <button class="action-button reload-btn" @click="reload" :disabled="getUserInfoLoading">
           <ReloadOutlined :spin="getUserInfoLoading" />
           Reload
-        </button>
-        <button class="action-button add-btn" @click="handleAddUser">
-          <PlusOutlined />
-          Add User
         </button>
         <button
           class="action-button delete-btn"
