@@ -211,20 +211,24 @@ router.get(
   "/verify",
   async (ctx: Koa.ParameterizedContext) => {
     const token = ctx.query.token as string;
+    logger.info(`[Invitation] /verify endpoint called with token: ${token}`);
 
     if (!token) {
+      logger.error("[Invitation] /verify - No token provided");
       ctx.throw(400, "Token is required");
       return;
     }
 
     const invitation = invitationService.getInvitationByToken(String(token));
     if (!invitation) {
+      logger.error(`[Invitation] /verify - Invitation not found for token: ${token}`);
       ctx.throw(404, "Invitation not found or expired");
       return;
     }
 
     // Check if invitee has an account
     const existingUser = userSystem.getUserByEmail(invitation.inviteeEmail);
+    logger.info(`[Invitation] /verify - Found invitation for ${invitation.inviteeEmail}, hasAccount: ${!!existingUser}`);
 
     ctx.body = {
       email: invitation.inviteeEmail,
