@@ -9,6 +9,7 @@ import { IUser } from "../entity/entity_interface";
 import { IUserApp, User, UserPassWordType } from "../entity/user";
 import { $t } from "../i18n";
 import { logger } from "./log";
+import { migratePermissions } from "./migrations/permission_migration";
 
 export class TwoFactorError extends Error {}
 
@@ -21,6 +22,9 @@ class UserSubsystem {
       this.objects.set(uuid, user);
     }
     logger.info($t("TXT_CODE_systemUser.userCount", { n: this.objects.size }));
+
+    // Run permission format migration for existing users
+    await migratePermissions();
   }
 
   async create(config: IUser): Promise<User> {
