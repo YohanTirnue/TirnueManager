@@ -7,7 +7,7 @@ import validator from "../middleware/validator";
 import { operationLogger } from "../service/operation_logger";
 import { getUserPermission, getUserUuid } from "../service/passport_service";
 import { timeUuid } from "../service/password";
-import { isHaveInstanceByUuid, isTopPermissionByUuid } from "../service/permission_service";
+import { isHaveInstanceByUuid, isTopPermissionByUuid, getUserInstancePermissions } from "../service/permission_service";
 import RemoteRequest from "../service/remote_command";
 import RemoteServiceSubsystem from "../service/remote_service";
 import { systemConfig } from "../setting";
@@ -24,6 +24,13 @@ router.use(async (ctx, next) => {
     return;
   }
   if (isHaveInstanceByUuid(userUuid, daemonId, instanceUuid)) {
+    // Check file manager permission
+    const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+    if (permissions && !permissions.canAccessFileManager) {
+      ctx.status = 403;
+      ctx.body = "You do not have permission to access the file manager for this instance";
+      return;
+    }
     await next();
   } else {
     ctx.status = 403;
@@ -94,6 +101,16 @@ router.put(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to modify files for this instance";
+        return;
+      }
+
       const target = String(ctx.request.body.target);
       const chmod = Number(ctx.request.body.chmod);
       const deep = Number(ctx.request.body.deep);
@@ -129,6 +146,16 @@ router.post(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to create files for this instance";
+        return;
+      }
+
       const target = String(ctx.request.body.target);
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("file/touch", {
@@ -159,6 +186,16 @@ router.post(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to create directories for this instance";
+        return;
+      }
+
       const target = String(ctx.request.body.target);
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("file/mkdir", {
@@ -189,6 +226,16 @@ router.put(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to edit files for this instance";
+        return;
+      }
+
       const target = String(ctx.request.body.target);
       const text = ctx.request.body.text;
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
@@ -225,6 +272,16 @@ router.post(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to copy files for this instance";
+        return;
+      }
+
       const targets = ctx.request.body.targets as [];
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("file/copy", {
@@ -254,6 +311,16 @@ router.put(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to move files for this instance";
+        return;
+      }
+
       const targets = ctx.request.body.targets as [];
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("file/move", {
@@ -283,6 +350,16 @@ router.delete(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = ctx.query.uuid;
+      const userUuid = getUserUuid(ctx);
+
+      // Check delete permission
+      const permissions = getUserInstancePermissions(userUuid, String(instanceUuid), daemonId);
+      if (permissions && !permissions.canDeleteFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to delete files for this instance";
+        return;
+      }
+
       const targets = ctx.request.body.targets;
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("file/delete", {
@@ -316,6 +393,16 @@ router.post(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check modify permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canModifyFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to compress files for this instance";
+        return;
+      }
+
       const source = String(ctx.request.body.source);
       const targets = ctx.request.body.targets;
       const type = Number(ctx.request.body.type);
@@ -356,6 +443,16 @@ router.all(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check download permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canDownloadFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to download files for this instance";
+        return;
+      }
+
       const fileName = String(ctx.query.file_name);
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       if (!remoteService) throw new Error($t("TXT_CODE_dd559000") + ` Daemon ID: ${daemonId}`);
@@ -397,6 +494,16 @@ router.all(
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
+      const userUuid = getUserUuid(ctx);
+
+      // Check upload permission
+      const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+      if (permissions && !permissions.canUploadFiles) {
+        ctx.status = 403;
+        ctx.body = "You do not have permission to upload files for this instance";
+        return;
+      }
+
       const uploadDir = String(ctx.query.upload_dir);
       const fileName = ctx.query.file_name ? String(ctx.query.file_name) : undefined;
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);

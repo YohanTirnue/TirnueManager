@@ -46,6 +46,22 @@ export interface UserPermissions {
   disablePaste: boolean;
 }
 
+// Sub-user relationship with per-instance permissions
+export interface ISubUserEntry {
+  uuid: string;
+  instanceUuid: string;
+  daemonId: string;
+  permissions: UserPermissions;
+}
+
+// Instance entry with per-instance permissions
+export interface IUserInstance {
+  instanceUuid: string;
+  daemonId: string;
+  instanceInfo?: any;
+  permissions?: UserPermissions;
+}
+
 export interface IUser {
   uuid?: string;
   userName?: string;
@@ -54,28 +70,40 @@ export interface IUser {
   permission?: number;
   registerTime?: string;
   loginTime?: string;
-  instances?: Array<any>;
+  instances?: Array<IUserInstance>;
   isInit?: boolean;
   passWordType?: number;
   secret?: string;
   open2FA?: boolean;
-  permissions?: UserPermissions;
-  isSubUser?: boolean;
-  parentUserId?: string;
-  subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string }>;
+  // Per-instance sub-user management (user can be owner of some instances, sub-user of others)
+  subUsers?: Array<ISubUserEntry>;
+  // Email registration fields
+  email?: string;
+  emailVerified?: boolean;
+  firstName?: string;
+  lastName?: string;
+  location?: string;
+  createdIp?: string;
+  lastLoginIp?: string;
+  accountStatus?: string;
 }
 
 export interface ICompleteUser {
   uuid: string;
   userName: string;
   permission: number;
-  instances: Array<any>;
+  instances: Array<IUserInstance>;
   registerTime: string;
   loginTime: string;
-  permissions?: UserPermissions;
-  isSubUser?: boolean;
-  parentUserId?: string;
-  subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string }>;
+  // Per-instance sub-user management
+  subUsers?: Array<ISubUserEntry>;
+  // Email registration fields
+  email?: string;
+  emailVerified?: boolean;
+  firstName?: string;
+  lastName?: string;
+  location?: string;
+  accountStatus?: string;
 }
 
 type RemoteMappingEntry = {

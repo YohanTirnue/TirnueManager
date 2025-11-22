@@ -9,15 +9,12 @@ import {
   EditOutlined,
   DatabaseOutlined,
   DeleteOutlined,
-  PlusOutlined,
   ReloadOutlined,
   CrownOutlined,
   TeamOutlined,
-  SafetyOutlined,
   ClockCircleOutlined,
   IdcardOutlined,
-  ControlOutlined,
-  SettingOutlined
+  MailOutlined
 } from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
 import { throttle } from "lodash";
@@ -27,15 +24,11 @@ import { useAppRouters } from "@/hooks/useAppRouters";
 import {
   getUserInfo,
   deleteUser as deleteUserApi,
-  addUser as addUserApi,
-  editUserInfo,
-  getSubUsers
+  editUserInfo
 } from "@/services/apis";
-import type { UserPermissions } from "@/types/user";
 import type { LayoutCard } from "@/types/index";
 import type { BaseUserInfo, EditUserInfo } from "@/types/user";
 import _ from "lodash";
-import { PASSWORD_REGEX } from "../tools/validator";
 import { PERMISSION_MAP } from "@/config/const";
 import { reportErrorMsg } from "@/tools/validator";
 
@@ -152,10 +145,9 @@ const showDeleteConfirm = (user: BaseUserInfo) => {
   });
 };
 
-const isAddMode = ref(true);
 const userDialog = ref({
   status: false,
-  title: t("TXT_CODE_e83ffa03"),
+  title: t("TXT_CODE_79f9a172"),
   confirmBtnLoading: false,
   show: () => {
     userDialog.value.status = true;
@@ -168,49 +160,13 @@ const userDialog = ref({
     }
     try {
       userDialog.value.confirmBtnLoading = true;
-      if (isAddMode.value) {
-        await addUserApi().execute({
-          data: {
-            username: formData.value.userName,
-            password: formData.value.passWord!,
-            permission: formData.value.permission,
-            permissions: formData.value.permissions ?? {
-              canUploadFiles: true,
-              canDownloadFiles: true,
-              canDeleteFiles: true,
-              canModifyFiles: true,
-              canAccessConsole: true,
-              canStartInstances: true,
-              canRestartInstances: true,
-              canStopInstances: true,
-              canTerminateInstances: false,
-              canViewLogs: true,
-              canAccessConfigFiles: true,
-              canAccessFileManager: true,
-              canAccessMinecraftQuery: true,
-              canAccessTerminalSettings: true,
-              canAccessScheduledTasks: true,
-              canAccessEventTasks: true,
-              canAccessInstanceSettings: true,
-              canAccessServerMarket: true,
-              disableRightClick: false,
-              disableKeyboardShortcuts: false,
-              disableTextSelection: false,
-              disableCopy: false,
-              disablePaste: false
-            }
-          }
-        });
-        message.success(t("TXT_CODE_c855fc29"));
-      } else {
-        await editUserInfo().execute({
-          data: {
-            config: formData.value,
-            uuid: formData.value.uuid
-          }
-        });
-        message.success(t("TXT_CODE_27efac3b"));
-      }
+      await editUserInfo().execute({
+        data: {
+          config: formData.value,
+          uuid: formData.value.uuid
+        }
+      });
+      message.success(t("TXT_CODE_27efac3b"));
       userDialog.value.status = false;
       formData.value = _.cloneDeep(formDataOrigin);
     } catch (error: any) {
@@ -234,97 +190,29 @@ const formDataOrigin: EditUserInfo = {
   isInit: false,
   secret: "",
   open2FA: false,
-  permissions: {
-    canUploadFiles: true,
-    canDownloadFiles: true,
-    canDeleteFiles: true,
-    canModifyFiles: true,
-    canAccessConsole: true,
-    canStartInstances: true,
-    canRestartInstances: true,
-    canStopInstances: true,
-    canTerminateInstances: false,
-    canViewLogs: true,
-    canAccessConfigFiles: true,
-    canAccessFileManager: true,
-    canAccessMinecraftQuery: true,
-    canAccessTerminalSettings: true,
-    canAccessScheduledTasks: true,
-    canAccessEventTasks: true,
-    canAccessInstanceSettings: true,
-    canAccessServerMarket: true,
-    disableRightClick: false,
-    disableKeyboardShortcuts: false,
-    disableTextSelection: false,
-    disableCopy: false,
-    disablePaste: false
-  }
+  email: "",
+  emailVerified: false,
+  firstName: "",
+  lastName: "",
+  location: "",
+  createdIp: "",
+  lastLoginIp: "",
+  accountStatus: ""
 };
 
 const formRef = ref<FormInstance>();
 const formData = ref<EditUserInfo>(_.cloneDeep(formDataOrigin));
-const baseRules: Record<string, Rule[]> = {
+const formRules: Record<string, Rule[]> = {
   userName: [
     { required: true, message: t("TXT_CODE_2695488c") },
     { min: 3, max: 20, message: t("TXT_CODE_3f477ec"), trigger: "blur" }
   ],
   permission: [{ required: true, message: t("TXT_CODE_3bb646e4") }]
 };
-const addUserRules: Record<string, Rule[]> = {
-  ...baseRules,
-  passWord: [
-    {
-      min: 9,
-      max: 36,
-      validator: async (_rule: Rule, value: string) => {
-        if (!PASSWORD_REGEX.test(value)) throw new Error(t("TXT_CODE_6032f5a3"));
-      },
-      trigger: "blur"
-    }
-  ]
-};
-const editUserRules: Record<string, Rule[]> = {
-  ...baseRules,
-  passWord: [
-    {
-      required: false
-    },
-    {
-      min: 9,
-      max: 36,
-      validator: async (_rule: Rule, value: string) => {
-        if (value && !PASSWORD_REGEX.test(value)) throw new Error(t("TXT_CODE_6032f5a3"));
-      },
-      trigger: "blur"
-    }
-  ]
-};
-
-const handleAddUser = async () => {
-  userDialog.value.title = t("TXT_CODE_e83ffa03");
-  formData.value = _.cloneDeep(formDataOrigin);
-  isAddMode.value = true;
-  userDialog.value.show();
-};
 
 const handleEditUser = (user: BaseUserInfo) => {
   userDialog.value.title = t("TXT_CODE_79f9a172");
-  const clonedUser = _.cloneDeep(user);
-
-  // Ensure permissions object exists for backward compatibility
-  // Merge with defaults to handle both missing and partial permissions objects
-  if (!clonedUser.permissions) {
-    clonedUser.permissions = _.cloneDeep(formDataOrigin.permissions!);
-  } else {
-    // Merge existing permissions with defaults to ensure all fields exist
-    clonedUser.permissions = {
-      ...formDataOrigin.permissions!,
-      ...clonedUser.permissions
-    };
-  }
-
-  formData.value = clonedUser;
-  isAddMode.value = false;
+  formData.value = _.cloneDeep(user);
   userDialog.value.show();
   actionModalUser.value = null;
   actionModalOpen.value = false;
@@ -365,115 +253,6 @@ const getUserNameById = (uuid: string) => {
   return user?.userName || null;
 };
 
-// Sub-user permissions edit dialog
-const subUserDialog = ref({
-  visible: false,
-  loading: false,
-  uuid: "",
-  userName: "",
-  permissions: {
-    canUploadFiles: true,
-    canDownloadFiles: true,
-    canDeleteFiles: false,
-    canModifyFiles: true,
-    canAccessConsole: true,
-    canStartInstances: true,
-    canRestartInstances: true,
-    canStopInstances: true,
-    canTerminateInstances: false,
-    canViewLogs: true,
-    canAccessConfigFiles: false,
-    canAccessFileManager: true,
-    canAccessMinecraftQuery: true,
-    canAccessTerminalSettings: false,
-    canAccessScheduledTasks: false,
-    canAccessEventTasks: false,
-    canAccessInstanceSettings: false,
-    canAccessServerMarket: false,
-    disableRightClick: false,
-    disableKeyboardShortcuts: false,
-    disableTextSelection: false,
-    disableCopy: false,
-    disablePaste: false
-  } as UserPermissions
-});
-
-const handleEditSubUser = async (subUserUuid: string, instanceUuid: string, daemonId: string) => {
-  try {
-    subUserDialog.value.loading = true;
-
-    // Fetch sub-users for this instance to get full user data with permissions
-    const { execute } = getSubUsers();
-    const result = await execute({
-      params: {
-        daemonId,
-        instanceUuid
-      }
-    });
-
-    const subUser = result.value?.find((u: any) => u.uuid === subUserUuid);
-    if (!subUser) {
-      message.error("Sub-user not found");
-      return;
-    }
-
-    subUserDialog.value.uuid = subUser.uuid;
-    subUserDialog.value.userName = subUser.userName;
-    subUserDialog.value.permissions = subUser.permissions ? _.cloneDeep(subUser.permissions) : {
-      canUploadFiles: true,
-      canDownloadFiles: true,
-      canDeleteFiles: false,
-      canModifyFiles: true,
-      canAccessConsole: true,
-      canStartInstances: true,
-      canRestartInstances: true,
-      canStopInstances: true,
-      canTerminateInstances: false,
-      canViewLogs: true,
-      canAccessConfigFiles: false,
-      canAccessFileManager: true,
-      canAccessMinecraftQuery: true,
-      canAccessTerminalSettings: false,
-      canAccessScheduledTasks: false,
-      canAccessEventTasks: false,
-      canAccessInstanceSettings: false,
-      canAccessServerMarket: false,
-      disableRightClick: false,
-      disableKeyboardShortcuts: false,
-      disableTextSelection: false,
-      disableCopy: false,
-      disablePaste: false
-    };
-    subUserDialog.value.visible = true;
-  } catch (error: any) {
-    reportErrorMsg(error.message || "Failed to load sub-user data");
-  } finally {
-    subUserDialog.value.loading = false;
-  }
-};
-
-const saveSubUserPermissions = async () => {
-  try {
-    subUserDialog.value.loading = true;
-    // Use editUserInfo API which works for any user including sub-users
-    await editUserInfo().execute({
-      data: {
-        uuid: subUserDialog.value.uuid,
-        config: {
-          permissions: subUserDialog.value.permissions
-        } as any
-      }
-    });
-    message.success("Sub-user permissions updated");
-    subUserDialog.value.visible = false;
-    await fetchData();
-  } catch (error: any) {
-    reportErrorMsg(error.message);
-  } finally {
-    subUserDialog.value.loading = false;
-  }
-};
-
 onMounted(async () => {
   fetchData();
 });
@@ -493,13 +272,12 @@ onMounted(async () => {
     <template #title>
       <div class="modal-header-industrial">
         <div class="header-icon-industrial">
-          <UserOutlined v-if="isAddMode" />
-          <EditOutlined v-else />
+          <EditOutlined />
         </div>
         <div class="header-content-industrial">
           <h3>{{ userDialog.title }}</h3>
           <span class="header-subtitle-industrial">
-            {{ isAddMode ? 'Create a new user account' : 'Modify user settings and permissions' }}
+            Modify user settings and permissions
           </span>
         </div>
       </div>
@@ -507,7 +285,7 @@ onMounted(async () => {
 
     <a-form
       ref="formRef"
-      :rules="isAddMode ? addUserRules : editUserRules"
+      :rules="formRules"
       :model="formData"
       layout="vertical"
       class="industrial-form"
@@ -544,16 +322,7 @@ onMounted(async () => {
             <a-input v-model:value="formData.userName" :placeholder="t('TXT_CODE_4ea93630')" size="large" />
           </a-form-item>
 
-          <!-- Row 2 -->
-          <a-form-item :required="isAddMode" name="passWord" class="form-field">
-            <template #label>
-              <span class="field-label">{{ t("TXT_CODE_551b0348") }}</span>
-              <span class="field-hint">{{ !isAddMode ? 'Leave blank to keep unchanged' : t("TXT_CODE_1f2062c7") }}</span>
-            </template>
-            <a-input-password v-model:value="formData.passWord" :placeholder="t('TXT_CODE_4ea93630')" size="large" />
-          </a-form-item>
-
-          <a-form-item v-if="!isAddMode" class="form-field">
+          <a-form-item class="form-field">
             <template #label>
               <span class="field-label">APIKEY</span>
               <span class="field-hint">API authentication key</span>
@@ -564,25 +333,91 @@ onMounted(async () => {
         </div>
       </div>
 
+      <!-- Profile Information Section (for existing users with email) -->
+      <div v-if="formData.email || formData.firstName || formData.lastName" class="user-settings-card">
+        <div class="section-header-industrial">
+          <div class="section-icon">
+            <MailOutlined />
+          </div>
+          <div class="section-title">
+            <h4>Profile Information</h4>
+            <span>Email registration details</span>
+          </div>
+        </div>
+        <div class="form-grid">
+          <a-form-item v-if="formData.email" class="form-field">
+            <template #label>
+              <span class="field-label">Email</span>
+              <span class="field-hint">
+                <span v-if="formData.emailVerified" style="color: #52c41a;">✓ Verified</span>
+                <span v-else style="color: #faad14;">○ Not verified</span>
+              </span>
+            </template>
+            <a-input :value="formData.email" :readonly="true" size="large" />
+          </a-form-item>
+
+          <a-form-item v-if="formData.accountStatus" class="form-field">
+            <template #label>
+              <span class="field-label">Account Status</span>
+            </template>
+            <a-tag :color="formData.accountStatus === 'active' ? 'green' : formData.accountStatus === 'suspended' ? 'red' : 'orange'">
+              {{ formData.accountStatus }}
+            </a-tag>
+          </a-form-item>
+
+          <a-form-item v-if="formData.firstName" class="form-field">
+            <template #label>
+              <span class="field-label">First Name</span>
+            </template>
+            <a-input :value="formData.firstName" :readonly="true" size="large" />
+          </a-form-item>
+
+          <a-form-item v-if="formData.lastName" class="form-field">
+            <template #label>
+              <span class="field-label">Last Name</span>
+            </template>
+            <a-input :value="formData.lastName" :readonly="true" size="large" />
+          </a-form-item>
+
+          <a-form-item v-if="formData.location" class="form-field">
+            <template #label>
+              <span class="field-label">Location</span>
+            </template>
+            <a-input :value="formData.location" :readonly="true" size="large" />
+          </a-form-item>
+
+          <a-form-item v-if="formData.createdIp" class="form-field">
+            <template #label>
+              <span class="field-label">Registration IP</span>
+            </template>
+            <a-input :value="formData.createdIp" :readonly="true" size="large" />
+          </a-form-item>
+
+          <a-form-item v-if="formData.lastLoginIp" class="form-field">
+            <template #label>
+              <span class="field-label">Last Login IP</span>
+            </template>
+            <a-input :value="formData.lastLoginIp" :readonly="true" size="large" />
+          </a-form-item>
+        </div>
+      </div>
 
       <!-- Sub-Users Section (Edit Mode Only) -->
-      <div v-if="!isAddMode && formData.subUsers && formData.subUsers.length > 0" class="user-settings-card">
+      <div v-if="formData.subUsers && formData.subUsers.length > 0" class="user-settings-card">
         <div class="section-header-industrial">
           <div class="section-icon">
             <TeamOutlined />
           </div>
           <div class="section-title">
             <h4>Sub-Users ({{ formData.subUsers.length }})</h4>
-            <span>Sub-users created by this parent user</span>
+            <span>Permissions are managed per-instance from the Sub-User Manager</span>
           </div>
         </div>
         <div class="sub-users-grid">
           <div
             v-for="item in formData.subUsers"
             :key="item.uuid"
-            class="sub-user-card-modern clickable"
-            @click="handleEditSubUser(item.uuid, item.instanceUuid, item.daemonId)"
-            title="Click to edit permissions"
+            class="sub-user-card-modern"
           >
             <div class="sub-user-avatar">
               <UserOutlined />
@@ -590,9 +425,6 @@ onMounted(async () => {
             <div class="sub-user-details">
               <div class="sub-user-name">{{ getUserNameById(item.uuid) || 'Unknown' }}</div>
               <div class="sub-user-instance">Instance: {{ item.instanceUuid.substring(0, 8) }}...</div>
-            </div>
-            <div class="sub-user-edit-icon">
-              <EditOutlined />
             </div>
           </div>
         </div>
@@ -610,7 +442,7 @@ onMounted(async () => {
           @click="userDialog.resolve()"
         >
           <span v-if="userDialog.confirmBtnLoading">Saving...</span>
-          <span v-else>{{ isAddMode ? 'Create User' : 'Save Changes' }}</span>
+          <span v-else>Save Changes</span>
         </button>
       </div>
     </a-form>
@@ -632,10 +464,6 @@ onMounted(async () => {
         <button class="action-button reload-btn" @click="reload" :disabled="getUserInfoLoading">
           <ReloadOutlined :spin="getUserInfoLoading" />
           Reload
-        </button>
-        <button class="action-button add-btn" @click="handleAddUser">
-          <PlusOutlined />
-          Add User
         </button>
         <button
           class="action-button delete-btn"
@@ -778,152 +606,6 @@ onMounted(async () => {
     </div>
   </a-modal>
 
-  <!-- Sub-User Permissions Edit Modal -->
-  <a-modal
-    v-model:open="subUserDialog.visible"
-    :title="'Edit Sub-User Permissions: ' + subUserDialog.userName"
-    :footer="null"
-    width="600px"
-    class="sub-user-permissions-modal"
-  >
-    <div class="sub-user-permissions-content">
-      <!-- Instance Control Permissions -->
-      <div class="permission-section">
-        <div class="section-header">
-          <ControlOutlined />
-          <span>Instance Control</span>
-        </div>
-        <div class="permissions-grid">
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessConsole }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessConsole" />
-            <span>Console Access</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canStartInstances }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canStartInstances" />
-            <span>Start</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canStopInstances }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canStopInstances" />
-            <span>Stop</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canRestartInstances }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canRestartInstances" />
-            <span>Restart</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canTerminateInstances }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canTerminateInstances" />
-            <span>Terminate</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canViewLogs }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canViewLogs" />
-            <span>View Logs</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- File Permissions -->
-      <div class="permission-section">
-        <div class="section-header">
-          <SettingOutlined />
-          <span>File Operations</span>
-        </div>
-        <div class="permissions-grid">
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessFileManager }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessFileManager" />
-            <span>File Manager</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canUploadFiles }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canUploadFiles" />
-            <span>Upload</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canDownloadFiles }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canDownloadFiles" />
-            <span>Download</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canModifyFiles }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canModifyFiles" />
-            <span>Modify</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canDeleteFiles }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canDeleteFiles" />
-            <span>Delete</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Advanced Access -->
-      <div class="permission-section">
-        <div class="section-header">
-          <SettingOutlined />
-          <span>Advanced Access</span>
-        </div>
-        <div class="permissions-grid">
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessConfigFiles }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessConfigFiles" />
-            <span>Config Files</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessMinecraftQuery }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessMinecraftQuery" />
-            <span>MC Query</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessTerminalSettings }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessTerminalSettings" />
-            <span>Terminal Settings</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessScheduledTasks }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessScheduledTasks" />
-            <span>Scheduled Tasks</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessEventTasks }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessEventTasks" />
-            <span>Event Tasks</span>
-          </label>
-          <label class="permission-item" :class="{ active: subUserDialog.permissions.canAccessInstanceSettings }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.canAccessInstanceSettings" />
-            <span>Instance Settings</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Security Restrictions -->
-      <div class="permission-section security-section">
-        <div class="section-header">
-          <SafetyOutlined />
-          <span>Security Restrictions</span>
-        </div>
-        <div class="permissions-grid">
-          <label class="permission-item restriction" :class="{ active: subUserDialog.permissions.disableRightClick }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.disableRightClick" />
-            <span>Disable Right Click</span>
-          </label>
-          <label class="permission-item restriction" :class="{ active: subUserDialog.permissions.disableKeyboardShortcuts }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.disableKeyboardShortcuts" />
-            <span>Disable Shortcuts</span>
-          </label>
-          <label class="permission-item restriction" :class="{ active: subUserDialog.permissions.disableTextSelection }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.disableTextSelection" />
-            <span>Disable Selection</span>
-          </label>
-          <label class="permission-item restriction" :class="{ active: subUserDialog.permissions.disableCopy }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.disableCopy" />
-            <span>Disable Copy</span>
-          </label>
-          <label class="permission-item restriction" :class="{ active: subUserDialog.permissions.disablePaste }">
-            <a-checkbox v-model:checked="subUserDialog.permissions.disablePaste" />
-            <span>Disable Paste</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="modal-footer">
-        <button class="btn-cancel" @click="subUserDialog.visible = false">Cancel</button>
-        <button class="btn-save" :disabled="subUserDialog.loading" @click="saveSubUserPermissions">
-          {{ subUserDialog.loading ? 'Saving...' : 'Save Permissions' }}
-        </button>
-      </div>
-    </div>
-  </a-modal>
 </template>
 
 <style lang="scss" scoped>

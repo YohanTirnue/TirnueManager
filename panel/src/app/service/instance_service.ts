@@ -4,6 +4,7 @@ import RemoteRequest from "../service/remote_command";
 import { t } from "i18next";
 import { systemConfig } from "../setting";
 import { toText } from "mcsmanager-common";
+import type { UserPermissions } from "../entity/entity_interface";
 
 export enum INSTANCE_STATUS {
   BUSY = -1,
@@ -35,6 +36,7 @@ export interface IAdvancedInstanceInfo {
   processType?: string;
   docker?: Record<string, any>;
   info?: Record<string, any>;
+  permissions?: UserPermissions;
 }
 
 // Multi-forward operation method
@@ -65,7 +67,8 @@ export function multiOperationForwarding(
 export async function getInstancesByUuid(
   uuid: string,
   targetDaemonId?: string,
-  advanced: boolean = false
+  advanced: boolean = false,
+  includePermissions: boolean = false
 ) {
   const user = userSystem.getInstance(uuid);
   if (!user) throw new Error("The UID does not exist");
@@ -93,7 +96,8 @@ export async function getInstancesByUuid(
           stopCommand: "",
           processType: "",
           docker: {},
-          info: {}
+          info: {},
+          permissions: iterator.permissions
         });
         continue;
       }
@@ -117,14 +121,18 @@ export async function getInstancesByUuid(
         stopCommand: instancesInfo.config.stopCommand,
         processType: instancesInfo.config.processType,
         docker: instancesInfo.config.docker || {},
-        info: instancesInfo.info || {}
+        info: instancesInfo.info || {},
+        permissions: iterator.permissions
       });
     }
   } else {
+    // When not advanced, return instances with permissions
+    // User needs their own permissions for UI to work
     resInstances = user.instances;
   }
+
   // respond to user data
-  return {
+  const response: any = {
     uuid: user.uuid,
     userName: user.userName,
     loginTime: user.loginTime,
@@ -135,12 +143,18 @@ export async function getInstancesByUuid(
     isInit: user.isInit,
     open2FA: user.open2FA,
     secret: user.secret,
-    permissions: user.permissions,
-    isSubUser: user.isSubUser,
-    parentUserId: user.parentUserId,
-    subUsers: user.subUsers,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
     token: ""
   };
+
+  // Only include subUsers for admin requests
+  if (includePermissions) {
+    response.subUsers = user.subUsers;
+  }
+
+  return response;
 }
 
 export function checkInstanceAdvancedParams(

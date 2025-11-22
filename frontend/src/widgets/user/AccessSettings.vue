@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { LayoutCard } from "@/types";
-import type { UserInstance } from "@/types/user";
+import type { UserInstance, UserPermissions } from "@/types/user";
 import { computed, ref, onMounted } from "vue";
 import { t } from "@/lang/i18n";
 import { useScreen } from "@/hooks/useScreen";
@@ -16,12 +16,17 @@ import type { AntColumnsType, AntTableCell } from "@/types/ant";
 import dayjs from "dayjs";
 import WarningDialog from "@/components/fc/WarningDialog.vue";
 import { useMountComponent } from "@/hooks/useMountComponent";
+import _ from "lodash";
 import {
   AppstoreOutlined,
   ReloadOutlined,
   PlusOutlined,
   DeleteOutlined,
-  InboxOutlined
+  InboxOutlined,
+  SettingOutlined,
+  SafetyOutlined,
+  ControlOutlined,
+  DatabaseOutlined
 } from "@ant-design/icons-vue";
 
 const props = defineProps<{
@@ -55,6 +60,12 @@ const handleDelete = async (deletedInstance: UserInstance) => {
 
 const assignApp = async () => {
   try {
+    // Track existing instances before selection
+    const previousInstances = dataSource.value.map(inst => ({
+      daemonId: inst.daemonId,
+      instanceUuid: inst.instanceUuid
+    }));
+
     const selectedInstances = await useSelectInstances(dataSource.value);
     let warningInstances: string[] = [];
     for (const instance of selectedInstances || []) {
@@ -76,8 +87,31 @@ const assignApp = async () => {
       ).load<InstanceType<typeof WarningDialog>>(WarningDialog);
       await component.openDialog();
     }
-    if (selectedInstances) dataSource.value = selectedInstances;
-    await saveData();
+    if (selectedInstances) {
+      dataSource.value = selectedInstances;
+      await saveData();
+
+      // Find newly added instances (not in previous list)
+      const newInstanceIndices: number[] = [];
+      selectedInstances.forEach((inst, index) => {
+        const wasExisting = previousInstances.some(
+          prev => prev.daemonId === inst.daemonId && prev.instanceUuid === inst.instanceUuid
+        );
+        if (!wasExisting) {
+          newInstanceIndices.push(index);
+        }
+      });
+
+      // Queue new instances for permission setup
+      if (newInstanceIndices.length > 0) {
+        pendingPermissionSetup.value = newInstanceIndices;
+        message.info(`Setting up permissions for ${newInstanceIndices.length} new instance(s)`);
+        // Start processing the queue after a delay to ensure UI is ready
+        setTimeout(() => {
+          processNextPermissionSetup();
+        }, 500);
+      }
+    }
   } catch (err: any) {
     reportErrorMsg(err);
   }
@@ -129,6 +163,111 @@ onMounted(() => {
   refreshTableData();
 });
 
+// Default permissions for new instance assignments
+const getDefaultPermissions = (): UserPermissions => ({
+  canUploadFiles: true,
+  canDownloadFiles: true,
+  canDeleteFiles: true,
+  canModifyFiles: true,
+  canAccessConsole: true,
+  canStartInstances: true,
+  canRestartInstances: true,
+  canStopInstances: true,
+  canTerminateInstances: true,
+  canViewLogs: true,
+  canAccessConfigFiles: true,
+  canAccessFileManager: true,
+  canAccessMinecraftQuery: true,
+  canAccessTerminalSettings: true,
+  canAccessScheduledTasks: true,
+  canAccessEventTasks: true,
+  canAccessInstanceSettings: true,
+  canAccessServerMarket: true,
+  disableRightClick: false,
+  disableKeyboardShortcuts: false,
+  disableTextSelection: false,
+  disableCopy: false,
+  disablePaste: false
+});
+
+// Permissions dialog state
+const permissionsDialog = ref({
+  visible: false,
+  loading: false,
+  instanceIndex: -1,
+  instanceName: "",
+  permissions: getDefaultPermissions()
+});
+
+// Queue for new instances needing permission setup
+const pendingPermissionSetup = ref<number[]>([]);
+
+const openPermissionsDialog = (record: UserInstance, index: number) => {
+  permissionsDialog.value.instanceIndex = index;
+  permissionsDialog.value.instanceName = record.nickname || "Instance";
+  permissionsDialog.value.permissions = record.permissions
+    ? _.cloneDeep(record.permissions)
+    : getDefaultPermissions();
+  permissionsDialog.value.visible = true;
+};
+
+// Process next instance in the permission setup queue
+const processNextPermissionSetup = () => {
+  if (pendingPermissionSetup.value.length > 0) {
+    const nextIndex = pendingPermissionSetup.value.shift()!;
+    if (nextIndex >= 0 && nextIndex < dataSource.value.length) {
+      openPermissionsDialog(dataSource.value[nextIndex], nextIndex);
+    } else {
+      // Index no longer valid, try next
+      processNextPermissionSetup();
+    }
+  }
+};
+
+const saveInstancePermissions = async () => {
+  try {
+    permissionsDialog.value.loading = true;
+    const index = permissionsDialog.value.instanceIndex;
+    if (index >= 0 && index < dataSource.value.length) {
+      dataSource.value[index].permissions = _.cloneDeep(permissionsDialog.value.permissions);
+      await saveData();
+      permissionsDialog.value.visible = false;
+      message.success("Instance permissions updated");
+
+      // Process next in queue after a short delay
+      setTimeout(() => {
+        processNextPermissionSetup();
+      }, 300);
+    }
+  } catch (error: any) {
+    reportErrorMsg(error.message);
+  } finally {
+    permissionsDialog.value.loading = false;
+  }
+};
+
+// Handle dialog cancel - still process queue
+const handlePermissionDialogCancel = () => {
+  permissionsDialog.value.visible = false;
+  // Process next in queue after a short delay
+  setTimeout(() => {
+    processNextPermissionSetup();
+  }, 300);
+};
+
+const getPermissionCount = (instance: UserInstance): string => {
+  if (!instance.permissions) return "Default (Full)";
+  const perms = instance.permissions;
+  const enabled = [
+    perms.canUploadFiles, perms.canDownloadFiles, perms.canDeleteFiles, perms.canModifyFiles,
+    perms.canAccessConsole, perms.canStartInstances, perms.canRestartInstances, perms.canStopInstances,
+    perms.canTerminateInstances, perms.canViewLogs, perms.canAccessConfigFiles, perms.canAccessFileManager,
+    perms.canAccessMinecraftQuery, perms.canAccessTerminalSettings, perms.canAccessScheduledTasks,
+    perms.canAccessEventTasks, perms.canAccessInstanceSettings, perms.canAccessServerMarket
+  ].filter(Boolean).length;
+  return `${enabled}/18 enabled`;
+};
+
 const columns = computed(() => {
   return arrayFilter<AntColumnsType>([
     {
@@ -172,6 +311,13 @@ const columns = computed(() => {
         return INSTANCE_STATUS[e.text] || e.text;
       },
       condition: () => !isPhone.value
+    },
+    {
+      align: "center",
+      title: "Permissions",
+      key: "permissions",
+      minWidth: 150,
+      scopedSlots: { customRender: "permissions" }
     },
     {
       align: "center",
@@ -219,7 +365,13 @@ const columns = computed(() => {
           :pagination="{ pageSize: 10, showSizeChanger: true }"
           class="modern-table"
         >
-          <template #bodyCell="{ column, record }: AntTableCell">
+          <template #bodyCell="{ column, record, index }: AntTableCell">
+            <template v-if="column.key === 'permissions'">
+              <button class="permissions-btn" @click="openPermissionsDialog(record, index)">
+                <SettingOutlined />
+                <span>{{ getPermissionCount(record) }}</span>
+              </button>
+            </template>
             <template v-if="column.key === 'operation'">
               <a-popconfirm :title="t('TXT_CODE_71155575')" @confirm="handleDelete(record)">
                 <button class="delete-btn">
@@ -246,6 +398,158 @@ const columns = computed(() => {
       </div>
     </div>
   </div>
+
+  <!-- Instance Permissions Dialog -->
+  <a-modal
+    v-model:open="permissionsDialog.visible"
+    :title="'Edit Permissions: ' + permissionsDialog.instanceName"
+    :footer="null"
+    width="700px"
+    class="permissions-modal"
+    @cancel="handlePermissionDialogCancel"
+  >
+    <div class="permissions-content">
+      <!-- File Operations -->
+      <div class="permission-section">
+        <div class="section-header">
+          <DatabaseOutlined />
+          <span>File Operations</span>
+        </div>
+        <div class="permissions-grid">
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canUploadFiles }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canUploadFiles" />
+            <span>Upload</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canDownloadFiles }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canDownloadFiles" />
+            <span>Download</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canDeleteFiles }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canDeleteFiles" />
+            <span>Delete</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canModifyFiles }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canModifyFiles" />
+            <span>Modify</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Instance Control -->
+      <div class="permission-section">
+        <div class="section-header">
+          <ControlOutlined />
+          <span>Instance Control</span>
+        </div>
+        <div class="permissions-grid">
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canAccessConsole }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canAccessConsole" />
+            <span>Console</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canStartInstances }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canStartInstances" />
+            <span>Start</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canStopInstances }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canStopInstances" />
+            <span>Stop</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canRestartInstances }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canRestartInstances" />
+            <span>Restart</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canTerminateInstances }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canTerminateInstances" />
+            <span>Terminate</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canViewLogs }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canViewLogs" />
+            <span>View Logs</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Management Access -->
+      <div class="permission-section">
+        <div class="section-header">
+          <SettingOutlined />
+          <span>Management Access</span>
+        </div>
+        <div class="permissions-grid">
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canAccessFileManager }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canAccessFileManager" />
+            <span>File Manager</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canAccessConfigFiles }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canAccessConfigFiles" />
+            <span>Config Files</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canAccessMinecraftQuery }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canAccessMinecraftQuery" />
+            <span>MC Query</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canAccessTerminalSettings }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canAccessTerminalSettings" />
+            <span>Terminal</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canAccessScheduledTasks }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canAccessScheduledTasks" />
+            <span>Scheduled Tasks</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canAccessEventTasks }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canAccessEventTasks" />
+            <span>Event Tasks</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canAccessInstanceSettings }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canAccessInstanceSettings" />
+            <span>Instance Settings</span>
+          </label>
+          <label class="permission-item" :class="{ active: permissionsDialog.permissions.canAccessServerMarket }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.canAccessServerMarket" />
+            <span>Server Market</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Security Restrictions -->
+      <div class="permission-section security-section">
+        <div class="section-header">
+          <SafetyOutlined />
+          <span>Security Restrictions</span>
+        </div>
+        <div class="permissions-grid">
+          <label class="permission-item restriction" :class="{ active: permissionsDialog.permissions.disableRightClick }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.disableRightClick" />
+            <span>Disable Right Click</span>
+          </label>
+          <label class="permission-item restriction" :class="{ active: permissionsDialog.permissions.disableKeyboardShortcuts }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.disableKeyboardShortcuts" />
+            <span>Disable Shortcuts</span>
+          </label>
+          <label class="permission-item restriction" :class="{ active: permissionsDialog.permissions.disableTextSelection }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.disableTextSelection" />
+            <span>Disable Selection</span>
+          </label>
+          <label class="permission-item restriction" :class="{ active: permissionsDialog.permissions.disableCopy }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.disableCopy" />
+            <span>Disable Copy</span>
+          </label>
+          <label class="permission-item restriction" :class="{ active: permissionsDialog.permissions.disablePaste }">
+            <a-checkbox v-model:checked="permissionsDialog.permissions.disablePaste" />
+            <span>Disable Paste</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button class="btn-cancel" @click="handlePermissionDialogCancel">Cancel</button>
+        <button class="btn-save" :disabled="permissionsDialog.loading" @click="saveInstancePermissions">
+          {{ permissionsDialog.loading ? 'Saving...' : 'Save Permissions' }}
+        </button>
+      </div>
+    </div>
+  </a-modal>
 </template>
 
 <style lang="scss" scoped>
@@ -459,6 +763,132 @@ const columns = computed(() => {
   color: var(--color-gray-7);
 }
 
+/* Permissions Button */
+.permissions-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 140, 0, 0.1);
+  border: 1px solid rgba(255, 140, 0, 0.3);
+  border-radius: 6px;
+  color: #ff8c00;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.permissions-btn:hover {
+  background: rgba(255, 140, 0, 0.2);
+  border-color: rgba(255, 140, 0, 0.5);
+}
+
+/* Permissions Modal */
+.permissions-content {
+  padding: 16px 0;
+}
+
+.permission-section {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--color-gray-4);
+  border-radius: 8px;
+  border: 1px solid var(--gray-border-color);
+}
+
+.permission-section.security-section {
+  border-color: rgba(250, 173, 20, 0.3);
+  background: rgba(250, 173, 20, 0.05);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.permission-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--background-color-white);
+  border: 1px solid var(--gray-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+.permission-item:hover {
+  border-color: #ff8c00;
+}
+
+.permission-item.active {
+  border-color: #ff8c00;
+  background: rgba(255, 140, 0, 0.1);
+}
+
+.permission-item.restriction.active {
+  border-color: #faad14;
+  background: rgba(250, 173, 20, 0.15);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gray-border-color);
+}
+
+.btn-cancel {
+  padding: 8px 16px;
+  border: 1px solid var(--gray-border-color);
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+  border-color: var(--color-gray-7);
+}
+
+.btn-save {
+  padding: 8px 16px;
+  border: none;
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-save:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .access-settings-container {
@@ -478,6 +908,10 @@ const columns = computed(() => {
   .action-btn {
     flex: 1;
     justify-content: center;
+  }
+
+  .permissions-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

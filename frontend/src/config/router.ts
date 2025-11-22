@@ -13,7 +13,9 @@ const InstallPage = () => import("@/views/Install.vue");
 const LayoutContainer = () => import("@/views/LayoutContainer.vue");
 const LoginPage = () => import("@/views/Login.vue");
 const LandingPage = () => import("@/views/Landing.vue");
-const AcceptInvitePage = () => import("@/views/AcceptInvite.vue");
+const RegisterPage = () => import("@/views/Register.vue");
+const ForgotPasswordPage = () => import("@/views/ForgotPassword.vue");
+const AcceptInvitationPage = () => import("@/views/AcceptInvitation.vue");
 
 export interface RouterMetaInfo {
   icon?: string;
@@ -325,9 +327,27 @@ const originRouterConfig: RouterConfig[] = [
     }
   },
   {
-    path: "/accept-invite",
+    path: "/register",
+    name: "Register",
+    component: RegisterPage,
+    meta: {
+      permission: ROLE.GUEST,
+      mainMenu: false
+    }
+  },
+  {
+    path: "/forgot-password",
+    name: "Forgot Password",
+    component: ForgotPasswordPage,
+    meta: {
+      permission: ROLE.GUEST,
+      mainMenu: false
+    }
+  },
+  {
+    path: "/accept-invitation/:token",
     name: "Accept Invitation",
-    component: AcceptInvitePage,
+    component: AcceptInvitationPage,
     meta: {
       permission: ROLE.GUEST,
       mainMenu: false
@@ -421,7 +441,8 @@ router.beforeEach((to, from, next) => {
 
   if (
     toRoutePath.includes("_open_page") ||
-    ["/shop", "/login", "/welcome", "/install", "/404", "/accept-invite"].includes(toRoutePath)
+    toRoutePath.startsWith("/accept-invitation") ||
+    ["/shop", "/login", "/welcome", "/install", "/404", "/register", "/forgot-password"].includes(toRoutePath)
   ) {
     return next();
   }

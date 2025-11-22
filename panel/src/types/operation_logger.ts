@@ -30,6 +30,9 @@ export enum OperationLoggerAction {
   SubUserCreate = "sub_user_create",
   SubUserUpdate = "sub_user_update",
   SubUserDelete = "sub_user_delete",
+  SubUserInvite = "sub_user_invite",
+  SubUserAcceptInvite = "sub_user_accept_invite",
+  SubUserRegisterViaInvite = "sub_user_register_via_invite",
   SystemConfigChange = "system_config_change"
 }
 
@@ -188,12 +191,39 @@ export type SubUserCreateOptions = {
 export type SubUserUpdateOptions = {
   type: "sub_user_update";
   target_user_uuid: string;
+  instance_uuid?: string;
 } & GlobalGeneralOptions;
 
 export type SubUserDeleteOptions = {
   type: "sub_user_delete";
   target_user_name: string;
   target_user_uuid: string;
+  instance_uuid?: string;
+} & GlobalGeneralOptions;
+
+export type SubUserInviteOptions = {
+  type: "sub_user_invite";
+  invitee_email?: string;
+  target_email?: string;
+  instance_uuid: string;
+} & GlobalGeneralOptions;
+
+export type SubUserAcceptInviteOptions = {
+  type: "sub_user_accept_invite";
+  target_user_uuid?: string;
+  user_uuid?: string;
+  user_name?: string;
+  parent_name?: string;
+  instance_uuid: string;
+} & GlobalGeneralOptions;
+
+export type SubUserRegisterViaInviteOptions = {
+  type: "sub_user_register_via_invite";
+  target_user_name?: string;
+  user_name?: string;
+  email?: string;
+  parent_name?: string;
+  instance_uuid: string;
 } & GlobalGeneralOptions;
 
 export type SystemConfigChangeOptions = {
@@ -232,6 +262,9 @@ export type OperationLoggerItem =
   | SubUserCreateOptions
   | SubUserUpdateOptions
   | SubUserDeleteOptions
+  | SubUserInviteOptions
+  | SubUserAcceptInviteOptions
+  | SubUserRegisterViaInviteOptions
   | SystemConfigChangeOptions;
 
 export type OperationLoggerItemPayload = {

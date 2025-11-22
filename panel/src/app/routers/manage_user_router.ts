@@ -8,6 +8,7 @@ import subUserService from "../service/sub_user_service";
 import { $t } from "../i18n";
 import { ROLE } from "../entity/user";
 import { operationLogger } from "../service/operation_logger";
+import Storage from "../common/storage/sys_storage";
 import { error } from "console";
 
 const router = new Router({ prefix: "/auth" });
@@ -31,7 +32,7 @@ router.post(
       operator_name: ctx.session?.["userName"],
       target_user_name: userName
     });
-    const result = await register(ctx, userName, passWord, permission, permissions);
+    const result = await register(ctx, userName, passWord, permission);
     ctx.body = result;
   }
 );
@@ -52,10 +53,27 @@ router.del("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Parameterized
         "warning"
       );
 
-      // If this is a parent user, delete all their sub-users first
-      if (user && !user.isSubUser && user.subUsers && user.subUsers.length > 0) {
+      // If this user has granted sub-user access, clean up those relationships
+      if (user && user.subUsers && user.subUsers.length > 0) {
         for (const subUserRef of user.subUsers) {
-          await userSystem.deleteInstance(subUserRef.uuid);
+          // Remove the instance from the sub-user's instances
+          const subUser = userSystem.getInstance(subUserRef.uuid);
+          if (subUser) {
+            subUser.instances = subUser.instances.filter(
+              (inst) => !(inst.instanceUuid === subUserRef.instanceUuid && inst.daemonId === subUserRef.daemonId)
+            );
+            // Save the sub-user changes
+            await Storage.getStorage().store("User", subUserRef.uuid, subUser);
+          }
+        }
+      }
+
+      // If this user is a sub-user of other parents, clean up those references
+      for (const [parentUuid, parentUser] of userSystem.objects) {
+        const hadEntries = parentUser.subUsers.some((su) => su.uuid === iterator);
+        if (hadEntries) {
+          parentUser.subUsers = parentUser.subUsers.filter((su) => su.uuid !== iterator);
+          await Storage.getStorage().store("User", parentUuid, parentUser);
         }
       }
 

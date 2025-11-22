@@ -47,21 +47,22 @@ export function login(
   }
 }
 
-export function loginSuccess(ctx: Koa.ParameterizedContext, userName: string) {
+export function loginSuccess(ctx: Koa.ParameterizedContext, loginIdentifier: string) {
   const ip = getLoginIp(ctx);
-  const user = userSystem.getUserByUserName(userName);
+  // Find user by username OR email
+  const user = userSystem.getUserByIdentifier(loginIdentifier);
   if (!user) throw new Error($t("TXT_CODE_router.login.nameOrPassError"));
   if (!ctx.session) throw new Error("Session is Null!");
 
   user.loginTime = new Date().toLocaleString();
   ctx.session["login"] = true;
-  ctx.session["userName"] = userName;
+  ctx.session["userName"] = user.userName; // Store actual username, not login identifier
   ctx.session["uuid"] = user.uuid;
   ctx.session["token"] = timeUuid();
   ctx.session.save();
 
   logger.info($t("TXT_CODE_42036f92"));
-  logger.info(`[LOGIN] IP: ${ip} Login ${userName} successful!`);
+  logger.info(`[LOGIN] IP: ${ip} Login ${user.userName} successful!`);
   logger.info(`[LOGIN] Token: ${ctx.session["token"]}`);
   logger.info($t("TXT_CODE_42036f92"));
 
@@ -116,8 +117,7 @@ export async function register(
   ctx: Koa.ParameterizedContext,
   userName: string,
   passWord: string,
-  permission: number,
-  permissions?: any
+  permission: number
 ) {
   let f = true;
   // Check for duplicate usernames.
@@ -129,8 +129,7 @@ export async function register(
     const { uuid } = await userSystem.create({
       userName,
       passWord,
-      permission,
-      permissions
+      permission
     });
 
     return {

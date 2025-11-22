@@ -282,7 +282,7 @@ export async function queryInstanceByUserId(
   if (!user) throw new Error(t("TXT_CODE_903b6c50"));
 
   const { instances = [] } = await getInstancesByUuid(user.uuid, targetDaemonId, true);
-  const newInstancesInfo = instances.map((v) => {
+  const newInstancesInfo = instances.map((v: IAdvancedInstanceInfo) => {
     return formatInstanceData(v);
   });
   return newInstancesInfo;

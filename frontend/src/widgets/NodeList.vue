@@ -272,7 +272,7 @@ const toggleSort = (newSortBy: SortBy) => {
               :page-size="operationForm.pageSize"
               :show-size-changer="!isPhone"
               size="small"
-              @show-size-change="(current, size) => (operationForm.pageSize = size)"
+              @show-size-change="(current: number, size: number) => (operationForm.pageSize = size)"
             />
           </div>
         </div>

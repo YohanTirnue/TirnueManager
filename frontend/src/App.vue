@@ -22,18 +22,18 @@ const { state } = useAppStateStore();
 const route = useRoute();
 
 // Pages accessible without login
-const GUEST_PAGES = ['/login', '/install', '/welcome', '/shop', '/404'];
+const GUEST_PAGES = ['/login', '/install', '/welcome', '/shop', '/404', '/register', '/forgot-password', '/accept-invitation'];
 
 // Only show sidebar/header when user is logged in and not on guest pages
 const showAppLayout = computed(() => {
-  const isGuestPage = GUEST_PAGES.includes(route.path);
+  const isGuestPage = GUEST_PAGES.includes(route.path) || route.path.startsWith('/accept-invitation');
   const isLoggedIn = !!state.userInfo?.token;
   return isLoggedIn && !isGuestPage;
 });
 
 // Check if we should show router content (logged in OR on a guest page)
 const showRouterContent = computed(() => {
-  const isGuestPage = GUEST_PAGES.includes(route.path);
+  const isGuestPage = GUEST_PAGES.includes(route.path) || route.path.startsWith('/accept-invitation');
   const isLoggedIn = !!state.userInfo?.token;
   return isLoggedIn || isGuestPage;
 });

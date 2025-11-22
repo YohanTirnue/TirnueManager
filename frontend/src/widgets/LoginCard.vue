@@ -296,6 +296,12 @@ const onTurnstileCallback = (token: string) => {
                   {{ t("TXT_CODE_5a408a5e") }}
                 </a-button>
               </div>
+
+              <div class="auth-links">
+                <router-link to="/forgot-password" class="auth-link">Forgot password?</router-link>
+                <span class="auth-divider">|</span>
+                <router-link to="/register" class="auth-link">Create account</router-link>
+              </div>
             </form>
           </div>
 
@@ -727,6 +733,28 @@ const onTurnstileCallback = (token: string) => {
     background: rgba(255, 140, 66, 0.1);
     color: #FF8C42;
   }
+}
+
+.auth-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.auth-link {
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #FF8C42;
+  }
+}
+
+.auth-divider {
+  color: rgba(255, 255, 255, 0.3);
 }
 
 // Status Screens

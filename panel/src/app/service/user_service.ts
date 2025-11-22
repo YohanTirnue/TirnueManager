@@ -9,6 +9,8 @@ import { IUser } from "../entity/entity_interface";
 import { IUserApp, User, UserPassWordType } from "../entity/user";
 import { $t } from "../i18n";
 import { logger } from "./log";
+import { migratePermissions } from "./migrations/permission_migration";
+import { subUserIndex } from "./sub_user_index_service";
 
 export class TwoFactorError extends Error {}
 
@@ -21,6 +23,12 @@ class UserSubsystem {
       this.objects.set(uuid, user);
     }
     logger.info($t("TXT_CODE_systemUser.userCount", { n: this.objects.size }));
+
+    // Run permission format migration for existing users
+    await migratePermissions();
+
+    // Build sub-user index for O(1) lookups
+    subUserIndex.buildIndex();
   }
 
   async create(config: IUser): Promise<User> {
@@ -50,10 +58,12 @@ class UserSubsystem {
     if (config.secret != null) instance.secret = String(config.secret);
     if (config.open2FA != null) instance.open2FA = Boolean(config.open2FA);
     if (config.instances) this.setUserInstances(uuid, config.instances);
-    if (config.permissions != null) instance.permissions = config.permissions;
-    // Sub-user management fields
-    if (config.isSubUser != null) instance.isSubUser = Boolean(config.isSubUser);
-    if (config.parentUserId != null) instance.parentUserId = config.parentUserId;
+    // Email registration fields
+    if (config.email != null) instance.email = String(config.email);
+    if (config.emailVerified != null) instance.emailVerified = Boolean(config.emailVerified);
+    if (config.firstName != null) instance.firstName = String(config.firstName);
+    if (config.lastName != null) instance.lastName = String(config.lastName);
+    if (config.accountStatus != null) instance.accountStatus = String(config.accountStatus);
     if (config.passWord) {
       instance.passWordType = UserPassWordType.bcrypt;
       instance.passWord = bcrypt.hashSync(config.passWord, 10);
@@ -77,22 +87,43 @@ class UserSubsystem {
 
   checkUser(info: IUser, code2FA?: string, totpDriftToleranceSteps: number = 0) {
     const inputPassword = info.passWord || "";
+    const loginIdentifier = info.userName || "";
+    const loginIdentifierLower = loginIdentifier.toLowerCase();
+
+    // Find user by username OR email (email is case-insensitive)
+    let foundUser: User | null = null;
     for (const [uuid, user] of this.objects) {
-      if (user.userName === info.userName) {
-        if (
-          user.open2FA &&
-          user.secret &&
-          !this.check2FA(code2FA || "", user, totpDriftToleranceSteps)
-        )
-          throw new TwoFactorError(t("TXT_CODE_3d68e43b"));
-        if (user.passWordType === UserPassWordType.bcrypt) {
-          if (!bcrypt.compareSync(inputPassword, user.passWord))
-            throw new Error($t("TXT_CODE_fefbb457"));
-        } else {
-          if (!(md5(inputPassword) === user.passWord)) throw new Error($t("TXT_CODE_fefbb457"));
-        }
+      if (
+        user.userName === loginIdentifier ||
+        (user.email && user.email.toLowerCase() === loginIdentifierLower)
+      ) {
+        foundUser = user;
+        break;
       }
     }
+
+    if (!foundUser) {
+      throw new Error($t("TXT_CODE_fefbb457"));
+    }
+
+    // Check 2FA if enabled
+    if (
+      foundUser.open2FA &&
+      foundUser.secret &&
+      !this.check2FA(code2FA || "", foundUser, totpDriftToleranceSteps)
+    )
+      throw new TwoFactorError(t("TXT_CODE_3d68e43b"));
+
+    // Check password
+    if (foundUser.passWordType === UserPassWordType.bcrypt) {
+      if (!bcrypt.compareSync(inputPassword, foundUser.passWord))
+        throw new Error($t("TXT_CODE_fefbb457"));
+    } else {
+      if (!(md5(inputPassword) === foundUser.passWord))
+        throw new Error($t("TXT_CODE_fefbb457"));
+    }
+
+    return foundUser;
   }
 
   existUserName(userName: string): boolean {
@@ -114,7 +145,8 @@ class UserSubsystem {
     instanceIds.forEach((value) => {
       user.instances.push({
         instanceUuid: String(value.instanceUuid),
-        daemonId: String(value.daemonId)
+        daemonId: String(value.daemonId),
+        permissions: value.permissions // Include per-instance permissions if provided
       });
     });
   }
@@ -144,6 +176,30 @@ class UserSubsystem {
     for (const map of this.objects) {
       const user = map[1];
       if (user.userName === userName) return user;
+    }
+    return null;
+  }
+
+  getUserByEmail(email: string) {
+    const emailLower = email.toLowerCase();
+    for (const map of this.objects) {
+      const user = map[1];
+      if (user.email && user.email.toLowerCase() === emailLower) return user;
+    }
+    return null;
+  }
+
+  // Find user by username OR email (for dual authentication)
+  getUserByIdentifier(identifier: string) {
+    const identifierLower = identifier.toLowerCase();
+    for (const map of this.objects) {
+      const user = map[1];
+      if (
+        user.userName === identifier ||
+        (user.email && user.email.toLowerCase() === identifierLower)
+      ) {
+        return user;
+      }
     }
     return null;
   }

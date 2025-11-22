@@ -1,21 +1,13 @@
 import { v4 } from "uuid";
 import Storage from "../common/storage/sys_storage";
 import { User, IUserApp } from "../entity/user";
-import type { UserPermissions } from "../entity/entity_interface";
+import type { UserPermissions, ISubUserEntry } from "../entity/entity_interface";
 import userSystem from "./user_service";
 import { logger } from "./log";
 import { $t } from "../i18n";
-import { singletonMemoryRedis } from "./mini_redis";
-import emailService from "./email_service";
-
-interface InviteData {
-  email: string;
-  parentUuid: string;
-  instanceUuid: string;
-  daemonId: string;
-  permissions: UserPermissions;
-  createdAt: number;
-}
+import { lockService } from "./lock_service";
+import { permissionCache } from "./permission_cache_service";
+import { subUserIndex } from "./sub_user_index_service";
 
 const MAX_SUB_USERS_PER_INSTANCE = 3;
 
@@ -23,36 +15,104 @@ export class SubUserService {
   /**
    * Get all sub-users created by a parent user for a specific instance
    */
-  getSubUsers(parentUuid: string, instanceUuid: string, daemonId: string): User[] {
+  getSubUsers(parentUuid: string, instanceUuid: string, daemonId: string): Array<{ user: User; permissions: UserPermissions }> {
     const parentUser = userSystem.getInstance(parentUuid);
     if (!parentUser) throw new Error("Parent user not found");
 
-    const subUserUuids = parentUser.subUsers
-      .filter((su) => su.instanceUuid === instanceUuid && su.daemonId === daemonId)
-      .map((su) => su.uuid);
+    const subUserEntries = parentUser.subUsers.filter(
+      (su) => su.instanceUuid === instanceUuid && su.daemonId === daemonId
+    );
 
-    return subUserUuids
-      .map((uuid) => userSystem.getInstance(uuid))
-      .filter((user): user is User => user !== undefined);
+    return subUserEntries
+      .map((entry) => {
+        const user = userSystem.getInstance(entry.uuid);
+        if (!user) return null;
+        return { user, permissions: entry.permissions };
+      })
+      .filter((item): item is { user: User; permissions: UserPermissions } => item !== null);
+  }
+
+  /**
+   * Check if a user is a sub-user for a specific instance
+   * Returns the sub-user entry with permissions if found
+   * Uses index for O(1) parent lookup
+   */
+  getSubUserEntry(userUuid: string, instanceUuid: string, daemonId: string): ISubUserEntry | null {
+    // Use index for fast parent lookup
+    const parentUuid = subUserIndex.getParentUserUuid(userUuid);
+    if (parentUuid) {
+      const parentUser = userSystem.getInstance(parentUuid);
+      if (parentUser) {
+        const entry = parentUser.subUsers.find(
+          (su) => su.uuid === userUuid && su.instanceUuid === instanceUuid && su.daemonId === daemonId
+        );
+        if (entry) {
+          return entry;
+        }
+      }
+    }
+
+    // Fallback: Search all users (for non-indexed entries)
+    for (const [parentUuid, parentUser] of userSystem.objects) {
+      const entry = parentUser.subUsers.find(
+        (su) => su.uuid === userUuid && su.instanceUuid === instanceUuid && su.daemonId === daemonId
+      );
+      if (entry) {
+        return entry;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get the parent user who granted sub-user access to a user for a specific instance
+   */
+  getParentForInstance(userUuid: string, instanceUuid: string, daemonId: string): User | null {
+    for (const [parentUuid, parentUser] of userSystem.objects) {
+      const entry = parentUser.subUsers.find(
+        (su) => su.uuid === userUuid && su.instanceUuid === instanceUuid && su.daemonId === daemonId
+      );
+      if (entry) {
+        return parentUser;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Check if user is the owner of an instance (has it in their instances array, not as sub-user)
+   */
+  isInstanceOwner(userUuid: string, instanceUuid: string, daemonId: string): boolean {
+    const user = userSystem.getInstance(userUuid);
+    if (!user) return false;
+
+    // Check if user has this instance AND is not a sub-user for it
+    const hasInstance = user.instances.some(
+      (inst) => inst.instanceUuid === instanceUuid && inst.daemonId === daemonId
+    );
+    if (!hasInstance) return false;
+
+    // Check they're not a sub-user for this instance
+    const isSubUser = this.getSubUserEntry(userUuid, instanceUuid, daemonId) !== null;
+    return !isSubUser;
   }
 
   /**
    * Get all sub-users for a specific instance (admin view)
-   * Returns parent user + their sub-users
+   * Returns parent user + their sub-users with per-instance permissions
    */
   getInstanceTeam(instanceUuid: string, daemonId: string): Array<{
     parent: User;
-    subUsers: User[];
+    subUsers: Array<{ user: User; permissions: UserPermissions }>;
   }> {
-    const teams: Array<{ parent: User; subUsers: User[] }> = [];
+    const teams: Array<{
+      parent: User;
+      subUsers: Array<{ user: User; permissions: UserPermissions }>;
+    }> = [];
 
     for (const [uuid, user] of userSystem.objects) {
-      // Skip sub-users and users without this instance
-      if (user.isSubUser) continue;
-      const hasInstance = user.instances.some(
-        (inst) => inst.instanceUuid === instanceUuid && inst.daemonId === daemonId
-      );
-      if (!hasInstance) continue;
+      // Check if user is an owner of this instance (not a sub-user)
+      if (!this.isInstanceOwner(uuid, instanceUuid, daemonId)) continue;
 
       const subUsers = this.getSubUsers(uuid, instanceUuid, daemonId);
       if (subUsers.length > 0) {
@@ -70,14 +130,8 @@ export class SubUserService {
     const parentUser = userSystem.getInstance(parentUuid);
     if (!parentUser) return false;
 
-    // Sub-users cannot create sub-users
-    if (parentUser.isSubUser) return false;
-
-    // Check if parent has access to this instance
-    const hasInstance = parentUser.instances.some(
-      (inst) => inst.instanceUuid === instanceUuid && inst.daemonId === daemonId
-    );
-    if (!hasInstance) return false;
+    // Check if this user is the owner of the instance (not a sub-user)
+    if (!this.isInstanceOwner(parentUuid, instanceUuid, daemonId)) return false;
 
     // Count existing sub-users for this instance
     const existingCount = parentUser.subUsers.filter(
@@ -89,6 +143,7 @@ export class SubUserService {
 
   /**
    * Create a sub-user for a specific instance
+   * Uses distributed lock to prevent race conditions
    */
   async createSubUser(
     parentUuid: string,
@@ -97,85 +152,153 @@ export class SubUserService {
     userData: {
       userName: string;
       passWord: string;
-      permissions?: UserPermissions;
+      permissions: UserPermissions;
     }
   ): Promise<User> {
-    const parentUser = userSystem.getInstance(parentUuid);
-    if (!parentUser) throw new Error("Parent user not found");
+    // Use distributed lock to prevent race conditions when multiple requests
+    // try to create sub-users for the same instance simultaneously
+    const lockKey = `subuser:create:${parentUuid}:${instanceUuid}`;
+    const lockTTL = 10000; // 10 seconds
 
-    // Validation
-    if (parentUser.isSubUser) {
-      throw new Error("Sub-users cannot create their own sub-users");
-    }
+    return await lockService.withLock(lockKey, lockTTL, async () => {
+      const parentUser = userSystem.getInstance(parentUuid);
+      if (!parentUser) throw new Error("Parent user not found");
 
-    if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
-      throw new Error(
-        `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+      // Validation - must be owner of this instance
+      if (!this.isInstanceOwner(parentUuid, instanceUuid, daemonId)) {
+        throw new Error("You must be the owner of this instance to create sub-users");
+      }
+
+      if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
+        throw new Error(
+          `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+        );
+      }
+
+      // Check if username already exists
+      if (userSystem.existUserName(userData.userName)) {
+        throw new Error("Username already exists");
+      }
+
+      // Validate password
+      if (!userSystem.validatePassword(userData.passWord)) {
+        throw new Error(
+          "Password must be 9-36 characters and contain uppercase, lowercase, and numbers"
+        );
+      }
+
+      // Create the user (just a regular user - sub-user status is per-instance)
+      const subUser = await userSystem.create({
+        userName: userData.userName,
+        passWord: userData.passWord,
+        permission: 1 // USER role
+      });
+
+      // Assign only the specific instance to sub-user
+      await userSystem.edit(subUser.uuid, {
+        instances: [{ instanceUuid, daemonId }]
+      });
+
+      // Add to parent's subUsers with per-instance permissions
+      parentUser.subUsers.push({
+        uuid: subUser.uuid,
+        instanceUuid,
+        daemonId,
+        permissions: userData.permissions
+      });
+      await Storage.getStorage().store("User", parentUuid, parentUser);
+
+      // Update index
+      subUserIndex.addSubUser(parentUuid, subUser.uuid, instanceUuid);
+
+      logger.info(
+        `Sub-user ${subUser.userName} (${subUser.uuid}) created by ${parentUser.userName} for instance ${instanceUuid}`
       );
-    }
 
-    // Check if username already exists
-    if (userSystem.existUserName(userData.userName)) {
-      throw new Error("Username already exists");
-    }
-
-    // Validate password
-    if (!userSystem.validatePassword(userData.passWord)) {
-      throw new Error(
-        "Password must be 9-36 characters and contain uppercase, lowercase, and numbers"
-      );
-    }
-
-    // Create the sub-user
-    const subUser = await userSystem.create({
-      userName: userData.userName,
-      passWord: userData.passWord,
-      permission: 1, // USER role
-      permissions: userData.permissions,
-      isSubUser: true,
-      parentUserId: parentUuid
+      return subUser;
     });
-
-    // Assign only the specific instance to sub-user
-    await userSystem.edit(subUser.uuid, {
-      instances: [{ instanceUuid, daemonId }]
-    });
-
-    // Update parent's subUsers array with race condition protection
-    // Re-check count to prevent concurrent creation bypassing limit
-    const currentCount = parentUser.subUsers.filter(
-      (su) => su.instanceUuid === instanceUuid && su.daemonId === daemonId
-    ).length;
-
-    if (currentCount >= MAX_SUB_USERS_PER_INSTANCE) {
-      // Race condition detected: another request created a sub-user
-      // Delete the sub-user we just created and throw error
-      await userSystem.deleteInstance(subUser.uuid);
-      throw new Error(
-        `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
-      );
-    }
-
-    parentUser.subUsers.push({
-      uuid: subUser.uuid,
-      instanceUuid,
-      daemonId
-    });
-    await Storage.getStorage().store("User", parentUuid, parentUser);
-
-    logger.info(
-      `Sub-user ${subUser.userName} (${subUser.uuid}) created by ${parentUser.userName} for instance ${instanceUuid}`
-    );
-
-    return subUser;
   }
 
   /**
-   * Update sub-user permissions
+   * Add an existing user as a sub-user for a specific instance
+   * This allows a user to be owner of their own instances while being sub-user of others
+   * Uses distributed lock to prevent race conditions
+   */
+  async addExistingUserAsSubUser(
+    parentUuid: string,
+    instanceUuid: string,
+    daemonId: string,
+    subUserUuid: string,
+    permissions: UserPermissions
+  ): Promise<void> {
+    // Use distributed lock to prevent race conditions
+    const lockKey = `subuser:create:${parentUuid}:${instanceUuid}`;
+    const lockTTL = 10000; // 10 seconds
+
+    return await lockService.withLock(lockKey, lockTTL, async () => {
+      const parentUser = userSystem.getInstance(parentUuid);
+      const subUser = userSystem.getInstance(subUserUuid);
+
+      if (!parentUser) throw new Error("Parent user not found");
+      if (!subUser) throw new Error("Sub-user not found");
+
+      // Validation - must be owner of this instance
+      if (!this.isInstanceOwner(parentUuid, instanceUuid, daemonId)) {
+        throw new Error("You must be the owner of this instance to add sub-users");
+      }
+
+      if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
+        throw new Error(
+          `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+        );
+      }
+
+      // Check if user is already an owner of this instance
+      if (this.isInstanceOwner(subUserUuid, instanceUuid, daemonId)) {
+        throw new Error("User is already an owner of this instance and cannot be added as a sub-user");
+      }
+
+      // Check if user is already a sub-user for this instance
+      const existingEntry = this.getSubUserEntry(subUserUuid, instanceUuid, daemonId);
+      if (existingEntry) {
+        throw new Error("User is already a sub-user for this instance");
+      }
+
+      // Add instance to sub-user's instances if not already there
+      const hasInstance = subUser.instances.some(
+        (inst) => inst.instanceUuid === instanceUuid && inst.daemonId === daemonId
+      );
+      if (!hasInstance) {
+        subUser.instances.push({ instanceUuid, daemonId });
+        await Storage.getStorage().store("User", subUserUuid, subUser);
+      }
+
+      // Add to parent's subUsers with per-instance permissions
+      parentUser.subUsers.push({
+        uuid: subUserUuid,
+        instanceUuid,
+        daemonId,
+        permissions
+      });
+      await Storage.getStorage().store("User", parentUuid, parentUser);
+
+      // Update index
+      subUserIndex.addSubUser(parentUuid, subUserUuid, instanceUuid);
+
+      logger.info(
+        `User ${subUser.userName} (${subUserUuid}) added as sub-user by ${parentUser.userName} for instance ${instanceUuid}`
+      );
+    });
+  }
+
+  /**
+   * Update sub-user permissions for a specific instance
    */
   async updateSubUserPermissions(
     parentUuid: string,
     subUserUuid: string,
+    instanceUuid: string,
+    daemonId: string,
     permissions: UserPermissions
   ): Promise<void> {
     const parentUser = userSystem.getInstance(parentUuid);
@@ -183,19 +306,75 @@ export class SubUserService {
 
     if (!parentUser || !subUser) throw new Error("User not found");
 
-    // Verify this sub-user belongs to the parent
-    if (subUser.parentUserId !== parentUuid) {
-      throw new Error("You do not have permission to modify this sub-user");
+    // Find the sub-user entry in parent's subUsers
+    const entryIndex = parentUser.subUsers.findIndex(
+      (su) => su.uuid === subUserUuid && su.instanceUuid === instanceUuid && su.daemonId === daemonId
+    );
+
+    if (entryIndex === -1) {
+      throw new Error("You do not have permission to modify this sub-user for this instance");
     }
 
-    await userSystem.edit(subUserUuid, { permissions });
+    // Update permissions in the subUsers entry
+    parentUser.subUsers[entryIndex].permissions = permissions;
+    await Storage.getStorage().store("User", parentUuid, parentUser);
+
+    // Invalidate permission cache
+    permissionCache.invalidate(subUserUuid, instanceUuid);
+
     logger.info(
-      `Sub-user ${subUser.userName} permissions updated by ${parentUser.userName}`
+      `Sub-user ${subUser.userName} permissions for instance ${instanceUuid} updated by ${parentUser.userName}`
     );
   }
 
   /**
-   * Delete a sub-user
+   * Remove a sub-user's access to a specific instance
+   */
+  async removeSubUserFromInstance(
+    parentUuid: string,
+    subUserUuid: string,
+    instanceUuid: string,
+    daemonId: string
+  ): Promise<void> {
+    const parentUser = userSystem.getInstance(parentUuid);
+    const subUser = userSystem.getInstance(subUserUuid);
+
+    if (!parentUser || !subUser) throw new Error("User not found");
+
+    // Find the sub-user entry
+    const entryIndex = parentUser.subUsers.findIndex(
+      (su) => su.uuid === subUserUuid && su.instanceUuid === instanceUuid && su.daemonId === daemonId
+    );
+
+    if (entryIndex === -1) {
+      throw new Error("You do not have permission to remove this sub-user from this instance");
+    }
+
+    // Remove from parent's subUsers array
+    parentUser.subUsers.splice(entryIndex, 1);
+    await Storage.getStorage().store("User", parentUuid, parentUser);
+
+    // Remove instance from sub-user's instances
+    subUser.instances = subUser.instances.filter(
+      (inst) => !(inst.instanceUuid === instanceUuid && inst.daemonId === daemonId)
+    );
+    await Storage.getStorage().store("User", subUserUuid, subUser);
+
+    // Update index and cache
+    subUserIndex.removeSubUser(parentUuid, subUserUuid, instanceUuid);
+    permissionCache.invalidate(subUserUuid, instanceUuid);
+
+    // If user has no instances left and no other sub-user entries, they might be orphaned
+    // but we don't delete them - they could still log in and get new invitations
+
+    logger.info(
+      `Sub-user ${subUser.userName} (${subUserUuid}) removed from instance ${instanceUuid} by ${parentUser.userName}`
+    );
+  }
+
+  /**
+   * Delete a sub-user completely (removes from all instances)
+   * Only use this if the user was created solely for this sub-user purpose
    */
   async deleteSubUser(parentUuid: string, subUserUuid: string): Promise<void> {
     const parentUser = userSystem.getInstance(parentUuid);
@@ -203,44 +382,84 @@ export class SubUserService {
 
     if (!parentUser || !subUser) throw new Error("User not found");
 
-    // Verify ownership
-    if (subUser.parentUserId !== parentUuid) {
+    // Get all entries for this sub-user under this parent
+    const entries = parentUser.subUsers.filter((su) => su.uuid === subUserUuid);
+
+    if (entries.length === 0) {
       throw new Error("You do not have permission to delete this sub-user");
     }
 
-    // Remove from parent's subUsers array
+    // Remove all entries for this sub-user from parent's subUsers array
     parentUser.subUsers = parentUser.subUsers.filter((su) => su.uuid !== subUserUuid);
     await Storage.getStorage().store("User", parentUuid, parentUser);
 
-    // Delete the sub-user
-    await userSystem.deleteInstance(subUserUuid);
+    // Check if user is sub-user under any other parent
+    let isSubUserElsewhere = false;
+    for (const [otherUuid, otherUser] of userSystem.objects) {
+      if (otherUuid !== parentUuid && otherUser.subUsers.some((su) => su.uuid === subUserUuid)) {
+        isSubUserElsewhere = true;
+        break;
+      }
+    }
+
+    // If user is not a sub-user elsewhere and has no owned instances, delete them
+    if (!isSubUserElsewhere) {
+      // Check if they own any instances (are not sub-users for them)
+      const ownsInstances = subUser.instances.some((inst) => {
+        return this.isInstanceOwner(subUserUuid, inst.instanceUuid, inst.daemonId);
+      });
+
+      if (!ownsInstances) {
+        await userSystem.deleteInstance(subUserUuid);
+        logger.info(
+          `Sub-user ${subUser.userName} (${subUserUuid}) deleted by ${parentUser.userName}`
+        );
+        return;
+      }
+    }
+
+    // Just remove the instances that were granted by this parent
+    for (const entry of entries) {
+      subUser.instances = subUser.instances.filter(
+        (inst) => !(inst.instanceUuid === entry.instanceUuid && inst.daemonId === entry.daemonId)
+      );
+    }
+    await Storage.getStorage().store("User", subUserUuid, subUser);
 
     logger.info(
-      `Sub-user ${subUser.userName} (${subUserUuid}) deleted by ${parentUser.userName}`
+      `Sub-user ${subUser.userName} (${subUserUuid}) removed from ${entries.length} instances by ${parentUser.userName}`
     );
   }
 
   /**
-   * Delete all sub-users for a specific instance (called when instance is deleted)
+   * Delete all sub-user entries for a specific instance (called when instance is deleted)
    */
   async deleteInstanceSubUsers(instanceUuid: string, daemonId: string): Promise<void> {
     for (const [uuid, user] of userSystem.objects) {
-      if (!user.isSubUser) {
-        // Remove sub-users for this instance
-        const subUsersToDelete = user.subUsers.filter(
-          (su) => su.instanceUuid === instanceUuid && su.daemonId === daemonId
-        );
+      // Find sub-user entries for this instance
+      const subUserEntries = user.subUsers.filter(
+        (su) => su.instanceUuid === instanceUuid && su.daemonId === daemonId
+      );
 
-        for (const su of subUsersToDelete) {
-          await userSystem.deleteInstance(su.uuid);
+      if (subUserEntries.length === 0) continue;
+
+      // Remove instance access from each sub-user
+      for (const entry of subUserEntries) {
+        const subUser = userSystem.getInstance(entry.uuid);
+        if (subUser) {
+          // Remove this instance from sub-user's instances
+          subUser.instances = subUser.instances.filter(
+            (inst) => !(inst.instanceUuid === instanceUuid && inst.daemonId === daemonId)
+          );
+          await Storage.getStorage().store("User", entry.uuid, subUser);
         }
-
-        // Update parent's subUsers array
-        user.subUsers = user.subUsers.filter(
-          (su) => !(su.instanceUuid === instanceUuid && su.daemonId === daemonId)
-        );
-        await Storage.getStorage().store("User", uuid, user);
       }
+
+      // Update parent's subUsers array
+      user.subUsers = user.subUsers.filter(
+        (su) => !(su.instanceUuid === instanceUuid && su.daemonId === daemonId)
+      );
+      await Storage.getStorage().store("User", uuid, user);
     }
   }
 
@@ -255,16 +474,23 @@ export class SubUserService {
     const parentUser = userSystem.getInstance(parentUuid);
     if (!parentUser) return;
 
-    // Delete all sub-users for this instance
-    const subUsersToDelete = parentUser.subUsers.filter(
+    // Find sub-user entries for this instance
+    const subUserEntries = parentUser.subUsers.filter(
       (su) => su.instanceUuid === instanceUuid && su.daemonId === daemonId
     );
 
-    for (const su of subUsersToDelete) {
-      await userSystem.deleteInstance(su.uuid);
-      logger.info(
-        `Sub-user ${su.uuid} auto-deleted due to parent losing instance access`
-      );
+    // Remove instance access from each sub-user
+    for (const entry of subUserEntries) {
+      const subUser = userSystem.getInstance(entry.uuid);
+      if (subUser) {
+        subUser.instances = subUser.instances.filter(
+          (inst) => !(inst.instanceUuid === instanceUuid && inst.daemonId === daemonId)
+        );
+        await Storage.getStorage().store("User", entry.uuid, subUser);
+        logger.info(
+          `Sub-user ${entry.uuid} lost access to instance ${instanceUuid} due to parent losing access`
+        );
+      }
     }
 
     // Update parent's subUsers array
@@ -275,243 +501,35 @@ export class SubUserService {
   }
 
   /**
-   * Get parent user info for a sub-user
+   * Get all parent users who have granted sub-user access to a user
+   * Returns array of {parent, instanceUuid, daemonId, permissions}
    */
-  getParentUser(subUserUuid: string): User | null {
-    const subUser = userSystem.getInstance(subUserUuid);
-    if (!subUser || !subUser.isSubUser || !subUser.parentUserId) return null;
-    return userSystem.getInstance(subUser.parentUserId) || null;
-  }
+  getAllParentsForUser(userUuid: string): Array<{
+    parent: User;
+    instanceUuid: string;
+    daemonId: string;
+    permissions: UserPermissions;
+  }> {
+    const results: Array<{
+      parent: User;
+      instanceUuid: string;
+      daemonId: string;
+      permissions: UserPermissions;
+    }> = [];
 
-  /**
-   * Create an invitation for a sub-user
-   */
-  async createInvite(
-    parentUuid: string,
-    instanceUuid: string,
-    daemonId: string,
-    email: string,
-    permissions: UserPermissions,
-    panelUrl: string
-  ): Promise<{ token: string; inviteLink: string }> {
-    const parentUser = userSystem.getInstance(parentUuid);
-    if (!parentUser) throw new Error("Parent user not found");
-
-    // Validation
-    if (parentUser.isSubUser) {
-      throw new Error("Sub-users cannot invite their own sub-users");
+    for (const [parentUuid, parentUser] of userSystem.objects) {
+      const entries = parentUser.subUsers.filter((su) => su.uuid === userUuid);
+      for (const entry of entries) {
+        results.push({
+          parent: parentUser,
+          instanceUuid: entry.instanceUuid,
+          daemonId: entry.daemonId,
+          permissions: entry.permissions
+        });
+      }
     }
 
-    if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
-      throw new Error(
-        `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
-      );
-    }
-
-    // Check if email already has an account
-    const existingUser = Array.from(userSystem.objects.values()).find(
-      (u) => u.email?.toLowerCase() === email.toLowerCase()
-    );
-
-    // Generate invite token
-    const token = v4();
-    const inviteData: InviteData = {
-      email: email.toLowerCase(),
-      parentUuid,
-      instanceUuid,
-      daemonId,
-      permissions,
-      createdAt: Date.now()
-    };
-
-    // Store in Redis with 72 hour TTL
-    const INVITE_TTL = 72 * 60 * 60; // 72 hours in seconds
-    singletonMemoryRedis.set(`invite:${token}`, inviteData, INVITE_TTL);
-
-    const inviteLink = `${panelUrl}/#/accept-invite?token=${token}`;
-
-    // Send email
-    const instanceName = `Instance ${instanceUuid.substring(0, 8)}...`;
-    const emailSent = await emailService.sendInviteEmail(
-      email,
-      inviteLink,
-      instanceName,
-      parentUser.userName
-    );
-
-    if (!emailSent) {
-      // Remove token if email failed
-      singletonMemoryRedis.set(`invite:${token}`, null, 0);
-      throw new Error("Failed to send invitation email. Please check email configuration.");
-    }
-
-    logger.info(
-      `Invitation sent to ${email} by ${parentUser.userName} for instance ${instanceUuid}`
-    );
-
-    return { token, inviteLink };
-  }
-
-  /**
-   * Verify an invite token
-   */
-  verifyInvite(token: string): {
-    valid: boolean;
-    invite?: InviteData;
-    hasAccount?: boolean;
-    parentName?: string;
-  } {
-    const data = singletonMemoryRedis.get<{ value: InviteData }>(`invite:${token}`);
-    if (!data || !data.value) {
-      return { valid: false };
-    }
-
-    const invite = data.value;
-
-    // Check if email already has account
-    const existingUser = Array.from(userSystem.objects.values()).find(
-      (u) => u.email?.toLowerCase() === invite.email.toLowerCase()
-    );
-
-    // Get parent name
-    const parent = userSystem.getInstance(invite.parentUuid);
-
-    return {
-      valid: true,
-      invite,
-      hasAccount: !!existingUser,
-      parentName: parent?.userName
-    };
-  }
-
-  /**
-   * Accept invite for logged-in user
-   */
-  async acceptInvite(token: string, userUuid: string): Promise<User> {
-    const verification = this.verifyInvite(token);
-    if (!verification.valid || !verification.invite) {
-      throw new Error("Invalid or expired invitation");
-    }
-
-    const invite = verification.invite;
-    const user = userSystem.getInstance(userUuid);
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    // Check email matches
-    if (user.email?.toLowerCase() !== invite.email.toLowerCase()) {
-      throw new Error("This invitation was sent to a different email address");
-    }
-
-    // Re-check if parent can still create sub-users
-    if (!this.canCreateSubUser(invite.parentUuid, invite.instanceUuid, invite.daemonId)) {
-      throw new Error("Parent user has reached maximum sub-users for this instance");
-    }
-
-    const parentUser = userSystem.getInstance(invite.parentUuid);
-    if (!parentUser) {
-      throw new Error("Parent user no longer exists");
-    }
-
-    // Convert user to sub-user
-    await userSystem.edit(userUuid, {
-      isSubUser: true,
-      parentUserId: invite.parentUuid,
-      permissions: invite.permissions,
-      instances: [{ instanceUuid: invite.instanceUuid, daemonId: invite.daemonId }]
-    });
-
-    // Add to parent's subUsers array
-    parentUser.subUsers.push({
-      uuid: userUuid,
-      instanceUuid: invite.instanceUuid,
-      daemonId: invite.daemonId
-    });
-    await Storage.getStorage().store("User", invite.parentUuid, parentUser);
-
-    // Invalidate token
-    singletonMemoryRedis.set(`invite:${token}`, null, 0);
-
-    logger.info(
-      `User ${user.userName} accepted invitation from ${parentUser.userName} for instance ${invite.instanceUuid}`
-    );
-
-    return user;
-  }
-
-  /**
-   * Accept invite with new registration (no OTP needed - email link proves ownership)
-   */
-  async acceptInviteWithRegistration(
-    token: string,
-    userData: {
-      userName: string;
-      passWord: string;
-    }
-  ): Promise<User> {
-    const verification = this.verifyInvite(token);
-    if (!verification.valid || !verification.invite) {
-      throw new Error("Invalid or expired invitation");
-    }
-
-    const invite = verification.invite;
-
-    // Check if username exists
-    if (userSystem.existUserName(userData.userName)) {
-      throw new Error("Username already exists");
-    }
-
-    // Validate password
-    if (!userSystem.validatePassword(userData.passWord)) {
-      throw new Error(
-        "Password must be 9-36 characters and contain uppercase, lowercase, and numbers"
-      );
-    }
-
-    // Re-check if parent can still create sub-users
-    if (!this.canCreateSubUser(invite.parentUuid, invite.instanceUuid, invite.daemonId)) {
-      throw new Error("Parent user has reached maximum sub-users for this instance");
-    }
-
-    const parentUser = userSystem.getInstance(invite.parentUuid);
-    if (!parentUser) {
-      throw new Error("Parent user no longer exists");
-    }
-
-    // Create the sub-user account
-    const subUser = await userSystem.create({
-      userName: userData.userName,
-      passWord: userData.passWord,
-      email: invite.email,
-      permission: 1, // USER role
-      permissions: invite.permissions,
-      isSubUser: true,
-      parentUserId: invite.parentUuid
-    });
-
-    // Assign only the specific instance
-    await userSystem.edit(subUser.uuid, {
-      instances: [{ instanceUuid: invite.instanceUuid, daemonId: invite.daemonId }]
-    });
-
-    // Add to parent's subUsers array
-    parentUser.subUsers.push({
-      uuid: subUser.uuid,
-      instanceUuid: invite.instanceUuid,
-      daemonId: invite.daemonId
-    });
-    await Storage.getStorage().store("User", invite.parentUuid, parentUser);
-
-    // Invalidate token
-    singletonMemoryRedis.set(`invite:${token}`, null, 0);
-
-    logger.info(
-      `Sub-user ${subUser.userName} registered via invitation from ${parentUser.userName} for instance ${invite.instanceUuid}`
-    );
-
-    return subUser;
+    return results;
   }
 }
 

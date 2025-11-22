@@ -4,7 +4,7 @@ import validator from "../middleware/validator";
 import RemoteServiceSubsystem from "../service/remote_service";
 import RemoteRequest from "../service/remote_command";
 import { getUserUuid } from "../service/passport_service";
-import { isHaveInstanceByUuid, isTopPermissionByUuid } from "../service/permission_service";
+import { isHaveInstanceByUuid, isTopPermissionByUuid, getUserInstancePermissions } from "../service/permission_service";
 import { FILENAME_BLACKLIST } from "../const";
 import { $t } from "../i18n";
 import { ROLE } from "../entity/user";
@@ -17,6 +17,13 @@ router.use(async (ctx, next) => {
   const daemonId = String(ctx.query.daemonId);
   const userUuid = getUserUuid(ctx);
   if (isHaveInstanceByUuid(userUuid, daemonId, instanceUuid)) {
+    // Check permission to access scheduled tasks
+    const permissions = getUserInstancePermissions(userUuid, instanceUuid, daemonId);
+    if (permissions && !permissions.canAccessScheduledTasks) {
+      ctx.status = 403;
+      ctx.body = "You do not have permission to access scheduled tasks for this instance";
+      return;
+    }
     await next();
   } else {
     ctx.status = 403;

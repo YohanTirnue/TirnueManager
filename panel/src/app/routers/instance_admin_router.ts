@@ -323,12 +323,9 @@ router.post("/multi_restart", permission({ level: ROLE.ADMIN }), async (ctx) => 
 // Get quick install list
 router.get("/quick_install_list", permission({ level: ROLE.USER }), async (ctx) => {
   const userUuid = getUserUuid(ctx);
-  const user = userSystem.getInstance(userUuid);
-  // Default to true if permission field is undefined (for backwards compatibility)
-  const hasServerMarketPermission = user?.permissions?.canAccessServerMarket ?? true;
 
-  // Allow access if: admin, global setting enabled, or user has canAccessServerMarket permission
-  if (systemConfig?.allowUsePreset === false && !isTopPermissionByUuid(userUuid) && !hasServerMarketPermission) {
+  // Check global system setting (admins bypass this)
+  if (systemConfig?.allowUsePreset === false && !isTopPermissionByUuid(userUuid)) {
     ctx.status = 403;
     ctx.body = new Error($t("TXT_CODE_b5a47731"));
     return;
