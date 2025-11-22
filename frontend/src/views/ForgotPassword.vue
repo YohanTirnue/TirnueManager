@@ -8,7 +8,7 @@ import {
   LockOutlined,
   ArrowLeftOutlined
 } from "@ant-design/icons-vue";
-import { ref, reactive, computed } from "vue";
+import { ref, computed, onUnmounted } from "vue";
 import axios from "axios";
 
 // Form data
@@ -134,6 +134,13 @@ const handleOTPInput = (e: Event) => {
   const input = e.target as HTMLInputElement;
   otp.value = input.value.replace(/\D/g, "").slice(0, 6);
 };
+
+// Cleanup on unmount
+onUnmounted(() => {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+});
 </script>
 
 <template>

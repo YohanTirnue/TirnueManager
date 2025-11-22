@@ -11,7 +11,7 @@ import {
   EnvironmentOutlined,
   ArrowLeftOutlined
 } from "@ant-design/icons-vue";
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onUnmounted } from "vue";
 import axios from "axios";
 
 const { updateUserInfo } = useAppStateStore();
@@ -115,7 +115,12 @@ const verifyOTP = async () => {
       currentStep.value = 2;
       // Update user info and redirect
       setTimeout(async () => {
-        await updateUserInfo();
+        try {
+          await updateUserInfo();
+        } catch (e) {
+          // Continue even if updateUserInfo fails - user is registered
+          console.warn("Failed to update user info:", e);
+        }
         router.push("/customer");
       }, 2000);
     } else {
@@ -170,6 +175,13 @@ const onTurnstileCallback = (token: string) => {
   turnstileToken.value = token;
 };
 (window as any).onTurnstileRegisterCallback = onTurnstileCallback;
+
+// Cleanup on unmount
+onUnmounted(() => {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+});
 </script>
 
 <template>
