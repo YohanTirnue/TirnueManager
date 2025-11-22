@@ -9,7 +9,7 @@ const SMTP_CONFIG = {
   secure: false,
   auth: {
     user: "tirnuehosting@gmail.com",
-    pass: "tirnuehost678902"
+    pass: "kzyl ttwm jdhf lqaq"
   }
 };
 
