@@ -177,6 +177,14 @@ const handleAcceptInvitation = async () => {
     submitting.value = false;
   }
 };
+
+// Auto-accept when logged in with matching email
+watch(canAcceptDirectly, async (can) => {
+  if (can && !submitting.value) {
+    console.log("Auto-accepting invitation for logged-in user");
+    await handleAcceptInvitation();
+  }
+}, { immediate: true });
 </script>
 
 <template>
