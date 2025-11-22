@@ -148,6 +148,14 @@ class UserSubsystem {
     return null;
   }
 
+  getUserByEmail(email: string) {
+    for (const map of this.objects) {
+      const user = map[1];
+      if (user.email === email) return user;
+    }
+    return null;
+  }
+
   getUserByUuid(uuid: string) {
     return this.objects.get(uuid) || null;
   }

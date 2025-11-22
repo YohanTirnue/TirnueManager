@@ -42,14 +42,6 @@ function isValidEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
-// Find user by email
-function getUserByEmail(email: string) {
-  for (const [, user] of userSystem.objects) {
-    if (user.email === email) return user;
-  }
-  return null;
-}
-
 // ============================================
 // REGISTRATION ENDPOINTS
 // ============================================
@@ -117,7 +109,7 @@ router.post(
     }
 
     // Check if email already exists
-    if (getUserByEmail(email.toLowerCase())) {
+    if (userSystem.getUserByEmail(email.toLowerCase())) {
       ctx.status = 409;
       ctx.body = { success: false, message: "Email already registered" };
       return;
@@ -293,7 +285,7 @@ router.post(
     }
 
     // Always return success (don't reveal if email exists)
-    const user = getUserByEmail(email.toLowerCase());
+    const user = userSystem.getUserByEmail(email.toLowerCase());
     if (user) {
       const otp = await otpService.createPasswordResetOTP(email.toLowerCase(), user.uuid);
       await emailService.sendOTP(email, otp, "password_reset", user.firstName);
@@ -398,7 +390,7 @@ router.post(
     }
 
     // Check if new email already exists
-    if (getUserByEmail(newEmail.toLowerCase())) {
+    if (userSystem.getUserByEmail(newEmail.toLowerCase())) {
       ctx.status = 409;
       ctx.body = { success: false, message: "Email already in use" };
       return;
