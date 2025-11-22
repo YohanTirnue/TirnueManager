@@ -212,63 +212,82 @@ router.post(
 router.get(
   "/verify",
   async (ctx: Koa.ParameterizedContext) => {
-    const token = ctx.query.token as string;
-    logger.info(`[Invitation] /verify endpoint called with token: ${token}`);
+    try {
+      const token = ctx.query.token as string;
+      logger.info(`[Invitation] /verify endpoint called with token: ${token}`);
 
-    if (!token) {
-      logger.error("[Invitation] /verify - No token provided");
-      ctx.throw(400, "Token is required");
-      return;
+      if (!token) {
+        logger.error("[Invitation] /verify - No token provided");
+        ctx.throw(400, "Token is required");
+        return;
+      }
+
+      // Try new invitation service first
+      try {
+        let invitation = invitationService.getInvitationByToken(String(token));
+
+        if (invitation) {
+          // Found in new system
+          const existingUser = userSystem.getUserByEmail(invitation.inviteeEmail);
+          logger.info(`[Invitation] /verify - Found invitation in new system for ${invitation.inviteeEmail}, hasAccount: ${!!existingUser}`);
+
+          ctx.body = {
+            email: invitation.inviteeEmail,
+            inviterName: invitation.parentUserName,
+            instanceName: invitation.instanceName,
+            expiresAt: invitation.expiresAt,
+            hasAccount: !!existingUser
+          };
+          return;
+        }
+      } catch (err: any) {
+        logger.error(`[Invitation] /verify - Error checking new system: ${err.message}`);
+      }
+
+      // Fallback to legacy Redis storage (old invitation system)
+      logger.info(`[Invitation] /verify - Not found in new system, checking legacy Redis storage`);
+      try {
+        const inviteKey = `invite:${token}`;
+        const stored = singletonMemoryRedis.get<{ value: any }>(inviteKey);
+
+        if (!stored || !stored.value) {
+          logger.error(`[Invitation] /verify - Invitation not found in either system for token: ${token}`);
+          logger.error(`[Invitation] /verify - Redis key checked: ${inviteKey}, stored value: ${JSON.stringify(stored)}`);
+          ctx.throw(404, "Invitation not found or expired. The invitation may have been deleted or the server may have restarted. Please ask the sender to create a new invitation.");
+          return;
+        }
+
+        const legacyInvite = stored.value;
+
+        // Check if expired
+        if (Date.now() > legacyInvite.expiresAt) {
+          logger.error(`[Invitation] /verify - Legacy invitation expired for token: ${token}`);
+          ctx.throw(404, "Invitation expired");
+          return;
+        }
+
+        const existingUser = userSystem.getUserByEmail(legacyInvite.inviteeEmail);
+        logger.info(`[Invitation] /verify - Found legacy invitation for ${legacyInvite.inviteeEmail}, hasAccount: ${!!existingUser}`);
+
+        ctx.body = {
+          email: legacyInvite.inviteeEmail,
+          inviterName: legacyInvite.parentName,
+          instanceName: legacyInvite.instanceName,
+          expiresAt: legacyInvite.expiresAt,
+          hasAccount: !!existingUser
+        };
+      } catch (err: any) {
+        logger.error(`[Invitation] /verify - Error checking legacy system: ${err.message}`);
+        throw err;
+      }
+    } catch (err: any) {
+      logger.error(`[Invitation] /verify - Unhandled error: ${err.message}`, err.stack);
+      if (err.status) {
+        ctx.throw(err.status, err.message);
+      } else {
+        ctx.throw(500, "Internal server error while verifying invitation");
+      }
     }
-
-    // Try new invitation service first
-    let invitation = invitationService.getInvitationByToken(String(token));
-
-    if (invitation) {
-      // Found in new system
-      const existingUser = userSystem.getUserByEmail(invitation.inviteeEmail);
-      logger.info(`[Invitation] /verify - Found invitation in new system for ${invitation.inviteeEmail}, hasAccount: ${!!existingUser}`);
-
-      ctx.body = {
-        email: invitation.inviteeEmail,
-        inviterName: invitation.parentUserName,
-        instanceName: invitation.instanceName,
-        expiresAt: invitation.expiresAt,
-        hasAccount: !!existingUser
-      };
-      return;
-    }
-
-    // Fallback to legacy Redis storage (old invitation system)
-    logger.info(`[Invitation] /verify - Not found in new system, checking legacy Redis storage`);
-    const inviteKey = `invite:${token}`;
-    const stored = singletonMemoryRedis.get<{ value: any }>(inviteKey);
-
-    if (!stored || !stored.value) {
-      logger.error(`[Invitation] /verify - Invitation not found in either system for token: ${token}`);
-      ctx.throw(404, "Invitation not found or expired");
-      return;
-    }
-
-    const legacyInvite = stored.value;
-
-    // Check if expired
-    if (Date.now() > legacyInvite.expiresAt) {
-      logger.error(`[Invitation] /verify - Legacy invitation expired for token: ${token}`);
-      ctx.throw(404, "Invitation not found or expired");
-      return;
-    }
-
-    const existingUser = userSystem.getUserByEmail(legacyInvite.inviteeEmail);
-    logger.info(`[Invitation] /verify - Found legacy invitation for ${legacyInvite.inviteeEmail}, hasAccount: ${!!existingUser}`);
-
-    ctx.body = {
-      email: legacyInvite.inviteeEmail,
-      inviterName: legacyInvite.parentName,
-      instanceName: legacyInvite.instanceName,
-      expiresAt: legacyInvite.expiresAt,
-      hasAccount: !!existingUser
-    };
   }
 );
 
