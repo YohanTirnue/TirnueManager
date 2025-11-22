@@ -353,7 +353,7 @@ router.delete(
       const userUuid = getUserUuid(ctx);
 
       // Check delete permission
-      const subUserEntry = subUserService.getSubUserEntry(userUuid, String(instanceUuid), daemonId);
+      const permissions = getUserInstancePermissions(userUuid, String(instanceUuid), daemonId);
       if (permissions && !permissions.canDeleteFiles) {
         ctx.status = 403;
         ctx.body = "You do not have permission to delete files for this instance";
