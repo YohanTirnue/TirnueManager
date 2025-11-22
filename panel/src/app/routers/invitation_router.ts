@@ -16,6 +16,7 @@ import { operationLogger } from "../service/operation_logger";
 import { logger } from "../service/log";
 import Storage from "../common/storage/sys_storage";
 import { idempotencyService } from "../service/idempotency_service";
+import { singletonMemoryRedis } from "../service/mini_redis";
 
 const router = new Router({ prefix: "/sub-users/invite" });
 
@@ -207,6 +208,7 @@ router.post(
 );
 
 // Verify invitation token (query param version for frontend)
+// Supports both new invitation service and legacy Redis-based invitations
 router.get(
   "/verify",
   async (ctx: Koa.ParameterizedContext) => {
@@ -219,22 +221,52 @@ router.get(
       return;
     }
 
-    const invitation = invitationService.getInvitationByToken(String(token));
-    if (!invitation) {
-      logger.error(`[Invitation] /verify - Invitation not found for token: ${token}`);
+    // Try new invitation service first
+    let invitation = invitationService.getInvitationByToken(String(token));
+
+    if (invitation) {
+      // Found in new system
+      const existingUser = userSystem.getUserByEmail(invitation.inviteeEmail);
+      logger.info(`[Invitation] /verify - Found invitation in new system for ${invitation.inviteeEmail}, hasAccount: ${!!existingUser}`);
+
+      ctx.body = {
+        email: invitation.inviteeEmail,
+        inviterName: invitation.parentUserName,
+        instanceName: invitation.instanceName,
+        expiresAt: invitation.expiresAt,
+        hasAccount: !!existingUser
+      };
+      return;
+    }
+
+    // Fallback to legacy Redis storage (old invitation system)
+    logger.info(`[Invitation] /verify - Not found in new system, checking legacy Redis storage`);
+    const inviteKey = `invite:${token}`;
+    const stored = singletonMemoryRedis.get<{ value: any }>(inviteKey);
+
+    if (!stored || !stored.value) {
+      logger.error(`[Invitation] /verify - Invitation not found in either system for token: ${token}`);
       ctx.throw(404, "Invitation not found or expired");
       return;
     }
 
-    // Check if invitee has an account
-    const existingUser = userSystem.getUserByEmail(invitation.inviteeEmail);
-    logger.info(`[Invitation] /verify - Found invitation for ${invitation.inviteeEmail}, hasAccount: ${!!existingUser}`);
+    const legacyInvite = stored.value;
+
+    // Check if expired
+    if (Date.now() > legacyInvite.expiresAt) {
+      logger.error(`[Invitation] /verify - Legacy invitation expired for token: ${token}`);
+      ctx.throw(404, "Invitation not found or expired");
+      return;
+    }
+
+    const existingUser = userSystem.getUserByEmail(legacyInvite.inviteeEmail);
+    logger.info(`[Invitation] /verify - Found legacy invitation for ${legacyInvite.inviteeEmail}, hasAccount: ${!!existingUser}`);
 
     ctx.body = {
-      email: invitation.inviteeEmail,
-      inviterName: invitation.parentUserName,
-      instanceName: invitation.instanceName,
-      expiresAt: invitation.expiresAt,
+      email: legacyInvite.inviteeEmail,
+      inviterName: legacyInvite.parentName,
+      instanceName: legacyInvite.instanceName,
+      expiresAt: legacyInvite.expiresAt,
       hasAccount: !!existingUser
     };
   }
@@ -266,6 +298,7 @@ router.get(
 );
 
 // Accept invitation (for existing users) - supports both body and path parameter
+// Supports both new invitation service and legacy Redis-based invitations
 // Existing users can accept invitations - they become sub-users for this specific instance
 // while remaining full owners of their own instances
 router.post(
@@ -281,12 +314,6 @@ router.post(
       return;
     }
 
-    const invitation = invitationService.getInvitationByToken(String(token));
-    if (!invitation) {
-      ctx.throw(404, "Invitation not found or expired");
-      return;
-    }
-
     // Get current user
     const currentUser = userSystem.getInstance(userUuid);
     if (!currentUser) {
@@ -294,43 +321,101 @@ router.post(
       return;
     }
 
-    // Verify the logged-in user's email matches the invitation
+    // Try new invitation service first
+    let invitation = invitationService.getInvitationByToken(String(token));
+
+    if (invitation) {
+      // Found in new system - verify email matches
+      if (
+        !currentUser.email ||
+        currentUser.email.toLowerCase() !== invitation.inviteeEmail.toLowerCase()
+      ) {
+        ctx.throw(403, "This invitation was sent to a different email address");
+      }
+
+      try {
+        await subUserService.addExistingUserAsSubUser(
+          invitation.parentUserId,
+          invitation.instanceUuid,
+          invitation.daemonId,
+          userUuid,
+          invitation.permissions
+        );
+
+        invitationService.acceptInvitation(invitation.invitationId);
+
+        operationLogger.log("sub_user_accept_invite", {
+          operator_ip: ctx.ip,
+          operator_name: currentUser.userName,
+          parent_name: invitation.parentUserName,
+          instance_uuid: invitation.instanceUuid
+        });
+
+        logger.info(`[Invitation] Existing user ${currentUser.userName} accepted invitation from ${invitation.parentUserName}`);
+
+        ctx.body = {
+          success: true,
+          message: "Invitation accepted successfully. You now have access to the instance."
+        };
+        return;
+      } catch (error: any) {
+        logger.error(`[Invitation] Failed to accept invitation: ${error.message}`);
+        ctx.throw(400, error.message);
+      }
+    }
+
+    // Fallback to legacy Redis storage
+    const inviteKey = `invite:${token}`;
+    const stored = singletonMemoryRedis.get<{ value: any }>(inviteKey);
+
+    if (!stored || !stored.value) {
+      ctx.throw(404, "Invitation not found or expired");
+      return;
+    }
+
+    const legacyInvite = stored.value;
+
+    // Check if expired
+    if (Date.now() > legacyInvite.expiresAt) {
+      ctx.throw(404, "Invitation expired");
+      return;
+    }
+
+    // Verify email matches
     if (
       !currentUser.email ||
-      currentUser.email.toLowerCase() !== invitation.inviteeEmail.toLowerCase()
+      currentUser.email.toLowerCase() !== legacyInvite.inviteeEmail.toLowerCase()
     ) {
       ctx.throw(403, "This invitation was sent to a different email address");
     }
 
     try {
-      // Add existing user as sub-user for this instance
-      // Permissions are already in UserPermissions format
       await subUserService.addExistingUserAsSubUser(
-        invitation.parentUserId,
-        invitation.instanceUuid,
-        invitation.daemonId,
+        legacyInvite.parentUuid,
+        legacyInvite.instanceUuid,
+        legacyInvite.daemonId,
         userUuid,
-        invitation.permissions
+        legacyInvite.permissions
       );
 
-      // Mark invitation as accepted
-      invitationService.acceptInvitation(invitation.invitationId);
+      // Clear the invite from Redis
+      singletonMemoryRedis.set(inviteKey, null, 0);
 
       operationLogger.log("sub_user_accept_invite", {
         operator_ip: ctx.ip,
         operator_name: currentUser.userName,
-        parent_name: invitation.parentUserName,
-        instance_uuid: invitation.instanceUuid
+        parent_name: legacyInvite.parentName,
+        instance_uuid: legacyInvite.instanceUuid
       });
 
-      logger.info(`[Invitation] Existing user ${currentUser.userName} accepted invitation from ${invitation.parentUserName}`);
+      logger.info(`[Invitation] Existing user ${currentUser.userName} accepted legacy invitation from ${legacyInvite.parentName}`);
 
       ctx.body = {
         success: true,
         message: "Invitation accepted successfully. You now have access to the instance."
       };
     } catch (error: any) {
-      logger.error(`[Invitation] Failed to accept invitation: ${error.message}`);
+      logger.error(`[Invitation] Failed to accept legacy invitation: ${error.message}`);
       ctx.throw(400, error.message);
     }
   }
