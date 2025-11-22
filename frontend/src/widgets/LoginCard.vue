@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { router } from "@/config/router";
+import { useRoute } from "vue-router";
 import { t } from "@/lang/i18n";
 import { loginPageInfo, loginUser } from "@/services/apis";
 import { useAppStateStore } from "@/stores/useAppStateStore";
@@ -16,6 +17,8 @@ import {
   CloudServerOutlined
 } from "@ant-design/icons-vue";
 import { onMounted, reactive, ref } from "vue";
+
+const route = useRoute();
 
 const { state: pageInfoResult, execute } = loginPageInfo();
 
@@ -84,6 +87,15 @@ const handleNext = async () => {
 
 const loginSuccess = () => {
   loginStep.value++;
+
+  // Check for redirect parameter (e.g., from invitation links)
+  const redirectUrl = route.query.redirect as string;
+  if (redirectUrl) {
+    router.push(redirectUrl);
+    return;
+  }
+
+  // Default redirects based on role
   if (isAdmin.value) {
     router.push({
       path: "/"
