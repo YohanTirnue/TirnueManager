@@ -238,9 +238,9 @@ router.post(
 router.post(
   "/register/resend",
   permission({ token: false, level: null }),
-  validator({ body: { email: String } }),
+  validator({ body: { email: String, firstName: String, lastName: String, location: String, password: String } }),
   async (ctx: Koa.ParameterizedContext) => {
-    const { email } = ctx.request.body as any;
+    const { email, firstName, lastName, location, password } = ctx.request.body as any;
 
     // Rate limiting
     if (!otpService.checkRateLimit(`resend:${email}`, 3, 3600000)) {
@@ -249,17 +249,26 @@ router.post(
       return;
     }
 
-    // Check if there's a pending OTP
-    const hasPending = await otpService.hasPendingOTP(email.toLowerCase(), "registration");
-    if (!hasPending) {
-      ctx.status = 400;
-      ctx.body = { success: false, message: "No pending registration found. Please start over." };
+    // Hash password and create new OTP
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    const otp = await otpService.createRegistrationOTP(email.toLowerCase(), {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      location: location.trim(),
+      password: hashedPassword
+    });
+
+    // Send OTP email
+    const emailSent = await emailService.sendOTP(email, otp, "registration", firstName);
+    if (!emailSent) {
+      ctx.status = 503;
+      ctx.body = { success: false, message: "Failed to send verification email" };
       return;
     }
 
     ctx.body = {
       success: true,
-      message: "If a pending registration exists, a new code has been sent"
+      message: "Verification code resent to your email"
     };
   }
 );
@@ -421,9 +430,9 @@ router.post(
 router.post(
   "/profile/email/verify",
   permission({ level: ROLE.USER }),
-  validator({ body: { otp: String } }),
+  validator({ body: { otp: String, newEmail: String } }),
   async (ctx: Koa.ParameterizedContext) => {
-    const { otp } = ctx.request.body as any;
+    const { otp, newEmail } = ctx.request.body as any;
     const userId = ctx.state.user?.uuid;
 
     if (!userId) {
@@ -439,18 +448,35 @@ router.post(
       return;
     }
 
-    // Find and verify OTP for email change
-    // We need to search by the new email in the OTP records
-    let verifiedRecord = null;
-    for (const email of [user.email]) {
-      // Try to find any email change OTP for this user
-      // This is a bit of a workaround since we don't have the new email here
+    // Verify OTP for email change
+    const record = await otpService.verifyOTP(newEmail.toLowerCase(), otp, "email_change");
+    if (!record || record.userId !== userId) {
+      ctx.status = 400;
+      ctx.body = { success: false, message: "Invalid or expired verification code" };
+      return;
     }
 
-    // For now, we'll iterate through possible OTPs
-    // In production, you'd want to track the pending email change
-    ctx.status = 400;
-    ctx.body = { success: false, message: "Invalid or expired verification code" };
+    // Update user email
+    const oldEmail = user.email;
+    user.email = newEmail.toLowerCase();
+    user.userName = newEmail.toLowerCase(); // Also update username
+    user.emailVerified = true;
+
+    // Save
+    const Storage = (await import("../common/storage/sys_storage")).default;
+    await Storage.getStorage().store("User", user.uuid, user);
+
+    // Send notification to old email
+    if (oldEmail) {
+      await emailService.sendPasswordChangedNotification(oldEmail); // Reuse for notification
+    }
+
+    logger.info(`[EmailChange] Email changed for user ${userId}: ${oldEmail} -> ${newEmail}`);
+
+    ctx.body = {
+      success: true,
+      message: "Email updated successfully"
+    };
   }
 );
 

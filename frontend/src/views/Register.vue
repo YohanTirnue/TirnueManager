@@ -134,7 +134,11 @@ const resendOTP = async () => {
   isLoading.value = true;
   try {
     await axios.post("./api/auth/register/resend", {
-      email: formData.email
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      location: formData.location,
+      password: formData.password
     });
     startCountdown();
   } catch (error: any) {

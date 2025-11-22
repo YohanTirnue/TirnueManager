@@ -63,6 +63,15 @@ export interface IUser {
   isSubUser?: boolean;
   parentUserId?: string;
   subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string }>;
+  // Email registration fields
+  email?: string;
+  emailVerified?: boolean;
+  firstName?: string;
+  lastName?: string;
+  location?: string;
+  createdIp?: string;
+  lastLoginIp?: string;
+  accountStatus?: string;
 }
 
 export interface ICompleteUser {
@@ -76,6 +85,13 @@ export interface ICompleteUser {
   isSubUser?: boolean;
   parentUserId?: string;
   subUsers?: Array<{ uuid: string; instanceUuid: string; daemonId: string }>;
+  // Email registration fields
+  email?: string;
+  emailVerified?: boolean;
+  firstName?: string;
+  lastName?: string;
+  location?: string;
+  accountStatus?: string;
 }
 
 type RemoteMappingEntry = {
