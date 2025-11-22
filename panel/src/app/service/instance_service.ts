@@ -35,6 +35,7 @@ export interface IAdvancedInstanceInfo {
   processType?: string;
   docker?: Record<string, any>;
   info?: Record<string, any>;
+  permissions?: Record<string, boolean>;
 }
 
 // Multi-forward operation method
@@ -94,7 +95,8 @@ export async function getInstancesByUuid(
           stopCommand: "",
           processType: "",
           docker: {},
-          info: {}
+          info: {},
+          permissions: iterator.permissions
         });
         continue;
       }
@@ -118,7 +120,8 @@ export async function getInstancesByUuid(
         stopCommand: instancesInfo.config.stopCommand,
         processType: instancesInfo.config.processType,
         docker: instancesInfo.config.docker || {},
-        info: instancesInfo.info || {}
+        info: instancesInfo.info || {},
+        permissions: iterator.permissions
       });
     }
   } else {

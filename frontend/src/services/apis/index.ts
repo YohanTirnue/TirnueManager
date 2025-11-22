@@ -348,6 +348,8 @@ export const updateSubUserPermissions = useDefineApi<
   {
     params: {
       subUserUuid: string;
+      daemonId: string;
+      instanceUuid: string;
     };
     data: {
       permissions: UserPermissions;
@@ -363,6 +365,8 @@ export const deleteSubUser = useDefineApi<
   {
     params: {
       subUserUuid: string;
+      daemonId: string;
+      instanceUuid: string;
     };
   },
   any
