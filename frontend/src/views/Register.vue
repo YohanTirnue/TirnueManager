@@ -207,7 +207,7 @@ onUnmounted(() => {
           <div class="features-list">
             <div class="feature-item">
               <CheckCircleOutlined class="feature-icon" />
-              <span>Free to get started</span>
+              <span>Instant server deployment</span>
             </div>
             <div class="feature-item">
               <CheckCircleOutlined class="feature-icon" />
@@ -215,7 +215,7 @@ onUnmounted(() => {
             </div>
             <div class="feature-item">
               <CheckCircleOutlined class="feature-icon" />
-              <span>24/7 uptime monitoring</span>
+              <span>Premium support included</span>
             </div>
           </div>
         </div>
