@@ -71,8 +71,14 @@ const isLoggedIn = computed(() => !!appStateStore.state.userInfo?.token);
 
 // Watch for token to be available (route params may not be ready on mount)
 watch(token, async (newToken) => {
+  console.log("Token watch triggered:", newToken);
   if (newToken) {
+    error.value = ""; // Clear any previous error
     await fetchInvitationDetails();
+  } else {
+    // Token not available - show error
+    loading.value = false;
+    error.value = "Invalid invitation link - no token provided";
   }
 }, { immediate: true });
 
