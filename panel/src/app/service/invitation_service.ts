@@ -1,16 +1,6 @@
 import crypto from "crypto";
 import { logger } from "./log";
-
-export interface InvitationPermissions {
-  canStart: boolean;
-  canStop: boolean;
-  canRestart: boolean;
-  canKill: boolean;
-  canTerminal: boolean;
-  canFileManager: boolean;
-  canFileEdit: boolean;
-  canSchedule: boolean;
-}
+import type { UserPermissions } from "../entity/entity_interface";
 
 export interface InvitationRecord {
   invitationId: string;
@@ -21,7 +11,7 @@ export interface InvitationRecord {
   daemonId: string;
   instanceUuid: string;
   instanceName: string;
-  permissions: InvitationPermissions;
+  permissions: UserPermissions;
   ownerOtpVerified: boolean;
   token: string;
   expiryMinutes: 30 | 60;
@@ -35,7 +25,7 @@ interface PendingInvitation {
   daemonId: string;
   instanceUuid: string;
   instanceName: string;
-  permissions: InvitationPermissions;
+  permissions: UserPermissions;
   expiryMinutes: 30 | 60;
   parentUserId: string;
   parentEmail: string;

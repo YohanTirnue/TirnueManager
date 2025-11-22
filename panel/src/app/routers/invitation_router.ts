@@ -5,8 +5,9 @@ import validator from "../middleware/validator";
 import { ROLE } from "../entity/user";
 import { getUserUuid } from "../service/passport_service";
 import { canManageSubUsersByUuid } from "../service/permission_service";
-import { invitationService, type InvitationPermissions } from "../service/invitation_service";
+import { invitationService } from "../service/invitation_service";
 import { otpService } from "../service/otp_service";
+import type { UserPermissions } from "../entity/entity_interface";
 import { emailService } from "../service/email_service";
 import userSystem from "../service/user_service";
 import subUserService from "../service/sub_user_service";
@@ -61,16 +62,31 @@ router.post(
       ctx.throw(429, "Too many invitation attempts. Please wait before trying again.");
     }
 
-    // Validate permissions object
-    const validPermissions: InvitationPermissions = {
-      canStart: Boolean(permissions?.canStart),
-      canStop: Boolean(permissions?.canStop),
-      canRestart: Boolean(permissions?.canRestart),
-      canKill: Boolean(permissions?.canKill),
-      canTerminal: Boolean(permissions?.canTerminal),
-      canFileManager: Boolean(permissions?.canFileManager),
-      canFileEdit: Boolean(permissions?.canFileEdit),
-      canSchedule: Boolean(permissions?.canSchedule)
+    // Validate permissions object - use UserPermissions format
+    const validPermissions: UserPermissions = {
+      canUploadFiles: Boolean(permissions?.canUploadFiles ?? true),
+      canDownloadFiles: Boolean(permissions?.canDownloadFiles ?? true),
+      canDeleteFiles: Boolean(permissions?.canDeleteFiles ?? false),
+      canModifyFiles: Boolean(permissions?.canModifyFiles ?? true),
+      canAccessConsole: Boolean(permissions?.canAccessConsole ?? true),
+      canStartInstances: Boolean(permissions?.canStartInstances ?? true),
+      canRestartInstances: Boolean(permissions?.canRestartInstances ?? true),
+      canStopInstances: Boolean(permissions?.canStopInstances ?? true),
+      canTerminateInstances: Boolean(permissions?.canTerminateInstances ?? false),
+      canViewLogs: Boolean(permissions?.canViewLogs ?? true),
+      canAccessConfigFiles: Boolean(permissions?.canAccessConfigFiles ?? false),
+      canAccessFileManager: Boolean(permissions?.canAccessFileManager ?? true),
+      canAccessMinecraftQuery: Boolean(permissions?.canAccessMinecraftQuery ?? true),
+      canAccessTerminalSettings: Boolean(permissions?.canAccessTerminalSettings ?? false),
+      canAccessScheduledTasks: Boolean(permissions?.canAccessScheduledTasks ?? false),
+      canAccessEventTasks: Boolean(permissions?.canAccessEventTasks ?? false),
+      canAccessInstanceSettings: Boolean(permissions?.canAccessInstanceSettings ?? false),
+      canAccessServerMarket: Boolean(permissions?.canAccessServerMarket ?? false),
+      disableRightClick: Boolean(permissions?.disableRightClick ?? false),
+      disableKeyboardShortcuts: Boolean(permissions?.disableKeyboardShortcuts ?? false),
+      disableTextSelection: Boolean(permissions?.disableTextSelection ?? false),
+      disableCopy: Boolean(permissions?.disableCopy ?? false),
+      disablePaste: Boolean(permissions?.disablePaste ?? false)
     };
 
     // Store pending invitation
@@ -229,41 +245,14 @@ router.post(
     }
 
     try {
-      // Map invitation permissions to UserPermissions format
-      const userPermissions = {
-        canStartInstances: invitation.permissions.canStart,
-        canStopInstances: invitation.permissions.canStop,
-        canRestartInstances: invitation.permissions.canRestart,
-        canTerminateInstances: invitation.permissions.canKill,
-        canAccessConsole: invitation.permissions.canTerminal,
-        canAccessFileManager: invitation.permissions.canFileManager,
-        canModifyFiles: invitation.permissions.canFileEdit,
-        canAccessScheduledTasks: invitation.permissions.canSchedule,
-        // Default file permissions
-        canUploadFiles: invitation.permissions.canFileManager,
-        canDownloadFiles: invitation.permissions.canFileManager,
-        canDeleteFiles: false,
-        canViewLogs: true,
-        canAccessConfigFiles: false,
-        canAccessMinecraftQuery: true,
-        canAccessTerminalSettings: false,
-        canAccessEventTasks: false,
-        canAccessInstanceSettings: false,
-        canAccessServerMarket: false,
-        disableRightClick: false,
-        disableKeyboardShortcuts: false,
-        disableTextSelection: false,
-        disableCopy: false,
-        disablePaste: false
-      };
-
       // Add existing user as sub-user for this instance
+      // Permissions are already in UserPermissions format
       await subUserService.addExistingUserAsSubUser(
         invitation.parentUserId,
         invitation.instanceUuid,
         invitation.daemonId,
         userUuid,
-        userPermissions
+        invitation.permissions
       );
 
       // Mark invitation as accepted
@@ -324,36 +313,8 @@ router.post(
     }
 
     try {
-      // Map invitation permissions to UserPermissions format
-      // Note: userSystem.create automatically hashes the password via edit()
-      const userPermissions = {
-        canStartInstances: invitation.permissions.canStart,
-        canStopInstances: invitation.permissions.canStop,
-        canRestartInstances: invitation.permissions.canRestart,
-        canTerminateInstances: invitation.permissions.canKill,
-        canAccessConsole: invitation.permissions.canTerminal,
-        canAccessFileManager: invitation.permissions.canFileManager,
-        canModifyFiles: invitation.permissions.canFileEdit,
-        canAccessScheduledTasks: invitation.permissions.canSchedule,
-        // Default file permissions
-        canUploadFiles: invitation.permissions.canFileManager,
-        canDownloadFiles: invitation.permissions.canFileManager,
-        canDeleteFiles: false,
-        canViewLogs: true,
-        canAccessConfigFiles: false,
-        canAccessMinecraftQuery: true,
-        canAccessTerminalSettings: false,
-        canAccessEventTasks: false,
-        canAccessInstanceSettings: false,
-        canAccessServerMarket: false,
-        disableRightClick: false,
-        disableKeyboardShortcuts: false,
-        disableTextSelection: false,
-        disableCopy: false,
-        disablePaste: false
-      };
-
       // Create the new user (regular user - sub-user status is per-instance)
+      // Note: userSystem.create automatically hashes the password via edit()
       const newUser = await userSystem.create({
         userName: String(userName),
         passWord: String(password),
@@ -378,7 +339,7 @@ router.post(
           uuid: newUser.uuid,
           instanceUuid: invitation.instanceUuid,
           daemonId: invitation.daemonId,
-          permissions: userPermissions
+          permissions: invitation.permissions
         });
         await Storage.getStorage().store("User", parentUser.uuid, parentUser);
       }

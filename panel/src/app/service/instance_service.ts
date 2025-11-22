@@ -122,16 +122,9 @@ export async function getInstancesByUuid(
       });
     }
   } else {
-    // When not advanced, return instances but conditionally strip permissions
-    if (includePermissions) {
-      resInstances = user.instances;
-    } else {
-      // Strip permissions from instances for non-admin users
-      resInstances = user.instances.map(inst => ({
-        instanceUuid: inst.instanceUuid,
-        daemonId: inst.daemonId
-      }));
-    }
+    // When not advanced, return instances with permissions
+    // User needs their own permissions for UI to work
+    resInstances = user.instances;
   }
 
   // respond to user data
