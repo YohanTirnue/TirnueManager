@@ -91,10 +91,10 @@ router.post(
       return;
     }
 
-    // Validate location
+    // Validate location (ISO country code is 2-3 chars)
     if (location.trim().length < 2 || location.length > 100) {
       ctx.status = 400;
-      ctx.body = { success: false, message: "Location must be 2-100 characters" };
+      ctx.body = { success: false, message: "Please select a valid location" };
       return;
     }
 
