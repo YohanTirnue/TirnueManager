@@ -39,8 +39,10 @@ export function mountRouters(app: Koa<Koa.DefaultState, Koa.DefaultContext>) {
   apiRouter.use(settingsRouter.routes()).use(settingsRouter.allowedMethods());
   apiRouter.use(environmentRouter.routes()).use(environmentRouter.allowedMethods());
   apiRouter.use(exchangeRouter.routes()).use(exchangeRouter.allowedMethods());
-  apiRouter.use(subUserRouter.routes()).use(subUserRouter.allowedMethods());
+  // Mount invitationRouter BEFORE subUserRouter to ensure /sub-users/invite/verify
+  // matches the new invitation system instead of the legacy route
   apiRouter.use(invitationRouter.routes()).use(invitationRouter.allowedMethods());
+  apiRouter.use(subUserRouter.routes()).use(subUserRouter.allowedMethods());
   apiRouter.use(registrationRouter.routes()).use(registrationRouter.allowedMethods());
   apiRouter.use(metricsRouter.routes()).use(metricsRouter.allowedMethods());
 
