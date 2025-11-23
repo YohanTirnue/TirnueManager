@@ -279,6 +279,14 @@ const isUserSelected = (uuid: string) => {
   return selectedUsers.value.includes(uuid);
 };
 
+const toggleSelectAll = () => {
+  if (selectedUsers.value.length === dataSource.value.length && dataSource.value.length > 0) {
+    selectedUsers.value = [];
+  } else {
+    selectedUsers.value = dataSource.value.map(user => user.uuid);
+  }
+};
+
 const getUserNameById = (uuid: string) => {
   const user = data.value?.data.find(u => u.uuid === uuid);
   return user?.userName || null;
@@ -541,93 +549,82 @@ onMounted(async () => {
       </select>
     </div>
 
-    <!-- Users Grid -->
+    <!-- Users Table -->
     <a-spin :spinning="data && data.pageSize == 0">
-      <div class="users-grid">
-        <div
-          v-for="user in dataSource"
-          :key="user.uuid"
-          class="user-card"
-          :class="{ selected: isUserSelected(user.uuid) }"
-        >
-          <!-- Selection Checkbox -->
-          <div class="card-checkbox" @click.stop="toggleUserSelection(user.uuid)">
-            <div class="checkbox" :class="{ checked: isUserSelected(user.uuid) }">
-              <span v-if="isUserSelected(user.uuid)">✓</span>
-            </div>
-          </div>
-
-          <!-- User Avatar -->
-          <div class="user-avatar" :style="{ borderColor: getPermissionColor(String(user.permission)) }">
-            <component :is="getPermissionIcon(String(user.permission))" />
-          </div>
-
-          <!-- User Info -->
-          <div class="user-info">
-            <h3 class="user-name">{{ user.userName }}</h3>
-            <div class="user-badge" :style="{
-              backgroundColor: `${getPermissionColor(String(user.permission))}15`,
-              color: getPermissionColor(String(user.permission))
-            }">
-              {{ PERMISSION_MAP[user.permission] || user.permission }}
-            </div>
-          </div>
-
-          <!-- User Stats -->
-          <div class="user-stats">
-            <div class="stat-item">
-              <ClockCircleOutlined class="stat-icon" />
-              <div class="stat-content">
-                <span class="stat-label">Last Login</span>
-                <span class="stat-value">{{ user.loginTime || 'Never' }}</span>
-              </div>
-            </div>
-            <div class="stat-item">
-              <SafetyOutlined class="stat-icon" />
-              <div class="stat-content">
-                <span class="stat-label">Registered</span>
-                <span class="stat-value">{{ user.registerTime || 'N/A' }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sub-Users Badge (if any) -->
-          <div v-if="user.subUsers && user.subUsers.length > 0" class="sub-users-badge">
-            <TeamOutlined style="margin-right: 4px" />
-            <span>{{ user.subUsers.length }} Sub-User{{ user.subUsers.length > 1 ? 's' : '' }}</span>
-          </div>
-
-          <!-- UUID -->
-          <div class="user-uuid">
-            <span class="uuid-label">UUID:</span>
-            <span class="uuid-value">{{ user.uuid }}</span>
-          </div>
-
-          <!-- Registration IP -->
-          <div v-if="user.createdIp" class="user-registration-ip">
-            <span class="reg-ip-label">Registration IP:</span>
-            <span class="reg-ip-value">{{ user.createdIp }}</span>
-          </div>
-
-          <!-- Fingerprint Hash -->
-          <div v-if="user.fingerprintHash" class="user-fingerprint">
-            <span class="fingerprint-label">Device ID:</span>
-            <span class="fingerprint-value">{{ user.fingerprintHash }}</span>
-          </div>
-
-          <!-- Tracking Cookie -->
-          <div v-if="user.trackingCookie" class="user-tracking-cookie">
-            <span class="tracking-label">Cookie ID:</span>
-            <span class="tracking-value">{{ user.trackingCookie }}</span>
-          </div>
-
-          <!-- Action Button -->
-          <div class="action-menu-container">
-            <button class="action-menu-btn" @click.stop="() => { actionModalUser = user; actionModalOpen = true; }">
-              <MoreOutlined />
-            </button>
-          </div>
-        </div>
+      <div class="users-table-container">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th class="col-checkbox">
+                <div class="checkbox" :class="{ checked: selectedUsers.length === dataSource.length && dataSource.length > 0 }" @click="toggleSelectAll">
+                  <span v-if="selectedUsers.length === dataSource.length && dataSource.length > 0">✓</span>
+                </div>
+              </th>
+              <th class="col-username">Username</th>
+              <th class="col-email">Email</th>
+              <th class="col-role">Role</th>
+              <th class="col-instances">Instances</th>
+              <th class="col-reg-ip">Registration IP</th>
+              <th class="col-device-id">Device ID</th>
+              <th class="col-cookie-id">Cookie ID</th>
+              <th class="col-registered">Registered</th>
+              <th class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="user in dataSource"
+              :key="user.uuid"
+              class="user-row"
+              :class="{ selected: isUserSelected(user.uuid) }"
+            >
+              <td class="col-checkbox">
+                <div class="checkbox" :class="{ checked: isUserSelected(user.uuid) }" @click.stop="toggleUserSelection(user.uuid)">
+                  <span v-if="isUserSelected(user.uuid)">✓</span>
+                </div>
+              </td>
+              <td class="col-username">
+                <div class="username-cell">
+                  <div class="user-avatar-small" :style="{ borderColor: getPermissionColor(String(user.permission)) }">
+                    <component :is="getPermissionIcon(String(user.permission))" />
+                  </div>
+                  <span class="username-text">{{ user.userName }}</span>
+                </div>
+              </td>
+              <td class="col-email">
+                <span class="email-text">{{ user.email || 'N/A' }}</span>
+              </td>
+              <td class="col-role">
+                <div class="role-badge" :style="{
+                  backgroundColor: `${getPermissionColor(String(user.permission))}15`,
+                  color: getPermissionColor(String(user.permission))
+                }">
+                  {{ PERMISSION_MAP[user.permission] || user.permission }}
+                </div>
+              </td>
+              <td class="col-instances">
+                <span class="instance-count">{{ user.instances?.length || 0 }}</span>
+              </td>
+              <td class="col-reg-ip">
+                <span class="ip-text">{{ user.createdIp || 'N/A' }}</span>
+              </td>
+              <td class="col-device-id">
+                <span class="device-id-text">{{ user.fingerprintHash || 'N/A' }}</span>
+              </td>
+              <td class="col-cookie-id">
+                <span class="cookie-id-text">{{ user.trackingCookie || 'N/A' }}</span>
+              </td>
+              <td class="col-registered">
+                <span class="date-text">{{ user.registerTime || 'N/A' }}</span>
+              </td>
+              <td class="col-actions">
+                <button class="action-btn" @click.stop="() => { actionModalUser = user; actionModalOpen = true; }">
+                  <MoreOutlined />
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </a-spin>
 
@@ -995,52 +992,125 @@ onMounted(async () => {
 }
 
 // Users Grid
-.users-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-.user-card {
+// Users Table
+.users-table-container {
   background: var(--background-color-white);
-  border-radius: 20px;
-  padding: 28px;
+  border-radius: 12px;
+  overflow: hidden;
   box-shadow: 0 4px 16px var(--card-shadow-color);
-  transition: all 0.3s ease;
-  position: relative;
-  border: 2px solid var(--card-border-color);
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.25);
-    border-color: rgba(255, 140, 66, 0.5);
-  }
-
-  &.selected {
-    border-color: #FF8C42;
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
-  }
+  margin-bottom: 32px;
+  border: 1px solid var(--card-border-color);
 }
 
-.card-checkbox {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  cursor: pointer;
-  z-index: 1;
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
+    border-bottom: 2px solid #FF8C42;
+
+    tr th {
+      padding: 16px 12px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+
+      &.col-checkbox {
+        width: 50px;
+        text-align: center;
+      }
+
+      &.col-username {
+        min-width: 200px;
+      }
+
+      &.col-email {
+        min-width: 200px;
+      }
+
+      &.col-role {
+        width: 140px;
+      }
+
+      &.col-instances {
+        width: 100px;
+        text-align: center;
+      }
+
+      &.col-reg-ip {
+        min-width: 140px;
+      }
+
+      &.col-device-id {
+        min-width: 120px;
+      }
+
+      &.col-cookie-id {
+        min-width: 120px;
+      }
+
+      &.col-registered {
+        min-width: 160px;
+      }
+
+      &.col-actions {
+        width: 80px;
+        text-align: center;
+      }
+    }
+  }
+
+  tbody {
+    tr.user-row {
+      border-bottom: 1px solid var(--card-border-color);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(255, 140, 66, 0.04);
+      }
+
+      &.selected {
+        background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
+      }
+
+      td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        font-size: 13px;
+        color: var(--text-color);
+
+        &.col-checkbox {
+          text-align: center;
+        }
+
+        &.col-instances {
+          text-align: center;
+        }
+
+        &.col-actions {
+          text-align: center;
+        }
+      }
+    }
+  }
 }
 
 .checkbox {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border: 2px solid var(--card-border-color);
-  border-radius: 6px;
-  display: flex;
+  border-radius: 4px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
   background: var(--background-color);
+  cursor: pointer;
 
   &.checked {
     background: linear-gradient(135deg, #FF8C42, #FF6B35);
@@ -1053,180 +1123,83 @@ onMounted(async () => {
   }
 }
 
-.user-avatar {
-  width: 80px;
-  height: 80px;
+.username-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar-small {
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, #FF8C42, #FF6B35);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
+  font-size: 16px;
   color: white;
-  margin: 0 auto 20px;
-  border: 4px solid;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+  border: 2px solid;
+  flex-shrink: 0;
 }
 
-.user-info {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.user-name {
-  font-size: 22px;
-  font-weight: 700;
+.username-text {
+  font-weight: 600;
   color: var(--text-color);
-  margin: 0 0 12px 0;
 }
 
-.user-badge {
+.email-text {
+  color: var(--color-gray-7);
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.role-badge {
   display: inline-block;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.user-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding: 16px;
-  background: var(--card-bottom-background-color);
+  padding: 4px 12px;
   border-radius: 12px;
-  border: 1px solid var(--card-border-color);
+  font-size: 11px;
+  font-weight: 600;
 }
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.stat-icon {
-  font-size: 20px;
+.instance-count {
+  font-weight: 600;
   color: #FF8C42;
-}
-
-.stat-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--color-gray-7);
-  font-weight: 600;
-}
-
-.stat-value {
-  font-size: 14px;
-  color: var(--text-color);
-  font-weight: 500;
-}
-
-.user-uuid {
-  padding: 12px;
-  background: var(--background-color);
+  background: rgba(255, 140, 66, 0.1);
+  padding: 4px 10px;
   border-radius: 8px;
-  margin-bottom: 16px;
-  font-size: 12px;
-  word-break: break-all;
-  border: 1px solid var(--card-border-color);
+  display: inline-block;
 }
 
-.uuid-label {
-  color: var(--color-gray-7);
-  font-weight: 600;
-  margin-right: 8px;
-}
-
-.uuid-value {
-  color: var(--text-color);
+.ip-text {
   font-family: monospace;
-}
-
-// Registration IP
-.user-registration-ip {
-  padding: 12px;
-  background: linear-gradient(135deg, rgba(72, 187, 120, 0.05) 0%, rgba(56, 161, 105, 0.05) 100%);
-  border-radius: 8px;
-  margin-bottom: 16px;
   font-size: 12px;
-  word-break: break-all;
-  border: 1px solid rgba(72, 187, 120, 0.2);
-}
-
-.reg-ip-label {
   color: #48bb78;
-  font-weight: 600;
-  margin-right: 8px;
-}
-
-.reg-ip-value {
-  color: var(--text-color);
-  font-family: monospace;
   font-weight: 500;
 }
 
-// Fingerprint Hash
-.user-fingerprint {
-  padding: 12px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.05) 0%, rgba(255, 107, 53, 0.05) 100%);
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-size: 12px;
-  word-break: break-all;
-  border: 1px solid rgba(255, 140, 66, 0.2);
-}
-
-.fingerprint-label {
+.device-id-text {
+  font-family: monospace;
+  font-size: 11px;
   color: #FF8C42;
-  font-weight: 600;
-  margin-right: 8px;
-}
-
-.fingerprint-value {
-  color: var(--text-color);
-  font-family: monospace;
   font-weight: 500;
 }
 
-// Tracking Cookie
-.user-tracking-cookie {
-  padding: 12px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-size: 12px;
-  word-break: break-all;
-  border: 1px solid rgba(102, 126, 234, 0.2);
-}
-
-.tracking-label {
+.cookie-id-text {
+  font-family: monospace;
+  font-size: 11px;
   color: #667eea;
-  font-weight: 600;
-  margin-right: 8px;
-}
-
-.tracking-value {
-  color: var(--text-color);
-  font-family: monospace;
   font-weight: 500;
 }
 
-// Action Menu
-.action-menu-container {
-  position: relative;
+.date-text {
+  color: var(--color-gray-7);
+  font-size: 12px;
 }
 
-.action-menu-btn {
-  width: 100%;
-  padding: 12px;
+.action-btn {
+  width: 36px;
+  height: 36px;
   background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(212, 175, 55, 0.1));
   border: 2px solid #FF8C42;
   border-radius: 12px;
@@ -1323,8 +1296,12 @@ onMounted(async () => {
 
 // Responsive
 @media (max-width: 1400px) {
-  .users-grid {
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  .users-table-container {
+    overflow-x: auto;
+  }
+
+  .users-table {
+    min-width: 1200px;
   }
 }
 
@@ -1351,8 +1328,13 @@ onMounted(async () => {
     flex-direction: column;
   }
 
-  .users-grid {
-    grid-template-columns: 1fr;
+  .users-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .users-table {
+    min-width: 1000px;
   }
 
   .page-title {
