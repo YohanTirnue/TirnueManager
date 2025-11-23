@@ -218,7 +218,7 @@ router.get("/dashboard", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Para
 
 // GET /api/accounting/transactions - Get all transactions
 router.get("/transactions", permission({ level: ROLE.ADMIN }), async (ctx: Koa.ParameterizedContext) => {
-  const { page = 1, pageSize = 20, status, type, search } = ctx.query;
+  const { page = 1, pageSize = 20, status, type, search, startDate, endDate, userUuid } = ctx.query;
 
   let filtered = [...transactions];
 
@@ -232,13 +232,30 @@ router.get("/transactions", permission({ level: ROLE.ADMIN }), async (ctx: Koa.P
     filtered = filtered.filter((t) => t.type === type);
   }
 
-  // Search
+  // Filter by user UUID
+  if (userUuid) {
+    filtered = filtered.filter((t) => t.userUuid === userUuid);
+  }
+
+  // Filter by date range
+  if (startDate) {
+    const start = new Date(String(startDate));
+    filtered = filtered.filter((t) => new Date(t.createdAt) >= start);
+  }
+  if (endDate) {
+    const end = new Date(String(endDate));
+    end.setHours(23, 59, 59, 999); // Include entire end day
+    filtered = filtered.filter((t) => new Date(t.createdAt) <= end);
+  }
+
+  // Search by user info or description
   if (search) {
     const searchLower = String(search).toLowerCase();
     filtered = filtered.filter(
       (t) =>
         t.userName.toLowerCase().includes(searchLower) ||
         t.userEmail.toLowerCase().includes(searchLower) ||
+        t.userUuid.toLowerCase().includes(searchLower) ||
         t.description.toLowerCase().includes(searchLower)
     );
   }
@@ -292,7 +309,7 @@ router.post("/transactions", permission({ level: ROLE.ADMIN }), async (ctx: Koa.
 
 // GET /api/accounting/invoices - Get all invoices
 router.get("/invoices", permission({ level: ROLE.ADMIN }), async (ctx: Koa.ParameterizedContext) => {
-  const { page = 1, pageSize = 20, status, search } = ctx.query;
+  const { page = 1, pageSize = 20, status, search, startDate, endDate, userUuid } = ctx.query;
 
   let filtered = [...invoices];
 
@@ -301,14 +318,31 @@ router.get("/invoices", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Param
     filtered = filtered.filter((i) => i.status === status);
   }
 
-  // Search
+  // Filter by user UUID
+  if (userUuid) {
+    filtered = filtered.filter((i) => i.userUuid === userUuid);
+  }
+
+  // Filter by date range
+  if (startDate) {
+    const start = new Date(String(startDate));
+    filtered = filtered.filter((i) => new Date(i.createdAt) >= start);
+  }
+  if (endDate) {
+    const end = new Date(String(endDate));
+    end.setHours(23, 59, 59, 999); // Include entire end day
+    filtered = filtered.filter((i) => new Date(i.createdAt) <= end);
+  }
+
+  // Search by invoice number, user info
   if (search) {
     const searchLower = String(search).toLowerCase();
     filtered = filtered.filter(
       (i) =>
         i.invoiceNumber.toLowerCase().includes(searchLower) ||
         i.userName.toLowerCase().includes(searchLower) ||
-        i.userEmail.toLowerCase().includes(searchLower)
+        i.userEmail.toLowerCase().includes(searchLower) ||
+        i.userUuid.toLowerCase().includes(searchLower)
     );
   }
 
@@ -384,7 +418,7 @@ router.put("/invoices/:id", permission({ level: ROLE.ADMIN }), async (ctx: Koa.P
 
 // GET /api/accounting/expenses - Get all expenses
 router.get("/expenses", permission({ level: ROLE.ADMIN }), async (ctx: Koa.ParameterizedContext) => {
-  const { page = 1, pageSize = 20, category, search } = ctx.query;
+  const { page = 1, pageSize = 20, category, search, startDate, endDate } = ctx.query;
 
   let filtered = [...expenses];
 
@@ -393,13 +427,25 @@ router.get("/expenses", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Param
     filtered = filtered.filter((e) => e.category === category);
   }
 
-  // Search
+  // Filter by date range
+  if (startDate) {
+    const start = new Date(String(startDate));
+    filtered = filtered.filter((e) => new Date(e.date) >= start);
+  }
+  if (endDate) {
+    const end = new Date(String(endDate));
+    end.setHours(23, 59, 59, 999); // Include entire end day
+    filtered = filtered.filter((e) => new Date(e.date) <= end);
+  }
+
+  // Search by description or vendor
   if (search) {
     const searchLower = String(search).toLowerCase();
     filtered = filtered.filter(
       (e) =>
         e.description.toLowerCase().includes(searchLower) ||
-        e.vendor?.toLowerCase().includes(searchLower)
+        e.vendor?.toLowerCase().includes(searchLower) ||
+        e.category.toLowerCase().includes(searchLower)
     );
   }
 

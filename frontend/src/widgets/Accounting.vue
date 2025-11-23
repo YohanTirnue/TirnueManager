@@ -41,7 +41,9 @@ const transactionsPageSize = ref(20);
 const transactionsFilters = ref({
   status: "",
   type: "",
-  search: ""
+  search: "",
+  startDate: "",
+  endDate: ""
 });
 const isLoadingTransactions = ref(false);
 
@@ -52,7 +54,9 @@ const invoicesPage = ref(1);
 const invoicesPageSize = ref(20);
 const invoicesFilters = ref({
   status: "",
-  search: ""
+  search: "",
+  startDate: "",
+  endDate: ""
 });
 const isLoadingInvoices = ref(false);
 
@@ -63,7 +67,9 @@ const expensesPage = ref(1);
 const expensesPageSize = ref(20);
 const expensesFilters = ref({
   category: "",
-  search: ""
+  search: "",
+  startDate: "",
+  endDate: ""
 });
 const isLoadingExpenses = ref(false);
 
@@ -377,6 +383,17 @@ const formatDate = (date: string) => {
   });
 };
 
+// Format date with time
+const formatDateTime = (date: string) => {
+  return new Date(date).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+};
+
 // Get status color
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
@@ -623,8 +640,22 @@ onMounted(() => {
             <a-select-option value="refund">Refund</a-select-option>
           </a-select>
           <a-input
+            v-model:value="transactionsFilters.startDate"
+            type="date"
+            placeholder="Start Date"
+            style="width: 150px"
+            @change="fetchTransactions"
+          />
+          <a-input
+            v-model:value="transactionsFilters.endDate"
+            type="date"
+            placeholder="End Date"
+            style="width: 150px"
+            @change="fetchTransactions"
+          />
+          <a-input
             v-model:value="transactionsFilters.search"
-            placeholder="Search transactions..."
+            placeholder="Search by user or description..."
             style="width: 250px"
             @change="fetchTransactions"
           >
@@ -650,6 +681,7 @@ onMounted(() => {
                 <th>Description</th>
                 <th>Amount</th>
                 <th>Status</th>
+                <th>Created At</th>
               </tr>
             </thead>
             <tbody>
@@ -670,6 +702,7 @@ onMounted(() => {
                     {{ transaction.status }}
                   </span>
                 </td>
+                <td class="date-cell">{{ formatDateTime(transaction.createdAt) }}</td>
               </tr>
             </tbody>
           </table>
@@ -699,8 +732,22 @@ onMounted(() => {
             <a-select-option value="cancelled">Cancelled</a-select-option>
           </a-select>
           <a-input
+            v-model:value="invoicesFilters.startDate"
+            type="date"
+            placeholder="Start Date"
+            style="width: 150px"
+            @change="fetchInvoices"
+          />
+          <a-input
+            v-model:value="invoicesFilters.endDate"
+            type="date"
+            placeholder="End Date"
+            style="width: 150px"
+            @change="fetchInvoices"
+          />
+          <a-input
             v-model:value="invoicesFilters.search"
-            placeholder="Search invoices..."
+            placeholder="Search by user or invoice..."
             style="width: 250px"
             @change="fetchInvoices"
           >
@@ -726,6 +773,7 @@ onMounted(() => {
                 <th>User</th>
                 <th>Total</th>
                 <th>Status</th>
+                <th>Created At</th>
               </tr>
             </thead>
             <tbody>
@@ -746,6 +794,7 @@ onMounted(() => {
                     {{ invoice.status }}
                   </span>
                 </td>
+                <td class="date-cell">{{ formatDateTime(invoice.createdAt) }}</td>
               </tr>
             </tbody>
           </table>
@@ -766,7 +815,7 @@ onMounted(() => {
     <div v-if="activeTab === 'expenses'" class="tab-content">
       <div class="tab-header">
         <div class="filters">
-          <a-select v-model:value="expensesFilters.category" placeholder="Category" style="width: 200px" @change="fetchExpenses">
+          <a-select v-model:value="expensesFilters.category" placeholder="Category" style="width: 150px" @change="fetchExpenses">
             <a-select-option value="">All Categories</a-select-option>
             <a-select-option value="infrastructure">Infrastructure</a-select-option>
             <a-select-option value="marketing">Marketing</a-select-option>
@@ -775,8 +824,22 @@ onMounted(() => {
             <a-select-option value="other">Other</a-select-option>
           </a-select>
           <a-input
+            v-model:value="expensesFilters.startDate"
+            type="date"
+            placeholder="Start Date"
+            style="width: 150px"
+            @change="fetchExpenses"
+          />
+          <a-input
+            v-model:value="expensesFilters.endDate"
+            type="date"
+            placeholder="End Date"
+            style="width: 150px"
+            @change="fetchExpenses"
+          />
+          <a-input
             v-model:value="expensesFilters.search"
-            placeholder="Search expenses..."
+            placeholder="Search vendor or description..."
             style="width: 250px"
             @change="fetchExpenses"
           >
@@ -801,6 +864,7 @@ onMounted(() => {
                 <th>Description</th>
                 <th>Vendor</th>
                 <th>Amount</th>
+                <th>Created At</th>
               </tr>
             </thead>
             <tbody>
@@ -810,6 +874,7 @@ onMounted(() => {
                 <td>{{ expense.description }}</td>
                 <td>{{ expense.vendor || 'N/A' }}</td>
                 <td class="amount-cell expense-amount">-{{ formatCurrency(expense.amount) }}</td>
+                <td class="date-cell">{{ formatDateTime(expense.createdAt) }}</td>
               </tr>
             </tbody>
           </table>
@@ -1236,6 +1301,8 @@ onMounted(() => {
 .filters {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 // Dashboard
@@ -1425,6 +1492,12 @@ onMounted(() => {
   font-weight: 600;
   color: #52c41a;
   font-size: 14px;
+}
+
+.date-cell {
+  color: #666;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .expense-amount {
