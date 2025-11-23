@@ -130,7 +130,7 @@ router.post(
 // Update instance information (manage users)
 router.put(
   "/",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.MODERATOR }),
   validator({ query: { daemonId: String, uuid: String } }),
   async (ctx) => {
     try {
@@ -142,13 +142,19 @@ router.put(
         instanceUuid,
         config
       });
+
+      const userUuid = getUserUuid(ctx);
+      const currentUser = userSystem.getInstance(userUuid);
+      // Only skip instance logs for admins, not moderators
+      const skipInstanceLog = currentUser ? isTopPermission(currentUser) : true;
+
       operationLogger.log("instance_config_change", {
         daemon_id: daemonId,
         instance_id: instanceUuid,
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: config.nickname
-      }, "info", true);
+      }, "info", skipInstanceLog);
       ctx.body = result;
     } catch (err) {
       ctx.body = err;
