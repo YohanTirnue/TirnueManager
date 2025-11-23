@@ -412,7 +412,9 @@ onUnmounted(() => {
                 </div>
                 <div class="input-group">
                   <label>City</label>
+                  <!-- Show dropdown if cities available, otherwise text input -->
                   <a-select
+                    v-if="cityOptions.length > 0"
                     v-model:value="formData.city"
                     size="large"
                     placeholder="Select city"
@@ -423,6 +425,17 @@ onUnmounted(() => {
                     :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
                   >
                   </a-select>
+                  <a-input
+                    v-else
+                    v-model:value="formData.city"
+                    size="large"
+                    placeholder="Enter your city"
+                    class="modern-input"
+                    :disabled="!formData.region"
+                  />
+                  <div v-if="cityOptions.length === 0 && formData.region" class="info-text">
+                    No cities available in database. Please enter manually.
+                  </div>
                 </div>
               </div>
 
@@ -872,6 +885,12 @@ onUnmounted(() => {
 .error-text {
   color: #ff4d4f;
   font-size: 12px;
+}
+
+.info-text {
+  color: rgba(255, 140, 66, 0.8);
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 .turnstile-container {
