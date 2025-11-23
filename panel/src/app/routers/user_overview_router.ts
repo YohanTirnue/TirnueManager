@@ -35,19 +35,34 @@ router.put("/", permission({ level: ROLE.MODERATOR }), async (ctx: Koa.Parameter
             // Skip the current user being edited
             if (otherUserUuid === uuid) continue;
 
-            // Check if this other user owns the same instance
-            const ownsInstance = otherUser.instances?.some(
+            // Check if this other user has the instance in their instances array
+            const hasInstance = otherUser.instances?.some(
               (inst: any) =>
                 inst.instanceUuid === newInst.instanceUuid &&
                 inst.daemonId === newInst.daemonId
             );
 
-            if (ownsInstance) {
-              ctx.throw(
-                400,
-                `Instance already assigned to user "${otherUser.userName}". Each instance can only have one parent owner.`
+            if (hasInstance) {
+              // Check if this user is actually a sub-user (not the owner) for this instance
+              // by checking if they appear in any other user's subUsers array
+              const isSubUser = Array.from(userSystem.objects.values()).some(
+                (parentUser) =>
+                  parentUser.subUsers?.some(
+                    (su) =>
+                      su.uuid === otherUserUuid &&
+                      su.instanceUuid === newInst.instanceUuid &&
+                      su.daemonId === newInst.daemonId
+                  )
               );
-              return;
+
+              // Only block if they're the actual owner, not a sub-user
+              if (!isSubUser) {
+                ctx.throw(
+                  400,
+                  `Instance already assigned to user "${otherUser.userName}". Each instance can only have one parent owner.`
+                );
+                return;
+              }
             }
           }
         }
