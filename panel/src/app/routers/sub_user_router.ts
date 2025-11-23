@@ -52,20 +52,28 @@ router.get(
 
     // If admin, get ALL sub-users for this instance from all parents
     // If regular user, get only their own sub-users
-    let subUserEntries: Array<{ user: User; permissions: any }>;
+    let subUserEntries: Array<{ user: User; permissions: any; parentUserId?: string }>;
     if (isTopPermissionByUuid(userUuid)) {
       const teams = subUserService.getInstanceTeam(String(instanceUuid), String(daemonId));
-      // Flatten teams to get all sub-users
+      // Flatten teams to get all sub-users, preserving parent information
       subUserEntries = [];
       for (const team of teams) {
-        subUserEntries.push(...team.subUsers);
+        for (const subUser of team.subUsers) {
+          subUserEntries.push({
+            ...subUser,
+            parentUserId: team.parent.uuid
+          });
+        }
       }
     } else {
       subUserEntries = subUserService.getSubUsers(
         userUuid,
         String(instanceUuid),
         String(daemonId)
-      );
+      ).map(entry => ({
+        ...entry,
+        parentUserId: userUuid
+      }));
     }
 
     // Remove sensitive data - permissions are now per-instance
@@ -77,7 +85,8 @@ router.get(
       lastName: entry.user.lastName,
       registerTime: entry.user.registerTime,
       loginTime: entry.user.loginTime,
-      permissions: entry.permissions // Per-instance permissions
+      permissions: entry.permissions, // Per-instance permissions
+      parentUserId: entry.parentUserId // Include parent user ID for admin view
     }));
 
     ctx.body = sanitizedSubUsers;
