@@ -138,15 +138,81 @@ router.get(
     for (const [uuid, user] of userSystem.objects) {
       // Check if user is an owner of this instance (not a sub-user for it)
       if (subUserService.isInstanceOwner(uuid, String(instanceUuid), String(daemonId))) {
+        // Find the instance entry to get permissions
+        const instanceEntry = user.instances.find(
+          (inst) => inst.instanceUuid === String(instanceUuid) && inst.daemonId === String(daemonId)
+        );
+
         parentUsers.push({
           uuid: user.uuid,
           userName: user.userName,
-          permission: user.permission
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          registerTime: user.registerTime,
+          loginTime: user.loginTime,
+          permission: user.permission,
+          permissions: instanceEntry?.permissions, // Per-instance permissions
+          isOwner: true // Mark as owner to differentiate from sub-users
         });
       }
     }
 
     ctx.body = parentUsers;
+  }
+);
+
+// Update owner user permissions for a specific instance (admin only)
+router.put(
+  "/owner/:ownerUuid",
+  permission({ level: ROLE.ADMIN }),
+  validator({
+    query: { daemonId: String, instanceUuid: String },
+    body: { permissions: Object }
+  }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const { ownerUuid } = ctx.params;
+    const { daemonId, instanceUuid } = ctx.query;
+    const { permissions } = ctx.request.body;
+
+    const owner = userSystem.getInstance(String(ownerUuid));
+    if (!owner) {
+      ctx.throw(404, "User not found");
+      return;
+    }
+
+    // Check if this user is an owner of this instance (not a sub-user for it)
+    if (!subUserService.isInstanceOwner(String(ownerUuid), String(instanceUuid), String(daemonId))) {
+      ctx.throw(404, "User is not an owner of this instance");
+      return;
+    }
+
+    // Find and update the instance entry
+    const instanceIndex = owner.instances.findIndex(
+      (inst) => inst.instanceUuid === String(instanceUuid) && inst.daemonId === String(daemonId)
+    );
+
+    if (instanceIndex === -1) {
+      ctx.throw(500, "Data inconsistency: instance not found in user's instances array");
+      return;
+    }
+
+    try {
+      // Update the permissions for this instance
+      owner.instances[instanceIndex].permissions = permissions;
+      await userSystem.edit(String(ownerUuid), { instances: owner.instances });
+
+      operationLogger.log("owner_permissions_update", {
+        operator_ip: ctx.ip,
+        operator_name: String(ctx.session?.["userName"] || ""),
+        target_user_uuid: ownerUuid,
+        instance_uuid: String(instanceUuid)
+      });
+
+      ctx.body = { success: true };
+    } catch (error: any) {
+      ctx.throw(500, error.message);
+    }
   }
 );
 

@@ -318,7 +318,14 @@ export const getParentUsers = useDefineApi<
   Array<{
     uuid: string;
     userName: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    registerTime: string;
+    loginTime: string;
     permission: number;
+    permissions?: UserPermissions;
+    isOwner: boolean;
   }>
 >({
   url: "/api/sub-users/parents",
@@ -409,6 +416,23 @@ export const updateSubUserPermissions = useDefineApi<
   any
 >({
   url: "/api/sub-users/:subUserUuid",
+  method: "PUT"
+});
+
+export const updateOwnerPermissions = useDefineApi<
+  {
+    params: {
+      ownerUuid: string;
+      daemonId: string;
+      instanceUuid: string;
+    };
+    data: {
+      permissions: UserPermissions;
+    };
+  },
+  any
+>({
+  url: "/api/sub-users/owner/:ownerUuid",
   method: "PUT"
 });
 

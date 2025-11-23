@@ -23,6 +23,7 @@ import type { UserPermissions } from "@/types/user";
 import {
   getSubUsers,
   updateSubUserPermissions,
+  updateOwnerPermissions,
   deleteSubUser,
   getParentUsers
 } from "@/services/apis";
@@ -37,6 +38,7 @@ interface SubUser {
   loginTime: string;
   permissions?: UserPermissions;
   isSubUser: boolean;
+  isOwner?: boolean; // True for owner users, false/undefined for sub-users
   parentUserId?: string;
 }
 
@@ -140,6 +142,7 @@ const inviteFormData = ref({
 const editFormData = ref({
   uuid: "",
   userName: "",
+  isOwner: false, // Track whether editing owner or sub-user
   permissions: {
     canUploadFiles: true,
     canDownloadFiles: true,
@@ -207,17 +210,37 @@ watch(
 const fetchSubUsers = async () => {
   loading.value = true;
   try {
+    // Fetch sub-users
     const res = await getSubUsers().execute({
       params: {
         daemonId: props.daemonId,
         instanceUuid: props.instanceUuid
       }
     });
-    subUsers.value = res.value || [];
+    const fetchedSubUsers = res.value || [];
 
+    // If admin, merge parent/owner users with sub-users
     if (isAdmin.value) {
+      // Mark sub-users
+      const markedSubUsers = fetchedSubUsers.map((u: any) => ({
+        ...u,
+        isSubUser: true,
+        isOwner: false
+      }));
+
+      // Mark owner users
+      const markedOwners = parentUsers.value.map((u) => ({
+        ...u,
+        isSubUser: false,
+        isOwner: true
+      }));
+
+      // Combine both lists
+      subUsers.value = [...markedOwners, ...markedSubUsers];
+
+      // Build parent map for display
       const map = new Map<string, string>();
-      for (const subUser of subUsers.value) {
+      for (const subUser of markedSubUsers) {
         if (subUser.parentUserId) {
           const parent = parentUsers.value.find((p) => p.uuid === subUser.parentUserId);
           if (parent) {
@@ -226,6 +249,13 @@ const fetchSubUsers = async () => {
         }
       }
       parentUserMap.value = map;
+    } else {
+      // Regular users only see their own sub-users
+      subUsers.value = fetchedSubUsers.map((u: any) => ({
+        ...u,
+        isSubUser: true,
+        isOwner: false
+      }));
     }
   } catch (error: any) {
     reportErrorMsg(error.message);
@@ -343,6 +373,7 @@ const handleEditSubUser = (subUser: SubUser) => {
   editFormData.value = {
     uuid: subUser.uuid,
     userName: subUser.userName,
+    isOwner: subUser.isOwner || false, // Track if editing owner or sub-user
     permissions: subUser.permissions
       ? { ...editFormData.value.permissions, ...subUser.permissions }
       : { ...editFormData.value.permissions }
@@ -353,16 +384,32 @@ const handleEditSubUser = (subUser: SubUser) => {
 const handleUpdatePermissions = async () => {
   try {
     loading.value = true;
-    await updateSubUserPermissions().execute({
-      params: {
-        subUserUuid: editFormData.value.uuid,
-        daemonId: props.daemonId,
-        instanceUuid: props.instanceUuid
-      },
-      data: {
-        permissions: editFormData.value.permissions
-      }
-    });
+
+    // Use different API based on whether editing owner or sub-user
+    if (editFormData.value.isOwner) {
+      await updateOwnerPermissions().execute({
+        params: {
+          ownerUuid: editFormData.value.uuid,
+          daemonId: props.daemonId,
+          instanceUuid: props.instanceUuid
+        },
+        data: {
+          permissions: editFormData.value.permissions
+        }
+      });
+    } else {
+      await updateSubUserPermissions().execute({
+        params: {
+          subUserUuid: editFormData.value.uuid,
+          daemonId: props.daemonId,
+          instanceUuid: props.instanceUuid
+        },
+        data: {
+          permissions: editFormData.value.permissions
+        }
+      });
+    }
+
     message.success("Permissions updated");
     editDialogVisible.value = false;
     fetchSubUsers();
@@ -435,9 +482,9 @@ const formatExpiry = (expiresAt: number) => {
           <TeamOutlined />
         </div>
         <div class="header-content">
-          <h3>Sub-User Management</h3>
+          <h3>{{ isAdmin ? 'Instance Access Management' : 'Sub-User Management' }}</h3>
           <span class="header-subtitle">
-            {{ isAdmin ? `${subUsers.length} sub-users total` : `${subUsers.length} of ${MAX_SUB_USERS} slots used` }}
+            {{ isAdmin ? `${subUsers.length} users with access` : `${subUsers.length} of ${MAX_SUB_USERS} slots used` }}
           </span>
         </div>
       </div>
@@ -523,8 +570,13 @@ const formatExpiry = (expiresAt: number) => {
                 <UserOutlined />
               </div>
               <div class="user-info">
-                <h4>{{ item.userName }}</h4>
-                <!-- Show parent info prominently for admins -->
+                <div class="user-name-row">
+                  <h4>{{ item.userName }}</h4>
+                  <!-- Show role badge -->
+                  <span v-if="item.isOwner" class="role-badge owner">Owner</span>
+                  <span v-else class="role-badge sub-user">Sub-User</span>
+                </div>
+                <!-- Show parent info for sub-users when admin -->
                 <div v-if="isAdmin && item.parentUserId" class="parent-info">
                   <UserOutlined class="parent-icon" />
                   <span class="parent-name">{{ parentUserMap.get(item.parentUserId) || "Unknown" }}</span>
@@ -550,7 +602,8 @@ const formatExpiry = (expiresAt: number) => {
                 <EditOutlined />
                 <span>Permissions</span>
               </button>
-              <button class="action-btn delete" @click="handleDeleteSubUser(item)">
+              <!-- Only allow deleting sub-users, not owners -->
+              <button v-if="!item.isOwner" class="action-btn delete" @click="handleDeleteSubUser(item)">
                 <DeleteOutlined />
                 <span>Remove</span>
               </button>
@@ -1086,6 +1139,31 @@ const formatExpiry = (expiresAt: number) => {
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text-1);
+}
+
+.user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.role-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.role-badge.owner {
+  background: rgba(22, 119, 255, 0.15);
+  color: #1677ff;
+}
+
+.role-badge.sub-user {
+  background: rgba(82, 196, 26, 0.15);
+  color: #52c41a;
 }
 
 .parent-badge {
