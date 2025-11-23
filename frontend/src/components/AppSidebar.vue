@@ -21,6 +21,7 @@ import {
   LogoutOutlined,
   ExclamationCircleOutlined,
   WalletOutlined,
+  DollarOutlined,
   CustomerServiceOutlined,
   IdcardOutlined
 } from "@ant-design/icons-vue";
@@ -73,7 +74,7 @@ function getIconForRoute(path: string) {
     "/settings": SettingOutlined,
     "/customer": AppstoreOutlined,
     "/account": IdcardOutlined,
-    "/billing": WalletOutlined,
+    "/accounting": DollarOutlined,
     "/support": CustomerServiceOutlined
   };
   return iconMap[path] || AppstoreOutlined;

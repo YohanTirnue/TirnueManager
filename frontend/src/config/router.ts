@@ -294,11 +294,11 @@ const originRouterConfig: RouterConfig[] = [
     }
   },
   {
-    path: "/billing",
-    name: "Billing",
+    path: "/accounting",
+    name: "Accounting",
     component: LayoutContainer,
     meta: {
-      permission: ROLE.USER,
+      permission: ROLE.ADMIN,
       mainMenu: true
     }
   },
