@@ -603,6 +603,12 @@ onMounted(async () => {
             <span class="uuid-value">{{ user.uuid }}</span>
           </div>
 
+          <!-- Registration IP -->
+          <div v-if="user.createdIp" class="user-registration-ip">
+            <span class="reg-ip-label">Registration IP:</span>
+            <span class="reg-ip-value">{{ user.createdIp }}</span>
+          </div>
+
           <!-- Fingerprint Hash -->
           <div v-if="user.fingerprintHash" class="user-fingerprint">
             <span class="fingerprint-label">Device ID:</span>
@@ -1142,6 +1148,29 @@ onMounted(async () => {
 .uuid-value {
   color: var(--text-color);
   font-family: monospace;
+}
+
+// Registration IP
+.user-registration-ip {
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.05) 0%, rgba(56, 161, 105, 0.05) 100%);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  word-break: break-all;
+  border: 1px solid rgba(72, 187, 120, 0.2);
+}
+
+.reg-ip-label {
+  color: #48bb78;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.reg-ip-value {
+  color: var(--text-color);
+  font-family: monospace;
+  font-weight: 500;
 }
 
 // Fingerprint Hash
