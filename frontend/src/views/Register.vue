@@ -25,6 +25,7 @@ const { updateUserInfo } = useAppStateStore();
 const formData = reactive({
   firstName: "",
   lastName: "",
+  userName: "",
   email: "",
   location: "",
   password: "",
@@ -65,6 +66,8 @@ const isFormValid = computed(() => {
   return (
     formData.firstName.trim().length >= 1 &&
     formData.lastName.trim().length >= 1 &&
+    formData.userName.trim().length >= 3 &&
+    /^[a-zA-Z0-9_-]+$/.test(formData.userName) &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
     formData.location.length >= 1 &&
     formData.password.length >= 9 &&
@@ -85,6 +88,7 @@ const initiateRegistration = async () => {
     const response = await axios.post("./api/auth/register/initiate", {
       firstName: formData.firstName,
       lastName: formData.lastName,
+      userName: formData.userName,
       email: formData.email,
       location: formData.location,
       password: formData.password,
@@ -151,6 +155,7 @@ const resendOTP = async () => {
     await axios.post("./api/auth/register/resend", {
       firstName: formData.firstName,
       lastName: formData.lastName,
+      userName: formData.userName,
       email: formData.email,
       location: formData.location,
       password: formData.password
@@ -273,6 +278,26 @@ onUnmounted(() => {
                       <UserOutlined class="input-icon" />
                     </template>
                   </a-input>
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label>Username</label>
+                <a-input
+                  v-model:value="formData.userName"
+                  size="large"
+                  placeholder="johndoe"
+                  class="modern-input"
+                >
+                  <template #prefix>
+                    <UserOutlined class="input-icon" />
+                  </template>
+                </a-input>
+                <div v-if="formData.userName && !/^[a-zA-Z0-9_-]+$/.test(formData.userName)" class="error-text">
+                  Only letters, numbers, underscores, and hyphens allowed
+                </div>
+                <div v-else-if="formData.userName && formData.userName.length < 3" class="error-text">
+                  Username must be at least 3 characters
                 </div>
               </div>
 

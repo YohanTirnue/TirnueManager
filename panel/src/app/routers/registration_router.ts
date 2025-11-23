@@ -54,13 +54,14 @@ router.post(
     body: {
       firstName: String,
       lastName: String,
+      userName: String,
       email: String,
       location: String,
       password: String
     }
   }),
   async (ctx: Koa.ParameterizedContext) => {
-    const { firstName, lastName, email, location, password, turnstileToken } = ctx.request.body as any;
+    const { firstName, lastName, userName, email, location, password, turnstileToken } = ctx.request.body as any;
 
     // Verify Turnstile
     if (turnstileToken) {
@@ -91,6 +92,18 @@ router.post(
       return;
     }
 
+    // Validate username
+    if (userName.trim().length < 3 || userName.length > 30) {
+      ctx.status = 400;
+      ctx.body = { success: false, message: "Username must be 3-30 characters" };
+      return;
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(userName)) {
+      ctx.status = 400;
+      ctx.body = { success: false, message: "Username can only contain letters, numbers, underscores, and hyphens" };
+      return;
+    }
+
     // Validate location (ISO country code is 2-3 chars)
     if (location.trim().length < 2 || location.length > 100) {
       ctx.status = 400;
@@ -115,10 +128,10 @@ router.post(
       return;
     }
 
-    // Check if username (email) already exists
-    if (userSystem.existUserName(email.toLowerCase())) {
+    // Check if username already exists
+    if (userSystem.existUserName(userName.toLowerCase())) {
       ctx.status = 409;
-      ctx.body = { success: false, message: "Email already registered" };
+      ctx.body = { success: false, message: "Username already taken" };
       return;
     }
 
@@ -136,6 +149,7 @@ router.post(
     const otp = await otpService.createRegistrationOTP(email.toLowerCase(), {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
+      userName: userName.trim().toLowerCase(),
       location: location.trim(),
       password: hashedPassword
     });
@@ -177,7 +191,7 @@ router.post(
     // Create user account
     try {
       const user = await userSystem.create({
-        userName: email.toLowerCase(),
+        userName: record.metadata.userName || email.toLowerCase(),
         passWord: "", // Will be set directly
         permission: ROLE.USER
       });
@@ -230,9 +244,9 @@ router.post(
 router.post(
   "/register/resend",
   permission({ token: false, level: null }),
-  validator({ body: { email: String, firstName: String, lastName: String, location: String, password: String } }),
+  validator({ body: { email: String, firstName: String, lastName: String, userName: String, location: String, password: String } }),
   async (ctx: Koa.ParameterizedContext) => {
-    const { email, firstName, lastName, location, password } = ctx.request.body as any;
+    const { email, firstName, lastName, userName, location, password } = ctx.request.body as any;
 
     // Rate limiting
     if (!otpService.checkRateLimit(`resend:${email}`, 3, 3600000)) {
@@ -246,6 +260,7 @@ router.post(
     const otp = await otpService.createRegistrationOTP(email.toLowerCase(), {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
+      userName: userName.trim().toLowerCase(),
       location: location.trim(),
       password: hashedPassword
     });
