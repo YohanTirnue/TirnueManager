@@ -18,6 +18,7 @@ interface OTPRecord {
     newEmail?: string;
     firstName?: string;
     lastName?: string;
+    userName?: string;
     location?: string;
     password?: string; // Hashed
   };
