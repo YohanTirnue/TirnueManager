@@ -135,6 +135,145 @@ const getLocationNames = () => {
   };
 };
 
+// Collect device fingerprint for alt account detection
+const collectFingerprint = async () => {
+  const fingerprint: any = {
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    language: navigator.language,
+    screen: {
+      width: window.screen.width,
+      height: window.screen.height,
+      colorDepth: window.screen.colorDepth,
+      pixelDepth: window.screen.pixelDepth
+    },
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    timezoneOffset: new Date().getTimezoneOffset(),
+    cookieEnabled: navigator.cookieEnabled,
+    doNotTrack: navigator.doNotTrack,
+    maxTouchPoints: navigator.maxTouchPoints || 0,
+    hardwareConcurrency: navigator.hardwareConcurrency || null,
+    deviceMemory: (navigator as any).deviceMemory || null
+  };
+
+  // Canvas fingerprint
+  try {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      canvas.width = 280;
+      canvas.height = 60;
+
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, "#FF6B6B");
+      gradient.addColorStop(0.5, "#4ECDC4");
+      gradient.addColorStop(1, "#45B7D1");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "rgba(255, 99, 71, 0.8)";
+      ctx.fillRect(20, 20, 60, 20);
+
+      const textStrings = ["Canvas 🎨", "Fingerprint", "Test123"];
+      const fonts = ["14px Arial", "16px serif", "12px monospace"];
+
+      textStrings.forEach((text, i) => {
+        ctx.font = fonts[i] || "14px Arial";
+        ctx.fillStyle = `hsl(${i * 60}, 70%, 50%)`;
+        ctx.shadowColor = "rgba(0,0,0,0.5)";
+        ctx.shadowBlur = 2;
+        ctx.fillText(text, 10 + i * 15, 25 + i * 8);
+      });
+
+      fingerprint.canvasFp = canvas.toDataURL();
+    }
+  } catch (e) {
+    fingerprint.canvasFp = "canvas_blocked";
+  }
+
+  // WebGL fingerprint
+  try {
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    if (gl) {
+      const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+      fingerprint.webglFp = {
+        vendor: debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR),
+        renderer: debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
+      };
+    }
+  } catch (e) {
+    fingerprint.webglFp = null;
+  }
+
+  // Audio fingerprint
+  try {
+    const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+    if (AudioContext) {
+      const audioContext = new AudioContext();
+      const oscillator = audioContext.createOscillator();
+      const analyser = audioContext.createAnalyser();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(analyser);
+      analyser.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.frequency.value = 10000;
+      gainNode.gain.value = 0;
+
+      const frequencyData = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(frequencyData);
+
+      await audioContext.close();
+      fingerprint.audioFp = Array.from(frequencyData).slice(0, 30).join(",");
+    }
+  } catch (e) {
+    fingerprint.audioFp = null;
+  }
+
+  // Font detection
+  try {
+    const fonts = [
+      "Arial",
+      "Helvetica",
+      "Times New Roman",
+      "Courier",
+      "Verdana",
+      "Georgia",
+      "Palatino",
+      "Garamond",
+      "Tahoma",
+      "Comic Sans MS",
+      "Trebuchet MS",
+      "Impact"
+    ];
+    fingerprint.fonts = fonts.filter((font) => {
+      const span = document.createElement("span");
+      span.style.fontFamily = font;
+      span.innerHTML = "test";
+      document.body.appendChild(span);
+      const width = span.offsetWidth;
+      document.body.removeChild(span);
+      return width > 0;
+    });
+  } catch (e) {
+    fingerprint.fonts = [];
+  }
+
+  // Plugins
+  try {
+    fingerprint.plugins = Array.from(navigator.plugins).map((p: any) => ({
+      name: p.name,
+      filename: p.filename
+    }));
+  } catch (e) {
+    fingerprint.plugins = [];
+  }
+
+  return fingerprint;
+};
+
 // API calls
 const initiateRegistration = async () => {
   if (!isFormValid.value) {
@@ -180,9 +319,11 @@ const verifyOTP = async () => {
 
   isLoading.value = true;
   try {
+    const fingerprint = await collectFingerprint();
     const response = await axios.post("./api/auth/register/verify", {
       email: formData.email,
-      otp: otp.value
+      otp: otp.value,
+      fingerprint
     });
 
     const result = response.data.data || response.data;

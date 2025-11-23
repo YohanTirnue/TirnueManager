@@ -40,6 +40,35 @@ export class User implements IUser {
   createdIp: string = "";
   lastLoginIp: string = "";
   accountStatus: string = "active"; // 'active' | 'suspended' | 'pending_verification'
+
+  // Device fingerprinting for alt account detection
+  fingerprint?: {
+    userAgent?: string;
+    platform?: string;
+    language?: string;
+    screen?: {
+      width: number;
+      height: number;
+      colorDepth: number;
+      pixelDepth: number;
+    };
+    timezone?: string;
+    timezoneOffset?: number;
+    canvasFp?: string;
+    webglFp?: {
+      vendor?: string;
+      renderer?: string;
+    };
+    audioFp?: string;
+    fonts?: string[];
+    plugins?: Array<{ name: string; filename: string }>;
+    hardwareConcurrency?: number;
+    deviceMemory?: number;
+    cookieEnabled?: boolean;
+    doNotTrack?: string;
+    maxTouchPoints?: number;
+  };
+  fingerprintHash?: string; // Short hash for easy comparison
 }
 
 export enum ROLE {

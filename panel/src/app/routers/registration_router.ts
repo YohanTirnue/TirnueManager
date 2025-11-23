@@ -10,6 +10,7 @@ import { logger } from "../service/log";
 import { loginSuccess } from "../service/passport_service";
 import axios from "axios";
 import { ROLE } from "../entity/user";
+import crypto from "crypto";
 
 const router = new Router({ prefix: "/auth" });
 
@@ -32,6 +33,30 @@ function getRealClientIP(ctx: Koa.ParameterizedContext): string {
 
   // Fallback to ctx.ip
   return ctx.ip;
+}
+
+// Generate a short fingerprint hash for easy comparison
+function generateFingerprintHash(fingerprint: any): string {
+  if (!fingerprint) return "unknown";
+
+  // Combine key fingerprint components
+  const components = [
+    fingerprint.canvasFp || "",
+    fingerprint.webglFp?.vendor || "",
+    fingerprint.webglFp?.renderer || "",
+    fingerprint.audioFp || "",
+    fingerprint.screen?.width || "",
+    fingerprint.screen?.height || "",
+    fingerprint.screen?.colorDepth || "",
+    fingerprint.timezone || "",
+    fingerprint.platform || "",
+    (fingerprint.fonts || []).sort().join(","),
+    fingerprint.hardwareConcurrency || ""
+  ].join("|");
+
+  // Create hash and take first 12 characters for a short ID
+  const hash = crypto.createHash("sha256").update(components).digest("hex");
+  return hash.substring(0, 12);
 }
 
 // Turnstile verification helper
@@ -215,7 +240,7 @@ router.post(
   permission({ token: false, level: null }),
   validator({ body: { email: String, otp: String } }),
   async (ctx: Koa.ParameterizedContext) => {
-    const { email, otp } = ctx.request.body as any;
+    const { email, otp, fingerprint } = ctx.request.body as any;
 
     // Verify OTP
     const record = await otpService.verifyOTP(email.toLowerCase(), otp, "registration");
@@ -242,6 +267,13 @@ router.post(
       user.passWord = record.metadata.password || "";
       user.createdIp = getRealClientIP(ctx);
       user.accountStatus = "active";
+
+      // Store device fingerprint for alt account detection
+      if (fingerprint) {
+        user.fingerprint = fingerprint;
+        user.fingerprintHash = generateFingerprintHash(fingerprint);
+        logger.info(`[Registration] Fingerprint hash: ${user.fingerprintHash}`);
+      }
 
       // Save user
       const Storage = (await import("../common/storage/sys_storage")).default;

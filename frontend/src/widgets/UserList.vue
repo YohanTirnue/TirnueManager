@@ -430,6 +430,13 @@ onMounted(async () => {
             </template>
             <a-input :value="formData.lastLoginIp" :readonly="true" size="large" />
           </a-form-item>
+
+          <a-form-item v-if="formData.fingerprintHash" class="form-field">
+            <template #label>
+              <span class="field-label">Device ID (Fingerprint)</span>
+            </template>
+            <a-input :value="formData.fingerprintHash" :readonly="true" size="large" />
+          </a-form-item>
         </div>
       </div>
 
@@ -587,6 +594,12 @@ onMounted(async () => {
           <div class="user-uuid">
             <span class="uuid-label">UUID:</span>
             <span class="uuid-value">{{ user.uuid }}</span>
+          </div>
+
+          <!-- Fingerprint Hash -->
+          <div v-if="user.fingerprintHash" class="user-fingerprint">
+            <span class="fingerprint-label">Device ID:</span>
+            <span class="fingerprint-value">{{ user.fingerprintHash }}</span>
           </div>
 
           <!-- Action Button -->
@@ -1116,6 +1129,29 @@ onMounted(async () => {
 .uuid-value {
   color: var(--text-color);
   font-family: monospace;
+}
+
+// Fingerprint Hash
+.user-fingerprint {
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.05) 0%, rgba(255, 107, 53, 0.05) 100%);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  word-break: break-all;
+  border: 1px solid rgba(255, 140, 66, 0.2);
+}
+
+.fingerprint-label {
+  color: #FF8C42;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.fingerprint-value {
+  color: var(--text-color);
+  font-family: monospace;
+  font-weight: 500;
 }
 
 // Action Menu
