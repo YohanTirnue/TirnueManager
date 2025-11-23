@@ -28,6 +28,11 @@ export async function middleware(
   try {
     await next();
   } catch (error: any) {
+    // TEMPORARY: Log caught errors
+    if (ctx.url.includes("/sub-users/invite/verify")) {
+      console.error(`[PROTOCOL CATCH] Error caught for ${ctx.url}:`, error);
+      console.error(`[PROTOCOL CATCH] Error stack:`, error.stack);
+    }
     ctx.body = error;
   }
 
