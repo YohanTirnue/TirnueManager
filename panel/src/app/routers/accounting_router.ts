@@ -21,6 +21,7 @@ interface Transaction {
   description: string;
   paymentMethod?: string;
   invoiceId?: string;
+  createdBy: string; // Admin UUID who created this
   createdAt: string;
   updatedAt: string;
 }
@@ -44,6 +45,7 @@ interface Invoice {
   total: number;
   status: "draft" | "pending" | "paid" | "cancelled" | "overdue";
   notes?: string;
+  createdBy: string; // Admin UUID who created this
   createdAt: string;
   updatedAt: string;
 }
@@ -73,6 +75,63 @@ function generateInvoiceNumber(): string {
   const count = String(invoices.length + 1).padStart(4, "0");
   return `INV-${year}${month}-${count}`;
 }
+
+// GET /api/accounting/users/search - Search users for transactions/invoices
+router.get("/users/search", permission({ level: ROLE.ADMIN }), async (ctx: Koa.ParameterizedContext) => {
+  const { search } = ctx.query;
+  const Storage = (await import("../common/storage/sys_storage")).default;
+
+  const allUsers = await Storage.getStorage().list("User");
+
+  let filtered = allUsers;
+  if (search) {
+    const searchLower = String(search).toLowerCase();
+    filtered = allUsers.filter((user: any) =>
+      user.userName?.toLowerCase().includes(searchLower) ||
+      user.email?.toLowerCase().includes(searchLower) ||
+      user.firstName?.toLowerCase().includes(searchLower) ||
+      user.lastName?.toLowerCase().includes(searchLower)
+    );
+  }
+
+  // Return simplified user data
+  const users = filtered.slice(0, 50).map((user: any) => ({
+    uuid: user.uuid,
+    userName: user.userName,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    fullName: `${user.firstName} ${user.lastName}`.trim() || user.userName,
+    permission: user.permission,
+    accountStatus: user.accountStatus
+  }));
+
+  ctx.body = { users };
+});
+
+// GET /api/accounting/users/:uuid - Get user by UUID
+router.get("/users/:uuid", permission({ level: ROLE.ADMIN }), async (ctx: Koa.ParameterizedContext) => {
+  const { uuid } = ctx.params;
+  const Storage = (await import("../common/storage/sys_storage")).default;
+
+  const user = await Storage.getStorage().load("User", uuid);
+  if (!user) {
+    ctx.status = 404;
+    ctx.body = { success: false, message: "User not found" };
+    return;
+  }
+
+  ctx.body = {
+    uuid: user.uuid,
+    userName: user.userName,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    fullName: `${user.firstName} ${user.lastName}`.trim() || user.userName,
+    permission: user.permission,
+    accountStatus: user.accountStatus
+  };
+});
 
 // GET /api/accounting/dashboard - Get financial dashboard overview
 router.get("/dashboard", permission({ level: ROLE.ADMIN }), async (ctx: Koa.ParameterizedContext) => {
@@ -206,6 +265,8 @@ router.post("/transactions", permission({ level: ROLE.ADMIN }), async (ctx: Koa.
   const { userUuid, userName, userEmail, type, amount, currency, description, paymentMethod, status } =
     ctx.request.body as any;
 
+  const adminUuid = ctx.state.user?.uuid;
+
   const transaction: Transaction = {
     id: uuidv4(),
     date: new Date().toISOString(),
@@ -218,12 +279,13 @@ router.post("/transactions", permission({ level: ROLE.ADMIN }), async (ctx: Koa.
     status: status || "completed",
     description,
     paymentMethod,
+    createdBy: adminUuid,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
 
   transactions.push(transaction);
-  logger.info(`[Accounting] New transaction created: ${transaction.id}`);
+  logger.info(`[Accounting] Transaction created by ${adminUuid}: ${transaction.id} for user ${userUuid}`);
 
   ctx.body = { success: true, transaction };
 });
@@ -271,6 +333,7 @@ router.get("/invoices", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Param
 router.post("/invoices", permission({ level: ROLE.ADMIN }), async (ctx: Koa.ParameterizedContext) => {
   const { userUuid, userName, userEmail, dueDate, items, tax, notes } = ctx.request.body as any;
 
+  const adminUuid = ctx.state.user?.uuid;
   const subtotal = items.reduce((sum: number, item: any) => sum + item.total, 0);
   const total = subtotal + (tax || 0);
 
@@ -288,12 +351,13 @@ router.post("/invoices", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Para
     total,
     status: "pending",
     notes,
+    createdBy: adminUuid,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
 
   invoices.push(invoice);
-  logger.info(`[Accounting] New invoice created: ${invoice.invoiceNumber}`);
+  logger.info(`[Accounting] Invoice ${invoice.invoiceNumber} created by ${adminUuid} for user ${userUuid}`);
 
   ctx.body = { success: true, invoice };
 });

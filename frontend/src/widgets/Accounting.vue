@@ -106,6 +106,70 @@ const newExpense = ref({
   vendor: ""
 });
 
+// User search functionality
+const userSearchQuery = ref("");
+const userSearchResults = ref<any[]>([]);
+const isSearchingUsers = ref(false);
+const showUserDropdown = ref(false);
+let userSearchTimeout: any = null;
+
+// Debounced user search
+const searchUsers = async (query: string) => {
+  if (!query || query.trim().length < 2) {
+    userSearchResults.value = [];
+    showUserDropdown.value = false;
+    return;
+  }
+
+  isSearchingUsers.value = true;
+  try {
+    const response = await axios.get("/api/accounting/users/search", {
+      params: { search: query }
+    });
+    userSearchResults.value = response.data.users || [];
+    showUserDropdown.value = true;
+  } catch (error: any) {
+    console.error("User search failed:", error);
+    userSearchResults.value = [];
+  } finally {
+    isSearchingUsers.value = false;
+  }
+};
+
+// Handle user search input with debounce
+const onUserSearchInput = (value: string) => {
+  userSearchQuery.value = value;
+  clearTimeout(userSearchTimeout);
+  userSearchTimeout = setTimeout(() => {
+    searchUsers(value);
+  }, 300);
+};
+
+// Select user for transaction
+const selectUserForTransaction = (user: any) => {
+  newTransaction.value.userUuid = user.uuid;
+  newTransaction.value.userName = user.userName;
+  newTransaction.value.userEmail = user.email;
+  userSearchQuery.value = user.fullName || user.userName;
+  showUserDropdown.value = false;
+};
+
+// Select user for invoice
+const selectUserForInvoice = (user: any) => {
+  newInvoice.value.userUuid = user.uuid;
+  newInvoice.value.userName = user.userName;
+  newInvoice.value.userEmail = user.email;
+  userSearchQuery.value = user.fullName || user.userName;
+  showUserDropdown.value = false;
+};
+
+// Reset user search
+const resetUserSearch = () => {
+  userSearchQuery.value = "";
+  userSearchResults.value = [];
+  showUserDropdown.value = false;
+};
+
 // Chart instance
 let revenueChart: Chart | null = null;
 
@@ -244,6 +308,7 @@ const resetTransactionForm = () => {
     paymentMethod: "",
     status: "completed"
   };
+  resetUserSearch();
 };
 
 const resetInvoiceForm = () => {
@@ -256,6 +321,7 @@ const resetInvoiceForm = () => {
     tax: 0,
     notes: ""
   };
+  resetUserSearch();
 };
 
 const resetExpenseForm = () => {
@@ -763,21 +829,63 @@ onMounted(() => {
     <!-- New Transaction Modal -->
     <a-modal v-model:open="showNewTransactionModal" title="New Transaction" @ok="createTransaction" width="600px">
       <a-form layout="vertical" class="modal-form">
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="User UUID">
-              <a-input v-model:value="newTransaction.userUuid" placeholder="Enter user UUID" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="User Name">
-              <a-input v-model:value="newTransaction.userName" placeholder="Enter user name" />
-            </a-form-item>
+        <!-- User Search -->
+        <a-form-item label="Search User">
+          <div class="user-search-container">
+            <a-input
+              v-model:value="userSearchQuery"
+              @input="onUserSearchInput"
+              @focus="showUserDropdown = userSearchResults.length > 0"
+              placeholder="Type to search users by name, email, or username..."
+              :suffix="isSearchingUsers ? 'Loading...' : ''"
+            >
+              <template #prefix>
+                <SearchOutlined />
+              </template>
+            </a-input>
+            <div v-if="showUserDropdown && userSearchResults.length > 0" class="user-search-dropdown">
+              <div
+                v-for="user in userSearchResults"
+                :key="user.uuid"
+                class="user-search-item"
+                @click="selectUserForTransaction(user)"
+              >
+                <div class="user-item-name">{{ user.fullName }}</div>
+                <div class="user-item-detail">{{ user.email }} • {{ user.userName }}</div>
+              </div>
+            </div>
+          </div>
+        </a-form-item>
+
+        <!-- Selected User Info (Read-only) -->
+        <a-row :gutter="16" v-if="newTransaction.userUuid">
+          <a-col :span="24">
+            <div class="selected-user-info">
+              <strong>Selected User:</strong> {{ newTransaction.userName }} ({{ newTransaction.userEmail }})
+            </div>
           </a-col>
         </a-row>
-        <a-form-item label="User Email">
-          <a-input v-model:value="newTransaction.userEmail" placeholder="Enter user email" />
-        </a-form-item>
+
+        <!-- Manual Entry Option -->
+        <a-collapse v-if="!newTransaction.userUuid" ghost>
+          <a-collapse-panel key="1" header="Or enter user details manually">
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item label="User UUID">
+                  <a-input v-model:value="newTransaction.userUuid" placeholder="Enter user UUID" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-item label="User Name">
+                  <a-input v-model:value="newTransaction.userName" placeholder="Enter user name" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item label="User Email">
+              <a-input v-model:value="newTransaction.userEmail" placeholder="Enter user email" />
+            </a-form-item>
+          </a-collapse-panel>
+        </a-collapse>
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="Type">
@@ -827,16 +935,40 @@ onMounted(() => {
     <!-- New Invoice Modal -->
     <a-modal v-model:open="showNewInvoiceModal" title="New Invoice" @ok="createInvoice" width="800px">
       <a-form layout="vertical" class="modal-form">
-        <a-row :gutter="16">
-          <a-col :span="8">
-            <a-form-item label="User UUID">
-              <a-input v-model:value="newInvoice.userUuid" placeholder="Enter user UUID" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="8">
-            <a-form-item label="User Name">
-              <a-input v-model:value="newInvoice.userName" placeholder="Enter user name" />
-            </a-form-item>
+        <!-- User Search -->
+        <a-form-item label="Search User">
+          <div class="user-search-container">
+            <a-input
+              v-model:value="userSearchQuery"
+              @input="onUserSearchInput"
+              @focus="showUserDropdown = userSearchResults.length > 0"
+              placeholder="Type to search users by name, email, or username..."
+              :suffix="isSearchingUsers ? 'Loading...' : ''"
+            >
+              <template #prefix>
+                <SearchOutlined />
+              </template>
+            </a-input>
+            <div v-if="showUserDropdown && userSearchResults.length > 0" class="user-search-dropdown">
+              <div
+                v-for="user in userSearchResults"
+                :key="user.uuid"
+                class="user-search-item"
+                @click="selectUserForInvoice(user)"
+              >
+                <div class="user-item-name">{{ user.fullName }}</div>
+                <div class="user-item-detail">{{ user.email }} • {{ user.userName }}</div>
+              </div>
+            </div>
+          </div>
+        </a-form-item>
+
+        <!-- Selected User Info + Due Date -->
+        <a-row :gutter="16" v-if="newInvoice.userUuid">
+          <a-col :span="16">
+            <div class="selected-user-info">
+              <strong>Selected User:</strong> {{ newInvoice.userName }} ({{ newInvoice.userEmail }})
+            </div>
           </a-col>
           <a-col :span="8">
             <a-form-item label="Due Date">
@@ -844,9 +976,32 @@ onMounted(() => {
             </a-form-item>
           </a-col>
         </a-row>
-        <a-form-item label="User Email">
-          <a-input v-model:value="newInvoice.userEmail" placeholder="Enter user email" />
-        </a-form-item>
+
+        <!-- Manual Entry Option -->
+        <a-collapse v-if="!newInvoice.userUuid" ghost>
+          <a-collapse-panel key="1" header="Or enter user details manually">
+            <a-row :gutter="16">
+              <a-col :span="8">
+                <a-form-item label="User UUID">
+                  <a-input v-model:value="newInvoice.userUuid" placeholder="Enter user UUID" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item label="User Name">
+                  <a-input v-model:value="newInvoice.userName" placeholder="Enter user name" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item label="Due Date">
+                  <a-input v-model:value="newInvoice.dueDate" type="date" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item label="User Email">
+              <a-input v-model:value="newInvoice.userEmail" placeholder="Enter user email" />
+            </a-form-item>
+          </a-collapse-panel>
+        </a-collapse>
 
         <div class="invoice-items-section">
           <h4>Invoice Items</h4>
@@ -1314,6 +1469,63 @@ onMounted(() => {
 // Modal Forms
 .modal-form {
   margin-top: 24px;
+}
+
+.user-search-container {
+  position: relative;
+}
+
+.user-search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.user-search-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba(255, 140, 66, 0.05);
+  }
+}
+
+.user-item-name {
+  font-weight: 600;
+  color: #1e1e2e;
+  margin-bottom: 4px;
+}
+
+.user-item-detail {
+  font-size: 12px;
+  color: #666;
+}
+
+.selected-user-info {
+  padding: 12px 16px;
+  background: rgba(255, 140, 66, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 140, 66, 0.3);
+  margin-bottom: 16px;
+
+  strong {
+    color: #FF8C42;
+  }
 }
 
 .invoice-items-section {
