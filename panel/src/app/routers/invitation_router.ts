@@ -20,6 +20,9 @@ import { singletonMemoryRedis } from "../service/mini_redis";
 
 const router = new Router({ prefix: "/sub-users/invite" });
 
+// TEMPORARY: Log router initialization
+console.error(`[INVITATION ROUTER] Initialized with prefix: /sub-users/invite`);
+
 // Direct invitation - creates and sends invitation immediately (no OTP)
 router.post(
   "/send",
@@ -705,5 +708,8 @@ router.del(
     ctx.body = { success: true };
   }
 );
+
+// TEMPORARY: Log registered routes
+console.error(`[INVITATION ROUTER] Registered routes:`, router.stack.map((r: any) => `${r.methods.join(',')} ${r.path}`));
 
 export default router;
