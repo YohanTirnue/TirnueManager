@@ -20,7 +20,7 @@ npm run build
 
 echo "Build frontend..."
 cd "${BASE_PATH}/frontend"
-npm run build
+NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 echo "Collecting files..."
 cd "${BASE_PATH}"
@@ -67,3 +67,22 @@ echo "------------"
 echo "Compilation completed!"
 echo "Output Directory: ./production-code/"
 echo "------------"
+
+echo "Stopping services..."
+# Stop services (force kill to make sure they die)
+sudo pkill -9 -f 'node.*app\.js' || true
+sleep 3
+
+echo "Copying to production directories..."
+# Copy to production
+sudo cp -r production-code/daemon/* /home/mc/daemon/
+sudo cp -r production-code/web/* /home/mc/web/
+sudo cp expanded-templates.json /home/mc/web/
+
+echo "Restarting services..."
+# Restart services
+cd /home/mc/daemon && nohup node app.js > /home/mc/daemon.log 2>&1 &
+sleep 2
+cd /home/mc/web && nohup node app.js > /home/mc/web.log 2>&1 &
+
+echo "Done! Check logs with: tail -f /home/mc/daemon.log /home/mc/web.log"
