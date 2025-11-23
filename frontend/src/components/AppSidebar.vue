@@ -36,6 +36,8 @@ const isSubUser = computed(() => state.userInfo?.isSubUser ?? false);
 
 const userRole = computed(() => {
   if (userPermission.value >= ROLE.ADMIN) return "Administrator";
+  if (userPermission.value === 7) return "Senior Moderator";
+  if (userPermission.value === 5) return "Moderator";
   if (isSubUser.value) return "Sub User";
   return "User";
 });

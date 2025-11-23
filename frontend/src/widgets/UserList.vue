@@ -31,10 +31,13 @@ import type { BaseUserInfo, EditUserInfo } from "@/types/user";
 import _ from "lodash";
 import { PERMISSION_MAP } from "@/config/const";
 import { reportErrorMsg } from "@/tools/validator";
+import { useAppStateStore } from "@/stores/useAppStateStore";
 
 defineProps<{
   card: LayoutCard;
 }>();
+
+const appStateStore = useAppStateStore();
 
 interface dataType {
   total: number;
@@ -46,6 +49,29 @@ interface dataType {
 
 const { execute, isLoading: getUserInfoLoading } = getUserInfo();
 const { toPage } = useAppRouters();
+
+const currentUserPermission = computed(() => appStateStore.state.userInfo?.permission ?? 0);
+
+// Senior moderators can only create users with permission <= 5 (Moderator)
+const availablePermissions = computed(() => {
+  const currentPermission = currentUserPermission.value;
+  const allPermissions = PERMISSION_MAP;
+
+  // Admins can assign any role
+  if (currentPermission >= 10) {
+    return allPermissions;
+  }
+
+  // Senior moderators can only assign Moderator (5) and below
+  if (currentPermission === 7) {
+    return Object.fromEntries(
+      Object.entries(allPermissions).filter(([key]) => Number(key) <= 5)
+    );
+  }
+
+  // Everyone else sees default permissions
+  return allPermissions;
+});
 
 const operationForm = ref({
   name: "",
@@ -225,13 +251,17 @@ const search = throttle(async () => {
 
 const getPermissionIcon = (permission: string) => {
   if (permission === "10") return CrownOutlined;
+  if (permission === "7") return TeamOutlined;
+  if (permission === "5") return TeamOutlined;
   if (permission === "1") return UserOutlined;
   return TeamOutlined;
 };
 
 const getPermissionColor = (permission: string) => {
   if (permission === "10") return "#FF8C42";
-  if (permission === "1") return "#ffa500";
+  if (permission === "7") return "#D4AF37";
+  if (permission === "5") return "#FFA500";
+  if (permission === "1") return "#FFB84D";
   return "#ff8c00";
 };
 
@@ -308,7 +338,7 @@ onMounted(async () => {
               <span class="field-label">{{ t("TXT_CODE_511aea70") }}</span>
             </template>
             <a-select v-model:value="formData.permission" size="large" style="width: 100%">
-              <a-select-option v-for="(item, key, i) in PERMISSION_MAP" :key="i" :value="Number(key)">
+              <a-select-option v-for="(item, key, i) in availablePermissions" :key="i" :value="Number(key)">
                 {{ item }}
               </a-select-option>
             </a-select>

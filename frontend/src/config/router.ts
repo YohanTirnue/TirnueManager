@@ -58,6 +58,10 @@ export enum ROLE {
   // eslint-disable-next-line no-unused-vars
   ADMIN = 10,
   // eslint-disable-next-line no-unused-vars
+  SENIOR_MODERATOR = 7,
+  // eslint-disable-next-line no-unused-vars
+  MODERATOR = 5,
+  // eslint-disable-next-line no-unused-vars
   USER = 1,
   // eslint-disable-next-line no-unused-vars
   GUEST = 0
@@ -99,7 +103,7 @@ const originRouterConfig: RouterConfig[] = [
     meta: {
       mainMenu: true,
       redirect: (user) => {
-        if (user?.permission === ROLE.ADMIN) {
+        if (user?.permission && user.permission >= ROLE.MODERATOR) {
           return "/instances";
         }
         if (user?.permission && user.permission >= ROLE.USER) {
@@ -116,7 +120,7 @@ const originRouterConfig: RouterConfig[] = [
     component: LayoutContainer,
     meta: {
       mainMenu: true,
-      permission: ROLE.ADMIN
+      permission: ROLE.MODERATOR
     },
     children: [
       {
@@ -171,7 +175,7 @@ const originRouterConfig: RouterConfig[] = [
     component: LayoutContainer,
     meta: {
       mainMenu: true,
-      permission: ROLE.ADMIN
+      permission: ROLE.MODERATOR
     }
   },
   {
@@ -180,7 +184,7 @@ const originRouterConfig: RouterConfig[] = [
     component: LayoutContainer,
     meta: {
       mainMenu: true,
-      permission: ROLE.ADMIN
+      permission: ROLE.MODERATOR
     }
   },
   {
@@ -198,7 +202,7 @@ const originRouterConfig: RouterConfig[] = [
     component: LayoutContainer,
     meta: {
       mainMenu: true,
-      permission: ROLE.ADMIN
+      permission: ROLE.SENIOR_MODERATOR
     },
     children: [
       {
@@ -206,7 +210,7 @@ const originRouterConfig: RouterConfig[] = [
         name: t("TXT_CODE_236f70aa"),
         component: LayoutContainer,
         meta: {
-          permission: ROLE.ADMIN
+          permission: ROLE.SENIOR_MODERATOR
         }
       }
     ]
@@ -452,7 +456,7 @@ router.beforeEach((to, from, next) => {
   if (!state.userInfo?.token) return next("/welcome");
 
   // Check permission - redirect to customer page if insufficient permission
-  if (toPagePermission > userPermission && userPermission !== ROLE.ADMIN) {
+  if (toPagePermission > userPermission) {
     return next("/customer");
   }
 

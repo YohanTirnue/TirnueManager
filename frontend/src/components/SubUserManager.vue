@@ -88,7 +88,7 @@ const otpLoading = ref(false);
 
 const isAdmin = computed(() => {
   const userInfo = appStateStore.state.userInfo;
-  return userInfo && userInfo.permission === 10;
+  return userInfo && userInfo.permission >= 5; // Moderator or higher
 });
 
 // Current user's permissions for this instance (non-admin owners)
