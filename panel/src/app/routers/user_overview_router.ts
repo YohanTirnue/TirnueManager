@@ -10,7 +10,7 @@ import { ROLE } from "../entity/user";
 const router = new Router({ prefix: "/auth" });
 
 // [Top-level Permission]
-router.put("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.ParameterizedContext) => {
+router.put("/", permission({ level: ROLE.MODERATOR }), async (ctx: Koa.ParameterizedContext) => {
   const { uuid, config } = ctx.request.body;
   const { passWord } = config;
   if (passWord && !userSystem.validatePassword(passWord))
@@ -58,7 +58,7 @@ router.put("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Parameterized
 // [Top-level Permission]
 router.get(
   "/overview",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.MODERATOR }),
   async (ctx: Koa.ParameterizedContext) => {
     const users: Array<ICompleteUser> = [];
     userSystem.objects.forEach((user) => {
