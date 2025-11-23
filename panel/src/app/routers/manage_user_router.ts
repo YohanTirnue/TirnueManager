@@ -10,19 +10,33 @@ import { ROLE } from "../entity/user";
 import { operationLogger } from "../service/operation_logger";
 import Storage from "../common/storage/sys_storage";
 import { error } from "console";
+import { canManageModerators } from "../service/permission_service";
+import { getUserUuid } from "../service/passport_service";
 
 const router = new Router({ prefix: "/auth" });
 
 // Add user
 router.post(
   "/",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.SENIOR_MODERATOR }),
   validator({ body: { username: String, password: String, permission: Number } }),
   async (ctx: Koa.ParameterizedContext) => {
+    const userUuid = getUserUuid(ctx);
+    const currentUser = userSystem.getInstance(userUuid);
     const userName = String(ctx.request.body.username);
     const passWord = String(ctx.request.body.password);
-    const permission = Number(ctx.request.body.permission);
+    const targetPermission = Number(ctx.request.body.permission);
     const permissions = ctx.request.body.permissions;
+
+    // Senior moderators can only create users with permission <= MODERATOR (5)
+    // Only admins can create senior moderators or other admins
+    if (currentUser && currentUser.permission < ROLE.ADMIN) {
+      if (targetPermission > ROLE.MODERATOR) {
+        ctx.throw(403, "You can only create users with Moderator level or below");
+        return;
+      }
+    }
+
     if (!userSystem.validatePassword(passWord))
       throw new Error($t("TXT_CODE_router.user.invalidPassword"));
     if (userSystem.existUserName(userName))
@@ -32,17 +46,30 @@ router.post(
       operator_name: ctx.session?.["userName"],
       target_user_name: userName
     });
-    const result = await register(ctx, userName, passWord, permission);
+    const result = await register(ctx, userName, passWord, targetPermission);
     ctx.body = result;
   }
 );
 
 // Delete user
-router.del("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.ParameterizedContext) => {
+router.del("/", permission({ level: ROLE.SENIOR_MODERATOR }), async (ctx: Koa.ParameterizedContext) => {
+  const userUuid = getUserUuid(ctx);
+  const currentUser = userSystem.getInstance(userUuid);
   const uuids = ctx.request.body;
+
   try {
     for (const iterator of uuids) {
       const user = userSystem.getUserByUuid(iterator);
+
+      // Senior moderators can only delete users with permission <= MODERATOR (5)
+      // Only admins can delete senior moderators or other admins
+      if (currentUser && currentUser.permission < ROLE.ADMIN) {
+        if (user && user.permission > ROLE.MODERATOR) {
+          ctx.throw(403, `You can only delete users with Moderator level or below. Cannot delete: ${user.userName}`);
+          return;
+        }
+      }
+
       operationLogger.log(
         "user_delete",
         {
@@ -88,7 +115,7 @@ router.del("/", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Parameterized
 // User search function
 router.get(
   "/search",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.SENIOR_MODERATOR }),
   validator({ query: { page: Number, page_size: Number } }),
   async (ctx: Koa.ParameterizedContext) => {
     const userName = String(ctx.query.userName);

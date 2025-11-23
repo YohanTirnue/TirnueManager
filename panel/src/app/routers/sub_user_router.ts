@@ -7,7 +7,8 @@ import { ROLE, type User } from "../entity/user";
 import { getUserUuid } from "../service/passport_service";
 import {
   canManageSubUsersByUuid,
-  isTopPermissionByUuid
+  isTopPermissionByUuid,
+  isModeratorOrHigherByUuid
 } from "../service/permission_service";
 import subUserService from "../service/sub_user_service";
 import userSystem from "../service/user_service";
@@ -25,10 +26,10 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const validatePermissionChain = (
   parentPermissions: any,
   requestedPermissions: any,
-  isAdmin: boolean
+  isModeratorOrHigher: boolean
 ): { valid: boolean; missingPermissions: string[] } => {
-  // Admins can grant any permissions
-  if (isAdmin) {
+  // Admins and moderators can grant any permissions
+  if (isModeratorOrHigher) {
     return { valid: true, missingPermissions: [] };
   }
 
@@ -111,10 +112,10 @@ router.get(
       ctx.throw(403, "You do not have permission to manage sub-users for this instance");
     }
 
-    // If admin, get ALL sub-users for this instance from all parents
+    // If moderator/admin, get ALL sub-users for this instance from all parents
     // If regular user, get only their own sub-users
     let subUserEntries: Array<{ user: User; permissions: any; parentUserId?: string }>;
-    if (isTopPermissionByUuid(userUuid)) {
+    if (isModeratorOrHigherByUuid(userUuid)) {
       const teams = subUserService.getInstanceTeam(String(instanceUuid), String(daemonId));
       // Flatten teams to get all sub-users, preserving parent information
       subUserEntries = [];
@@ -295,18 +296,19 @@ router.post(
       ctx.throw(403, "You do not have permission to manage sub-users for this instance");
     }
 
-    // Determine the parent: if admin and parentUuid provided, use it; otherwise use current user
+    // Determine the parent: if moderator/admin and parentUuid provided, use it; otherwise use current user
     let actualParentUuid = userUuid;
-    if (isTopPermissionByUuid(userUuid)) {
-      // Admins must specify a parent user
+    if (isModeratorOrHigherByUuid(userUuid)) {
+      // Moderators and admins must specify a parent user
       if (!parentUuid) {
-        ctx.throw(400, "Admin must specify parentUuid when creating sub-users");
+        ctx.throw(400, "Moderators and admins must specify parentUuid when creating sub-users");
       }
       actualParentUuid = String(parentUuid);
     }
 
-    // Validate permission chain - non-admin users can only grant permissions they have
-    if (!isTopPermissionByUuid(userUuid)) {
+    // Validate permission chain - non-moderator users can only grant permissions they have
+    // Moderators and admins can grant any permission
+    if (!isModeratorOrHigherByUuid(userUuid)) {
       const parentUser = userSystem.getInstance(actualParentUuid);
       if (!parentUser) {
         ctx.throw(400, "Parent user not found");
@@ -440,14 +442,15 @@ router.put(
       return;
     }
 
-    // Allow if user is admin OR if user is the parent
-    if (!isTopPermissionByUuid(userUuid) && parent.uuid !== userUuid) {
+    // Allow if user is moderator/admin OR if user is the parent
+    if (!isModeratorOrHigherByUuid(userUuid) && parent.uuid !== userUuid) {
       ctx.throw(403, "You do not have permission to modify this sub-user");
       return;
     }
 
-    // Validate permission chain - non-admin users can only grant permissions they have
-    if (!isTopPermissionByUuid(userUuid)) {
+    // Validate permission chain - non-moderator users can only grant permissions they have
+    // Moderators and admins can grant any permission
+    if (!isModeratorOrHigherByUuid(userUuid)) {
       // Get parent's permissions for this instance
       const parentUser = userSystem.getInstance(parent.uuid);
       if (!parentUser) {
@@ -609,9 +612,9 @@ router.post(
 
     // Determine the parent
     let actualParentUuid = userUuid;
-    if (isTopPermissionByUuid(userUuid)) {
+    if (isModeratorOrHigherByUuid(userUuid)) {
       if (!parentUuid) {
-        ctx.throw(400, "Admin must specify parentUuid when inviting sub-users");
+        ctx.throw(400, "Moderators and admins must specify parentUuid when inviting sub-users");
       }
       actualParentUuid = String(parentUuid);
     }
@@ -621,8 +624,9 @@ router.post(
       ctx.throw(400, "Parent user not found");
     }
 
-    // Validate permission chain - non-admin users can only grant permissions they have
-    if (!isTopPermissionByUuid(userUuid)) {
+    // Validate permission chain - non-moderator users can only grant permissions they have
+    // Moderators and admins can grant any permission
+    if (!isModeratorOrHigherByUuid(userUuid)) {
       // Get parent's permissions for this instance
       const parentInstanceEntry = parentUser.instances.find(
         (inst) => inst.instanceUuid === String(instanceUuid) && inst.daemonId === String(daemonId)
@@ -959,8 +963,8 @@ router.get(
       const stored = singletonMemoryRedis.get<{ value: InviteData }>(inviteKey);
 
       if (stored?.value && Date.now() < stored.value.expiresAt) {
-        // Only show invites for current user (or all if admin)
-        if (isTopPermissionByUuid(userUuid) || stored.value.parentUuid === userUuid) {
+        // Only show invites for current user (or all if moderator/admin)
+        if (isModeratorOrHigherByUuid(userUuid) || stored.value.parentUuid === userUuid) {
           pendingInvites.push({
             token: stored.value.token,
             email: stored.value.inviteeEmail,
@@ -997,8 +1001,8 @@ router.delete(
 
     const inviteData = stored.value;
 
-    // Check if user is admin or the parent who sent the invite
-    if (!isTopPermissionByUuid(userUuid) && inviteData.parentUuid !== userUuid) {
+    // Check if user is moderator/admin or the parent who sent the invite
+    if (!isModeratorOrHigherByUuid(userUuid) && inviteData.parentUuid !== userUuid) {
       ctx.throw(403, "You do not have permission to cancel this invitation");
     }
 

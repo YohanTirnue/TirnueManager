@@ -12,7 +12,7 @@ import { logger } from "../service/log";
 import { operationLogger } from "../service/operation_logger";
 import { getUserUuid } from "../service/passport_service";
 import { timeUuid } from "../service/password";
-import { isHaveInstanceByUuid, isTopPermissionByUuid } from "../service/permission_service";
+import { isHaveInstanceByUuid, isTopPermissionByUuid, isTopPermission } from "../service/permission_service";
 import RemoteRequest from "../service/remote_command";
 import RemoteServiceSubsystem from "../service/remote_service";
 import userSystem from "../service/user_service";
@@ -44,41 +44,47 @@ router.get(
   }
 );
 
-// [Top-level Permission]
-// create instance
+// [Moderator Permission]
+// create instance - moderators and above can create instances
 router.post(
   "/",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.MODERATOR }),
   validator({ query: { daemonId: String } }),
 
   async (ctx) => {
     try {
+      const userUuid = getUserUuid(ctx);
+      const currentUser = userSystem.getInstance(userUuid);
       const daemonId = String(ctx.query.daemonId);
       const config = ctx.request.body;
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("instance/new", config);
       ctx.body = result;
+      // Only skip instance logs for admins, not moderators
+      const skipInstanceLog = currentUser ? isTopPermission(currentUser) : true;
       operationLogger.log("instance_create", {
         daemon_id: daemonId,
         instance_id: result.instanceUuid,
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result.nickname
-      }, "info", true);
+      }, "info", skipInstanceLog);
     } catch (err) {
       ctx.body = err;
     }
   }
 );
 
-// [Top-level Permission]
+// [Moderator Permission]
 // upload the file when creating the instance
 router.post(
   "/upload",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.MODERATOR }),
   validator({ query: { daemonId: String, upload_dir: String } }),
   async (ctx) => {
     try {
+      const userUuid = getUserUuid(ctx);
+      const currentUser = userSystem.getInstance(userUuid);
       const daemonId = String(ctx.query.daemonId);
       // const uploadDir = String(ctx.query.upload_dir);
       const config = ctx.request.body;
@@ -87,13 +93,15 @@ router.post(
       const result = await new RemoteRequest(remoteService).request("instance/new", config);
       const newInstanceUuid = result.instanceUuid;
       if (!newInstanceUuid) throw new Error($t("TXT_CODE_router.instance.createError"));
+      // Only skip instance logs for admins, not moderators
+      const skipInstanceLog = currentUser ? isTopPermission(currentUser) : true;
       operationLogger.log("instance_create", {
         daemon_id: daemonId,
         instance_id: newInstanceUuid,
         operator_ip: ctx.ip,
         operator_name: ctx.session?.["userName"],
         instance_name: result.nickname
-      }, "info", true);
+      }, "info", skipInstanceLog);
       // Send a cross-end file upload task to the daemon
       const addr = remoteService.config.fullAddr;
       const remoteMappings = remoteService.config.getConvertedRemoteMappings();

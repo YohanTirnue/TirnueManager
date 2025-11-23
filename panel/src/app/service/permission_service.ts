@@ -5,7 +5,8 @@ import { UserPermissions } from "../entity/entity_interface";
 import { permissionCache } from "./permission_cache_service";
 
 export function isHaveInstance(user: User, daemonId: string, instanceUuid: string) {
-  if (isTopPermission(user)) return true;
+  // Admins and moderators can access all instances
+  if (isModeratorOrHigher(user)) return true;
   if (user && user.instances) {
     for (const v of user.instances) {
       if (daemonId === v.daemonId && instanceUuid === v.instanceUuid) return true;
@@ -25,6 +26,62 @@ export function isTopPermissionByUuid(uuid: string) {
   return isTopPermission(user);
 }
 
+/**
+ * Check if user is a moderator (not senior moderator or admin)
+ */
+export function isModerator(user: User) {
+  if (!user) return false;
+  return user.permission === 5;
+}
+
+export function isModeratorByUuid(uuid: string) {
+  const user = userSystem.getInstance(uuid);
+  if (!user) return false;
+  return isModerator(user);
+}
+
+/**
+ * Check if user is a senior moderator
+ */
+export function isSeniorModerator(user: User) {
+  if (!user) return false;
+  return user.permission === 7;
+}
+
+export function isSeniorModeratorByUuid(uuid: string) {
+  const user = userSystem.getInstance(uuid);
+  if (!user) return false;
+  return isSeniorModerator(user);
+}
+
+/**
+ * Check if user is senior moderator or admin (can manage moderators)
+ */
+export function canManageModerators(user: User) {
+  if (!user) return false;
+  return user.permission >= 7;
+}
+
+export function canManageModeratorsbyUuid(uuid: string) {
+  const user = userSystem.getInstance(uuid);
+  if (!user) return false;
+  return canManageModerators(user);
+}
+
+/**
+ * Check if user is moderator or higher (moderator, senior moderator, or admin)
+ */
+export function isModeratorOrHigher(user: User) {
+  if (!user) return false;
+  return user.permission >= 5;
+}
+
+export function isModeratorOrHigherByUuid(uuid: string) {
+  const user = userSystem.getInstance(uuid);
+  if (!user) return false;
+  return isModeratorOrHigher(user);
+}
+
 export function isHaveInstanceByUuid(uuid: string, daemonId: string, instanceUuid: string) {
   const user = userSystem.getInstance(uuid);
   if (!user) return false;
@@ -37,11 +94,11 @@ export function getUserByUserName(userName: string) {
 
 /**
  * Check if user can manage sub-users for a specific instance
- * Requirements: Admin OR User must be the owner of the instance (not a sub-user for it)
+ * Requirements: Admin/Moderator OR User must be the owner of the instance (not a sub-user for it)
  */
 export function canManageSubUsers(user: User, daemonId: string, instanceUuid: string): boolean {
-  // Admins can manage all sub-users
-  if (isTopPermission(user)) return true;
+  // Admins and moderators can manage all sub-users
+  if (isModeratorOrHigher(user)) return true;
 
   // Must be the owner of this instance (not a sub-user)
   return subUserService.isInstanceOwner(user.uuid, instanceUuid, daemonId);
