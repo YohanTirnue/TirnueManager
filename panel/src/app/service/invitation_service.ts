@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { logger } from "./log";
 import type { UserPermissions } from "../entity/entity_interface";
+import Storage from "../common/storage/sys_storage";
 
 export interface InvitationRecord {
   invitationId: string;
@@ -36,10 +37,48 @@ interface PendingInvitation {
 class InvitationService {
   private invitationStore: Map<string, InvitationRecord> = new Map();
   private pendingOwnerOtpStore: Map<string, PendingInvitation> = new Map();
+  private tokenIndex: Map<string, string> = new Map(); // token -> invitationId
 
   constructor() {
+    // Load invitations from persistent storage on startup
+    this.loadInvitations();
     // Clean up expired invitations every 5 minutes
     setInterval(() => this.cleanupExpired(), 300000);
+  }
+
+  private async loadInvitations() {
+    try {
+      const invitationIds = await Storage.getStorage().list("Invitation");
+      for (const id of invitationIds) {
+        const invitation = await Storage.getStorage().load("Invitation", Object, id) as InvitationRecord;
+        if (invitation) {
+          this.invitationStore.set(id, invitation);
+          this.tokenIndex.set(invitation.token, id);
+          logger.info(`[InvitationService] Loaded invitation ${id} from storage`);
+        }
+      }
+      logger.info(`[InvitationService] Loaded ${invitationIds.length} invitations from storage`);
+    } catch (error: any) {
+      logger.error(`[InvitationService] Failed to load invitations: ${error.message}`);
+    }
+  }
+
+  private async saveInvitation(invitation: InvitationRecord) {
+    try {
+      await Storage.getStorage().store("Invitation", invitation.invitationId, invitation);
+      logger.info(`[InvitationService] Saved invitation ${invitation.invitationId} to storage`);
+    } catch (error: any) {
+      logger.error(`[InvitationService] Failed to save invitation: ${error.message}`);
+    }
+  }
+
+  private async deleteInvitation(invitationId: string) {
+    try {
+      await Storage.getStorage().delete("Invitation", invitationId);
+      logger.info(`[InvitationService] Deleted invitation ${invitationId} from storage`);
+    } catch (error: any) {
+      logger.error(`[InvitationService] Failed to delete invitation: ${error.message}`);
+    }
   }
 
   private generateToken(): string {
@@ -119,6 +158,8 @@ class InvitationService {
     };
 
     this.invitationStore.set(invitationId, invitation);
+    this.tokenIndex.set(inviteToken, invitationId);
+    this.saveInvitation(invitation); // Persist to storage
     logger.info(`[InvitationService] Created direct invitation ${invitationId} for ${inviteeEmail}`);
 
     return invitation;
@@ -158,6 +199,8 @@ class InvitationService {
     };
 
     this.invitationStore.set(invitationId, invitation);
+    this.tokenIndex.set(token, invitationId);
+    this.saveInvitation(invitation); // Persist to storage
     logger.info(`[InvitationService] Created invitation ${invitationId} for ${pending.inviteeEmail}`);
 
     return invitation;
@@ -172,17 +215,20 @@ class InvitationService {
   }
 
   getInvitationByToken(token: string): InvitationRecord | null {
-    for (const invitation of this.invitationStore.values()) {
-      if (invitation.token === token) {
-        // Check if expired
-        if (Date.now() > invitation.expiresAt) {
-          invitation.status = "expired";
-          return null;
-        }
-        return invitation;
-      }
+    // Use token index for O(1) lookup
+    const invitationId = this.tokenIndex.get(token);
+    if (!invitationId) return null;
+
+    const invitation = this.invitationStore.get(invitationId);
+    if (!invitation) return null;
+
+    // Check if expired
+    if (Date.now() > invitation.expiresAt) {
+      invitation.status = "expired";
+      this.saveInvitation(invitation); // Update status in storage
+      return null;
     }
-    return null;
+    return invitation;
   }
 
   // Get all pending invitations for a parent user
@@ -243,11 +289,13 @@ class InvitationService {
 
     if (Date.now() > invitation.expiresAt) {
       invitation.status = "expired";
+      this.saveInvitation(invitation);
       logger.warn(`[InvitationService] Invitation ${invitationId} has expired`);
       return false;
     }
 
     invitation.status = "accepted";
+    this.saveInvitation(invitation);
     logger.info(`[InvitationService] Invitation ${invitationId} accepted by ${invitation.inviteeEmail}`);
     return true;
   }
@@ -268,6 +316,9 @@ class InvitationService {
     }
 
     invitation.status = "cancelled";
+    this.invitationStore.delete(invitationId);
+    this.tokenIndex.delete(invitation.token);
+    this.deleteInvitation(invitationId);
     logger.info(`[InvitationService] Invitation ${invitationId} cancelled by ${parentUserId}`);
     return true;
   }
@@ -281,6 +332,8 @@ class InvitationService {
     for (const [id, invitation] of this.invitationStore.entries()) {
       if (now > invitation.expiresAt + 24 * 60 * 60 * 1000) {
         this.invitationStore.delete(id);
+        this.tokenIndex.delete(invitation.token);
+        this.deleteInvitation(id);
         cleaned++;
       }
     }
