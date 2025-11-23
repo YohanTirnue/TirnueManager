@@ -122,7 +122,13 @@ class InvitationService {
 
     this.invitationStore.set(invitationId, invitation);
     this.tokenIndex.set(inviteToken, invitationId);
-    logger.info(`[InvitationService] Created direct invitation ${invitationId} for ${inviteeEmail}`);
+
+    const expiryDate = new Date(invitation.expiresAt);
+    logger.info(`[InvitationService] Created invitation ${invitationId} for ${inviteeEmail}`);
+    logger.info(`[InvitationService] - Token: ${inviteToken.substring(0, 16)}...`);
+    logger.info(`[InvitationService] - Created: ${new Date(now).toISOString()}`);
+    logger.info(`[InvitationService] - Expires: ${expiryDate.toISOString()} (in ${expiryMinutes} minutes)`);
+    logger.info(`[InvitationService] - ExpiresAt timestamp: ${invitation.expiresAt}`);
 
     return invitation;
   }
@@ -190,12 +196,23 @@ class InvitationService {
     }
 
     // Check if expired
-    if (Date.now() > invitation.expiresAt) {
-      const expiredMinutesAgo = Math.floor((Date.now() - invitation.expiresAt) / 60000);
-      logger.warn(`[InvitationService] Invitation ${invitationId} expired ${expiredMinutesAgo} minutes ago (email: ${invitation.inviteeEmail})`);
+    const now = Date.now();
+    const timeUntilExpiry = invitation.expiresAt - now;
+    const minutesUntilExpiry = Math.floor(timeUntilExpiry / 60000);
+
+    logger.info(`[InvitationService] Checking expiry for ${invitationId}:`);
+    logger.info(`[InvitationService] - Current time: ${new Date(now).toISOString()} (${now})`);
+    logger.info(`[InvitationService] - Expires at: ${new Date(invitation.expiresAt).toISOString()} (${invitation.expiresAt})`);
+    logger.info(`[InvitationService] - Time until expiry: ${minutesUntilExpiry} minutes`);
+
+    if (now > invitation.expiresAt) {
+      const expiredMinutesAgo = Math.floor((now - invitation.expiresAt) / 60000);
+      logger.warn(`[InvitationService] Invitation ${invitationId} EXPIRED ${expiredMinutesAgo} minutes ago (email: ${invitation.inviteeEmail})`);
       invitation.status = "expired";
       return null;
     }
+
+    logger.info(`[InvitationService] Invitation ${invitationId} is still valid`);
     return invitation;
   }
 
