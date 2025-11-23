@@ -2,6 +2,7 @@ import Koa from "koa";
 import Router from "@koa/router";
 import permission from "../middleware/permission";
 import { ROLE } from "../entity/user";
+import { User } from "../entity/user";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "../service/log";
 
@@ -114,7 +115,7 @@ router.get("/users/:uuid", permission({ level: ROLE.ADMIN }), async (ctx: Koa.Pa
   const { uuid } = ctx.params;
   const Storage = (await import("../common/storage/sys_storage")).default;
 
-  const user = await Storage.getStorage().load("User", uuid);
+  const user = await Storage.getStorage().load("User", User, uuid);
   if (!user) {
     ctx.status = 404;
     ctx.body = { success: false, message: "User not found" };
