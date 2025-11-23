@@ -178,13 +178,21 @@ class InvitationService {
   getInvitationByToken(token: string): InvitationRecord | null {
     // Use token index for O(1) lookup
     const invitationId = this.tokenIndex.get(token);
-    if (!invitationId) return null;
+    if (!invitationId) {
+      logger.warn(`[InvitationService] Token not found in index: ${token.substring(0, 16)}...`);
+      return null;
+    }
 
     const invitation = this.invitationStore.get(invitationId);
-    if (!invitation) return null;
+    if (!invitation) {
+      logger.warn(`[InvitationService] Invitation ${invitationId} not found in store`);
+      return null;
+    }
 
     // Check if expired
     if (Date.now() > invitation.expiresAt) {
+      const expiredMinutesAgo = Math.floor((Date.now() - invitation.expiresAt) / 60000);
+      logger.warn(`[InvitationService] Invitation ${invitationId} expired ${expiredMinutesAgo} minutes ago (email: ${invitation.inviteeEmail})`);
       invitation.status = "expired";
       return null;
     }
