@@ -13,6 +13,27 @@ import { ROLE } from "../entity/user";
 
 const router = new Router({ prefix: "/auth" });
 
+// Helper to get real client IP from Cloudflare/proxy headers
+function getRealClientIP(ctx: Koa.ParameterizedContext): string {
+  // Check Cloudflare header first
+  const cfConnectingIP = ctx.get("CF-Connecting-IP");
+  if (cfConnectingIP) return cfConnectingIP;
+
+  // Check X-Forwarded-For (contains comma-separated list, first is client)
+  const xForwardedFor = ctx.get("X-Forwarded-For");
+  if (xForwardedFor) {
+    const ips = xForwardedFor.split(",").map((ip) => ip.trim());
+    return ips[0];
+  }
+
+  // Check X-Real-IP
+  const xRealIP = ctx.get("X-Real-IP");
+  if (xRealIP) return xRealIP;
+
+  // Fallback to ctx.ip
+  return ctx.ip;
+}
+
 // Turnstile verification helper
 async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
   if (!token) return true; // Skip if no token provided
@@ -67,7 +88,8 @@ router.post(
 
     // Verify Turnstile
     if (turnstileToken) {
-      const isValidTurnstile = await verifyTurnstile(turnstileToken, ctx.ip);
+      const clientIP = getRealClientIP(ctx);
+      const isValidTurnstile = await verifyTurnstile(turnstileToken, clientIP);
       if (!isValidTurnstile) {
         ctx.status = 400;
         ctx.body = { success: false, message: "Security verification failed" };
@@ -218,7 +240,7 @@ router.post(
       user.lastName = record.metadata.lastName || "";
       user.location = record.metadata.location || "";
       user.passWord = record.metadata.password || "";
-      user.createdIp = ctx.ip;
+      user.createdIp = getRealClientIP(ctx);
       user.accountStatus = "active";
 
       // Save user
