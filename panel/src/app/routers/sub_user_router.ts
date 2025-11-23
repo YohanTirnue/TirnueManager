@@ -21,6 +21,36 @@ import { otpService } from "../service/otp_service";
 // Email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Helper function to validate permission chain - ensures parent has all permissions they're trying to grant
+const validatePermissionChain = (
+  parentPermissions: any,
+  requestedPermissions: any,
+  isAdmin: boolean
+): { valid: boolean; missingPermissions: string[] } => {
+  // Admins can grant any permissions
+  if (isAdmin) {
+    return { valid: true, missingPermissions: [] };
+  }
+
+  const missingPermissions: string[] = [];
+
+  // Check each requested permission
+  for (const [key, value] of Object.entries(requestedPermissions)) {
+    // Only check "can*" permissions (positive permissions)
+    if (key.startsWith('can') && value === true) {
+      // Parent must have this permission
+      if (!parentPermissions[key]) {
+        missingPermissions.push(key);
+      }
+    }
+  }
+
+  return {
+    valid: missingPermissions.length === 0,
+    missingPermissions
+  };
+};
+
 // Interface for invite data stored in Redis
 interface InviteData {
   token: string;
@@ -35,6 +65,37 @@ interface InviteData {
 }
 
 const router = new Router({ prefix: "/sub-users" });
+
+// Get current user's permissions for a specific instance
+router.get(
+  "/my-permissions",
+  permission({ level: ROLE.USER }),
+  validator({ query: { daemonId: String, instanceUuid: String } }),
+  async (ctx: Koa.ParameterizedContext) => {
+    const userUuid = getUserUuid(ctx);
+    const { daemonId, instanceUuid } = ctx.query;
+
+    const user = userSystem.getInstance(userUuid);
+    if (!user) {
+      ctx.throw(404, "User not found");
+      return;
+    }
+
+    // Find the instance entry to get permissions
+    const instanceEntry = user.instances.find(
+      (inst) => inst.instanceUuid === String(instanceUuid) && inst.daemonId === String(daemonId)
+    );
+
+    if (!instanceEntry) {
+      ctx.throw(404, "Instance not found or you don't have access");
+      return;
+    }
+
+    ctx.body = {
+      permissions: instanceEntry.permissions || {}
+    };
+  }
+);
 
 // Get all sub-users for a specific instance
 router.get(
@@ -244,6 +305,39 @@ router.post(
       actualParentUuid = String(parentUuid);
     }
 
+    // Validate permission chain - non-admin users can only grant permissions they have
+    if (!isTopPermissionByUuid(userUuid)) {
+      const parentUser = userSystem.getInstance(actualParentUuid);
+      if (!parentUser) {
+        ctx.throw(400, "Parent user not found");
+        return;
+      }
+
+      // Get parent's permissions for this instance
+      const parentInstanceEntry = parentUser.instances.find(
+        (inst) => inst.instanceUuid === String(instanceUuid) && inst.daemonId === String(daemonId)
+      );
+
+      if (!parentInstanceEntry) {
+        ctx.throw(500, "Parent instance entry not found");
+        return;
+      }
+
+      const validation = validatePermissionChain(
+        parentInstanceEntry.permissions || {},
+        permissions,
+        false
+      );
+
+      if (!validation.valid) {
+        ctx.throw(
+          403,
+          `You cannot grant permissions you don't have: ${validation.missingPermissions.join(', ')}`
+        );
+        return;
+      }
+    }
+
     // Build full UserPermissions object with defaults for missing fields
     const fullPermissions = {
       canUploadFiles: Boolean(permissions?.canUploadFiles),
@@ -350,6 +444,39 @@ router.put(
     if (!isTopPermissionByUuid(userUuid) && parent.uuid !== userUuid) {
       ctx.throw(403, "You do not have permission to modify this sub-user");
       return;
+    }
+
+    // Validate permission chain - non-admin users can only grant permissions they have
+    if (!isTopPermissionByUuid(userUuid)) {
+      // Get parent's permissions for this instance
+      const parentUser = userSystem.getInstance(parent.uuid);
+      if (!parentUser) {
+        ctx.throw(500, "Parent user not found");
+        return;
+      }
+
+      const parentInstanceEntry = parentUser.instances.find(
+        (inst) => inst.instanceUuid === String(instanceUuid) && inst.daemonId === String(daemonId)
+      );
+
+      if (!parentInstanceEntry) {
+        ctx.throw(500, "Parent instance entry not found");
+        return;
+      }
+
+      const validation = validatePermissionChain(
+        parentInstanceEntry.permissions || {},
+        permissions,
+        false
+      );
+
+      if (!validation.valid) {
+        ctx.throw(
+          403,
+          `You cannot grant permissions you don't have: ${validation.missingPermissions.join(', ')}`
+        );
+        return;
+      }
     }
 
     try {
@@ -492,6 +619,33 @@ router.post(
     const parentUser = userSystem.getInstance(actualParentUuid);
     if (!parentUser) {
       ctx.throw(400, "Parent user not found");
+    }
+
+    // Validate permission chain - non-admin users can only grant permissions they have
+    if (!isTopPermissionByUuid(userUuid)) {
+      // Get parent's permissions for this instance
+      const parentInstanceEntry = parentUser.instances.find(
+        (inst) => inst.instanceUuid === String(instanceUuid) && inst.daemonId === String(daemonId)
+      );
+
+      if (!parentInstanceEntry) {
+        ctx.throw(500, "Parent instance entry not found");
+        return;
+      }
+
+      const validation = validatePermissionChain(
+        parentInstanceEntry.permissions || {},
+        permissions,
+        false
+      );
+
+      if (!validation.valid) {
+        ctx.throw(
+          403,
+          `You cannot grant permissions you don't have: ${validation.missingPermissions.join(', ')}`
+        );
+        return;
+      }
     }
 
     // Use instanceUuid as name (getting instance name would require async request)

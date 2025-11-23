@@ -91,6 +91,9 @@ const isAdmin = computed(() => {
   return userInfo && userInfo.permission === 10;
 });
 
+// Current user's permissions for this instance (non-admin owners)
+const currentUserPermissions = ref<UserPermissions | null>(null);
+
 const availableParents = computed(() => {
   if (!isAdmin.value) return [];
   const subUserCounts = new Map<string, number>();
@@ -177,6 +180,17 @@ const canAddMore = computed(() => {
   return subUsers.value.length < MAX_SUB_USERS;
 });
 
+// Helper to check if a permission can be granted by the current user
+const canGrantPermission = (permissionKey: keyof UserPermissions): boolean => {
+  // Admins can grant any permission
+  if (isAdmin.value) return true;
+
+  // Owners can only grant permissions they have
+  if (!currentUserPermissions.value) return false;
+
+  return currentUserPermissions.value[permissionKey] === true;
+};
+
 const inviteFormRules: Record<string, Rule[]> = {
   inviteeEmail: [
     { required: true, message: "Email is required" },
@@ -200,6 +214,9 @@ watch(
     if (newVal) {
       if (isAdmin.value) {
         await fetchParentUsers();
+      } else {
+        // Fetch current user's permissions for this instance
+        await fetchCurrentUserPermissions();
       }
       await fetchSubUsers();
       await fetchPendingInvitations();
@@ -261,6 +278,23 @@ const fetchSubUsers = async () => {
     reportErrorMsg(error.message);
   } finally {
     loading.value = false;
+  }
+};
+
+const fetchCurrentUserPermissions = async () => {
+  try {
+    const { state } = useAppStateStore();
+    const res = await axios.get("./api/sub-users/my-permissions", {
+      params: {
+        token: state.userInfo?.token,
+        daemonId: props.daemonId,
+        instanceUuid: props.instanceUuid
+      }
+    });
+    currentUserPermissions.value = res.data?.permissions || null;
+  } catch (error: any) {
+    console.error("Failed to fetch current user permissions:", error);
+    currentUserPermissions.value = null;
   }
 };
 
@@ -719,23 +753,38 @@ const formatExpiry = (expiresAt: number) => {
                 </div>
                 <div class="permission-items">
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canStartInstances" />
+                    <a-checkbox
+                      v-model:checked="inviteFormData.permissions.canStartInstances"
+                      :disabled="!canGrantPermission('canStartInstances')"
+                    />
                     <span>Start</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canStopInstances" />
+                    <a-checkbox
+                      v-model:checked="inviteFormData.permissions.canStopInstances"
+                      :disabled="!canGrantPermission('canStopInstances')"
+                    />
                     <span>Stop</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canRestartInstances" />
+                    <a-checkbox
+                      v-model:checked="inviteFormData.permissions.canRestartInstances"
+                      :disabled="!canGrantPermission('canRestartInstances')"
+                    />
                     <span>Restart</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canAccessConsole" />
+                    <a-checkbox
+                      v-model:checked="inviteFormData.permissions.canAccessConsole"
+                      :disabled="!canGrantPermission('canAccessConsole')"
+                    />
                     <span>Console</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canViewLogs" />
+                    <a-checkbox
+                      v-model:checked="inviteFormData.permissions.canViewLogs"
+                      :disabled="!canGrantPermission('canViewLogs')"
+                    />
                     <span>View Logs</span>
                   </label>
                 </div>
@@ -748,23 +797,38 @@ const formatExpiry = (expiresAt: number) => {
                 </div>
                 <div class="permission-items">
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canAccessFileManager" />
+                    <a-checkbox
+                      v-model:checked="inviteFormData.permissions.canAccessFileManager"
+                      :disabled="!canGrantPermission('canAccessFileManager')"
+                    />
                     <span>File Manager</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canUploadFiles" />
+                    <a-checkbox
+                      v-model:checked="inviteFormData.permissions.canUploadFiles"
+                      :disabled="!canGrantPermission('canUploadFiles')"
+                    />
                     <span>Upload</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canDownloadFiles" />
+                    <a-checkbox
+                      v-model:checked="inviteFormData.permissions.canDownloadFiles"
+                      :disabled="!canGrantPermission('canDownloadFiles')"
+                    />
                     <span>Download</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canModifyFiles" />
+                    <a-checkbox
+                      v-model:checked="inviteFormData.permissions.canModifyFiles"
+                      :disabled="!canGrantPermission('canModifyFiles')"
+                    />
                     <span>Modify</span>
                   </label>
                   <label class="permission-item">
-                    <a-checkbox v-model:checked="inviteFormData.permissions.canAccessScheduledTasks" />
+                    <a-checkbox
+                      v-model:checked="inviteFormData.permissions.canAccessScheduledTasks"
+                      :disabled="!canGrantPermission('canAccessScheduledTasks')"
+                    />
                     <span>Schedules</span>
                   </label>
                 </div>
@@ -812,23 +876,38 @@ const formatExpiry = (expiresAt: number) => {
             </div>
             <div class="permission-items">
               <label class="permission-item">
-                <a-checkbox v-model:checked="editFormData.permissions.canStartInstances" />
+                <a-checkbox
+                  v-model:checked="editFormData.permissions.canStartInstances"
+                  :disabled="!canGrantPermission('canStartInstances')"
+                />
                 <span>Start</span>
               </label>
               <label class="permission-item">
-                <a-checkbox v-model:checked="editFormData.permissions.canRestartInstances" />
+                <a-checkbox
+                  v-model:checked="editFormData.permissions.canRestartInstances"
+                  :disabled="!canGrantPermission('canRestartInstances')"
+                />
                 <span>Restart</span>
               </label>
               <label class="permission-item">
-                <a-checkbox v-model:checked="editFormData.permissions.canStopInstances" />
+                <a-checkbox
+                  v-model:checked="editFormData.permissions.canStopInstances"
+                  :disabled="!canGrantPermission('canStopInstances')"
+                />
                 <span>Stop</span>
               </label>
               <label class="permission-item">
-                <a-checkbox v-model:checked="editFormData.permissions.canAccessConsole" />
+                <a-checkbox
+                  v-model:checked="editFormData.permissions.canAccessConsole"
+                  :disabled="!canGrantPermission('canAccessConsole')"
+                />
                 <span>Console</span>
               </label>
               <label class="permission-item">
-                <a-checkbox v-model:checked="editFormData.permissions.canViewLogs" />
+                <a-checkbox
+                  v-model:checked="editFormData.permissions.canViewLogs"
+                  :disabled="!canGrantPermission('canViewLogs')"
+                />
                 <span>Logs</span>
               </label>
             </div>
@@ -841,23 +920,38 @@ const formatExpiry = (expiresAt: number) => {
             </div>
             <div class="permission-items">
               <label class="permission-item">
-                <a-checkbox v-model:checked="editFormData.permissions.canUploadFiles" />
+                <a-checkbox
+                  v-model:checked="editFormData.permissions.canUploadFiles"
+                  :disabled="!canGrantPermission('canUploadFiles')"
+                />
                 <span>Upload</span>
               </label>
               <label class="permission-item">
-                <a-checkbox v-model:checked="editFormData.permissions.canDownloadFiles" />
+                <a-checkbox
+                  v-model:checked="editFormData.permissions.canDownloadFiles"
+                  :disabled="!canGrantPermission('canDownloadFiles')"
+                />
                 <span>Download</span>
               </label>
               <label class="permission-item">
-                <a-checkbox v-model:checked="editFormData.permissions.canModifyFiles" />
+                <a-checkbox
+                  v-model:checked="editFormData.permissions.canModifyFiles"
+                  :disabled="!canGrantPermission('canModifyFiles')"
+                />
                 <span>Modify</span>
               </label>
               <label class="permission-item">
-                <a-checkbox v-model:checked="editFormData.permissions.canDeleteFiles" />
+                <a-checkbox
+                  v-model:checked="editFormData.permissions.canDeleteFiles"
+                  :disabled="!canGrantPermission('canDeleteFiles')"
+                />
                 <span>Delete</span>
               </label>
               <label class="permission-item">
-                <a-checkbox v-model:checked="editFormData.permissions.canAccessFileManager" />
+                <a-checkbox
+                  v-model:checked="editFormData.permissions.canAccessFileManager"
+                  :disabled="!canGrantPermission('canAccessFileManager')"
+                />
                 <span>File Manager</span>
               </label>
             </div>
