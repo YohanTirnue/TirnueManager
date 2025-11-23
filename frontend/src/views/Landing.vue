@@ -23,6 +23,10 @@ const goToLogin = () => {
   router.push("/login");
 };
 
+const goToRegister = () => {
+  router.push("/register");
+};
+
 const showUnderDevelopment = () => {
   message.info("This feature is under development. Check back soon!");
 };
@@ -55,10 +59,15 @@ onMounted(() => {
         <img src="/favicon.png" alt="Tirnue" class="nav-logo" />
         <span class="nav-title">Tirnue</span>
       </div>
-      <a-button type="primary" class="nav-signin" @click="goToLogin">
-        Sign In
-        <ArrowRightOutlined />
-      </a-button>
+      <div class="nav-actions">
+        <a-button class="nav-signin-secondary" @click="goToLogin">
+          Sign In
+        </a-button>
+        <a-button type="primary" class="nav-register" @click="goToRegister">
+          Register Now
+          <ArrowRightOutlined />
+        </a-button>
+      </div>
     </nav>
 
     <!-- Hero Section -->
@@ -78,12 +87,12 @@ onMounted(() => {
           No gimmicks, just straightforward service you can trust.
         </p>
         <div class="hero-actions">
-          <a-button type="primary" size="large" class="cta-primary" @click="goToLogin">
-            Get Started
+          <a-button type="primary" size="large" class="cta-primary" @click="goToRegister">
+            Register Now
             <ArrowRightOutlined />
           </a-button>
-          <a-button size="large" class="cta-secondary" @click="showUnderDevelopment">
-            View Plans
+          <a-button size="large" class="cta-secondary" @click="goToLogin">
+            Sign In
           </a-button>
         </div>
         <div class="hero-stats">
@@ -182,8 +191,8 @@ onMounted(() => {
             <li><CheckCircleOutlined /> Easy file manager</li>
             <li><CheckCircleOutlined /> Direct support</li>
           </ul>
-          <a-button type="primary" block class="service-btn" @click="goToLogin">
-            Get Started
+          <a-button type="primary" block class="service-btn" @click="goToRegister">
+            Register Now
           </a-button>
         </div>
         <div class="service-card">
@@ -220,9 +229,9 @@ onMounted(() => {
       <div class="cta-content">
         <h2>Want to Give Us a Try?</h2>
         <p>We're a small team building something we believe in. Come check it out.</p>
-        <a-button type="primary" size="large" class="cta-final" @click="goToLogin">
+        <a-button type="primary" size="large" class="cta-final" @click="goToRegister">
           <img src="/favicon.png" alt="" class="btn-icon" />
-          Sign In to Dashboard
+          Create Your Account
           <ArrowRightOutlined />
         </a-button>
       </div>
@@ -385,7 +394,29 @@ onMounted(() => {
   background-clip: text;
 }
 
-.nav-signin {
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-signin-secondary {
+  height: 44px;
+  padding: 0 24px;
+  font-weight: 600;
+  border-radius: 8px;
+  background: transparent;
+  border: 2px solid rgba(255, 140, 66, 0.3);
+  color: white;
+
+  &:hover {
+    border-color: #FF8C42;
+    color: #FF8C42;
+    background: rgba(255, 140, 66, 0.05);
+  }
+}
+
+.nav-register {
   height: 44px;
   padding: 0 24px;
   font-weight: 600;
@@ -395,6 +426,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+
+  &:hover {
+    background: linear-gradient(135deg, #FF6B35, #FF5A24);
+  }
 }
 
 // Hero Section
@@ -1031,10 +1066,20 @@ onMounted(() => {
     font-size: 18px;
   }
 
-  .nav-signin {
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .nav-signin-secondary {
     height: 36px;
-    padding: 0 16px;
-    font-size: 14px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .nav-register {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
   }
 
   .hero-section {
