@@ -56,12 +56,14 @@ router.post(
       lastName: String,
       userName: String,
       email: String,
-      location: String,
+      country: String,
+      region: String,
+      city: String,
       password: String
     }
   }),
   async (ctx: Koa.ParameterizedContext) => {
-    const { firstName, lastName, userName, email, location, password, turnstileToken } = ctx.request.body as any;
+    const { firstName, lastName, userName, email, country, region, city, password, turnstileToken } = ctx.request.body as any;
 
     // Verify Turnstile
     if (turnstileToken) {
@@ -104,10 +106,20 @@ router.post(
       return;
     }
 
-    // Validate location (ISO country code is 2-3 chars)
-    if (location.trim().length < 2 || location.length > 100) {
+    // Validate location fields
+    if (country.trim().length < 2 || country.length > 100) {
       ctx.status = 400;
-      ctx.body = { success: false, message: "Please select a valid location" };
+      ctx.body = { success: false, message: "Please select a valid country" };
+      return;
+    }
+    if (region.trim().length < 1 || region.length > 100) {
+      ctx.status = 400;
+      ctx.body = { success: false, message: "Region/State is required" };
+      return;
+    }
+    if (city.trim().length < 1 || city.length > 100) {
+      ctx.status = 400;
+      ctx.body = { success: false, message: "City is required" };
       return;
     }
 
@@ -145,12 +157,15 @@ router.post(
     // Hash password
     const hashedPassword = bcrypt.hashSync(password, 10);
 
+    // Combine location into formatted string
+    const location = `${city.trim()}, ${region.trim()}, ${country.trim()}`;
+
     // Create OTP
     const otp = await otpService.createRegistrationOTP(email.toLowerCase(), {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       userName: userName.trim().toLowerCase(),
-      location: location.trim(),
+      location: location,
       password: hashedPassword
     });
 
@@ -244,9 +259,9 @@ router.post(
 router.post(
   "/register/resend",
   permission({ token: false, level: null }),
-  validator({ body: { email: String, firstName: String, lastName: String, userName: String, location: String, password: String } }),
+  validator({ body: { email: String, firstName: String, lastName: String, userName: String, country: String, region: String, city: String, password: String } }),
   async (ctx: Koa.ParameterizedContext) => {
-    const { email, firstName, lastName, userName, location, password } = ctx.request.body as any;
+    const { email, firstName, lastName, userName, country, region, city, password } = ctx.request.body as any;
 
     // Rate limiting
     if (!otpService.checkRateLimit(`resend:${email}`, 3, 3600000)) {
@@ -257,11 +272,15 @@ router.post(
 
     // Hash password and create new OTP
     const hashedPassword = bcrypt.hashSync(password, 10);
+
+    // Combine location into formatted string
+    const location = `${city.trim()}, ${region.trim()}, ${country.trim()}`;
+
     const otp = await otpService.createRegistrationOTP(email.toLowerCase(), {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       userName: userName.trim().toLowerCase(),
-      location: location.trim(),
+      location: location,
       password: hashedPassword
     });
 

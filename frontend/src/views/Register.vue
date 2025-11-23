@@ -27,7 +27,9 @@ const formData = reactive({
   lastName: "",
   userName: "",
   email: "",
-  location: "",
+  country: "",
+  region: "",
+  city: "",
   password: "",
   confirmPassword: ""
 });
@@ -69,7 +71,9 @@ const isFormValid = computed(() => {
     formData.userName.trim().length >= 3 &&
     /^[a-zA-Z0-9_-]+$/.test(formData.userName) &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
-    formData.location.length >= 1 &&
+    formData.country.length >= 2 &&
+    formData.region.trim().length >= 1 &&
+    formData.city.trim().length >= 1 &&
     formData.password.length >= 9 &&
     formData.password === formData.confirmPassword &&
     /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(formData.password)
@@ -90,7 +94,9 @@ const initiateRegistration = async () => {
       lastName: formData.lastName,
       userName: formData.userName,
       email: formData.email,
-      location: formData.location,
+      country: formData.country,
+      region: formData.region,
+      city: formData.city,
       password: formData.password,
       turnstileToken: turnstileToken.value
     });
@@ -157,7 +163,9 @@ const resendOTP = async () => {
       lastName: formData.lastName,
       userName: formData.userName,
       email: formData.email,
-      location: formData.location,
+      country: formData.country,
+      region: formData.region,
+      city: formData.city,
       password: formData.password
     });
     startCountdown();
@@ -317,9 +325,9 @@ onUnmounted(() => {
               </div>
 
               <div class="input-group">
-                <label>Location</label>
+                <label>Country</label>
                 <a-select
-                  v-model:value="formData.location"
+                  v-model:value="formData.country"
                   size="large"
                   placeholder="Select your country"
                   class="modern-select"
@@ -328,6 +336,35 @@ onUnmounted(() => {
                   :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
                 >
                 </a-select>
+              </div>
+
+              <div class="form-row">
+                <div class="input-group">
+                  <label>Region/State</label>
+                  <a-input
+                    v-model:value="formData.region"
+                    size="large"
+                    placeholder="California"
+                    class="modern-input"
+                  >
+                    <template #prefix>
+                      <UserOutlined class="input-icon" />
+                    </template>
+                  </a-input>
+                </div>
+                <div class="input-group">
+                  <label>City</label>
+                  <a-input
+                    v-model:value="formData.city"
+                    size="large"
+                    placeholder="San Francisco"
+                    class="modern-input"
+                  >
+                    <template #prefix>
+                      <UserOutlined class="input-icon" />
+                    </template>
+                  </a-input>
+                </div>
               </div>
 
               <div class="input-group">
