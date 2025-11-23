@@ -1,6 +1,7 @@
 import http from "http";
 import Koa from "koa";
 import koaBody, { HttpMethodEnum } from "koa-body";
+import compress from "koa-compress";
 import session from "koa-session";
 import koaStatic from "koa-static";
 import { removeTrail } from "mcsmanager-common";
@@ -127,6 +128,20 @@ _  /  / / / /___  ____/ /_  /  / / / /_/ /_  / / / /_/ /_  /_/ //  __/  /
       ctx.body = { error: err.message };
     }
   });
+
+  // Enable gzip compression for faster loading
+  app.use(
+    compress({
+      threshold: 2048,
+      gzip: {
+        flush: require("zlib").constants.Z_SYNC_FLUSH
+      },
+      deflate: {
+        flush: require("zlib").constants.Z_SYNC_FLUSH
+      },
+      br: false
+    })
+  );
 
   app.use(preCheckMiddleware);
   app.use(
