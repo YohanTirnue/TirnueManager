@@ -536,15 +536,15 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
       ]
     },
     {
-      page: "/billing",
+      page: "/accounting",
       items: [
         {
           id: getRandomId(),
-          type: "UnderDevelopment",
-          title: "Billing & Invoices",
+          type: "Accounting",
+          title: "Accounting",
           meta: {
-            title: "Billing & Invoices",
-            description: "View invoices, manage payment methods, and check your balance. This feature is coming soon!"
+            title: "Accounting",
+            description: "Financial management and accounting system"
           },
           width: 12,
           height: LayoutCardHeight.AUTO,

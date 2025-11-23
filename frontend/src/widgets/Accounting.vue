@@ -143,7 +143,8 @@ const searchUsers = async (query: string) => {
 };
 
 // Handle user search input with debounce
-const onUserSearchInput = (value: string) => {
+const onUserSearchInput = (e: any) => {
+  const value = e.target?.value || e;
   userSearchQuery.value = value;
   clearTimeout(userSearchTimeout);
   userSearchTimeout = setTimeout(() => {
@@ -188,9 +189,14 @@ const fetchDashboard = async () => {
 
     // Update chart
     setTimeout(() => {
-      renderChart();
+      try {
+        renderChart();
+      } catch (chartError) {
+        console.error("Chart rendering error:", chartError);
+      }
     }, 100);
   } catch (error: any) {
+    console.error("Dashboard fetch error:", error);
     message.error(error.response?.data?.message || "Failed to load dashboard");
   } finally {
     isLoadingDashboard.value = false;
@@ -464,7 +470,7 @@ const renderChart = () => {
         y: {
           beginAtZero: true,
           ticks: {
-            callback: (value) => "$" + value
+            callback: (value: any) => "$" + value
           }
         }
       }
@@ -484,8 +490,12 @@ const changeTab = (tab: "dashboard" | "transactions" | "invoices" | "expenses") 
   }
 };
 
-onMounted(() => {
-  fetchDashboard();
+onMounted(async () => {
+  try {
+    await fetchDashboard();
+  } catch (error) {
+    console.error("Error initializing accounting page:", error);
+  }
 });
 </script>
 

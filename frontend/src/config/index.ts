@@ -49,6 +49,7 @@ const McPreset = defineAsyncComponent(() => import("@/widgets/setupApp/McPreset.
 const QuickStartFlow = defineAsyncComponent(() => import("@/widgets/setupApp/QuickStartFlow.vue"));
 const ShelvesCard = defineAsyncComponent(() => import("@/widgets/ShelvesCard.vue"));
 const UserAccessSettings = defineAsyncComponent(() => import("@/widgets/user/AccessSettings.vue"));
+const Accounting = defineAsyncComponent(() => import("@/widgets/Accounting.vue"));
 
 import { NEW_CARD_TYPE } from "../types/index";
 import { LayoutCardHeight } from "./originLayoutConfig";
@@ -98,6 +99,7 @@ export const LAYOUT_CARD_TYPES: { [key: string]: any } = {
   ShelvesCard,
   OperationLogCard,
   Market,
+  Accounting,
   UnderDevelopment
 };
 
