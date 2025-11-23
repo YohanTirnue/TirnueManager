@@ -9,6 +9,12 @@ export async function middleware(
   ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.DefaultContext, any>,
   next: Function
 ): Promise<void> {
+  // TEMPORARY: Log all /api/sub-users/invite/verify requests
+  if (ctx.url.includes("/sub-users/invite/verify")) {
+    console.error(`[PROTOCOL] Request: ${ctx.method} ${ctx.url}`);
+    console.error(`[PROTOCOL] Query:`, ctx.query);
+  }
+
   // Increase the number of interface requests
   if (ctx.url.startsWith("/api/")) {
     VisualDataSubsystem.addRequestCount();
