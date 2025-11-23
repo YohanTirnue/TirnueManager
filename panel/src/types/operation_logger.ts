@@ -34,7 +34,11 @@ export enum OperationLoggerAction {
   SubUserAcceptInvite = "sub_user_accept_invite",
   SubUserRegisterViaInvite = "sub_user_register_via_invite",
   OwnerPermissionsUpdate = "owner_permissions_update",
-  SystemConfigChange = "system_config_change"
+  SystemConfigChange = "system_config_change",
+  OwnedDaemonAssign = "owned_daemon_assign",
+  OwnedDaemonUpdateLimit = "owned_daemon_update_limit",
+  OwnedDaemonRemove = "owned_daemon_remove",
+  OwnedDaemonCreateInstance = "owned_daemon_create_instance"
 }
 
 export type GlobalGeneralOptions = {
@@ -237,6 +241,30 @@ export type SystemConfigChangeOptions = {
   type: "system_config_change";
 } & GlobalGeneralOptions;
 
+export type OwnedDaemonAssignOptions = {
+  type: "owned_daemon_assign";
+  target_user: string;
+  daemon_id: string;
+  instance_limit: number;
+} & GlobalGeneralOptions;
+
+export type OwnedDaemonUpdateLimitOptions = {
+  type: "owned_daemon_update_limit";
+  target_user: string;
+  daemon_id: string;
+  instance_limit: number;
+} & GlobalGeneralOptions;
+
+export type OwnedDaemonRemoveOptions = {
+  type: "owned_daemon_remove";
+  target_user: string;
+  daemon_id: string;
+} & GlobalGeneralOptions;
+
+export type OwnedDaemonCreateInstanceOptions = {
+  type: "owned_daemon_create_instance";
+} & InstanceGeneralOptions;
+
 export type OperationLoggerItem =
   | InstanceStartOptions
   | InstanceStopOptions
@@ -273,7 +301,11 @@ export type OperationLoggerItem =
   | SubUserAcceptInviteOptions
   | SubUserRegisterViaInviteOptions
   | OwnerPermissionsUpdateOptions
-  | SystemConfigChangeOptions;
+  | SystemConfigChangeOptions
+  | OwnedDaemonAssignOptions
+  | OwnedDaemonUpdateLimitOptions
+  | OwnedDaemonRemoveOptions
+  | OwnedDaemonCreateInstanceOptions;
 
 export type OperationLoggerItemPayload = {
   [T in OperationLoggerItem["type"]]: Omit<Extract<OperationLoggerItem, { type: T }>, "type">;

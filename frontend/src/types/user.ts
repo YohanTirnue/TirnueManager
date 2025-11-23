@@ -75,6 +75,9 @@ export interface BaseUserInfo {
   createdIp?: string;
   lastLoginIp?: string;
   accountStatus?: string;
+  // Device fingerprinting
+  fingerprintHash?: string;
+  trackingCookie?: string;
   // User-owned daemons/nodes with instance limits
   ownedDaemons?: OwnedDaemon[];
 }

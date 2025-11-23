@@ -61,7 +61,7 @@ router.post(
       await userSystem.edit(userUuid, { ownedDaemons: user.ownedDaemons });
 
       operationLogger.log(
-        "assign_owned_daemon",
+        "owned_daemon_assign",
         {
           operator_ip: ctx.ip,
           operator_name: ctx.session?.["userName"],
@@ -119,7 +119,7 @@ router.put(
       await userSystem.edit(userUuid, { ownedDaemons: user.ownedDaemons });
 
       operationLogger.log(
-        "update_owned_daemon_limit",
+        "owned_daemon_update_limit",
         {
           operator_ip: ctx.ip,
           operator_name: ctx.session?.["userName"],
@@ -176,7 +176,7 @@ router.delete(
       await userSystem.edit(userUuid, { ownedDaemons: user.ownedDaemons });
 
       operationLogger.log(
-        "remove_owned_daemon",
+        "owned_daemon_remove",
         {
           operator_ip: ctx.ip,
           operator_name: ctx.session?.["userName"],
@@ -346,7 +346,7 @@ router.post(
       await userSystem.edit(userUuid, { instances: user.instances });
 
       operationLogger.log(
-        "user_create_instance_on_owned_daemon",
+        "owned_daemon_create_instance",
         {
           daemon_id: daemonId,
           instance_id: result.instanceUuid,
