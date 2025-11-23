@@ -54,6 +54,15 @@ export interface ISubUserEntry {
   permissions: UserPermissions;
 }
 
+// User-owned daemon with instance limits
+export interface OwnedDaemon {
+  daemonId: string;
+  daemonName: string;
+  instanceLimit: number; // -1 for unlimited
+  assignedBy: string;
+  assignedAt: string;
+}
+
 // Instance entry with per-instance permissions
 export interface IUserInstance {
   instanceUuid: string;
@@ -86,6 +95,8 @@ export interface IUser {
   createdIp?: string;
   lastLoginIp?: string;
   accountStatus?: string;
+  // User-owned daemons/nodes with instance limits
+  ownedDaemons?: Array<OwnedDaemon>;
 }
 
 export interface ICompleteUser {
@@ -104,6 +115,8 @@ export interface ICompleteUser {
   lastName?: string;
   location?: string;
   accountStatus?: string;
+  // User-owned daemons/nodes with instance limits
+  ownedDaemons?: Array<OwnedDaemon>;
 }
 
 type RemoteMappingEntry = {

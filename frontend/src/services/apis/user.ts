@@ -55,3 +55,91 @@ export const queryUsername = useDefineApi<
   url: "/api/auth/query_username",
   method: "GET"
 });
+
+// Owned Daemon APIs
+export const assignOwnedDaemon = useDefineApi<
+  {
+    data: {
+      userUuid: string;
+      daemonId: string;
+      instanceLimit: number;
+    };
+  },
+  {
+    success: boolean;
+    ownedDaemon?: any;
+    error?: string;
+  }
+>({
+  url: "/api/owned_daemons/assign",
+  method: "POST"
+});
+
+export const updateOwnedDaemonLimit = useDefineApi<
+  {
+    data: {
+      userUuid: string;
+      daemonId: string;
+      instanceLimit: number;
+    };
+  },
+  {
+    success: boolean;
+    ownedDaemon?: any;
+    error?: string;
+  }
+>({
+  url: "/api/owned_daemons/update",
+  method: "PUT"
+});
+
+export const removeOwnedDaemon = useDefineApi<
+  {
+    data: {
+      userUuid: string;
+      daemonId: string;
+    };
+  },
+  {
+    success: boolean;
+    error?: string;
+  }
+>({
+  url: "/api/owned_daemons/remove",
+  method: "DELETE"
+});
+
+export const getUsersWithOwnedDaemons = useDefineApi<any, {
+  success: boolean;
+  users?: any[];
+  error?: string;
+}>({
+  url: "/api/owned_daemons/users_with_owned_daemons",
+  method: "GET"
+});
+
+export const getMyOwnedDaemons = useDefineApi<any, {
+  success: boolean;
+  ownedDaemons?: any[];
+  error?: string;
+}>({
+  url: "/api/owned_daemons/my_daemons",
+  method: "GET"
+});
+
+export const createInstanceOnOwnedDaemon = useDefineApi<
+  {
+    data: {
+      daemonId: string;
+      config: any;
+    };
+  },
+  {
+    success: boolean;
+    instance?: any;
+    error?: string;
+  }
+>({
+  url: "/api/owned_daemons/create_instance",
+  method: "POST"
+});

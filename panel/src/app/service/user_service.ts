@@ -64,6 +64,8 @@ class UserSubsystem {
     if (config.firstName != null) instance.firstName = String(config.firstName);
     if (config.lastName != null) instance.lastName = String(config.lastName);
     if (config.accountStatus != null) instance.accountStatus = String(config.accountStatus);
+    // User-owned daemons
+    if (config.ownedDaemons != null) instance.ownedDaemons = config.ownedDaemons;
     if (config.passWord) {
       instance.passWordType = UserPassWordType.bcrypt;
       instance.passWord = bcrypt.hashSync(config.passWord, 10);

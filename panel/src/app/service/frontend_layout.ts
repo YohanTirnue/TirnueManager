@@ -223,6 +223,20 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
       ]
     },
     {
+      page: "/my-nodes",
+      items: [
+        {
+          id: getRandomId(),
+          meta: {},
+          type: "MyNodes",
+          title: "My Nodes",
+          width: 12,
+          height: LayoutCardHeight.AUTO,
+          disableDelete: true
+        }
+      ]
+    },
+    {
       page: "/instances/terminal",
       items: [
         {

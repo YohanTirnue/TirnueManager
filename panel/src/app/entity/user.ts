@@ -41,6 +41,9 @@ export class User implements IUser {
   lastLoginIp: string = "";
   accountStatus: string = "active"; // 'active' | 'suspended' | 'pending_verification'
 
+  // User-owned daemons/nodes with instance limits
+  ownedDaemons: Array<import("./entity_interface").OwnedDaemon> = [];
+
   // Device fingerprinting for alt account detection
   fingerprint?: {
     userAgent?: string;

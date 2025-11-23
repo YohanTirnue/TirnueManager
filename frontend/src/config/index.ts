@@ -50,6 +50,7 @@ const QuickStartFlow = defineAsyncComponent(() => import("@/widgets/setupApp/Qui
 const ShelvesCard = defineAsyncComponent(() => import("@/widgets/ShelvesCard.vue"));
 const UserAccessSettings = defineAsyncComponent(() => import("@/widgets/user/AccessSettings.vue"));
 const Accounting = defineAsyncComponent(() => import("@/widgets/Accounting.vue"));
+const MyNodes = defineAsyncComponent(() => import("@/widgets/MyNodes.vue"));
 
 import { NEW_CARD_TYPE } from "../types/index";
 import { LayoutCardHeight } from "./originLayoutConfig";
@@ -100,6 +101,7 @@ export const LAYOUT_CARD_TYPES: { [key: string]: any } = {
   OperationLogCard,
   Market,
   Accounting,
+  MyNodes,
   UnderDevelopment
 };
 

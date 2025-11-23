@@ -170,6 +170,15 @@ const originRouterConfig: RouterConfig[] = [
     ]
   },
   {
+    path: "/my-nodes",
+    name: "My Nodes",
+    component: LayoutContainer,
+    meta: {
+      mainMenu: true,
+      permission: ROLE.USER
+    }
+  },
+  {
     path: "/market",
     name: t("TXT_CODE_27594db8"),
     component: LayoutContainer,

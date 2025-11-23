@@ -44,6 +44,14 @@ export interface UserInstance {
   permissions?: UserPermissions;
 }
 
+export interface OwnedDaemon {
+  daemonId: string;
+  daemonName: string;
+  instanceLimit: number;
+  assignedBy: string;
+  assignedAt: string;
+}
+
 export interface BaseUserInfo {
   uuid: string;
   userName: string;
@@ -67,6 +75,8 @@ export interface BaseUserInfo {
   createdIp?: string;
   lastLoginIp?: string;
   accountStatus?: string;
+  // User-owned daemons/nodes with instance limits
+  ownedDaemons?: OwnedDaemon[];
 }
 
 export interface EditUserInfo extends BaseUserInfo {

@@ -15,7 +15,9 @@ import {
   ClockCircleOutlined,
   IdcardOutlined,
   MailOutlined,
-  SafetyOutlined
+  SafetyOutlined,
+  CloudServerOutlined,
+  PlusOutlined
 } from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
 import { throttle } from "lodash";
@@ -25,8 +27,14 @@ import { useAppRouters } from "@/hooks/useAppRouters";
 import {
   getUserInfo,
   deleteUser as deleteUserApi,
-  editUserInfo
+  editUserInfo,
+  remoteNodeList
 } from "@/services/apis";
+import {
+  assignOwnedDaemon,
+  updateOwnedDaemonLimit,
+  removeOwnedDaemon
+} from "@/services/apis/user";
 import type { LayoutCard } from "@/types/index";
 import type { BaseUserInfo, EditUserInfo } from "@/types/user";
 import _ from "lodash";
@@ -292,6 +300,156 @@ const getUserNameById = (uuid: string) => {
   return user?.userName || null;
 };
 
+// Owned Daemons Management
+const availableDaemons = ref<any[]>([]);
+const ownedDaemonModal = ref({
+  visible: false,
+  mode: "add" as "add" | "edit",
+  daemonId: "",
+  instanceLimit: -1,
+  loading: false
+});
+
+const { execute: executeRemoteNodeList } = remoteNodeList();
+const { execute: executeAssignDaemon } = assignOwnedDaemon();
+const { execute: executeUpdateLimit } = updateOwnedDaemonLimit();
+const { execute: executeRemoveDaemon } = removeOwnedDaemon();
+
+const loadAvailableDaemons = async () => {
+  try {
+    const res = await executeRemoteNodeList();
+    availableDaemons.value = res.value || [];
+  } catch (error: any) {
+    message.error("Failed to load daemons: " + error.message);
+  }
+};
+
+const showAddOwnedDaemonModal = () => {
+  ownedDaemonModal.value = {
+    visible: true,
+    mode: "add",
+    daemonId: "",
+    instanceLimit: -1,
+    loading: false
+  };
+  loadAvailableDaemons();
+};
+
+const showEditOwnedDaemonModal = (ownedDaemon: any) => {
+  ownedDaemonModal.value = {
+    visible: true,
+    mode: "edit",
+    daemonId: ownedDaemon.daemonId,
+    instanceLimit: ownedDaemon.instanceLimit,
+    loading: false
+  };
+};
+
+const handleAssignDaemon = async () => {
+  if (!formData.value.uuid) {
+    message.error("User UUID not found");
+    return;
+  }
+
+  if (!ownedDaemonModal.value.daemonId) {
+    message.error("Please select a daemon");
+    return;
+  }
+
+  try {
+    ownedDaemonModal.value.loading = true;
+
+    if (ownedDaemonModal.value.mode === "add") {
+      const res = await executeAssignDaemon({
+        data: {
+          userUuid: formData.value.uuid,
+          daemonId: ownedDaemonModal.value.daemonId,
+          instanceLimit: ownedDaemonModal.value.instanceLimit
+        }
+      });
+
+      if (res.value?.success) {
+        message.success("Daemon assigned successfully");
+        // Add to formData owned daemons list
+        if (!formData.value.ownedDaemons) {
+          formData.value.ownedDaemons = [];
+        }
+        formData.value.ownedDaemons.push(res.value.ownedDaemon);
+        ownedDaemonModal.value.visible = false;
+      } else {
+        message.error(res.value?.error || "Failed to assign daemon");
+      }
+    } else {
+      const res = await executeUpdateLimit({
+        data: {
+          userUuid: formData.value.uuid,
+          daemonId: ownedDaemonModal.value.daemonId,
+          instanceLimit: ownedDaemonModal.value.instanceLimit
+        }
+      });
+
+      if (res.value?.success) {
+        message.success("Instance limit updated successfully");
+        // Update in formData
+        const ownedDaemon = formData.value.ownedDaemons?.find(
+          (od: any) => od.daemonId === ownedDaemonModal.value.daemonId
+        );
+        if (ownedDaemon) {
+          ownedDaemon.instanceLimit = ownedDaemonModal.value.instanceLimit;
+        }
+        ownedDaemonModal.value.visible = false;
+      } else {
+        message.error(res.value?.error || "Failed to update limit");
+      }
+    }
+  } catch (error: any) {
+    message.error(error.message || "Operation failed");
+  } finally {
+    ownedDaemonModal.value.loading = false;
+  }
+};
+
+const handleRemoveOwnedDaemon = async (daemonId: string) => {
+  if (!formData.value.uuid) return;
+
+  Modal.confirm({
+    title: "Remove Owned Daemon",
+    content: "Are you sure you want to remove this daemon from the user?",
+    okText: "Remove",
+    okType: "danger",
+    cancelText: "Cancel",
+    onOk: async () => {
+      try {
+        const res = await executeRemoveDaemon({
+          data: {
+            userUuid: formData.value.uuid,
+            daemonId
+          }
+        });
+
+        if (res.value?.success) {
+          message.success("Daemon removed successfully");
+          // Remove from formData
+          if (formData.value.ownedDaemons) {
+            formData.value.ownedDaemons = formData.value.ownedDaemons.filter(
+              (od: any) => od.daemonId !== daemonId
+            );
+          }
+        } else {
+          message.error(res.value?.error || "Failed to remove daemon");
+        }
+      } catch (error: any) {
+        message.error(error.message || "Failed to remove daemon");
+      }
+    }
+  });
+};
+
+const getInstanceCount = (daemonId: string) => {
+  if (!formData.value.instances) return 0;
+  return formData.value.instances.filter((inst: any) => inst.daemonId === daemonId).length;
+};
+
 onMounted(async () => {
   fetchData();
 });
@@ -483,6 +641,77 @@ onMounted(async () => {
         </div>
       </div>
 
+      <!-- Owned Daemons Section (Admin Only) -->
+      <div v-if="currentUserPermission >= 10" class="user-settings-card">
+        <div class="section-header-industrial">
+          <div class="section-icon">
+            <CloudServerOutlined />
+          </div>
+          <div class="section-title">
+            <h4>Owned Daemons ({{ formData.ownedDaemons?.length || 0 }})</h4>
+            <span>User can create instances on these nodes with limits</span>
+          </div>
+          <button
+            type="button"
+            class="btn-add-daemon"
+            @click="showAddOwnedDaemonModal()"
+          >
+            <PlusOutlined />
+            Assign Daemon
+          </button>
+        </div>
+        <div v-if="formData.ownedDaemons && formData.ownedDaemons.length > 0" class="owned-daemons-grid">
+          <div
+            v-for="ownedDaemon in formData.ownedDaemons"
+            :key="ownedDaemon.daemonId"
+            class="owned-daemon-card"
+          >
+            <div class="daemon-header">
+              <div class="daemon-icon">
+                <CloudServerOutlined />
+              </div>
+              <div class="daemon-info">
+                <div class="daemon-name">{{ ownedDaemon.daemonName }}</div>
+                <div class="daemon-id">ID: {{ ownedDaemon.daemonId.substring(0, 8) }}...</div>
+              </div>
+            </div>
+            <div class="daemon-stats">
+              <div class="stat-item">
+                <span class="stat-label">Instances:</span>
+                <span class="stat-value">{{ getInstanceCount(ownedDaemon.daemonId) }} / {{ ownedDaemon.instanceLimit === -1 ? '∞' : ownedDaemon.instanceLimit }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Assigned:</span>
+                <span class="stat-value">{{ new Date(ownedDaemon.assignedAt).toLocaleDateString() }}</span>
+              </div>
+            </div>
+            <div class="daemon-actions">
+              <button
+                type="button"
+                class="btn-daemon-edit"
+                @click="showEditOwnedDaemonModal(ownedDaemon)"
+              >
+                <EditOutlined />
+                Edit Limit
+              </button>
+              <button
+                type="button"
+                class="btn-daemon-remove"
+                @click="handleRemoveOwnedDaemon(ownedDaemon.daemonId)"
+              >
+                <DeleteOutlined />
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+        <div v-else class="empty-owned-daemons">
+          <CloudServerOutlined style="font-size: 48px; color: #d9d9d9; margin-bottom: 16px;" />
+          <p>No owned daemons assigned</p>
+          <p class="empty-hint">Click "Assign Daemon" to give this user access to create instances on a node</p>
+        </div>
+      </div>
+
       <!-- Modal Footer -->
       <div class="modal-footer-industrial">
         <button type="button" class="btn-cancel-industrial" @click="userDialog.status = false">
@@ -499,6 +728,84 @@ onMounted(async () => {
         </button>
       </div>
     </a-form>
+  </a-modal>
+
+  <!-- Owned Daemon Assignment Modal -->
+  <a-modal
+    v-model:open="ownedDaemonModal.visible"
+    :title="ownedDaemonModal.mode === 'add' ? 'Assign Daemon to User' : 'Edit Instance Limit'"
+    centered
+    :destroy-on-close="true"
+    :width="600"
+    class="industrial-modal"
+    @cancel="ownedDaemonModal.visible = false"
+  >
+    <div class="owned-daemon-modal-content">
+      <a-form layout="vertical">
+        <a-form-item label="Daemon" v-if="ownedDaemonModal.mode === 'add'">
+          <a-select
+            v-model:value="ownedDaemonModal.daemonId"
+            placeholder="Select a daemon"
+            size="large"
+            style="width: 100%"
+          >
+            <a-select-option
+              v-for="daemon in availableDaemons.filter((d: any) => !formData.ownedDaemons?.some((od: any) => od.daemonId === d.uuid))"
+              :key="daemon.uuid"
+              :value="daemon.uuid"
+            >
+              {{ daemon.remarks || `${daemon.ip}:${daemon.port}` }}
+              <span style="color: #999; margin-left: 8px;">
+                ({{ daemon.available ? 'Online' : 'Offline' }})
+              </span>
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+
+        <a-form-item label="Instance Limit">
+          <div class="limit-input-group">
+            <a-input-number
+              v-model:value="ownedDaemonModal.instanceLimit"
+              :min="-1"
+              size="large"
+              style="flex: 1;"
+              :placeholder="'-1 for unlimited'"
+            />
+            <button
+              type="button"
+              class="btn-unlimited"
+              @click="ownedDaemonModal.instanceLimit = -1"
+            >
+              Unlimited
+            </button>
+          </div>
+          <div class="field-hint" style="margin-top: 8px;">
+            Set to -1 for unlimited instances, or specify a positive number
+          </div>
+        </a-form-item>
+      </a-form>
+    </div>
+
+    <template #footer>
+      <div class="modal-footer-industrial">
+        <button
+          type="button"
+          class="btn-cancel-industrial"
+          @click="ownedDaemonModal.visible = false"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn-submit-industrial"
+          :disabled="ownedDaemonModal.loading"
+          @click="handleAssignDaemon"
+        >
+          <span v-if="ownedDaemonModal.loading">{{ ownedDaemonModal.mode === 'add' ? 'Assigning...' : 'Updating...' }}</span>
+          <span v-else>{{ ownedDaemonModal.mode === 'add' ? 'Assign' : 'Update' }}</span>
+        </button>
+      </div>
+    </template>
   </a-modal>
 
   <div class="modern-users-page">
@@ -1986,6 +2293,197 @@ onMounted(async () => {
     .perm-label {
       font-size: 12px;
     }
+  }
+}
+
+// Owned Daemons Styles
+.btn-add-daemon {
+  background: #ff8c00;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #ff9d1f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.owned-daemons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.owned-daemon-card {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #ff8c00;
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.15);
+  }
+
+  .daemon-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .daemon-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #ff8c00, #ff9d1f);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+  }
+
+  .daemon-info {
+    flex: 1;
+
+    .daemon-name {
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--color-text-1);
+      margin-bottom: 4px;
+    }
+
+    .daemon-id {
+      font-size: 12px;
+      color: var(--color-text-3);
+    }
+  }
+
+  .daemon-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--color-bg-1);
+    border-radius: 8px;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--color-text-3);
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-1);
+    }
+  }
+
+  .daemon-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-daemon-edit,
+  .btn-daemon-remove {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--color-border-2);
+    background: var(--color-bg-2);
+    color: var(--color-text-1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .btn-daemon-edit:hover {
+    border-color: #ff8c00;
+    color: #ff8c00;
+    background: rgba(255, 140, 0, 0.05);
+  }
+
+  .btn-daemon-remove:hover {
+    border-color: #ff4d4f;
+    color: #ff4d4f;
+    background: rgba(255, 77, 79, 0.05);
+  }
+}
+
+.empty-owned-daemons {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--color-text-3);
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .empty-hint {
+    font-size: 12px;
+    color: var(--color-text-4);
+    margin-top: 8px;
+  }
+}
+
+.owned-daemon-modal-content {
+  padding: 16px 0;
+}
+
+.limit-input-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-unlimited {
+  padding: 8px 16px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #ff8c00;
+    color: #ff8c00;
+    background: rgba(255, 140, 0, 0.05);
   }
 }
 </style>
