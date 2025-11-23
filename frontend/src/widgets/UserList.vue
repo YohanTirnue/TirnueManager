@@ -14,7 +14,8 @@ import {
   TeamOutlined,
   ClockCircleOutlined,
   IdcardOutlined,
-  MailOutlined
+  MailOutlined,
+  SafetyOutlined
 } from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
 import { throttle } from "lodash";
