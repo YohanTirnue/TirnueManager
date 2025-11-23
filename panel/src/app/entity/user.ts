@@ -67,8 +67,10 @@ export class User implements IUser {
     cookieEnabled?: boolean;
     doNotTrack?: string;
     maxTouchPoints?: number;
+    trackingCookie?: string; // Persistent tracking cookie ID
   };
   fingerprintHash?: string; // Short hash for easy comparison
+  trackingCookie?: string; // Quick access to tracking cookie for alt detection
 }
 
 export enum ROLE {

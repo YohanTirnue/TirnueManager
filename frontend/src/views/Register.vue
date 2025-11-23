@@ -135,8 +135,37 @@ const getLocationNames = () => {
   };
 };
 
+// Cookie helpers for tracking
+const getCookie = (name: string): string | null => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+  return null;
+};
+
+const setCookie = (name: string, value: string, days: number) => {
+  try {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+  } catch (e) {
+    // Cookie setting failed (blocked or disabled), that's okay
+  }
+};
+
+const generateTrackingId = (): string => {
+  return "tid_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
+};
+
 // Collect device fingerprint for alt account detection
 const collectFingerprint = async () => {
+  // Get or create tracking cookie (persists across sessions)
+  let trackingId = getCookie("_tid");
+  if (!trackingId) {
+    trackingId = generateTrackingId();
+    setCookie("_tid", trackingId, 365 * 2); // 2 year expiry
+  }
+
   const fingerprint: any = {
     userAgent: navigator.userAgent,
     platform: navigator.platform,
@@ -153,7 +182,8 @@ const collectFingerprint = async () => {
     doNotTrack: navigator.doNotTrack,
     maxTouchPoints: navigator.maxTouchPoints || 0,
     hardwareConcurrency: navigator.hardwareConcurrency || null,
-    deviceMemory: (navigator as any).deviceMemory || null
+    deviceMemory: (navigator as any).deviceMemory || null,
+    trackingCookie: trackingId // Add tracking cookie ID
   };
 
   // Canvas fingerprint

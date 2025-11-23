@@ -437,6 +437,13 @@ onMounted(async () => {
             </template>
             <a-input :value="formData.fingerprintHash" :readonly="true" size="large" />
           </a-form-item>
+
+          <a-form-item v-if="formData.trackingCookie" class="form-field">
+            <template #label>
+              <span class="field-label">Cookie ID (Tracking)</span>
+            </template>
+            <a-input :value="formData.trackingCookie" :readonly="true" size="large" />
+          </a-form-item>
         </div>
       </div>
 
@@ -600,6 +607,12 @@ onMounted(async () => {
           <div v-if="user.fingerprintHash" class="user-fingerprint">
             <span class="fingerprint-label">Device ID:</span>
             <span class="fingerprint-value">{{ user.fingerprintHash }}</span>
+          </div>
+
+          <!-- Tracking Cookie -->
+          <div v-if="user.trackingCookie" class="user-tracking-cookie">
+            <span class="tracking-label">Cookie ID:</span>
+            <span class="tracking-value">{{ user.trackingCookie }}</span>
           </div>
 
           <!-- Action Button -->
@@ -1149,6 +1162,29 @@ onMounted(async () => {
 }
 
 .fingerprint-value {
+  color: var(--text-color);
+  font-family: monospace;
+  font-weight: 500;
+}
+
+// Tracking Cookie
+.user-tracking-cookie {
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  word-break: break-all;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.tracking-label {
+  color: #667eea;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.tracking-value {
   color: var(--text-color);
   font-family: monospace;
   font-weight: 500;

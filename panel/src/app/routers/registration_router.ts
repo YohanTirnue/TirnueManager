@@ -272,7 +272,10 @@ router.post(
       if (fingerprint) {
         user.fingerprint = fingerprint;
         user.fingerprintHash = generateFingerprintHash(fingerprint);
-        logger.info(`[Registration] Fingerprint hash: ${user.fingerprintHash}`);
+        user.trackingCookie = fingerprint.trackingCookie || null;
+        logger.info(
+          `[Registration] Fingerprint hash: ${user.fingerprintHash}, Cookie: ${user.trackingCookie}`
+        );
       }
 
       // Save user
