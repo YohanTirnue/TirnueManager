@@ -108,8 +108,8 @@ const canManageSubUsers = computed(() => {
   if (!userInfo) return false;
   if (userInfo.isSubUser) return false;
 
-  // Admins can always manage
-  if (userInfo.permission === 10) return true;
+  // Admins and moderators can always manage
+  if (userInfo.permission >= 5) return true;
 
   // Regular users must own this instance
   if (userInfo.permission === 1) {

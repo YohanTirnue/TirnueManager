@@ -178,7 +178,11 @@ const copyToClipboard = async (text: string) => {
 
 const canManageSubUsers = () => {
   const userInfo = appStateStore.state.userInfo;
-  return userInfo && !userInfo.isSubUser && (userInfo.permission === 10 || userInfo.permission === 1);
+  if (!userInfo || userInfo.isSubUser) return false;
+  // Moderators and admins can manage all sub-users
+  if (userInfo.permission >= 5) return true;
+  // Regular users can manage their own instances
+  return userInfo.permission === 1;
 };
 
 const getStatusColor = (status: INSTANCE_STATUS_CODE) => {
