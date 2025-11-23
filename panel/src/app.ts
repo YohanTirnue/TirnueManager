@@ -117,6 +117,17 @@ _  /  / / / /___  ____/ /_  /  / / / /_/ /_  / / / /_/ /_  /_/ //  __/  /
     logger.error(`[Koa Error] ${ctx?.request?.method} ${ctx?.request?.url}:`, error);
   });
 
+  // TEMPORARY: Error catching middleware to debug invitation issue
+  app.use(async (ctx, next) => {
+    try {
+      await next();
+    } catch (err: any) {
+      logger.error(`[Middleware Error] ${ctx.request.method} ${ctx.request.url}:`, err);
+      ctx.status = err.status || 500;
+      ctx.body = { error: err.message };
+    }
+  });
+
   app.use(preCheckMiddleware);
   app.use(
     koaBody({
