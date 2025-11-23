@@ -109,9 +109,12 @@ _  /  / / / /___  ____/ /_  /  / / / /_/ /_  / / / /_/ /_  /_/ //  __/  /
   });
 
   // Listen for Koa errors
-  app.on("error", (error) => {
+  app.on("error", (error, ctx) => {
     // Block all Koa framework level events
     // When Koa is attacked by a short connection flood, it is easy for error messages to swipe the screen, which may indirectly affect the operation of some applications
+
+    // TEMPORARY: Log errors to debug invitation issue
+    logger.error(`[Koa Error] ${ctx?.request?.method} ${ctx?.request?.url}:`, error);
   });
 
   app.use(preCheckMiddleware);
