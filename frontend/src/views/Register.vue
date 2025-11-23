@@ -11,13 +11,9 @@ import {
   ArrowLeftOutlined,
   CloseCircleOutlined
 } from "@ant-design/icons-vue";
-import { ref, reactive, computed, onUnmounted } from "vue";
+import { ref, reactive, computed, onUnmounted, watch } from "vue";
 import axios from "axios";
-import countries from "i18n-iso-countries";
-import enLocale from "i18n-iso-countries/langs/en.json";
-
-// Register English locale for countries
-countries.registerLocale(enLocale);
+import { Country, State, City } from "country-state-city";
 
 const { updateUserInfo } = useAppStateStore();
 
@@ -37,14 +33,61 @@ const formData = reactive({
 const otp = ref("");
 const turnstileToken = ref("");
 
-// Generate country options from ISO library
-const countryNames = countries.getNames("en", { select: "official" });
-const locationOptions = Object.entries(countryNames)
-  .map(([code, name]) => ({
-    value: code,
-    label: name as string
+// Location data
+const countries = ref(Country.getAllCountries());
+const states = ref<any[]>([]);
+const cities = ref<any[]>([]);
+
+// Generate dropdown options
+const countryOptions = computed(() =>
+  countries.value.map((country) => ({
+    value: country.isoCode,
+    label: country.name
   }))
-  .sort((a, b) => a.label.localeCompare(b.label));
+);
+
+const stateOptions = computed(() =>
+  states.value.map((state) => ({
+    value: state.isoCode,
+    label: state.name
+  }))
+);
+
+const cityOptions = computed(() =>
+  cities.value.map((city) => ({
+    value: city.name,
+    label: city.name
+  }))
+);
+
+// Watch for country changes to update states
+watch(
+  () => formData.country,
+  (newCountry) => {
+    if (newCountry) {
+      states.value = State.getStatesOfCountry(newCountry);
+      formData.region = "";
+      formData.city = "";
+      cities.value = [];
+    } else {
+      states.value = [];
+      cities.value = [];
+    }
+  }
+);
+
+// Watch for state changes to update cities
+watch(
+  () => formData.region,
+  (newState) => {
+    if (newState && formData.country) {
+      cities.value = City.getCitiesOfState(formData.country, newState);
+      formData.city = "";
+    } else {
+      cities.value = [];
+    }
+  }
+);
 
 // UI State
 const currentStep = ref(0); // 0: form, 1: OTP, 2: success
@@ -80,6 +123,18 @@ const isFormValid = computed(() => {
   );
 });
 
+// Helper to get location names
+const getLocationNames = () => {
+  const selectedCountry = countries.value.find((c) => c.isoCode === formData.country);
+  const selectedState = states.value.find((s) => s.isoCode === formData.region);
+
+  return {
+    country: selectedCountry?.name || formData.country,
+    region: selectedState?.name || formData.region,
+    city: formData.city
+  };
+};
+
 // API calls
 const initiateRegistration = async () => {
   if (!isFormValid.value) {
@@ -89,14 +144,15 @@ const initiateRegistration = async () => {
 
   isLoading.value = true;
   try {
+    const locationNames = getLocationNames();
     const response = await axios.post("./api/auth/register/initiate", {
       firstName: formData.firstName,
       lastName: formData.lastName,
       userName: formData.userName,
       email: formData.email,
-      country: formData.country,
-      region: formData.region,
-      city: formData.city,
+      country: locationNames.country,
+      region: locationNames.region,
+      city: locationNames.city,
       password: formData.password,
       turnstileToken: turnstileToken.value
     });
@@ -158,14 +214,15 @@ const resendOTP = async () => {
 
   isLoading.value = true;
   try {
+    const locationNames = getLocationNames();
     await axios.post("./api/auth/register/resend", {
       firstName: formData.firstName,
       lastName: formData.lastName,
       userName: formData.userName,
       email: formData.email,
-      country: formData.country,
-      region: formData.region,
-      city: formData.city,
+      country: locationNames.country,
+      region: locationNames.region,
+      city: locationNames.city,
       password: formData.password
     });
     startCountdown();
@@ -331,7 +388,7 @@ onUnmounted(() => {
                   size="large"
                   placeholder="Select your country"
                   class="modern-select"
-                  :options="locationOptions"
+                  :options="countryOptions"
                   show-search
                   :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
                 >
@@ -341,29 +398,31 @@ onUnmounted(() => {
               <div class="form-row">
                 <div class="input-group">
                   <label>Region/State</label>
-                  <a-input
+                  <a-select
                     v-model:value="formData.region"
                     size="large"
-                    placeholder="California"
-                    class="modern-input"
+                    placeholder="Select region/state"
+                    class="modern-select"
+                    :options="stateOptions"
+                    :disabled="!formData.country"
+                    show-search
+                    :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
                   >
-                    <template #prefix>
-                      <UserOutlined class="input-icon" />
-                    </template>
-                  </a-input>
+                  </a-select>
                 </div>
                 <div class="input-group">
                   <label>City</label>
-                  <a-input
+                  <a-select
                     v-model:value="formData.city"
                     size="large"
-                    placeholder="San Francisco"
-                    class="modern-input"
+                    placeholder="Select city"
+                    class="modern-select"
+                    :options="cityOptions"
+                    :disabled="!formData.region"
+                    show-search
+                    :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
                   >
-                    <template #prefix>
-                      <UserOutlined class="input-icon" />
-                    </template>
-                  </a-input>
+                  </a-select>
                 </div>
               </div>
 
