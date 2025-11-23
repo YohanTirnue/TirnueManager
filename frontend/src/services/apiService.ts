@@ -9,7 +9,10 @@ axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 axios.interceptors.request.use(async (config) => {
   const { state } = useAppStateStore();
   if (!config.params) config.params = {};
-  config.params.token = state.userInfo?.token;
+  // Only set auth token if no token is already present (preserves invitation tokens)
+  if (!config.params.token && state.userInfo?.token) {
+    config.params.token = state.userInfo.token;
+  }
   return config;
 });
 
