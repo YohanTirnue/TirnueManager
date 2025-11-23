@@ -184,6 +184,17 @@ onMounted(async () => {
         <template #prefix>
           <CodeOutlined style="font-size: 18px" />
         </template>
+        <template #suffix>
+          <a-button
+            type="primary"
+            size="small"
+            class="send-command-btn"
+            :disabled="containerState.isDesignMode || !isConnect"
+            @click="handleSendCommand"
+          >
+            Send
+          </a-button>
+        </template>
       </a-input>
     </div>
 
@@ -371,6 +382,43 @@ onMounted(async () => {
       &::-webkit-scrollbar {
         width: 0 !important;
         height: 0 !important;
+      }
+    }
+
+    // Mobile-friendly send button
+    :deep(.send-command-btn) {
+      background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 600;
+      padding: 4px 16px;
+      height: 32px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(255, 140, 66, 0.3);
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #FFA366 0%, #FF8C42 100%);
+        box-shadow: 0 4px 12px rgba(255, 140, 66, 0.5);
+        transform: translateY(-1px);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    // Make button more prominent on mobile
+    @media (max-width: 768px) {
+      :deep(.send-command-btn) {
+        min-width: 60px;
+        height: 36px;
+        font-size: 14px;
       }
     }
   }
