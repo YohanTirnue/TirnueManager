@@ -120,6 +120,7 @@ class OTPService {
     userData: {
       firstName: string;
       lastName: string;
+      userName: string;
       location: string;
       password: string; // Already hashed
     }

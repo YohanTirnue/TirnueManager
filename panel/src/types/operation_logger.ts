@@ -33,6 +33,7 @@ export enum OperationLoggerAction {
   SubUserInvite = "sub_user_invite",
   SubUserAcceptInvite = "sub_user_accept_invite",
   SubUserRegisterViaInvite = "sub_user_register_via_invite",
+  OwnerPermissionsUpdate = "owner_permissions_update",
   SystemConfigChange = "system_config_change"
 }
 
@@ -226,6 +227,12 @@ export type SubUserRegisterViaInviteOptions = {
   instance_uuid: string;
 } & GlobalGeneralOptions;
 
+export type OwnerPermissionsUpdateOptions = {
+  type: "owner_permissions_update";
+  target_user_uuid: string;
+  instance_uuid: string;
+} & GlobalGeneralOptions;
+
 export type SystemConfigChangeOptions = {
   type: "system_config_change";
 } & GlobalGeneralOptions;
@@ -265,6 +272,7 @@ export type OperationLoggerItem =
   | SubUserInviteOptions
   | SubUserAcceptInviteOptions
   | SubUserRegisterViaInviteOptions
+  | OwnerPermissionsUpdateOptions
   | SystemConfigChangeOptions;
 
 export type OperationLoggerItemPayload = {
