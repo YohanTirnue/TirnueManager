@@ -505,6 +505,173 @@ class EmailService {
     }
   }
 
+  async sendTransactionReceipt(
+    email: string,
+    userName: string,
+    transaction: {
+      id: string;
+      date: string;
+      type: string;
+      amount: number;
+      currency: string;
+      status: string;
+      description: string;
+      paymentMethod?: string;
+    }
+  ): Promise<boolean> {
+    if (!this.transporter) return false;
+
+    const formatCurrency = (amount: number, currency: string) => {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: currency || "USD"
+      }).format(amount);
+    };
+
+    const formatDate = (dateString: string) => {
+      return new Date(dateString).toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    };
+
+    const statusColors: Record<string, string> = {
+      completed: "#52c41a",
+      pending: "#faad14",
+      failed: "#f5222d",
+      refunded: "#722ed1"
+    };
+
+    const typeLabels: Record<string, string> = {
+      payment: "Payment",
+      refund: "Refund",
+      subscription: "Subscription",
+      "one-time": "One-Time Payment"
+    };
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
+          <tr>
+            <td align="center" style="padding: 40px 20px;">
+              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 140, 66, 0.2);">
+                <tr>
+                  <td style="padding: 40px;">
+                    <!-- Logo/Brand -->
+                    <div style="text-align: center; margin-bottom: 32px;">
+                      <h1 style="color: #FF8C42; font-size: 36px; margin: 0; font-weight: 800;">Tirnue</h1>
+                    </div>
+
+                    <!-- Title -->
+                    <h2 style="color: white; font-size: 24px; margin: 0 0 8px 0; font-weight: 600; text-align: center;">
+                      Payment Receipt
+                    </h2>
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin: 0 0 32px 0; text-align: center;">
+                      Thank you for your ${typeLabels[transaction.type] || transaction.type}!
+                    </p>
+
+                    <!-- Amount -->
+                    <div style="background: rgba(255, 140, 66, 0.15); border: 2px solid rgba(255, 140, 66, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 32px; text-align: center;">
+                      <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">
+                        Total Amount
+                      </p>
+                      <p style="color: #FF8C42; font-size: 48px; font-weight: 700; margin: 0;">
+                        ${formatCurrency(transaction.amount, transaction.currency)}
+                      </p>
+                    </div>
+
+                    <!-- Receipt Details -->
+                    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+                      <table width="100%" cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Transaction ID</td>
+                          <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px; text-align: right; font-family: monospace;">${transaction.id.substring(0, 12)}...</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Date</td>
+                          <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px; text-align: right;">${formatDate(transaction.date)}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Type</td>
+                          <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px; text-align: right;">${typeLabels[transaction.type] || transaction.type}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Status</td>
+                          <td style="padding: 8px 0; text-align: right;">
+                            <span style="display: inline-block; padding: 4px 12px; background: ${statusColors[transaction.status] || "#666"}22; color: ${statusColors[transaction.status] || "#666"}; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
+                              ${transaction.status}
+                            </span>
+                          </td>
+                        </tr>
+                        ${transaction.paymentMethod ? `
+                        <tr>
+                          <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Payment Method</td>
+                          <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px; text-align: right;">${transaction.paymentMethod}</td>
+                        </tr>
+                        ` : ''}
+                        <tr>
+                          <td colspan="2" style="padding: 16px 0 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1);">Description</td>
+                        </tr>
+                        <tr>
+                          <td colspan="2" style="padding: 0 0 8px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">
+                            ${transaction.description}
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+
+                    <!-- Support Notice -->
+                    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 16px; text-align: center;">
+                      <p style="color: rgba(255, 255, 255, 0.6); font-size: 13px; margin: 0 0 8px 0;">
+                        Questions about this transaction?
+                      </p>
+                      <p style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin: 0;">
+                        Contact our support team at <a href="mailto:${FROM_EMAIL.address}" style="color: #FF8C42; text-decoration: none;">${FROM_EMAIL.address}</a>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 24px 40px; border-top: 1px solid rgba(255, 140, 66, 0.1);">
+                    <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px; margin: 0; text-align: center;">
+                      © ${new Date().getFullYear()} Tirnue Manager. All rights reserved.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    try {
+      await this.sendWithRetry({
+        from: `"${FROM_EMAIL.name}" <${FROM_EMAIL.address}>`,
+        to: email,
+        subject: `Receipt for ${typeLabels[transaction.type]} - ${formatCurrency(transaction.amount, transaction.currency)}`,
+        html
+      });
+      logger.info(`[EmailService] Transaction receipt sent to ${email} for transaction ${transaction.id}`);
+      return true;
+    } catch (error) {
+      logger.error(`[EmailService] Failed to send transaction receipt to ${email}:`, error);
+      return false;
+    }
+  }
+
   private generateOTPEmailHTML(
     otp: string,
     type: "registration" | "password_reset" | "email_change",

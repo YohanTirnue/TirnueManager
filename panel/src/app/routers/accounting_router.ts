@@ -5,6 +5,7 @@ import { ROLE } from "../entity/user";
 import { User } from "../entity/user";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "../service/log";
+import { emailService } from "../service/email_service";
 
 const router = new Router({ prefix: "/accounting" });
 
@@ -304,6 +305,22 @@ router.post("/transactions", permission({ level: ROLE.ADMIN }), async (ctx: Koa.
 
   transactions.push(transaction);
   logger.info(`[Accounting] Transaction created by ${adminUuid}: ${transaction.id} for user ${userUuid}`);
+
+  // Send receipt email asynchronously (don't wait for it)
+  if (userEmail) {
+    emailService.sendTransactionReceipt(userEmail, userName, {
+      id: transaction.id,
+      date: transaction.date,
+      type: transaction.type,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      status: transaction.status,
+      description: transaction.description,
+      paymentMethod: transaction.paymentMethod
+    }).catch((error) => {
+      logger.error(`[Accounting] Failed to send receipt email for transaction ${transaction.id}:`, error);
+    });
+  }
 
   ctx.body = { success: true, transaction };
 });
