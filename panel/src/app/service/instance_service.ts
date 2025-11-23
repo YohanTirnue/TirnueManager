@@ -5,6 +5,7 @@ import { t } from "i18next";
 import { systemConfig } from "../setting";
 import { toText } from "mcsmanager-common";
 import type { UserPermissions } from "../entity/entity_interface";
+import { subUserIndexService } from "../service/sub_user_index_service";
 
 export enum INSTANCE_STATUS {
   BUSY = -1,
@@ -131,6 +132,9 @@ export async function getInstancesByUuid(
     resInstances = user.instances;
   }
 
+  // Check if this user is a sub-user
+  const isSubUser = subUserIndexService.isSubUser(user.uuid);
+
   // respond to user data
   const response: any = {
     uuid: user.uuid,
@@ -146,6 +150,7 @@ export async function getInstancesByUuid(
     email: user.email,
     firstName: user.firstName,
     lastName: user.lastName,
+    isSubUser: isSubUser,
     token: ""
   };
 
