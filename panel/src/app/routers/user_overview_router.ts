@@ -26,9 +26,34 @@ router.put("/", permission({ level: ROLE.MODERATOR }), async (ctx: Koa.Parameter
     if (config.instances) {
       const user = userSystem.getInstance(uuid);
       if (user) {
+        const newInstances = config.instances || [];
+
+        // Validate that instances aren't already assigned to other parent users
+        for (const newInst of newInstances) {
+          // Check all users to see if any other user already owns this instance
+          for (const [otherUserUuid, otherUser] of userSystem.objects) {
+            // Skip the current user being edited
+            if (otherUserUuid === uuid) continue;
+
+            // Check if this other user owns the same instance
+            const ownsInstance = otherUser.instances?.some(
+              (inst: any) =>
+                inst.instanceUuid === newInst.instanceUuid &&
+                inst.daemonId === newInst.daemonId
+            );
+
+            if (ownsInstance) {
+              ctx.throw(
+                400,
+                `Instance already assigned to user "${otherUser.userName}". Each instance can only have one parent owner.`
+              );
+              return;
+            }
+          }
+        }
+
         // Find instances that were removed
         const oldInstances = user.instances || [];
-        const newInstances = config.instances || [];
 
         for (const oldInst of oldInstances) {
           const stillHasInstance = newInstances.some(
