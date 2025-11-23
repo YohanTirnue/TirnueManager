@@ -345,8 +345,10 @@ router.post(
 router.get(
   "/verify",
   async (ctx: Koa.ParameterizedContext) => {
+    console.error(`[VERIFY ROUTE] Handler called! Query:`, ctx.query);
     try {
       const token = ctx.query.token as string;
+      console.error(`[VERIFY ROUTE] Token extracted:`, token);
       logger.info(`[Invitation] /verify endpoint called with token: ${token}`);
 
       if (!token) {
