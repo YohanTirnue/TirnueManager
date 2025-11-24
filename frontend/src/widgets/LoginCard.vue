@@ -194,8 +194,8 @@ const onTurnstileCallback = (token: string) => {
             <div class="feature-item">
               <CloudServerOutlined class="feature-icon" />
               <div class="feature-text">
-                <h3>Full Control</h3>
-                <p>Manage your game servers with ease</p>
+                <h3>Panel Access</h3>
+                <p>Manage your instances through our panel</p>
               </div>
             </div>
             <div class="feature-item">
