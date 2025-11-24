@@ -122,6 +122,17 @@ const canManageSubUsers = computed(() => {
   return false;
 });
 
+// Get maxSubUsers for current instance from user's instances
+const currentInstanceMaxSubUsers = computed(() => {
+  const userInfo = state.userInfo;
+  if (!userInfo?.instances) return 3;
+
+  const instance = userInfo.instances.find(
+    (inst: any) => inst.instanceUuid === instanceInfo.value?.instanceUuid
+  );
+  return instance?.maxSubUsers ?? 3;
+});
+
 const { execute: requestOpenInstance, isLoading: isOpenInstanceLoading } = openInstance();
 
 const toOpenInstance = async () => {
@@ -519,6 +530,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
     v-model:visible="subUserManagerVisible"
     :daemon-id="daemonId ?? ''"
     :instance-uuid="instanceId ?? ''"
+    :max-sub-users="currentInstanceMaxSubUsers"
   />
 </template>
 

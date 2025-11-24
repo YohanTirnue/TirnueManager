@@ -58,7 +58,7 @@ const { execute: executeStop } = stopInstance();
 const { execute: executeRestart } = restartInstance();
 const { execute: executeKill } = killInstance();
 const subUserManagerVisible = ref(false);
-const selectedInstance = ref({ daemonId: "", instanceUuid: "" });
+const selectedInstance = ref({ daemonId: "", instanceUuid: "", maxSubUsers: 3 });
 const operatingInstances = ref<Set<string>>(new Set());
 
 const getInstanceList = async () => {
@@ -162,8 +162,8 @@ const quickAction = async (instance: any, action: "open" | "stop" | "restart" | 
   }
 };
 
-const openSubUserManager = (daemonId: string, instanceUuid: string) => {
-  selectedInstance.value = { daemonId, instanceUuid };
+const openSubUserManager = (daemonId: string, instanceUuid: string, maxSubUsers?: number) => {
+  selectedInstance.value = { daemonId, instanceUuid, maxSubUsers: maxSubUsers ?? 3 };
   subUserManagerVisible.value = true;
 };
 
@@ -497,7 +497,7 @@ onMounted(() => {
             <a-button
               v-if="canManageSubUsers()"
               class="action-btn secondary-action"
-              @click="openSubUserManager(instance.daemonId, instance.instanceUuid)"
+              @click="openSubUserManager(instance.daemonId, instance.instanceUuid, instance.maxSubUsers)"
             >
               <TeamOutlined />
               <span>Team</span>
@@ -517,6 +517,7 @@ onMounted(() => {
     v-model:visible="subUserManagerVisible"
     :daemon-id="selectedInstance.daemonId"
     :instance-uuid="selectedInstance.instanceUuid"
+    :max-sub-users="selectedInstance.maxSubUsers"
     @refresh="getInstanceList"
   />
 </template>
