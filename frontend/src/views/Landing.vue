@@ -20,11 +20,15 @@ const showServices = ref(false);
 const showCTA = ref(false);
 
 const goToLogin = () => {
-  router.push("/login");
+  window.location.href = "/login";
 };
 
 const goToRegister = () => {
-  router.push("/register");
+  window.location.href = "/register";
+};
+
+const openDiscord = () => {
+  window.open("https://discord.gg/SA6e7ZHHfn", "_blank");
 };
 
 const showUnderDevelopment = () => {
@@ -204,7 +208,7 @@ onMounted(() => {
             <li><CheckCircleOutlined /> Same 24/7 support</li>
             <li><CheckCircleOutlined /> Same cheap startup prices</li>
           </ul>
-          <a-button block class="service-btn-secondary" @click="() => window.open('https://discord.gg/SA6e7ZHHfn', '_blank')">
+          <a-button block class="service-btn-secondary" @click="openDiscord">
             Ask on Discord
           </a-button>
         </div>
@@ -217,7 +221,7 @@ onMounted(() => {
             <li><CheckCircleOutlined /> We'll work with you directly</li>
             <li><CheckCircleOutlined /> No hidden fees</li>
           </ul>
-          <a-button block class="service-btn-secondary" @click="() => window.open('https://discord.gg/SA6e7ZHHfn', '_blank')">
+          <a-button block class="service-btn-secondary" @click="openDiscord">
             Contact on Discord
           </a-button>
         </div>
@@ -250,7 +254,7 @@ onMounted(() => {
           <span class="role-tag">Support Staff</span>
           <span class="role-tag">Community Mods</span>
         </div>
-        <a-button size="large" class="join-team-btn" @click="() => window.open('https://discord.gg/SA6e7ZHHfn', '_blank')">
+        <a-button size="large" class="join-team-btn" @click="openDiscord">
           <TeamOutlined />
           Join Our Discord
         </a-button>
