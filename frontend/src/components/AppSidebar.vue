@@ -20,10 +20,13 @@ import {
   MenuUnfoldOutlined,
   LogoutOutlined,
   ExclamationCircleOutlined,
-  WalletOutlined,
   DollarOutlined,
   CustomerServiceOutlined,
-  IdcardOutlined
+  IdcardOutlined,
+  CloudServerOutlined,
+  DatabaseOutlined,
+  DesktopOutlined,
+  BarChartOutlined
 } from "@ant-design/icons-vue";
 
 const router = useRouter();
@@ -65,17 +68,22 @@ const menuItems = computed(() => {
 
 function getIconForRoute(path: string) {
   const iconMap: Record<string, any> = {
-    "/instances": AppstoreOutlined,
-    "/market": ShopOutlined,
-    "/overview": LineChartOutlined,
-    "/stats": LineChartOutlined,
-    "/users": TeamOutlined,
-    "/node": ClusterOutlined,
-    "/settings": SettingOutlined,
-    "/customer": AppstoreOutlined,
-    "/account": IdcardOutlined,
-    "/accounting": DollarOutlined,
-    "/support": CustomerServiceOutlined
+    // User routes
+    "/customer": DesktopOutlined,        // My Applications - desktop/server icon
+    "/my-nodes": CloudServerOutlined,    // My Nodes - cloud server
+    "/account": IdcardOutlined,          // Account - ID card
+    "/support": CustomerServiceOutlined, // Support - headset
+    // Moderator routes
+    "/instances": DatabaseOutlined,      // Instances (admin view) - database
+    "/market": ShopOutlined,             // Market - shop
+    "/stats": BarChartOutlined,          // Statistics - bar chart
+    // Senior Moderator routes
+    "/users": TeamOutlined,              // Users - team
+    // Admin routes
+    "/overview": LineChartOutlined,      // Overview - line chart
+    "/node": ClusterOutlined,            // Nodes - cluster
+    "/settings": SettingOutlined,        // Settings - gear
+    "/accounting": DollarOutlined        // Accounting - dollar
   };
   return iconMap[path] || AppstoreOutlined;
 }
