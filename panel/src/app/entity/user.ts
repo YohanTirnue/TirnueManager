@@ -10,6 +10,7 @@ export interface IUserApp {
   daemonId: string;
   instanceInfo?: any;
   permissions?: import("./entity_interface").UserPermissions;
+  ramAllocatedMB?: number; // RAM allocated to this instance in MB
 }
 
 export class User implements IUser {
