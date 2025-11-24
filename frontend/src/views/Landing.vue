@@ -78,13 +78,13 @@ onMounted(() => {
           Powered by MCS Manager
         </div>
         <h1 class="hero-title">
-          Your
-          <span class="highlight">Game Server</span>
-          Hosting
+          Minecraft Server
+          <span class="highlight">Hosting Panel</span>
+          for Startups
         </h1>
         <p class="hero-subtitle">
-          We're a small startup focused on providing honest, reliable game server hosting.
-          No gimmicks, just straightforward service you can trust.
+          Game server panel hosting with 24/7 support. Mainly focused on Minecraft servers.
+          We're a startup building reliable hosting - no fancy claims, just honest service.
         </p>
         <div class="hero-actions">
           <a-button type="primary" size="large" class="cta-primary" @click="goToRegister">
@@ -97,18 +97,18 @@ onMounted(() => {
         </div>
         <div class="hero-stats">
           <div class="stat-item">
-            <span class="stat-value">Honest</span>
-            <span class="stat-label">Pricing</span>
+            <span class="stat-value">Minecraft</span>
+            <span class="stat-label">Servers</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-value">Real</span>
+            <span class="stat-value">24/7</span>
             <span class="stat-label">Support</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-value">Growing</span>
-            <span class="stat-label">Together</span>
+            <span class="stat-value">Startup</span>
+            <span class="stat-label">Friendly</span>
           </div>
         </div>
       </div>
@@ -137,42 +137,42 @@ onMounted(() => {
             <SafetyCertificateOutlined />
           </div>
           <h3>DDoS Protection</h3>
-          <p>Basic DDoS protection included with your server to help keep things running.</p>
+          <p>Basic DDoS protection included to help keep your Minecraft server running.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <GlobalOutlined />
           </div>
           <h3>Dedicated IPs</h3>
-          <p>Your own IP address included. No extra charges for the basics.</p>
+          <p>Your own IP address for your Minecraft server. No sharing, no extra charges.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <ThunderboltOutlined />
           </div>
-          <h3>Solid Hardware</h3>
-          <p>We use reliable hardware that gets the job done. Nothing fancy, just works.</p>
+          <h3>Reliable Hardware</h3>
+          <p>Solid server hardware that works. We don't oversell or make crazy speed claims.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <CloudServerOutlined />
           </div>
-          <h3>Easy Setup</h3>
-          <p>Simple server deployment through our panel. We try to make it painless.</p>
+          <h3>Easy Minecraft Setup</h3>
+          <p>Simple Minecraft server deployment through our panel. Straightforward and quick.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <RocketOutlined />
           </div>
-          <h3>Fair Pricing</h3>
-          <p>Transparent pricing with no hidden fees. What you see is what you pay.</p>
+          <h3>Startup Pricing</h3>
+          <p>Fair pricing for startups and small servers. No hidden fees or surprise charges.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <CustomerServiceOutlined />
           </div>
-          <h3>We Actually Reply</h3>
-          <p>Real humans answering your questions. We're small, so we actually care.</p>
+          <h3>24/7 Real Support</h3>
+          <p>Real people answering your questions around the clock. Small team, direct help.</p>
         </div>
       </div>
     </section>
@@ -183,42 +183,42 @@ onMounted(() => {
       <div class="services-grid">
         <div class="service-card premium">
           <div class="service-badge">Main</div>
-          <h3>Managed Hosting</h3>
-          <p class="service-desc">We host and manage your game servers</p>
+          <h3>Minecraft Server Hosting</h3>
+          <p class="service-desc">Managed Minecraft game server hosting panel with 24/7 support</p>
           <ul class="service-features">
-            <li><CheckCircleOutlined /> Server setup included</li>
-            <li><CheckCircleOutlined /> Basic mod support</li>
-            <li><CheckCircleOutlined /> Easy file manager</li>
-            <li><CheckCircleOutlined /> Direct support</li>
+            <li><CheckCircleOutlined /> Minecraft server setup included</li>
+            <li><CheckCircleOutlined /> Mod & plugin support (Forge, Fabric, Spigot)</li>
+            <li><CheckCircleOutlined /> Web-based control panel</li>
+            <li><CheckCircleOutlined /> 24/7 support via Discord</li>
           </ul>
           <a-button type="primary" block class="service-btn" @click="goToRegister">
             Register Now
           </a-button>
         </div>
         <div class="service-card">
-          <h3>Bring Your Own</h3>
-          <p class="service-desc">Connect your existing servers to our panel</p>
+          <h3>Other Game Servers</h3>
+          <p class="service-desc">We support other game servers beyond Minecraft</p>
           <ul class="service-features">
-            <li><CheckCircleOutlined /> Remote management</li>
-            <li><CheckCircleOutlined /> Single dashboard</li>
-            <li><CheckCircleOutlined /> Works with most setups</li>
-            <li><CheckCircleOutlined /> API access</li>
+            <li><CheckCircleOutlined /> Terraria, Rust, ARK support</li>
+            <li><CheckCircleOutlined /> Same control panel</li>
+            <li><CheckCircleOutlined /> Same 24/7 support</li>
+            <li><CheckCircleOutlined /> Startup-friendly pricing</li>
           </ul>
-          <a-button block class="service-btn-secondary" @click="showUnderDevelopment">
-            Learn More
+          <a-button block class="service-btn-secondary" @click="() => window.open('https://discord.gg/SA6e7ZHHfn', '_blank')">
+            Ask on Discord
           </a-button>
         </div>
         <div class="service-card">
-          <h3>Need Something Else?</h3>
-          <p class="service-desc">We're flexible - just ask</p>
+          <h3>Custom Setup Needed?</h3>
+          <p class="service-desc">Talk to us - we're a small team and we're flexible</p>
           <ul class="service-features">
-            <li><CheckCircleOutlined /> Custom setups</li>
-            <li><CheckCircleOutlined /> Special requirements</li>
-            <li><CheckCircleOutlined /> We'll figure it out</li>
-            <li><CheckCircleOutlined /> Honest pricing</li>
+            <li><CheckCircleOutlined /> Custom Minecraft configurations</li>
+            <li><CheckCircleOutlined /> Special hosting requirements</li>
+            <li><CheckCircleOutlined /> We'll work with you directly</li>
+            <li><CheckCircleOutlined /> No hidden fees</li>
           </ul>
-          <a-button block class="service-btn-secondary" @click="showUnderDevelopment">
-            Contact Us
+          <a-button block class="service-btn-secondary" @click="() => window.open('https://discord.gg/SA6e7ZHHfn', '_blank')">
+            Contact on Discord
           </a-button>
         </div>
       </div>
@@ -250,9 +250,9 @@ onMounted(() => {
           <span class="role-tag">Support Staff</span>
           <span class="role-tag">Community Mods</span>
         </div>
-        <a-button size="large" class="join-team-btn" @click="showUnderDevelopment">
+        <a-button size="large" class="join-team-btn" @click="() => window.open('https://discord.gg/SA6e7ZHHfn', '_blank')">
           <TeamOutlined />
-          Get in Touch
+          Join Our Discord
         </a-button>
       </div>
     </section>
@@ -264,7 +264,12 @@ onMounted(() => {
           <img src="/favicon.png" alt="Tirnue" class="footer-logo" />
           <span>Tirnue</span>
         </div>
-        <p class="footer-notice">Links and buttons under construction for future services</p>
+        <p class="footer-notice">Minecraft server hosting panel • 24/7 Support • Startup-friendly</p>
+        <p class="footer-contact">
+          <a href="https://discord.gg/SA6e7ZHHfn" target="_blank" rel="noopener noreferrer" class="discord-link">
+            Contact & Support: Join our Discord
+          </a>
+        </p>
         <p class="footer-powered">Powered by MCS Manager</p>
         <p class="footer-copy">&copy; 2025 Tirnue. All rights reserved.</p>
       </div>
@@ -1007,7 +1012,24 @@ onMounted(() => {
   font-size: 13px;
   color: rgba(255, 140, 66, 0.7);
   margin: 0 0 12px;
-  font-style: italic;
+  font-weight: 500;
+}
+
+.footer-contact {
+  margin: 0 0 12px;
+}
+
+.discord-link {
+  font-size: 14px;
+  color: #FF8C42;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: #D4AF37;
+    text-decoration: underline;
+  }
 }
 
 .footer-powered {
