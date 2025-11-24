@@ -389,8 +389,28 @@ onMounted(() => {
             <div class="circle c3"></div>
           </div>
         </div>
-        <h3>{{ searchQuery ? 'No Results Found' : 'No Applications Yet' }}</h3>
-        <p>{{ searchQuery ? 'Try adjusting your search terms' : "You don't have any server instances assigned to your account." }}</p>
+        <template v-if="searchQuery">
+          <h3>No Results Found</h3>
+          <p>Try adjusting your search terms</p>
+        </template>
+        <template v-else>
+          <h3>Welcome</h3>
+          <p class="empty-message">
+            You currently have no server instances assigned to your account.
+            <br /><br />
+            If you believe this is an error or would like to purchase server instances,
+            please contact our support team.
+          </p>
+          <a
+            href="https://discord.gg/SA6e7ZHHfn"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="discord-contact-btn"
+          >
+            <TeamOutlined />
+            Contact Us on Discord
+          </a>
+        </template>
       </div>
 
       <!-- Loading State -->
@@ -835,6 +855,33 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.45);
   margin: 0;
   font-size: 14px;
+}
+
+.empty-message {
+  max-width: 400px;
+  line-height: 1.6;
+  margin-bottom: 20px !important;
+}
+
+.discord-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+.discord-contact-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4);
+  color: white;
 }
 
 .loading-spinner {
