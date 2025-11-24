@@ -386,8 +386,8 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
         {
           id: getRandomId(),
           meta: {},
-          type: "UserAccessSettings",
-          title: t("TXT_CODE_eb579d63"),
+          type: "UserResourceAssignment",
+          title: "User Resource Assignment",
           width: 12,
           height: LayoutCardHeight.AUTO,
           disableDelete: true
