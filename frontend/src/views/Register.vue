@@ -453,20 +453,24 @@ onUnmounted(() => {
             <img src="/favicon.png" alt="Tirnue Logo" class="brand-logo" />
           </div>
           <h1 class="brand-title">Tirnue</h1>
-          <p class="brand-subtitle">Create your account and start managing your servers</p>
+          <p class="brand-subtitle">Cheap hosting with complete team transparency</p>
 
           <div class="features-list">
             <div class="feature-item">
               <CheckCircleOutlined class="feature-icon" />
-              <span>Full server control</span>
+              <span>Track your developers with audit logs</span>
             </div>
             <div class="feature-item">
               <CheckCircleOutlined class="feature-icon" />
-              <span>Simple dashboard</span>
+              <span>Control permissions - see everything they do</span>
             </div>
             <div class="feature-item">
               <CheckCircleOutlined class="feature-icon" />
-              <span>Multiple server types</span>
+              <span>Manage your team with peace of mind</span>
+            </div>
+            <div class="feature-item">
+              <CheckCircleOutlined class="feature-icon" />
+              <span>No more wondering what happened</span>
             </div>
           </div>
         </div>
