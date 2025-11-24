@@ -26,7 +26,8 @@ import {
   SettingOutlined,
   SafetyOutlined,
   ControlOutlined,
-  DatabaseOutlined
+  DatabaseOutlined,
+  TeamOutlined
 } from "@ant-design/icons-vue";
 
 const props = defineProps<{
@@ -196,7 +197,8 @@ const permissionsDialog = ref({
   loading: false,
   instanceIndex: -1,
   instanceName: "",
-  permissions: getDefaultPermissions()
+  permissions: getDefaultPermissions(),
+  maxSubUsers: 3
 });
 
 // Queue for new instances needing permission setup
@@ -208,6 +210,7 @@ const openPermissionsDialog = (record: UserInstance, index: number) => {
   permissionsDialog.value.permissions = record.permissions
     ? _.cloneDeep(record.permissions)
     : getDefaultPermissions();
+  permissionsDialog.value.maxSubUsers = record.maxSubUsers ?? 3;
   permissionsDialog.value.visible = true;
 };
 
@@ -230,6 +233,7 @@ const saveInstancePermissions = async () => {
     const index = permissionsDialog.value.instanceIndex;
     if (index >= 0 && index < dataSource.value.length) {
       dataSource.value[index].permissions = _.cloneDeep(permissionsDialog.value.permissions);
+      dataSource.value[index].maxSubUsers = permissionsDialog.value.maxSubUsers;
       await saveData();
       permissionsDialog.value.visible = false;
       message.success("Instance permissions updated");
@@ -538,6 +542,25 @@ const columns = computed(() => {
             <a-checkbox v-model:checked="permissionsDialog.permissions.disablePaste" />
             <span>Disable Paste</span>
           </label>
+        </div>
+      </div>
+
+      <!-- Sub-User Management -->
+      <div class="permission-section">
+        <div class="section-header">
+          <TeamOutlined />
+          <span>Sub-User Management</span>
+        </div>
+        <div class="sub-user-limit-field">
+          <label>Maximum Sub-Users for this Instance</label>
+          <a-input-number
+            v-model:value="permissionsDialog.maxSubUsers"
+            :min="1"
+            :max="10"
+            size="large"
+            style="width: 100%;"
+          />
+          <span class="field-hint">How many sub-users can be created for this instance (1-10, default 3)</span>
         </div>
       </div>
 
@@ -887,6 +910,25 @@ const columns = computed(() => {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+}
+
+/* Sub-User Limit Field */
+.sub-user-limit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sub-user-limit-field label {
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 13px;
+}
+
+.sub-user-limit-field .field-hint {
+  font-size: 11px;
+  color: var(--color-gray-7);
+  margin-top: 4px;
 }
 
 /* Responsive */
