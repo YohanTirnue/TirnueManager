@@ -78,13 +78,13 @@ onMounted(() => {
           Powered by MCS Manager
         </div>
         <h1 class="hero-title">
-          Minecraft Server
-          <span class="highlight">Hosting Panel</span>
-          for Startups
+          A Startup
+          <span class="highlight">Panel Hosting</span>
+          Minecraft Servers
         </h1>
         <p class="hero-subtitle">
-          Game server panel hosting with 24/7 support. Mainly focused on Minecraft servers.
-          We're a startup building reliable hosting - no fancy claims, just honest service.
+          Take advantage of cheap hosting now! We're a new startup mainly focused on Minecraft servers.
+          Game server panel hosting with 24/7 support - no fancy claims, just honest pricing.
         </p>
         <div class="hero-actions">
           <a-button type="primary" size="large" class="cta-primary" @click="goToRegister">
@@ -97,8 +97,8 @@ onMounted(() => {
         </div>
         <div class="hero-stats">
           <div class="stat-item">
-            <span class="stat-value">Minecraft</span>
-            <span class="stat-label">Servers</span>
+            <span class="stat-value">Cheap</span>
+            <span class="stat-label">Pricing</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
@@ -107,8 +107,8 @@ onMounted(() => {
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-value">Startup</span>
-            <span class="stat-label">Friendly</span>
+            <span class="stat-value">New</span>
+            <span class="stat-label">Startup</span>
           </div>
         </div>
       </div>
@@ -164,8 +164,8 @@ onMounted(() => {
           <div class="feature-icon">
             <RocketOutlined />
           </div>
-          <h3>Startup Pricing</h3>
-          <p>Fair pricing for startups and small servers. No hidden fees or surprise charges.</p>
+          <h3>Cheap Hosting</h3>
+          <p>Affordable prices from a new startup. Take advantage of cheap hosting now!</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
@@ -183,10 +183,10 @@ onMounted(() => {
       <div class="services-grid">
         <div class="service-card premium">
           <div class="service-badge">Main</div>
-          <h3>Minecraft Server Hosting</h3>
-          <p class="service-desc">Managed Minecraft game server hosting panel with 24/7 support</p>
+          <h3>Cheap Minecraft Hosting</h3>
+          <p class="service-desc">Affordable Minecraft server hosting - startup prices you won't find elsewhere</p>
           <ul class="service-features">
-            <li><CheckCircleOutlined /> Minecraft server setup included</li>
+            <li><CheckCircleOutlined /> Cheap pricing, honest service</li>
             <li><CheckCircleOutlined /> Mod & plugin support (Forge, Fabric, Spigot)</li>
             <li><CheckCircleOutlined /> Web-based control panel</li>
             <li><CheckCircleOutlined /> 24/7 support via Discord</li>
@@ -202,7 +202,7 @@ onMounted(() => {
             <li><CheckCircleOutlined /> Terraria, Rust, ARK support</li>
             <li><CheckCircleOutlined /> Same control panel</li>
             <li><CheckCircleOutlined /> Same 24/7 support</li>
-            <li><CheckCircleOutlined /> Startup-friendly pricing</li>
+            <li><CheckCircleOutlined /> Same cheap startup prices</li>
           </ul>
           <a-button block class="service-btn-secondary" @click="() => window.open('https://discord.gg/SA6e7ZHHfn', '_blank')">
             Ask on Discord
@@ -264,7 +264,7 @@ onMounted(() => {
           <img src="/favicon.png" alt="Tirnue" class="footer-logo" />
           <span>Tirnue</span>
         </div>
-        <p class="footer-notice">Minecraft server hosting panel • 24/7 Support • Startup-friendly</p>
+        <p class="footer-notice">New startup offering cheap Minecraft hosting • 24/7 Support • Take advantage now!</p>
         <p class="footer-contact">
           <a href="https://discord.gg/SA6e7ZHHfn" target="_blank" rel="noopener noreferrer" class="discord-link">
             Contact & Support: Join our Discord
