@@ -585,6 +585,9 @@ onMounted(() => {
               style="width: 100%"
               placeholder="e.g., 1024 for 1GB"
             />
+            <div class="field-hint">
+              Track RAM quota and enforce limits for Docker instances. Non-Docker instances track quota only.
+            </div>
           </a-form-item>
 
           <a-form-item label="Max Sub-Users" required>
@@ -668,7 +671,7 @@ onMounted(() => {
               placeholder="-1 for unlimited"
             />
             <div class="field-hint">
-              RAM allocation limit in MB. Set to -1 for unlimited.
+              Total RAM this user can allocate across all instances on this node. Docker instances will have memory limits enforced at container level. Set to -1 for unlimited.
             </div>
           </a-form-item>
         </a-form>

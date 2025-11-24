@@ -6,6 +6,9 @@ import subUserService from "../service/sub_user_service";
 import { ICompleteUser } from "../entity/entity_interface";
 import { $t } from "../i18n";
 import { ROLE } from "../entity/user";
+import RemoteServiceSubsystem from "../service/remote_service";
+import RemoteRequest from "../service/remote_command";
+import logger from "../service/log";
 
 const router = new Router({ prefix: "/auth" });
 
@@ -83,6 +86,58 @@ router.put("/", permission({ level: ROLE.MODERATOR }), async (ctx: Koa.Parameter
               oldInst.instanceUuid,
               oldInst.daemonId
             );
+          }
+        }
+
+        // Apply Docker memory limits for newly assigned instances with ramAllocatedMB
+        for (const newInst of newInstances) {
+          if (newInst.ramAllocatedMB && newInst.ramAllocatedMB > 0) {
+            try {
+              // Get the instance config to check if it's a Docker instance
+              const remoteService = RemoteServiceSubsystem.getInstance(newInst.daemonId);
+              if (!remoteService || !remoteService.available) {
+                logger.warn(
+                  `[UserOverview] Daemon ${newInst.daemonId} not available to apply Docker memory limit`
+                );
+                continue;
+              }
+
+              const instanceData = await new RemoteRequest(remoteService).request(
+                "instance/detail",
+                {
+                  instanceUuid: newInst.instanceUuid
+                }
+              );
+
+              if (instanceData && instanceData.config) {
+                const isDockerInstance = instanceData.config.processType === "docker";
+
+                if (isDockerInstance) {
+                  // Update the Docker memory limit
+                  const updatedConfig = {
+                    ...instanceData.config,
+                    docker: {
+                      ...instanceData.config.docker,
+                      memory: newInst.ramAllocatedMB
+                    }
+                  };
+
+                  await new RemoteRequest(remoteService).request("instance/update", {
+                    instanceUuid: newInst.instanceUuid,
+                    config: updatedConfig
+                  });
+
+                  logger.info(
+                    `[UserOverview] Applied Docker memory limit of ${newInst.ramAllocatedMB}MB to instance ${newInst.instanceUuid} for user ${uuid}`
+                  );
+                }
+              }
+            } catch (error: any) {
+              logger.error(
+                `[UserOverview] Failed to apply Docker memory limit for instance ${newInst.instanceUuid}: ${error.message}`
+              );
+              // Don't block the user update if this fails
+            }
           }
         }
       }

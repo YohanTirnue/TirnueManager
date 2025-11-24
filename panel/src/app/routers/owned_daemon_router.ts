@@ -393,6 +393,18 @@ router.post(
         }
       }
 
+      // Apply RAM limit to Docker instances
+      if (ramAllocatedMB && ramAllocatedMB > 0 && config.processType === "docker") {
+        if (!config.docker) {
+          config.docker = {};
+        }
+        // Set Docker memory limit (in MB)
+        config.docker.memory = ramAllocatedMB;
+        logger.info(
+          `[OwnedDaemon] Setting Docker memory limit to ${ramAllocatedMB}MB for instance`
+        );
+      }
+
       // Create instance on daemon
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       if (!remoteService || !remoteService.available) {
