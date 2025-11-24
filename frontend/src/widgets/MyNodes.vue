@@ -291,9 +291,14 @@ onMounted(() => {
       <!-- Empty State -->
       <div v-else class="empty-state">
         <CloudServerOutlined style="font-size: 64px; color: #d9d9d9; margin-bottom: 16px;" />
-        <h3>No Nodes Assigned</h3>
-        <p>You don't have any nodes assigned yet.</p>
-        <p class="empty-hint">Contact your administrator to get access to nodes.</p>
+        <h3>You currently don't own any nodes</h3>
+        <p>No nodes have been assigned to your account yet.</p>
+        <p class="empty-hint">
+          If you believe this is an error or need assistance, join our Discord:
+          <a href="https://discord.gg/SA6e7ZHHfn" target="_blank" rel="noopener noreferrer" class="discord-link">
+            https://discord.gg/SA6e7ZHHfn
+          </a>
+        </p>
       </div>
     </div>
 
@@ -692,6 +697,17 @@ onMounted(() => {
     font-size: 13px;
     color: var(--color-text-4);
     margin-top: 12px;
+
+    .discord-link {
+      color: #5865f2;
+      text-decoration: none;
+      font-weight: 500;
+      margin-left: 4px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 }
 
