@@ -9,9 +9,29 @@ import { lockService } from "./lock_service";
 import { permissionCache } from "./permission_cache_service";
 import { subUserIndex } from "./sub_user_index_service";
 
-const MAX_SUB_USERS_PER_INSTANCE = 3;
+const DEFAULT_MAX_SUB_USERS = 3;
+const ABSOLUTE_MAX_SUB_USERS = 10;
 
 export class SubUserService {
+  /**
+   * Get the maximum sub-users allowed for a specific instance
+   * Returns the configured limit or default (3), capped at absolute max (10)
+   */
+  getMaxSubUsersForInstance(parentUuid: string, instanceUuid: string, daemonId: string): number {
+    const parentUser = userSystem.getInstance(parentUuid);
+    if (!parentUser) return DEFAULT_MAX_SUB_USERS;
+
+    const instance = parentUser.instances.find(
+      (inst) => inst.instanceUuid === instanceUuid && inst.daemonId === daemonId
+    );
+
+    if (!instance || instance.maxSubUsers === undefined || instance.maxSubUsers === null) {
+      return DEFAULT_MAX_SUB_USERS;
+    }
+
+    // Cap at absolute maximum
+    return Math.min(Math.max(1, instance.maxSubUsers), ABSOLUTE_MAX_SUB_USERS);
+  }
   /**
    * Get all sub-users created by a parent user for a specific instance
    */
@@ -138,7 +158,10 @@ export class SubUserService {
       (su) => su.instanceUuid === instanceUuid && su.daemonId === daemonId
     ).length;
 
-    return existingCount < MAX_SUB_USERS_PER_INSTANCE;
+    // Get dynamic limit for this instance
+    const maxSubUsers = this.getMaxSubUsersForInstance(parentUuid, instanceUuid, daemonId);
+
+    return existingCount < maxSubUsers;
   }
 
   /**
@@ -170,8 +193,9 @@ export class SubUserService {
       }
 
       if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
+        const maxSubUsers = this.getMaxSubUsersForInstance(parentUuid, instanceUuid, daemonId);
         throw new Error(
-          `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+          `Maximum ${maxSubUsers} sub-users per instance reached`
         );
       }
 
@@ -248,8 +272,9 @@ export class SubUserService {
       }
 
       if (!this.canCreateSubUser(parentUuid, instanceUuid, daemonId)) {
+        const maxSubUsers = this.getMaxSubUsersForInstance(parentUuid, instanceUuid, daemonId);
         throw new Error(
-          `Maximum ${MAX_SUB_USERS_PER_INSTANCE} sub-users per instance reached`
+          `Maximum ${maxSubUsers} sub-users per instance reached`
         );
       }
 

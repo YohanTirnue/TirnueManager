@@ -43,6 +43,7 @@ export interface UserInstance {
   endTime?: number;
   permissions?: UserPermissions;
   ramAllocatedMB?: number; // RAM allocated to this instance in MB
+  maxSubUsers?: number; // Maximum sub-users allowed for this instance (default 3, max 10)
 }
 
 export interface OwnedDaemon {

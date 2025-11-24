@@ -11,6 +11,7 @@ export interface IUserApp {
   instanceInfo?: any;
   permissions?: import("./entity_interface").UserPermissions;
   ramAllocatedMB?: number; // RAM allocated to this instance in MB
+  maxSubUsers?: number; // Maximum sub-users allowed for this instance (default 3, max 10)
 }
 
 export class User implements IUser {

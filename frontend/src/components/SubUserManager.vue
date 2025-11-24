@@ -58,6 +58,7 @@ const props = defineProps<{
   daemonId: string;
   instanceUuid: string;
   instanceName?: string;
+  maxSubUsers?: number; // Dynamic limit per instance, default 3, max 10
 }>();
 
 const emit = defineEmits<{
@@ -67,7 +68,17 @@ const emit = defineEmits<{
 
 const appStateStore = useAppStateStore();
 
-const MAX_SUB_USERS = 3;
+const DEFAULT_MAX_SUB_USERS = 3;
+const ABSOLUTE_MAX_SUB_USERS = 10;
+
+// Get effective max sub-users for this instance
+const MAX_SUB_USERS = computed(() => {
+  if (props.maxSubUsers === undefined || props.maxSubUsers === null) {
+    return DEFAULT_MAX_SUB_USERS;
+  }
+  // Cap at absolute maximum
+  return Math.min(Math.max(1, props.maxSubUsers), ABSOLUTE_MAX_SUB_USERS);
+});
 const subUsers = ref<SubUser[]>([]);
 const pendingInvitations = ref<PendingInvitation[]>([]);
 const parentUsers = ref<Array<{ uuid: string; userName: string; permission: number }>>([]);
@@ -105,7 +116,7 @@ const availableParents = computed(() => {
   }
   return parentUsers.value.filter((parent) => {
     const count = subUserCounts.get(parent.uuid) || 0;
-    return count < MAX_SUB_USERS;
+    return count < MAX_SUB_USERS.value;
   });
 });
 
@@ -177,7 +188,7 @@ const canAddMore = computed(() => {
   if (isAdmin.value) {
     return availableParents.value.length > 0;
   }
-  return subUsers.value.length < MAX_SUB_USERS;
+  return subUsers.value.length < MAX_SUB_USERS.value;
 });
 
 // Helper to check if a permission can be granted by the current user
