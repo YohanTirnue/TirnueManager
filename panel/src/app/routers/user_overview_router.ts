@@ -8,7 +8,7 @@ import { $t } from "../i18n";
 import { ROLE } from "../entity/user";
 import RemoteServiceSubsystem from "../service/remote_service";
 import RemoteRequest from "../service/remote_command";
-import logger from "../service/log";
+import { logger } from "../service/log";
 
 const router = new Router({ prefix: "/auth" });
 
