@@ -35,6 +35,7 @@ const createInstanceModal = ref({
   ramAllocatedMB: 0,
   availableRamMB: 0,
   ramAllocation: 1024, // Default 1GB
+  portMapping: "",
   loading: false,
   config: {
     nickname: "",
@@ -44,7 +45,24 @@ const createInstanceModal = ref({
     ie: "utf-8",
     oe: "utf-8",
     fileCode: "utf-8",
-    processType: "general",
+    processType: "docker",
+    docker: {
+      containerName: "",
+      image: "",
+      ports: [],
+      extraVolumes: [],
+      memory: 1024,
+      networkMode: "bridge",
+      networkAliases: [],
+      cpusetCpus: "",
+      cpuUsage: 0,
+      maxSpace: 0,
+      io: 0,
+      network: 0,
+      workingDir: "/workspace/",
+      env: [],
+      changeWorkdir: true
+    },
     actionCommandList: [] as string[]
   }
 });
@@ -74,6 +92,7 @@ const showCreateInstanceModal = (daemon: any) => {
     ramAllocatedMB: daemon.ramAllocatedMB || 0,
     availableRamMB: daemon.availableRamMB || 0,
     ramAllocation: defaultRam,
+    portMapping: "",
     loading: false,
     config: {
       nickname: "",
@@ -83,7 +102,24 @@ const showCreateInstanceModal = (daemon: any) => {
       ie: "utf-8",
       oe: "utf-8",
       fileCode: "utf-8",
-      processType: "general",
+      processType: "docker",
+      docker: {
+        containerName: "",
+        image: "",
+        ports: [],
+        extraVolumes: [],
+        memory: 1024,
+        networkMode: "bridge",
+        networkAliases: [],
+        cpusetCpus: "",
+        cpuUsage: 0,
+        maxSpace: 0,
+        io: 0,
+        network: 0,
+        workingDir: "/workspace/",
+        env: [],
+        changeWorkdir: true
+      },
       actionCommandList: []
     }
   };
@@ -94,6 +130,16 @@ const handleCreateInstance = async () => {
 
   if (!modal.config.nickname.trim()) {
     message.error("Please enter an instance name");
+    return;
+  }
+
+  if (!modal.config.docker.image.trim()) {
+    message.error("Please enter a Docker image");
+    return;
+  }
+
+  if (!modal.portMapping.trim()) {
+    message.error("Please specify at least one port mapping");
     return;
   }
 
@@ -114,6 +160,16 @@ const handleCreateInstance = async () => {
 
   try {
     modal.loading = true;
+
+    // Update Docker memory limit to match RAM allocation
+    if (modal.config.docker) {
+      modal.config.docker.memory = modal.ramAllocation;
+
+      // Parse and add port mapping
+      if (modal.portMapping.trim()) {
+        modal.config.docker.ports = [modal.portMapping.trim()];
+      }
+    }
 
     const res = await executeCreateInstance({
       data: {
@@ -341,6 +397,28 @@ onMounted(() => {
             />
           </a-form-item>
 
+          <a-form-item label="Docker Image" required>
+            <a-input
+              v-model:value="createInstanceModal.config.docker.image"
+              placeholder="e.g., itzg/minecraft-server:latest"
+              size="large"
+            />
+            <div class="field-hint" style="margin-top: 8px;">
+              Docker image to use (e.g., itzg/minecraft-server, openjdk:17, node:18-alpine)
+            </div>
+          </a-form-item>
+
+          <a-form-item label="Container Ports">
+            <a-input
+              v-model:value="createInstanceModal.portMapping"
+              placeholder="e.g., 25565:25565/tcp or 8080:8080/tcp"
+              size="large"
+            />
+            <div class="field-hint" style="margin-top: 8px;">
+              Format: host_port:container_port/protocol (e.g., 25565:25565/tcp)
+            </div>
+          </a-form-item>
+
           <a-form-item label="RAM Allocation (MB)" required>
             <div class="ram-input-group">
               <a-input-number
@@ -366,7 +444,7 @@ onMounted(() => {
               </div>
             </div>
             <div class="field-hint" style="margin-top: 8px;">
-              {{ (createInstanceModal.ramAllocation / 1024).toFixed(1) }}GB will be allocated ({{ createInstanceModal.availableRamMB }}MB available)
+              {{ (createInstanceModal.ramAllocation / 1024).toFixed(1) }}GB will be allocated and enforced by Docker ({{ createInstanceModal.availableRamMB }}MB available)
             </div>
           </a-form-item>
 
@@ -426,6 +504,7 @@ onMounted(() => {
 .my-nodes-page {
   padding: 24px;
   min-height: 500px;
+  background: var(--color-bg-1);
 }
 
 .page-header {
