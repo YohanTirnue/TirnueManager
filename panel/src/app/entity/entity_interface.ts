@@ -59,6 +59,7 @@ export interface OwnedDaemon {
   daemonId: string;
   daemonName: string;
   instanceLimit: number; // -1 for unlimited
+  ramLimitMB: number; // RAM limit in MB, -1 for unlimited
   assignedBy: string;
   assignedAt: string;
 }
@@ -69,6 +70,7 @@ export interface IUserInstance {
   daemonId: string;
   instanceInfo?: any;
   permissions?: UserPermissions;
+  ramAllocatedMB?: number; // RAM allocated to this instance in MB
 }
 
 export interface IUser {

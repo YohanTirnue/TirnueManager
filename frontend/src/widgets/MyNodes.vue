@@ -31,6 +31,10 @@ const createInstanceModal = ref({
   daemonName: "",
   instanceLimit: 0,
   currentCount: 0,
+  ramLimitMB: 0,
+  ramAllocatedMB: 0,
+  availableRamMB: 0,
+  ramAllocation: 1024, // Default 1GB
   loading: false,
   config: {
     nickname: "",
@@ -59,12 +63,17 @@ const loadOwnedDaemons = async () => {
 };
 
 const showCreateInstanceModal = (daemon: any) => {
+  const defaultRam = Math.min(1024, daemon.availableRamMB || 1024); // Default to 1GB or available, whichever is less
   createInstanceModal.value = {
     visible: true,
     daemonId: daemon.daemonId,
     daemonName: daemon.daemonName,
     instanceLimit: daemon.instanceLimit,
     currentCount: daemon.instanceCount,
+    ramLimitMB: daemon.ramLimitMB || -1,
+    ramAllocatedMB: daemon.ramAllocatedMB || 0,
+    availableRamMB: daemon.availableRamMB || 0,
+    ramAllocation: defaultRam,
     loading: false,
     config: {
       nickname: "",
@@ -93,13 +102,24 @@ const handleCreateInstance = async () => {
     return;
   }
 
+  if (!modal.ramAllocation || modal.ramAllocation <= 0) {
+    message.error("Please specify RAM allocation");
+    return;
+  }
+
+  if (modal.ramAllocation > modal.availableRamMB) {
+    message.error(`Not enough RAM available (${modal.availableRamMB}MB available)`);
+    return;
+  }
+
   try {
     modal.loading = true;
 
     const res = await executeCreateInstance({
       data: {
         daemonId: modal.daemonId,
-        config: modal.config
+        config: modal.config,
+        ramAllocatedMB: modal.ramAllocation
       }
     });
 
@@ -206,12 +226,36 @@ onMounted(() => {
               </div>
             </div>
 
+            <div class="stat-card">
+              <div class="stat-icon ram">
+                <DatabaseOutlined />
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">RAM Allocation</div>
+                <div class="stat-value">
+                  {{ (daemon.ramAllocatedMB / 1024).toFixed(1) }}GB / {{ daemon.ramLimitMB === -1 ? '∞' : (daemon.ramLimitMB / 1024).toFixed(1) + 'GB' }}
+                </div>
+                <div class="stat-progress">
+                  <div
+                    class="stat-progress-bar"
+                    :style="{
+                      width: daemon.ramLimitMB === -1 ? '0%' : `${(daemon.ramAllocatedMB / daemon.ramLimitMB) * 100}%`,
+                      background: (daemon.ramAllocatedMB / daemon.ramLimitMB) * 100 >= 90 ? '#ff4d4f' : '#52c41a'
+                    }"
+                  ></div>
+                </div>
+                <div class="stat-detail" style="margin-top: 4px;">
+                  Available: {{ (daemon.availableRamMB / 1024).toFixed(1) }}GB
+                </div>
+              </div>
+            </div>
+
             <div v-if="daemon.systemInfo" class="stat-card">
               <div class="stat-icon cpu">
                 <ThunderboltOutlined />
               </div>
               <div class="stat-content">
-                <div class="stat-label">Resources</div>
+                <div class="stat-label">Node Resources</div>
                 <div class="stat-detail">
                   CPU: {{ daemon.systemInfo.cpuUsage?.toFixed(1) || 0 }}%
                 </div>
@@ -275,6 +319,12 @@ onMounted(() => {
               {{ createInstanceModal.currentCount }} / {{ createInstanceModal.instanceLimit === -1 ? '∞' : createInstanceModal.instanceLimit }}
             </span>
           </div>
+          <div class="info-item">
+            <span class="info-label">Available RAM:</span>
+            <span class="info-value" :style="{ color: createInstanceModal.availableRamMB < 1024 ? '#ff4d4f' : '#52c41a' }">
+              {{ (createInstanceModal.availableRamMB / 1024).toFixed(1) }}GB
+            </span>
+          </div>
         </div>
 
         <a-form layout="vertical" class="instance-form">
@@ -284,6 +334,35 @@ onMounted(() => {
               placeholder="Enter instance name"
               size="large"
             />
+          </a-form-item>
+
+          <a-form-item label="RAM Allocation (MB)" required>
+            <div class="ram-input-group">
+              <a-input-number
+                v-model:value="createInstanceModal.ramAllocation"
+                :min="128"
+                :max="createInstanceModal.availableRamMB"
+                :step="256"
+                size="large"
+                style="flex: 1;"
+                placeholder="e.g., 1024 for 1GB"
+              />
+              <div class="ram-presets">
+                <button
+                  type="button"
+                  v-for="preset in [512, 1024, 2048, 4096]"
+                  :key="preset"
+                  class="ram-preset-btn"
+                  :disabled="preset > createInstanceModal.availableRamMB"
+                  @click="createInstanceModal.ramAllocation = preset"
+                >
+                  {{ (preset / 1024).toFixed(preset >= 1024 ? 0 : 1) }}GB
+                </button>
+              </div>
+            </div>
+            <div class="field-hint" style="margin-top: 8px;">
+              {{ (createInstanceModal.ramAllocation / 1024).toFixed(1) }}GB will be allocated ({{ createInstanceModal.availableRamMB }}MB available)
+            </div>
           </a-form-item>
 
           <a-form-item label="Start Command" required>
@@ -501,8 +580,12 @@ onMounted(() => {
     background: linear-gradient(135deg, #4096ff, #1677ff);
   }
 
-  &.cpu {
+  &.ram {
     background: linear-gradient(135deg, #52c41a, #389e0d);
+  }
+
+  &.cpu {
+    background: linear-gradient(135deg, #ff8c00, #ff9d1f);
   }
 }
 
@@ -690,6 +773,46 @@ onMounted(() => {
         cursor: not-allowed;
       }
     }
+  }
+
+  // RAM Input Group
+  .ram-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ram-presets {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ram-preset-btn {
+    padding: 8px 16px;
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-border-2);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      border-color: #52c41a;
+      color: #52c41a;
+      background: rgba(82, 196, 26, 0.05);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .field-hint {
+    font-size: 12px;
+    color: var(--color-text-3);
   }
 }
 </style>

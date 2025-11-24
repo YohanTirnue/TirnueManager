@@ -63,6 +63,7 @@ export const assignOwnedDaemon = useDefineApi<
       userUuid: string;
       daemonId: string;
       instanceLimit: number;
+      ramLimitMB: number;
     };
   },
   {
@@ -81,6 +82,7 @@ export const updateOwnedDaemonLimit = useDefineApi<
       userUuid: string;
       daemonId: string;
       instanceLimit: number;
+      ramLimitMB: number;
     };
   },
   {
@@ -132,6 +134,7 @@ export const createInstanceOnOwnedDaemon = useDefineApi<
     data: {
       daemonId: string;
       config: any;
+      ramAllocatedMB: number;
     };
   },
   {

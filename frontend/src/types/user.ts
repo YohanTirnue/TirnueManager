@@ -42,12 +42,14 @@ export interface UserInstance {
   lastDatetime?: number;
   endTime?: number;
   permissions?: UserPermissions;
+  ramAllocatedMB?: number; // RAM allocated to this instance in MB
 }
 
 export interface OwnedDaemon {
   daemonId: string;
   daemonName: string;
   instanceLimit: number;
+  ramLimitMB: number; // RAM limit in MB, -1 for unlimited
   assignedBy: string;
   assignedAt: string;
 }

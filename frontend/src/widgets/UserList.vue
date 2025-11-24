@@ -307,6 +307,7 @@ const ownedDaemonModal = ref({
   mode: "add" as "add" | "edit",
   daemonId: "",
   instanceLimit: -1,
+  ramLimitMB: -1,
   loading: false
 });
 
@@ -330,6 +331,7 @@ const showAddOwnedDaemonModal = () => {
     mode: "add",
     daemonId: "",
     instanceLimit: -1,
+    ramLimitMB: -1,
     loading: false
   };
   loadAvailableDaemons();
@@ -341,6 +343,7 @@ const showEditOwnedDaemonModal = (ownedDaemon: any) => {
     mode: "edit",
     daemonId: ownedDaemon.daemonId,
     instanceLimit: ownedDaemon.instanceLimit,
+    ramLimitMB: ownedDaemon.ramLimitMB || -1,
     loading: false
   };
 };
@@ -364,7 +367,8 @@ const handleAssignDaemon = async () => {
         data: {
           userUuid: formData.value.uuid,
           daemonId: ownedDaemonModal.value.daemonId,
-          instanceLimit: ownedDaemonModal.value.instanceLimit
+          instanceLimit: ownedDaemonModal.value.instanceLimit,
+          ramLimitMB: ownedDaemonModal.value.ramLimitMB
         }
       });
 
@@ -384,22 +388,24 @@ const handleAssignDaemon = async () => {
         data: {
           userUuid: formData.value.uuid,
           daemonId: ownedDaemonModal.value.daemonId,
-          instanceLimit: ownedDaemonModal.value.instanceLimit
+          instanceLimit: ownedDaemonModal.value.instanceLimit,
+          ramLimitMB: ownedDaemonModal.value.ramLimitMB
         }
       });
 
       if (res.value?.success) {
-        message.success("Instance limit updated successfully");
+        message.success("Limits updated successfully");
         // Update in formData
         const ownedDaemon = formData.value.ownedDaemons?.find(
           (od: any) => od.daemonId === ownedDaemonModal.value.daemonId
         );
         if (ownedDaemon) {
           ownedDaemon.instanceLimit = ownedDaemonModal.value.instanceLimit;
+          ownedDaemon.ramLimitMB = ownedDaemonModal.value.ramLimitMB;
         }
         ownedDaemonModal.value.visible = false;
       } else {
-        message.error(res.value?.error || "Failed to update limit");
+        message.error(res.value?.error || "Failed to update limits");
       }
     }
   } catch (error: any) {
@@ -733,7 +739,7 @@ onMounted(async () => {
   <!-- Owned Daemon Assignment Modal -->
   <a-modal
     v-model:open="ownedDaemonModal.visible"
-    :title="ownedDaemonModal.mode === 'add' ? 'Assign Daemon to User' : 'Edit Instance Limit'"
+    :title="ownedDaemonModal.mode === 'add' ? 'Assign Daemon to User' : 'Edit Limits'"
     centered
     :destroy-on-close="true"
     :width="600"
@@ -781,6 +787,29 @@ onMounted(async () => {
           </div>
           <div class="field-hint" style="margin-top: 8px;">
             Set to -1 for unlimited instances, or specify a positive number
+          </div>
+        </a-form-item>
+
+        <a-form-item label="RAM Limit (MB)">
+          <div class="limit-input-group">
+            <a-input-number
+              v-model:value="ownedDaemonModal.ramLimitMB"
+              :min="-1"
+              :step="1024"
+              size="large"
+              style="flex: 1;"
+              :placeholder="'-1 for unlimited'"
+            />
+            <button
+              type="button"
+              class="btn-unlimited"
+              @click="ownedDaemonModal.ramLimitMB = -1"
+            >
+              Unlimited
+            </button>
+          </div>
+          <div class="field-hint" style="margin-top: 8px;">
+            RAM allocation limit in MB. Set to -1 for unlimited. Remember: 1GB buffer is reserved on each node (e.g., 8GB node = 7GB usable).
           </div>
         </a-form-item>
       </a-form>

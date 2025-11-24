@@ -22,12 +22,13 @@ router.post(
     body: {
       userUuid: String,
       daemonId: String,
-      instanceLimit: Number
+      instanceLimit: Number,
+      ramLimitMB: Number
     }
   }),
   async (ctx) => {
     try {
-      const { userUuid, daemonId, instanceLimit } = ctx.request.body;
+      const { userUuid, daemonId, instanceLimit, ramLimitMB } = ctx.request.body;
       const adminUuid = getUserUuid(ctx);
       const adminUser = userSystem.getInstance(adminUuid);
 
@@ -52,6 +53,7 @@ router.post(
         daemonId,
         daemonName: daemon.config.remarks || `${daemon.config.ip}:${daemon.config.port}`,
         instanceLimit,
+        ramLimitMB: ramLimitMB || -1,
         assignedBy: adminUuid,
         assignedAt: new Date().toISOString()
       };
@@ -74,7 +76,7 @@ router.post(
       );
 
       logger.info(
-        `[OwnedDaemon] Admin ${adminUser.userName} assigned daemon ${daemonId} to user ${user.userName} with limit ${instanceLimit}`
+        `[OwnedDaemon] Admin ${adminUser.userName} assigned daemon ${daemonId} to user ${user.userName} with limit ${instanceLimit} instances, ${ramLimitMB}MB RAM`
       );
 
       ctx.body = { success: true, ownedDaemon };
@@ -94,12 +96,13 @@ router.put(
     body: {
       userUuid: String,
       daemonId: String,
-      instanceLimit: Number
+      instanceLimit: Number,
+      ramLimitMB: Number
     }
   }),
   async (ctx) => {
     try {
-      const { userUuid, daemonId, instanceLimit } = ctx.request.body;
+      const { userUuid, daemonId, instanceLimit, ramLimitMB } = ctx.request.body;
       const adminUuid = getUserUuid(ctx);
 
       const user = userSystem.getInstance(userUuid);
@@ -115,6 +118,9 @@ router.put(
       }
 
       ownedDaemon.instanceLimit = instanceLimit;
+      if (ramLimitMB !== undefined) {
+        ownedDaemon.ramLimitMB = ramLimitMB;
+      }
 
       await userSystem.edit(userUuid, { ownedDaemons: user.ownedDaemons });
 
@@ -255,15 +261,33 @@ router.get("/my_daemons", permission({ level: ROLE.USER }), async (ctx) => {
     const ownedDaemonsWithInfo = await Promise.all(
       user.ownedDaemons.map(async (od) => {
         const daemon = RemoteServiceSubsystem.getInstance(od.daemonId);
-        const instanceCount = user.instances.filter(
+        const userInstancesOnDaemon = user.instances.filter(
           (inst) => inst.daemonId === od.daemonId
-        ).length;
+        );
+        const instanceCount = userInstancesOnDaemon.length;
+
+        // Calculate total RAM allocated by this user on this daemon
+        const ramAllocatedMB = userInstancesOnDaemon.reduce(
+          (total, inst) => total + (inst.ramAllocatedMB || 0),
+          0
+        );
 
         // Get daemon system info if available
         let systemInfo: any = null;
+        let totalNodeRamMB = 0;
+        let availableRamMB = 0;
+
         if (daemon && daemon.available) {
           try {
             systemInfo = await new RemoteRequest(daemon).request("info/overview");
+            if (systemInfo && systemInfo.system) {
+              // Total RAM on node
+              totalNodeRamMB = Math.floor(systemInfo.system.totalmem / (1024 * 1024));
+              // Available = Total - 1GB buffer - already allocated by user
+              const bufferMB = 1024; // 1GB buffer
+              const userLimitMB = od.ramLimitMB === -1 ? totalNodeRamMB - bufferMB : od.ramLimitMB;
+              availableRamMB = Math.max(0, userLimitMB - ramAllocatedMB);
+            }
           } catch (err) {
             // Daemon might be offline, continue without system info
           }
@@ -272,6 +296,9 @@ router.get("/my_daemons", permission({ level: ROLE.USER }), async (ctx) => {
         return {
           ...od,
           instanceCount,
+          ramAllocatedMB,
+          availableRamMB,
+          totalNodeRamMB,
           available: daemon?.available || false,
           status: daemon?.available ? "online" : "offline",
           ip: daemon?.config.ip,
@@ -296,7 +323,8 @@ router.post(
   validator({
     body: {
       daemonId: String,
-      config: Object
+      config: Object,
+      ramAllocatedMB: Number
     }
   }),
   async (ctx) => {
@@ -306,7 +334,7 @@ router.post(
 
       if (!user) throw new Error("User not found");
 
-      const { daemonId, config } = ctx.request.body;
+      const { daemonId, config, ramAllocatedMB } = ctx.request.body;
 
       // Check if user owns this daemon
       if (!user.ownedDaemons || user.ownedDaemons.length === 0) {
@@ -319,14 +347,50 @@ router.post(
       }
 
       // Check instance limit
-      const currentInstanceCount = user.instances.filter(
+      const userInstancesOnDaemon = user.instances.filter(
         (inst) => inst.daemonId === daemonId
-      ).length;
+      );
+      const currentInstanceCount = userInstancesOnDaemon.length;
 
       if (ownedDaemon.instanceLimit !== -1 && currentInstanceCount >= ownedDaemon.instanceLimit) {
         throw new Error(
           `Instance limit reached (${currentInstanceCount}/${ownedDaemon.instanceLimit})`
         );
+      }
+
+      // Check RAM limit
+      if (ramAllocatedMB && ramAllocatedMB > 0) {
+        const currentRamAllocated = userInstancesOnDaemon.reduce(
+          (total, inst) => total + (inst.ramAllocatedMB || 0),
+          0
+        );
+
+        // Get daemon system info to calculate available RAM
+        const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
+        if (!remoteService || !remoteService.available) {
+          throw new Error("Daemon is not available");
+        }
+
+        try {
+          const systemInfo = await new RemoteRequest(remoteService).request("info/overview");
+          if (systemInfo && systemInfo.system) {
+            const totalNodeRamMB = Math.floor(systemInfo.system.totalmem / (1024 * 1024));
+            const bufferMB = 1024; // 1GB buffer
+            const userLimitMB = ownedDaemon.ramLimitMB === -1 ? totalNodeRamMB - bufferMB : ownedDaemon.ramLimitMB;
+            const availableRamMB = userLimitMB - currentRamAllocated;
+
+            if (ramAllocatedMB > availableRamMB) {
+              throw new Error(
+                `Not enough RAM available. Requested: ${ramAllocatedMB}MB, Available: ${availableRamMB}MB`
+              );
+            }
+          }
+        } catch (err: any) {
+          if (err.message.includes("Not enough RAM")) {
+            throw err;
+          }
+          // Continue if we can't get system info
+        }
       }
 
       // Create instance on daemon
@@ -337,10 +401,11 @@ router.post(
 
       const result = await new RemoteRequest(remoteService).request("instance/new", config);
 
-      // Add instance to user
+      // Add instance to user with RAM allocation
       user.instances.push({
         instanceUuid: result.instanceUuid,
-        daemonId
+        daemonId,
+        ramAllocatedMB: ramAllocatedMB || 0
       });
 
       await userSystem.edit(userUuid, { instances: user.instances });
@@ -359,7 +424,7 @@ router.post(
       );
 
       logger.info(
-        `[OwnedDaemon] User ${user.userName} created instance ${result.instanceUuid} on owned daemon ${daemonId}`
+        `[OwnedDaemon] User ${user.userName} created instance ${result.instanceUuid} on owned daemon ${daemonId} with ${ramAllocatedMB}MB RAM`
       );
 
       ctx.body = {
@@ -367,7 +432,8 @@ router.post(
         instance: {
           instanceUuid: result.instanceUuid,
           daemonId,
-          nickname: result.nickname
+          nickname: result.nickname,
+          ramAllocatedMB
         }
       };
     } catch (err: any) {
