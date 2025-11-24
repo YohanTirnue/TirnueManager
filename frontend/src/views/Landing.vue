@@ -9,7 +9,8 @@ import {
   CustomerServiceOutlined,
   CheckCircleOutlined,
   ArrowRightOutlined,
-  TeamOutlined
+  TeamOutlined,
+  EyeOutlined
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import { onMounted, ref } from "vue";
@@ -159,6 +160,13 @@ onMounted(() => {
         </div>
         <div class="feature-card">
           <div class="feature-icon">
+            <EyeOutlined />
+          </div>
+          <h3>Full Team Control</h3>
+          <p>Manage your developers with complete transparency. See logs, control file access, track everything they do.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
             <CloudServerOutlined />
           </div>
           <h3>Easy Minecraft Setup</h3>
@@ -177,6 +185,65 @@ onMounted(() => {
           </div>
           <h3>24/7 Real Support</h3>
           <p>Real people answering your questions around the clock. Small team, direct help.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team Management Section -->
+    <section class="team-management-section" :class="{ show: showFeatures }">
+      <div class="team-management-content">
+        <div class="team-management-text">
+          <h2 class="section-title-left">Tired of Sketchy Developers?</h2>
+          <p class="team-management-intro">
+            We're sick of hosts promising the world then hiding what's really happening behind the scenes.
+            That's why we built something different.
+          </p>
+          <h3>Full Sub-User Management Built In</h3>
+          <p>Invite your developers, moderators, and friends - then control exactly what they can access:</p>
+          <ul class="team-management-features">
+            <li><CheckCircleOutlined /> <strong>Complete audit logs</strong> - See every action they take</li>
+            <li><CheckCircleOutlined /> <strong>Granular permissions</strong> - Control file access, console, commands, and more</li>
+            <li><CheckCircleOutlined /> <strong>File management tracking</strong> - Know who uploaded, edited, or deleted what</li>
+            <li><CheckCircleOutlined /> <strong>Real-time monitoring</strong> - Watch activity as it happens</li>
+            <li><CheckCircleOutlined /> <strong>Peace of mind</strong> - Run your server with your team without worrying</li>
+          </ul>
+          <p class="team-management-highlight">
+            No more blind trust. No more wondering what happened. Just complete transparency and control.
+          </p>
+        </div>
+        <div class="team-management-visual">
+          <div class="permission-card">
+            <div class="permission-header">
+              <TeamOutlined />
+              <span>Developer Access</span>
+            </div>
+            <div class="permission-list">
+              <div class="permission-item enabled">
+                <CheckCircleOutlined />
+                <span>View Server Console</span>
+              </div>
+              <div class="permission-item enabled">
+                <CheckCircleOutlined />
+                <span>Upload/Download Files</span>
+              </div>
+              <div class="permission-item disabled">
+                <span class="disabled-icon">✕</span>
+                <span>Delete Files</span>
+              </div>
+              <div class="permission-item disabled">
+                <span class="disabled-icon">✕</span>
+                <span>Stop Server</span>
+              </div>
+              <div class="permission-item enabled">
+                <CheckCircleOutlined />
+                <span>View Logs</span>
+              </div>
+            </div>
+            <div class="permission-footer">
+              <EyeOutlined />
+              <span>All actions logged & tracked</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -722,6 +789,195 @@ onMounted(() => {
   color: #FF8C42;
 }
 
+// Team Management Section
+.team-management-section {
+  padding: 100px 60px;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.03), rgba(10, 10, 10, 0.95));
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+
+  &.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.team-management-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.team-management-text {
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 24px 0 16px;
+    color: #FF8C42;
+  }
+
+  p {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+}
+
+.section-title-left {
+  text-align: left;
+  font-size: 40px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #FF8C42, #D4AF37);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.team-management-intro {
+  font-size: 18px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  margin-bottom: 32px !important;
+}
+
+.team-management-features {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+
+    :deep(.anticon) {
+      color: #FF8C42;
+      margin-top: 3px;
+      font-size: 18px;
+    }
+
+    strong {
+      color: white;
+    }
+  }
+}
+
+.team-management-highlight {
+  font-size: 17px !important;
+  color: #FF8C42 !important;
+  font-weight: 600 !important;
+  margin-top: 24px !important;
+  padding: 20px;
+  background: rgba(255, 140, 66, 0.1);
+  border-left: 4px solid #FF8C42;
+  border-radius: 8px;
+}
+
+.team-management-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.permission-card {
+  background: rgba(10, 10, 10, 0.9);
+  border: 2px solid rgba(255, 140, 66, 0.3);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 40px rgba(255, 140, 66, 0.2);
+}
+
+.permission-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 140, 66, 0.2);
+  margin-bottom: 16px;
+
+  :deep(.anticon) {
+    font-size: 24px;
+    color: #FF8C42;
+  }
+
+  span {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+  }
+}
+
+.permission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.permission-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  font-size: 14px;
+
+  &.enabled {
+    border-left: 3px solid #52c41a;
+
+    :deep(.anticon) {
+      color: #52c41a;
+    }
+
+    span {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  &.disabled {
+    border-left: 3px solid #ff4d4f;
+
+    .disabled-icon {
+      color: #ff4d4f;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    span {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
+
+.permission-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 140, 66, 0.2);
+  font-size: 13px;
+  color: #FF8C42;
+  font-weight: 600;
+
+  :deep(.anticon) {
+    font-size: 16px;
+  }
+}
+
 // Services Section
 .services-section {
   padding: 100px 60px;
@@ -1076,6 +1332,16 @@ onMounted(() => {
   .services-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .team-management-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .section-title-left {
+    text-align: center;
+    font-size: 32px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1154,8 +1420,29 @@ onMounted(() => {
   .features-section,
   .services-section,
   .cta-section,
-  .join-team-section {
+  .join-team-section,
+  .team-management-section {
     padding: 60px 16px;
+  }
+
+  .section-title-left {
+    font-size: 28px;
+  }
+
+  .team-management-intro {
+    font-size: 16px !important;
+  }
+
+  .team-management-features li {
+    font-size: 14px;
+  }
+
+  .team-management-highlight {
+    font-size: 15px !important;
+  }
+
+  .permission-card {
+    max-width: 100%;
   }
 
   .join-team-content {
