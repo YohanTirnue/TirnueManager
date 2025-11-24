@@ -20,11 +20,11 @@ const showServices = ref(false);
 const showCTA = ref(false);
 
 const goToLogin = () => {
-  window.location.href = "/login";
+  router.push("/login");
 };
 
 const goToRegister = () => {
-  window.location.href = "/register";
+  router.push("/register");
 };
 
 const openDiscord = () => {
