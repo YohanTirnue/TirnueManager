@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from "vue";
 import { router } from "@/config/router";
 import {
   CloudServerOutlined,
@@ -30,6 +31,54 @@ const scrollToSection = (id: string) => {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 };
+
+// Activity log animation
+const logLines = ref([
+  { time: "14:32:15", user: "dev1", action: "uploaded plugin.jar" },
+  { time: "14:31:42", user: "dev2", action: "viewed server console" },
+  { time: "14:30:18", user: "dev1", action: "downloaded config.yml" },
+  { time: "14:29:05", user: "dev2", action: "stopped server" },
+  { time: "14:28:33", user: "dev1", action: "edited permissions.yml" }
+]);
+
+const logActions = [
+  "uploaded plugin.jar",
+  "downloaded config.yml",
+  "viewed server console",
+  "edited permissions.yml",
+  "stopped server",
+  "started server",
+  "deleted old logs",
+  "uploaded world files",
+  "changed server settings",
+  "viewed player logs"
+];
+
+const users = ["dev1", "dev2", "admin", "dev3"];
+
+let logInterval: any = null;
+
+const addLogEntry = () => {
+  const now = new Date();
+  const time = now.toTimeString().slice(0, 8);
+  const user = users[Math.floor(Math.random() * users.length)];
+  const action = logActions[Math.floor(Math.random() * logActions.length)];
+
+  logLines.value.unshift({ time, user, action });
+  if (logLines.value.length > 6) {
+    logLines.value.pop();
+  }
+};
+
+onMounted(() => {
+  logInterval = setInterval(addLogEntry, 3000);
+});
+
+onUnmounted(() => {
+  if (logInterval) {
+    clearInterval(logInterval);
+  }
+});
 </script>
 
 <template>
@@ -192,30 +241,10 @@ const scrollToSection = (id: string) => {
                 <span class="log-title">Live Activity Monitor</span>
               </div>
               <div class="log-content">
-                <div class="log-line">
-                  <span class="log-time">14:32:15</span>
-                  <span class="log-user">dev1</span>
-                  <span class="log-action">uploaded plugin.jar</span>
-                </div>
-                <div class="log-line">
-                  <span class="log-time">14:31:42</span>
-                  <span class="log-user">dev2</span>
-                  <span class="log-action">viewed server console</span>
-                </div>
-                <div class="log-line">
-                  <span class="log-time">14:30:18</span>
-                  <span class="log-user">dev1</span>
-                  <span class="log-action">downloaded config.yml</span>
-                </div>
-                <div class="log-line">
-                  <span class="log-time">14:29:05</span>
-                  <span class="log-user">dev2</span>
-                  <span class="log-action">stopped server</span>
-                </div>
-                <div class="log-line">
-                  <span class="log-time">14:28:33</span>
-                  <span class="log-user">dev1</span>
-                  <span class="log-action">edited permissions.yml</span>
+                <div v-for="(line, index) in logLines" :key="`${line.time}-${index}`" class="log-line">
+                  <span class="log-time">{{ line.time }}</span>
+                  <span class="log-user">{{ line.user }}</span>
+                  <span class="log-action">{{ line.action }}</span>
                 </div>
               </div>
             </div>
@@ -337,7 +366,7 @@ const scrollToSection = (id: string) => {
 .landing-page {
   width: 100%;
   min-height: 100vh;
-  background: #ffffff;
+  background: #0a0a0a;
   scroll-behavior: smooth;
   overflow-x: hidden;
 }
@@ -348,9 +377,9 @@ const scrollToSection = (id: string) => {
   top: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(10, 10, 10, 0.98);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(255, 140, 0, 0.2);
   z-index: 1000;
   padding: 16px 0;
 }
@@ -379,7 +408,7 @@ const scrollToSection = (id: string) => {
 .brand-name {
   font-size: 20px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #ff8c00;
 }
 
 .nav-links {
@@ -389,41 +418,42 @@ const scrollToSection = (id: string) => {
 }
 
 .nav-link {
-  color: #4a4a4a;
+  color: #cccccc;
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
   transition: color 0.2s;
 
   &:hover {
-    color: #d84315;
+    color: #ff8c00;
   }
 }
 
 .btn-login {
-  border: 1px solid #e0e0e0;
-  color: #4a4a4a;
+  border: 1px solid #333;
+  color: #cccccc;
+  background: transparent;
 
   &:hover {
-    border-color: #d84315;
-    color: #d84315;
+    border-color: #ff8c00;
+    color: #ff8c00;
   }
 }
 
 .btn-register {
-  background: #d84315;
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
   border: none;
 
   &:hover {
-    background: #bf360c;
+    background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
   }
 }
 
 // Hero Section
 .hero {
   padding: 140px 32px 100px;
-  background: linear-gradient(135deg, #fff 0%, #fff5f2 100%);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1200 100%);
+  border-bottom: 1px solid rgba(255, 140, 0, 0.2);
 }
 
 .hero-container {
@@ -437,12 +467,12 @@ const scrollToSection = (id: string) => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: rgba(216, 67, 21, 0.1);
-  border: 1px solid rgba(216, 67, 21, 0.2);
+  background: rgba(255, 140, 0, 0.15);
+  border: 1px solid rgba(255, 140, 0, 0.3);
   border-radius: 100px;
   font-size: 13px;
   font-weight: 600;
-  color: #d84315;
+  color: #ffa500;
   margin-bottom: 24px;
 }
 
@@ -450,20 +480,27 @@ const scrollToSection = (id: string) => {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #d84315;
+  background: #ff8c00;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 .hero-title {
   font-size: 56px;
   font-weight: 800;
-  color: #1a1a1a;
+  color: #ffffff;
   line-height: 1.2;
   margin: 0 0 24px 0;
+  text-shadow: 0 0 40px rgba(255, 140, 0, 0.3);
 }
 
 .hero-subtitle {
   font-size: 18px;
-  color: #6a6a6a;
+  color: #aaaaaa;
   line-height: 1.6;
   margin: 0 0 40px 0;
 }
@@ -480,13 +517,13 @@ const scrollToSection = (id: string) => {
   padding: 0 32px;
   font-size: 16px;
   font-weight: 600;
-  background: #d84315;
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
   border: none;
 
   &:hover {
-    background: #bf360c;
+    background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(216, 67, 21, 0.3);
+    box-shadow: 0 8px 24px rgba(255, 140, 0, 0.4);
   }
 }
 
@@ -495,12 +532,13 @@ const scrollToSection = (id: string) => {
   padding: 0 32px;
   font-size: 16px;
   font-weight: 600;
-  border: 2px solid #e0e0e0;
-  color: #4a4a4a;
+  border: 2px solid #333;
+  color: #cccccc;
+  background: transparent;
 
   &:hover {
-    border-color: #d84315;
-    color: #d84315;
+    border-color: #ff8c00;
+    color: #ff8c00;
   }
 }
 
@@ -516,15 +554,15 @@ const scrollToSection = (id: string) => {
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #1a1a1a;
+  border: 1px solid #333;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
-  color: #4a4a4a;
+  color: #cccccc;
 
   :deep(.anticon) {
-    color: #4caf50;
+    color: #ffa500;
     font-size: 16px;
   }
 }
@@ -549,13 +587,13 @@ const scrollToSection = (id: string) => {
 .section-title {
   font-size: 42px;
   font-weight: 800;
-  color: #1a1a1a;
+  color: #ffffff;
   margin: 0 0 16px 0;
 }
 
 .section-subtitle {
   font-size: 18px;
-  color: #6a6a6a;
+  color: #aaaaaa;
   margin: 0;
 }
 
@@ -568,27 +606,27 @@ const scrollToSection = (id: string) => {
 
 .feature-card {
   padding: 40px 32px;
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #1a1a1a;
+  border: 1px solid #333;
   border-radius: 16px;
   transition: all 0.3s;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-    border-color: rgba(216, 67, 21, 0.2);
+    box-shadow: 0 12px 32px rgba(255, 140, 0, 0.2);
+    border-color: #ff8c00;
   }
 
   h3 {
     font-size: 20px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #ffffff;
     margin: 0 0 12px 0;
   }
 
   p {
     font-size: 15px;
-    color: #6a6a6a;
+    color: #aaaaaa;
     line-height: 1.6;
     margin: 0;
   }
@@ -598,7 +636,7 @@ const scrollToSection = (id: string) => {
   width: 56px;
   height: 56px;
   border-radius: 12px;
-  background: rgba(216, 67, 21, 0.1);
+  background: rgba(255, 140, 0, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -606,15 +644,15 @@ const scrollToSection = (id: string) => {
 
   :deep(.anticon) {
     font-size: 28px;
-    color: #d84315;
+    color: #ff8c00;
   }
 }
 
 // Team Control
 .team-control {
-  background: #fafafa;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: #0f0f0f;
+  border-top: 1px solid rgba(255, 140, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 140, 0, 0.2);
 }
 
 .team-control-content {
@@ -628,13 +666,13 @@ const scrollToSection = (id: string) => {
   h2 {
     font-size: 40px;
     font-weight: 800;
-    color: #1a1a1a;
+    color: #ffffff;
     margin: 0 0 16px 0;
   }
 
   .lead {
     font-size: 18px;
-    color: #6a6a6a;
+    color: #aaaaaa;
     margin: 0 0 40px 0;
   }
 }
@@ -653,7 +691,7 @@ const scrollToSection = (id: string) => {
   }
 
   .check-icon {
-    color: #4caf50;
+    color: #ffa500;
     font-size: 20px;
     flex-shrink: 0;
     margin-top: 2px;
@@ -663,13 +701,13 @@ const scrollToSection = (id: string) => {
     display: block;
     font-size: 16px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: #ffffff;
     margin-bottom: 4px;
   }
 
   p {
     font-size: 14px;
-    color: #6a6a6a;
+    color: #aaaaaa;
     margin: 0;
   }
 }
@@ -739,7 +777,7 @@ const scrollToSection = (id: string) => {
   }
 
   .log-user {
-    color: #d84315;
+    color: #ff8c00;
     font-weight: 600;
     min-width: 60px;
   }
@@ -771,15 +809,15 @@ const scrollToSection = (id: string) => {
 
 .pricing-card {
   padding: 40px;
-  background: white;
-  border: 2px solid rgba(0, 0, 0, 0.08);
+  background: #1a1a1a;
+  border: 2px solid #333;
   border-radius: 16px;
   transition: all 0.3s;
 
   &:hover {
-    border-color: #d84315;
+    border-color: #ff8c00;
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(216, 67, 21, 0.15);
+    box-shadow: 0 12px 32px rgba(255, 140, 0, 0.2);
   }
 }
 
@@ -792,18 +830,18 @@ const scrollToSection = (id: string) => {
   h3 {
     font-size: 24px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #ffffff;
     margin: 0;
   }
 }
 
 .pricing-badge {
   padding: 6px 12px;
-  background: rgba(216, 67, 21, 0.1);
+  background: rgba(255, 140, 0, 0.15);
   border-radius: 100px;
   font-size: 12px;
   font-weight: 600;
-  color: #d84315;
+  color: #ffa500;
 }
 
 .pricing-features {
@@ -818,10 +856,10 @@ const scrollToSection = (id: string) => {
   align-items: center;
   gap: 12px;
   font-size: 15px;
-  color: #4a4a4a;
+  color: #cccccc;
 
   :deep(.anticon) {
-    color: #4caf50;
+    color: #ffa500;
     font-size: 18px;
   }
 }
@@ -829,7 +867,7 @@ const scrollToSection = (id: string) => {
 // CTA Section
 .cta-section {
   padding: 100px 32px;
-  background: linear-gradient(135deg, #d84315 0%, #bf360c 100%);
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
 }
 
 .cta-container {
@@ -840,13 +878,13 @@ const scrollToSection = (id: string) => {
   h2 {
     font-size: 42px;
     font-weight: 800;
-    color: white;
+    color: #0a0a0a;
     margin: 0 0 16px 0;
   }
 
   p {
     font-size: 18px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(10, 10, 10, 0.8);
     margin: 0 0 40px 0;
   }
 
@@ -855,14 +893,14 @@ const scrollToSection = (id: string) => {
     padding: 0 40px;
     font-size: 18px;
     font-weight: 600;
-    background: white;
-    color: #d84315;
+    background: #0a0a0a;
+    color: #ff8c00;
     border: none;
 
     &:hover {
-      background: #f5f5f5;
+      background: #1a1a1a;
       transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
     }
   }
 }
@@ -870,8 +908,8 @@ const scrollToSection = (id: string) => {
 // Footer
 .footer {
   padding: 48px 32px;
-  background: #1a1a1a;
-  border-top: 1px solid #2a2a2a;
+  background: #0a0a0a;
+  border-top: 1px solid rgba(255, 140, 0, 0.2);
 }
 
 .footer-container {
@@ -895,17 +933,17 @@ const scrollToSection = (id: string) => {
   span {
     font-size: 20px;
     font-weight: 700;
-    color: white;
+    color: #ff8c00;
   }
 }
 
 .footer-container p {
-  color: #8a8a8a;
+  color: #666666;
   margin: 0 0 8px 0;
 }
 
 .footer-link {
-  color: #d84315;
+  color: #ff8c00;
   font-weight: 500;
 
   &:hover {
