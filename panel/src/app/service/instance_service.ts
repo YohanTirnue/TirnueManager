@@ -135,6 +135,18 @@ export async function getInstancesByUuid(
   // Check if this user is a sub-user
   const isSubUser = subUserIndex.isSubUser(user.uuid);
 
+  // Populate ownedDaemons with daemon names if they exist
+  let ownedDaemonsWithNames = user.ownedDaemons || [];
+  if (advanced && ownedDaemonsWithNames.length > 0) {
+    ownedDaemonsWithNames = ownedDaemonsWithNames.map((od: any) => {
+      const daemon = RemoteServiceSubsystem.getInstance(od.daemonId);
+      return {
+        ...od,
+        daemonName: daemon?.config?.remarks || `${daemon?.config?.ip}:${daemon?.config?.port}` || "Unknown"
+      };
+    });
+  }
+
   // respond to user data
   const response: any = {
     uuid: user.uuid,
@@ -151,6 +163,7 @@ export async function getInstancesByUuid(
     firstName: user.firstName,
     lastName: user.lastName,
     isSubUser: isSubUser,
+    ownedDaemons: ownedDaemonsWithNames,
     token: ""
   };
 

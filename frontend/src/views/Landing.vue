@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { router } from "@/config/router";
 import {
   CloudServerOutlined,
@@ -10,8 +10,11 @@ import {
   CheckCircleOutlined,
   ArrowRightOutlined,
   DollarOutlined,
-  CustomerServiceOutlined
+  CustomerServiceOutlined,
+  BulbOutlined,
+  BulbFilled
 } from "@ant-design/icons-vue";
+import { useAppConfigStore, THEME } from "@/stores/useAppConfigStore";
 
 const goToLogin = () => {
   router.push("/login");
@@ -30,6 +33,15 @@ const scrollToSection = (id: string) => {
   if (element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+};
+
+// Theme toggle
+const { getTheme, setTheme } = useAppConfigStore();
+const currentTheme = computed(() => getTheme());
+const isLightMode = computed(() => currentTheme.value === THEME.LIGHT);
+
+const toggleTheme = () => {
+  setTheme(isLightMode.value ? THEME.DARK : THEME.LIGHT);
 };
 
 // Activity log data for continuous scroll
@@ -60,6 +72,10 @@ const logLines = [
           <a @click="scrollToSection('features')" class="nav-link">Features</a>
           <a @click="scrollToSection('pricing')" class="nav-link">Pricing</a>
           <a @click="openDiscord" class="nav-link">Support</a>
+          <button class="theme-toggle" @click="toggleTheme" :title="isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode'">
+            <BulbFilled v-if="isLightMode" />
+            <BulbOutlined v-else />
+          </button>
           <a-button class="btn-login" @click="goToLogin">Sign In</a-button>
           <a-button type="primary" class="btn-register" @click="goToRegister">Get Started</a-button>
         </div>
@@ -419,6 +435,27 @@ const logLines = [
 
   &:hover {
     color: #ff8c00;
+  }
+}
+
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #333;
+  background: transparent;
+  color: #cccccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    border-color: #ff8c00;
+    color: #ff8c00;
+    background: rgba(255, 140, 0, 0.1);
   }
 }
 
@@ -1020,6 +1057,256 @@ const logLines = [
 
   .section-title {
     font-size: 32px;
+  }
+}
+
+// Light Mode Styles - With Darker Card Edges
+:deep(.app-light-theme) {
+  .landing-page {
+    background: #f5f5f5;
+  }
+
+  // Navigation
+  .navbar {
+    background: rgba(255, 255, 255, 0.98);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .brand-name {
+    color: #ff8c00;
+  }
+
+  .nav-link {
+    color: #4a4a4a;
+
+    &:hover {
+      color: #ff8c00;
+    }
+  }
+
+  .theme-toggle {
+    border: 1px solid #ddd;
+    color: #4a4a4a;
+
+    &:hover {
+      border-color: #ff8c00;
+      color: #ff8c00;
+      background: rgba(255, 140, 0, 0.1);
+    }
+  }
+
+  .btn-login {
+    border: 1px solid #ddd;
+    color: #4a4a4a;
+    background: white;
+
+    &:hover {
+      border-color: #ff8c00;
+      color: #ff8c00;
+    }
+  }
+
+  .btn-register {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
+    border: none;
+
+    &:hover {
+      background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+    }
+  }
+
+  // Hero Section
+  .hero {
+    background: linear-gradient(135deg, #ffffff 0%, #fff5f0 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .hero-badge {
+    background: rgba(255, 140, 0, 0.15);
+    border: 1px solid rgba(255, 140, 0, 0.3);
+    color: #ff8c00;
+  }
+
+  .badge-dot {
+    background: #ff8c00;
+  }
+
+  .hero-title {
+    color: #1a1a1a;
+    text-shadow: none;
+  }
+
+  .hero-subtitle {
+    color: #666;
+  }
+
+  .cta-primary {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
+
+    &:hover {
+      background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+      box-shadow: 0 8px 24px rgba(255, 140, 0, 0.3);
+    }
+  }
+
+  .cta-secondary {
+    border: 2px solid #ddd;
+    color: #4a4a4a;
+    background: white;
+
+    &:hover {
+      border-color: #ff8c00;
+      color: #ff8c00;
+    }
+  }
+
+  .feature-pill {
+    background: white;
+    border: 2px solid #333;
+    color: #4a4a4a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  // Sections
+  .features,
+  .team-control,
+  .pricing {
+    background: #f5f5f5;
+  }
+
+  .section-title {
+    color: #1a1a1a;
+  }
+
+  .section-subtitle {
+    color: #666;
+  }
+
+  // Feature Cards with Darker Edges
+  .feature-card {
+    background: white;
+    border: 2px solid #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+      border-color: #ff8c00;
+    }
+
+    h3 {
+      color: #1a1a1a;
+    }
+
+    p {
+      color: #666;
+    }
+  }
+
+  .feature-icon {
+    background: rgba(255, 140, 0, 0.15);
+
+    :deep(.anticon) {
+      color: #ff8c00;
+    }
+  }
+
+  // Team Control
+  .team-control {
+    background: #ececec;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .team-control-text {
+    h2 {
+      color: #1a1a1a;
+    }
+
+    .lead {
+      color: #666;
+    }
+  }
+
+  .benefits-list {
+    .check-icon {
+      color: #ff8c00;
+    }
+
+    strong {
+      color: #1a1a1a;
+    }
+
+    p {
+      color: #666;
+    }
+  }
+
+  // Log Window with Darker Edge
+  .log-window {
+    background: #1a1a1a;
+    border: 2px solid #000;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  // Pricing Cards with Darker Edges
+  .pricing-card {
+    background: white;
+    border: 2px solid #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+      border-color: #ff8c00;
+    }
+  }
+
+  .pricing-header {
+    h3 {
+      color: #1a1a1a;
+    }
+  }
+
+  .pricing-badge {
+    background: rgba(255, 140, 0, 0.15);
+    color: #ff8c00;
+  }
+
+  .pricing-feature {
+    color: #4a4a4a;
+
+    :deep(.anticon) {
+      color: #ff8c00;
+    }
+  }
+
+  // CTA Section
+  .cta-section {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
+  }
+
+  .cta-container {
+    h2 {
+      color: #fff;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .ant-btn-primary {
+      background: white;
+      color: #ff8c00;
+
+      &:hover {
+        background: #f5f5f5;
+      }
+    }
+  }
+
+  // Footer
+  .footer {
+    background: #1a1a1a;
+    border-top: 1px solid #333;
   }
 }
 </style>

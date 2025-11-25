@@ -413,11 +413,36 @@ router.post(
 
       const result = await new RemoteRequest(remoteService).request("instance/new", config);
 
-      // Add instance to user with RAM allocation
+      // Add instance to user with RAM allocation and full permissions
       user.instances.push({
         instanceUuid: result.instanceUuid,
         daemonId,
-        ramAllocatedMB: ramAllocatedMB || 0
+        ramAllocatedMB: ramAllocatedMB || 0,
+        permissions: {
+          canUploadFiles: true,
+          canDownloadFiles: true,
+          canDeleteFiles: true,
+          canModifyFiles: true,
+          canAccessConsole: true,
+          canStartInstances: true,
+          canRestartInstances: true,
+          canStopInstances: true,
+          canTerminateInstances: true,
+          canViewLogs: true,
+          canAccessConfigFiles: true,
+          canAccessFileManager: true,
+          canAccessMinecraftQuery: true,
+          canAccessTerminalSettings: true,
+          canAccessScheduledTasks: true,
+          canAccessEventTasks: true,
+          canAccessInstanceSettings: true,
+          canAccessServerMarket: true,
+          disableRightClick: false,
+          disableKeyboardShortcuts: false,
+          disableTextSelection: false,
+          disableCopy: false,
+          disablePaste: false
+        }
       });
 
       await userSystem.edit(userUuid, { instances: user.instances });

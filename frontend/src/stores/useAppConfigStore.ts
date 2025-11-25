@@ -15,7 +15,7 @@ export function getSystemTheme() {
   return darkModeMediaQuery.matches ? THEME.DARK : THEME.LIGHT;
 }
 
-const defaultTheme = localStorage.getItem(THEME_KEY) || getSystemTheme();
+const defaultTheme = localStorage.getItem(THEME_KEY) || THEME.DARK;
 
 export const useAppConfigStore = createGlobalState(() => {
   const appConfig = reactive({

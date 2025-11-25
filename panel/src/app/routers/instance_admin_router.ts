@@ -339,10 +339,16 @@ router.get("/quick_install_list", permission({ level: ROLE.USER }), async (ctx) 
   const userUuid = getUserUuid(ctx);
 
   // Check global system setting (admins bypass this)
+  // Also allow users with owned daemons to access templates for creating instances on their owned nodes
   if (systemConfig?.allowUsePreset === false && !isTopPermissionByUuid(userUuid)) {
-    ctx.status = 403;
-    ctx.body = new Error($t("TXT_CODE_b5a47731"));
-    return;
+    const user = userSystem.getInstance(userUuid);
+    const hasOwnedDaemons = user?.ownedDaemons && user.ownedDaemons.length > 0;
+
+    if (!hasOwnedDaemons) {
+      ctx.status = 403;
+      ctx.body = new Error($t("TXT_CODE_b5a47731"));
+      return;
+    }
   }
 
   // Try to use local expanded templates first

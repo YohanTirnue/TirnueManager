@@ -171,6 +171,8 @@ class UserSubsystem {
         }
         return true;
       });
+      // Persist the changes to disk
+      this.edit(user.uuid, { instances: user.instances });
     });
   }
 
