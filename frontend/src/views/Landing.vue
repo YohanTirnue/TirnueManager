@@ -73,9 +73,9 @@ const logLines = [
           <span class="badge-dot"></span>
           Cheap Startup Hosting
         </div>
-        <h1 class="hero-title">Minecraft Server Hosting<br/>Built for Transparency</h1>
+        <h1 class="hero-title">Minecraft Philippines Hosting<br/>Built for Transparency</h1>
         <p class="hero-subtitle">
-          Affordable panel hosting with complete team control. Track every action,<br/>
+          New cheap Philippines Minecraft hosting with complete team control. Track every action,<br/>
           control permissions, and manage your developers with full transparency.
         </p>
         <div class="hero-cta">
