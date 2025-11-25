@@ -32,53 +32,19 @@ const scrollToSection = (id: string) => {
   }
 };
 
-// Activity log animation
-const logLines = ref([
+// Activity log data for continuous scroll
+const logLines = [
   { time: "14:32:15", user: "dev1", action: "uploaded plugin.jar" },
   { time: "14:31:42", user: "dev2", action: "viewed server console" },
   { time: "14:30:18", user: "dev1", action: "downloaded config.yml" },
   { time: "14:29:05", user: "dev2", action: "stopped server" },
-  { time: "14:28:33", user: "dev1", action: "edited permissions.yml" }
-]);
-
-const logActions = [
-  "uploaded plugin.jar",
-  "downloaded config.yml",
-  "viewed server console",
-  "edited permissions.yml",
-  "stopped server",
-  "started server",
-  "deleted old logs",
-  "uploaded world files",
-  "changed server settings",
-  "viewed player logs"
+  { time: "14:28:33", user: "dev1", action: "edited permissions.yml" },
+  { time: "14:27:11", user: "admin", action: "uploaded world files" },
+  { time: "14:26:05", user: "dev3", action: "viewed player logs" },
+  { time: "14:25:42", user: "dev2", action: "started server" },
+  { time: "14:24:18", user: "dev1", action: "deleted old logs" },
+  { time: "14:23:05", user: "admin", action: "changed server settings" }
 ];
-
-const users = ["dev1", "dev2", "admin", "dev3"];
-
-let logInterval: any = null;
-
-const addLogEntry = () => {
-  const now = new Date();
-  const time = now.toTimeString().slice(0, 8);
-  const user = users[Math.floor(Math.random() * users.length)];
-  const action = logActions[Math.floor(Math.random() * logActions.length)];
-
-  logLines.value.unshift({ time, user, action });
-  if (logLines.value.length > 6) {
-    logLines.value.pop();
-  }
-};
-
-onMounted(() => {
-  logInterval = setInterval(addLogEntry, 3000);
-});
-
-onUnmounted(() => {
-  if (logInterval) {
-    clearInterval(logInterval);
-  }
-});
 </script>
 
 <template>
@@ -241,10 +207,37 @@ onUnmounted(() => {
                 <span class="log-title">Live Activity Monitor</span>
               </div>
               <div class="log-content">
-                <div v-for="(line, index) in logLines" :key="`${line.time}-${index}`" class="log-line">
-                  <span class="log-time">{{ line.time }}</span>
-                  <span class="log-user">{{ line.user }}</span>
-                  <span class="log-action">{{ line.action }}</span>
+                <div class="log-columns">
+                  <div class="log-column">
+                    <div class="log-track track-up">
+                      <div v-for="(line, index) in logLines" :key="`up1-${index}`" class="log-line">
+                        <span class="log-time">{{ line.time }}</span>
+                        <span class="log-user">{{ line.user }}</span>
+                        <span class="log-action">{{ line.action }}</span>
+                      </div>
+                      <!-- Duplicate for seamless loop -->
+                      <div v-for="(line, index) in logLines" :key="`up2-${index}`" class="log-line">
+                        <span class="log-time">{{ line.time }}</span>
+                        <span class="log-user">{{ line.user }}</span>
+                        <span class="log-action">{{ line.action }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="log-column">
+                    <div class="log-track track-down">
+                      <div v-for="(line, index) in logLines" :key="`down1-${index}`" class="log-line">
+                        <span class="log-time">{{ line.time }}</span>
+                        <span class="log-user">{{ line.user }}</span>
+                        <span class="log-action">{{ line.action }}</span>
+                      </div>
+                      <!-- Duplicate for seamless loop -->
+                      <div v-for="(line, index) in logLines" :key="`down2-${index}`" class="log-line">
+                        <span class="log-time">{{ line.time }}</span>
+                        <span class="log-user">{{ line.user }}</span>
+                        <span class="log-action">{{ line.action }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -763,38 +756,79 @@ onUnmounted(() => {
   padding: 20px;
   font-family: 'Monaco', 'Menlo', monospace;
   font-size: 13px;
+  overflow: hidden;
+  height: 300px;
+}
+
+.log-columns {
+  display: flex;
+  gap: 16px;
+  height: 100%;
+}
+
+.log-column {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.log-track {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.track-up {
+  animation: scrollUp 20s linear infinite;
+}
+
+.track-down {
+  animation: scrollDown 20s linear infinite;
+}
+
+@keyframes scrollUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes scrollDown {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 .log-line {
   display: flex;
   gap: 16px;
-  padding: 8px 0;
+  padding: 12px;
   color: #8a8a8a;
-  animation: slideIn 0.5s ease;
+  background: rgba(255, 140, 0, 0.05);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  min-height: 40px;
+  align-items: center;
 
   .log-time {
     color: #6a6a6a;
+    min-width: 65px;
   }
 
   .log-user {
     color: #ff8c00;
     font-weight: 600;
-    min-width: 60px;
+    min-width: 55px;
   }
 
   .log-action {
     color: #aaa;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+    flex: 1;
   }
 }
 
