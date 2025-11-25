@@ -13,12 +13,24 @@ import {
   EyeOutlined
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
-const showContent = ref(false);
-const showFeatures = ref(false);
-const showServices = ref(false);
-const showCTA = ref(false);
+const showContent = ref(true); // Show immediately
+const showFeatures = ref(true);
+const showServices = ref(true);
+const showCTA = ref(true);
+
+// Scrolling log animation
+const logs = ref([
+  { user: "dev1", action: "uploaded files", icon: "↑" },
+  { user: "dev1", action: "downloaded config.yml", icon: "↓" },
+  { user: "dev2", action: "viewed server console", icon: "👁" },
+  { user: "dev1", action: "stopped server", icon: "⏹" },
+  { user: "dev2", action: "uploaded plugin.jar", icon: "↑" },
+]);
+
+const currentLogIndex = ref(0);
+let logInterval: any = null;
 
 const goToLogin = () => {
   router.push("/login");
@@ -37,11 +49,14 @@ const showUnderDevelopment = () => {
 };
 
 onMounted(() => {
-  // Stagger animations
-  setTimeout(() => showContent.value = true, 100);
-  setTimeout(() => showFeatures.value = true, 400);
-  setTimeout(() => showServices.value = true, 700);
-  setTimeout(() => showCTA.value = true, 1000);
+  // Start log animation
+  logInterval = setInterval(() => {
+    currentLogIndex.value = (currentLogIndex.value + 1) % logs.value.length;
+  }, 2500);
+});
+
+onUnmounted(() => {
+  if (logInterval) clearInterval(logInterval);
 });
 </script>
 
@@ -120,15 +135,6 @@ onMounted(() => {
       <div class="hero-visual">
         <div class="server-illustration">
           <img src="/favicon.png" alt="Tirnue Server" class="hero-logo" />
-          <div class="orbit orbit-1">
-            <div class="orbit-dot"></div>
-          </div>
-          <div class="orbit orbit-2">
-            <div class="orbit-dot"></div>
-          </div>
-          <div class="orbit orbit-3">
-            <div class="orbit-dot"></div>
-          </div>
         </div>
       </div>
     </section>
@@ -214,33 +220,23 @@ onMounted(() => {
         <div class="team-management-visual">
           <div class="permission-card">
             <div class="permission-header">
-              <TeamOutlined />
-              <span>Developer Access</span>
+              <EyeOutlined />
+              <span>Live Activity Monitor</span>
             </div>
-            <div class="permission-list">
-              <div class="permission-item enabled">
-                <CheckCircleOutlined />
-                <span>View Server Console</span>
-              </div>
-              <div class="permission-item enabled">
-                <CheckCircleOutlined />
-                <span>Upload/Download Files</span>
-              </div>
-              <div class="permission-item disabled">
-                <span class="disabled-icon">✕</span>
-                <span>Delete Files</span>
-              </div>
-              <div class="permission-item disabled">
-                <span class="disabled-icon">✕</span>
-                <span>Stop Server</span>
-              </div>
-              <div class="permission-item enabled">
-                <CheckCircleOutlined />
-                <span>View Logs</span>
+            <div class="activity-log">
+              <div
+                v-for="(log, index) in logs"
+                :key="index"
+                class="log-entry"
+                :class="{ active: index === currentLogIndex }"
+              >
+                <span class="log-icon">{{ log.icon }}</span>
+                <span class="log-user">{{ log.user }}</span>
+                <span class="log-action">{{ log.action }}</span>
               </div>
             </div>
             <div class="permission-footer">
-              <EyeOutlined />
+              <TeamOutlined />
               <span>All actions logged & tracked</span>
             </div>
           </div>
@@ -406,31 +402,27 @@ onMounted(() => {
 .gradient-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.15;
+  filter: blur(80px); // Reduced from 120px for performance
+  opacity: 0.1; // Reduced from 0.15
 
   &.orb-1 {
-    width: 600px;
-    height: 600px;
+    width: 400px; // Reduced from 600px
+    height: 400px;
     background: #FF8C42;
-    top: -200px;
-    right: -200px;
+    top: -100px;
+    right: -100px;
   }
 
   &.orb-2 {
-    width: 500px;
-    height: 500px;
+    width: 350px; // Reduced from 500px
+    height: 350px;
     background: #D4AF37;
     bottom: 20%;
-    left: -200px;
+    left: -100px;
   }
 
   &.orb-3 {
-    width: 400px;
-    height: 400px;
-    background: #FF6B35;
-    bottom: -100px;
-    right: 20%;
+    display: none; // Hide third orb for performance
   }
 }
 
@@ -518,14 +510,6 @@ onMounted(() => {
   padding: 120px 60px 60px;
   position: relative;
   z-index: 1;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease;
-
-  &.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .hero-content {
@@ -675,60 +659,13 @@ onMounted(() => {
   z-index: 2;
 }
 
-.orbit {
-  position: absolute;
-  border: 1px solid rgba(255, 140, 66, 0.2);
-  border-radius: 50%;
-
-  &.orbit-1 {
-    width: 250px;
-    height: 250px;
-    animation: spin 20s linear infinite;
-  }
-
-  &.orbit-2 {
-    width: 320px;
-    height: 320px;
-    animation: spin 30s linear infinite reverse;
-  }
-
-  &.orbit-3 {
-    width: 390px;
-    height: 390px;
-    animation: spin 40s linear infinite;
-  }
-}
-
-.orbit-dot {
-  position: absolute;
-  top: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 8px;
-  height: 8px;
-  background: #FF8C42;
-  border-radius: 50%;
-  box-shadow: 0 0 10px #FF8C42;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
+// Orbits removed for performance
 
 // Features Section
 .features-section {
   padding: 100px 60px;
   position: relative;
   z-index: 1;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease;
-
-  &.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .section-title {
@@ -795,14 +732,6 @@ onMounted(() => {
   position: relative;
   z-index: 1;
   background: linear-gradient(135deg, rgba(255, 140, 66, 0.03), rgba(10, 10, 10, 0.95));
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease;
-
-  &.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .team-management-content {
@@ -920,45 +849,48 @@ onMounted(() => {
   }
 }
 
-.permission-list {
+.activity-log {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  max-height: 200px;
+  overflow: hidden;
 }
 
-.permission-item {
+.log-entry {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
-  font-size: 14px;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid transparent;
+  border-radius: 6px;
+  font-size: 13px;
+  opacity: 0.3;
+  transform: translateY(10px);
+  transition: all 0.5s ease;
 
-  &.enabled {
-    border-left: 3px solid #52c41a;
-
-    :deep(.anticon) {
-      color: #52c41a;
-    }
-
-    span {
-      color: rgba(255, 255, 255, 0.9);
-    }
+  &.active {
+    border-left-color: #FF8C42;
+    background: rgba(255, 140, 66, 0.08);
+    box-shadow: 0 0 15px rgba(255, 140, 66, 0.15);
   }
 
-  &.disabled {
-    border-left: 3px solid #ff4d4f;
+  .log-icon {
+    font-size: 16px;
+    min-width: 20px;
+    text-align: center;
+  }
 
-    .disabled-icon {
-      color: #ff4d4f;
-      font-weight: bold;
-      font-size: 16px;
-    }
+  .log-user {
+    color: #FF8C42;
+    font-weight: 600;
+    min-width: 50px;
+  }
 
-    span {
-      color: rgba(255, 255, 255, 0.5);
-    }
+  .log-action {
+    color: rgba(255, 255, 255, 0.8);
+    flex: 1;
   }
 }
 
@@ -983,14 +915,6 @@ onMounted(() => {
   padding: 100px 60px;
   position: relative;
   z-index: 1;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease;
-
-  &.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .services-grid {
@@ -1089,14 +1013,6 @@ onMounted(() => {
   padding: 100px 60px;
   position: relative;
   z-index: 1;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease;
-
-  &.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .cta-content {
@@ -1145,15 +1061,6 @@ onMounted(() => {
   padding: 80px 60px;
   position: relative;
   z-index: 1;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease;
-  transition-delay: 0.2s;
-
-  &.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .join-team-content {
