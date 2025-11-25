@@ -49,9 +49,9 @@ const McPreset = defineAsyncComponent(() => import("@/widgets/setupApp/McPreset.
 const QuickStartFlow = defineAsyncComponent(() => import("@/widgets/setupApp/QuickStartFlow.vue"));
 const ShelvesCard = defineAsyncComponent(() => import("@/widgets/ShelvesCard.vue"));
 const UserAccessSettings = defineAsyncComponent(() => import("@/widgets/user/AccessSettings.vue"));
-const UserResourceAssignment = defineAsyncComponent(() => import("@/widgets/user/UserResourceAssignment.vue"));
 const Accounting = defineAsyncComponent(() => import("@/widgets/Accounting.vue"));
 const MyNodes = defineAsyncComponent(() => import("@/widgets/MyNodes.vue"));
+const UserResourceAssignment = defineAsyncComponent(() => import("@/widgets/user/UserResourceAssignment.vue"));
 
 import { NEW_CARD_TYPE } from "../types/index";
 import { LayoutCardHeight } from "./originLayoutConfig";
@@ -81,7 +81,6 @@ export const LAYOUT_CARD_TYPES: { [key: string]: any } = {
   InstanceFileManager,
   InstanceOperationLogs,
   UserAccessSettings,
-  UserResourceAssignment,
   ImageBox,
   QuickStartFlow,
   McPreset,
@@ -104,6 +103,7 @@ export const LAYOUT_CARD_TYPES: { [key: string]: any } = {
   Market,
   Accounting,
   MyNodes,
+  UserResourceAssignment,
   UnderDevelopment
 };
 

@@ -356,12 +356,30 @@ const getInstanceName = (instanceUuid: string) => {
 };
 
 onMounted(() => {
+  // STEP 3: IMPLEMENT SLOW-ROUTE DEBUG LOGGING
+  console.log("=".repeat(80));
+  console.log("[UserResourceAssignment Component] Component mounted");
+  console.log("[UserResourceAssignment] Current route:", route);
+  console.log("[UserResourceAssignment] Route path:", route.path);
+  console.log("[UserResourceAssignment] Route query:", route.query);
+  console.log("[UserResourceAssignment] Route params:", route.params);
+  console.log("[UserResourceAssignment] userUuid extracted from query:", userUuid.value);
+  console.log("[UserResourceAssignment] Initial state - loading:", loading.value);
+  console.log("[UserResourceAssignment] Initial state - userData:", userData.value);
+  console.log("=".repeat(80));
+
+  if (!userUuid.value) {
+    console.error("[UserResourceAssignment] CRITICAL: No UUID in route query! Redirecting to /users");
+    console.error("[UserResourceAssignment] Full route object:", JSON.stringify(route, null, 2));
+  }
+
   loadUserData();
 });
 </script>
 
 <template>
   <CardPanel :card="card">
+    <template #body>
     <div class="resource-assignment-page">
       <!-- Header -->
       <div class="page-header">
@@ -688,6 +706,7 @@ onMounted(() => {
         </button>
       </template>
     </a-modal>
+    </template>
   </CardPanel>
 </template>
 

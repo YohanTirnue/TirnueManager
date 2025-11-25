@@ -7,6 +7,14 @@ import {
   type RouteLocationNormalized,
   type RouteRecordRaw
 } from "vue-router";
+import NProgress from "nprogress";
+
+// Configure NProgress
+NProgress.configure({
+  showSpinner: false,
+  trickleSpeed: 200,
+  minimum: 0.1
+});
 
 // Lazy load pages for better initial load performance
 const InstallPage = () => import("@/views/Install.vue");
@@ -418,6 +426,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  NProgress.start();
+
   const { state } = useAppStateStore();
 
   const userPermission = state.userInfo?.permission ?? 0;
@@ -470,6 +480,10 @@ router.beforeEach((to, from, next) => {
   }
 
   next();
+});
+
+router.afterEach(() => {
+  NProgress.done();
 });
 
 export { originRouterConfig, router };

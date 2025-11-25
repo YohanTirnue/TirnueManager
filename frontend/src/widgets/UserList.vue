@@ -24,6 +24,7 @@ import { throttle } from "lodash";
 import CardPanel from "@/components/CardPanel.vue";
 import { arrayFilter } from "../tools/array";
 import { useAppRouters } from "@/hooks/useAppRouters";
+import { router } from "@/config/router";
 import {
   getUserInfo,
   deleteUser as deleteUserApi,
@@ -457,6 +458,18 @@ const getInstanceCount = (daemonId: string) => {
 };
 
 onMounted(async () => {
+  // STEP 3: IMPLEMENT SLOW-ROUTE DEBUG LOGGING
+  console.log("=".repeat(80));
+  console.log("[UserList Component] Component mounted");
+  console.log("[UserList Component] Current route:", router.currentRoute.value);
+  console.log("[UserList Component] Route path:", router.currentRoute.value.path);
+  console.log("[UserList Component] Route query:", router.currentRoute.value.query);
+  console.log("[UserList Component] Route params:", router.currentRoute.value.params);
+  console.log("[UserList Component] Initial state - actionModalOpen:", actionModalOpen.value);
+  console.log("[UserList Component] Initial state - actionModalUser:", actionModalUser.value);
+  console.log("[UserList Component] Current user permission:", currentUserPermission.value);
+  console.log("=".repeat(80));
+
   fetchData();
 });
 </script>

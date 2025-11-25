@@ -64,11 +64,11 @@ const sendResetCode = async () => {
       email: email.value
     });
 
-    if (response.data.data?.success) {
+    if (response.data.success) {
       currentStep.value = 1;
       startCountdown();
     } else {
-      reportErrorMsg({ message: response.data.data?.message || "Failed to send reset code" });
+      reportErrorMsg({ message: response.data.message || "Failed to send reset code" });
     }
   } catch (error: any) {
     // Still move to next step (don't reveal if email exists)
@@ -98,13 +98,13 @@ const resetPassword = async () => {
       newPassword: newPassword.value
     });
 
-    if (response.data.data?.success) {
+    if (response.data.success) {
       currentStep.value = 2;
       setTimeout(() => {
         router.push("/login");
       }, 3000);
     } else {
-      reportErrorMsg({ message: response.data.data?.message || "Failed to reset password" });
+      reportErrorMsg({ message: response.data.message || "Failed to reset password" });
     }
   } catch (error: any) {
     reportErrorMsg({ message: error.response?.data?.message || "Failed to reset password" });

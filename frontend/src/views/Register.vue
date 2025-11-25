@@ -498,7 +498,7 @@ onUnmounted(() => {
                   <a-input
                     v-model:value="formData.firstName"
                     size="large"
-                    placeholder="John"
+                    placeholder="First Name"
                     class="modern-input"
                   >
                     <template #prefix>
@@ -511,7 +511,7 @@ onUnmounted(() => {
                   <a-input
                     v-model:value="formData.lastName"
                     size="large"
-                    placeholder="Doe"
+                    placeholder="Last Name"
                     class="modern-input"
                   >
                     <template #prefix>
@@ -526,7 +526,7 @@ onUnmounted(() => {
                 <a-input
                   v-model:value="formData.userName"
                   size="large"
-                  placeholder="johndoe"
+                  placeholder="Username"
                   class="modern-input"
                 >
                   <template #prefix>
@@ -547,7 +547,7 @@ onUnmounted(() => {
                   v-model:value="formData.email"
                   size="large"
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder="Email"
                   class="modern-input"
                 >
                   <template #prefix>
@@ -764,7 +764,7 @@ onUnmounted(() => {
   inset: 0;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -817,7 +817,7 @@ onUnmounted(() => {
   grid-template-columns: 1fr 1.3fr;
   width: 90%;
   max-width: 1200px;
-  height: 90vh;
+  min-height: 90vh;
   max-height: 850px;
   background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(20px);
@@ -825,6 +825,7 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 140, 66, 0.3);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   overflow: hidden;
+  margin: 20px 0;
 }
 
 .brand-section {
@@ -1202,14 +1203,34 @@ onUnmounted(() => {
   .register-container {
     grid-template-columns: 1fr;
     max-width: 500px;
+    min-height: auto;
+    max-height: none;
+    height: auto;
   }
 
   .brand-section {
     display: none;
   }
+
+  .form-section {
+    overflow-y: visible;
+    height: auto;
+    min-height: auto;
+  }
 }
 
 @media (max-width: 480px) {
+  .register-page {
+    align-items: flex-start;
+    padding: 20px 0;
+  }
+
+  .register-container {
+    width: 95%;
+    min-height: auto;
+    margin: 0;
+  }
+
   .form-section {
     padding: 24px 16px;
   }

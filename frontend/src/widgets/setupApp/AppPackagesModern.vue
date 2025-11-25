@@ -18,6 +18,7 @@ const props = defineProps<{
   btnText?: string;
   showCustomBtn?: boolean;
   onlyDockerTemplate?: boolean;
+  hideCreateButton?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -183,6 +184,7 @@ onMounted(() => {
         <h1 class="hero-title">Template Marketplace</h1>
         <p class="hero-subtitle">Browse and install game servers, bots, and applications instantly</p>
         <a-button
+          v-if="!props.hideCreateButton"
           type="primary"
           size="large"
           class="create-instance-btn"

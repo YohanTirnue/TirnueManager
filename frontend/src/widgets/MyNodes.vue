@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { message } from "ant-design-vue";
 import {
   CloudServerOutlined,
@@ -8,11 +8,13 @@ import {
   ThunderboltOutlined,
   DatabaseOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  ArrowLeftOutlined
 } from "@ant-design/icons-vue";
 import CardPanel from "@/components/CardPanel.vue";
+import AppPackages from "@/widgets/setupApp/AppPackagesModern.vue";
 import { getMyOwnedDaemons, createInstanceOnOwnedDaemon } from "@/services/apis/user";
-import type { LayoutCard } from "@/types/index";
+import type { LayoutCard, QuickStartPackages } from "@/types/index";
 import { useRouter } from "vue-router";
 
 defineProps<{
@@ -25,6 +27,21 @@ const { execute: executeGetMyDaemons, isLoading: loading } = getMyOwnedDaemons()
 const { execute: executeCreateInstance } = createInstanceOnOwnedDaemon();
 
 const ownedDaemons = ref<any[]>([]);
+
+// Template market modal state
+const templateMarketModal = ref({
+  visible: false,
+  daemonId: "",
+  daemonName: "",
+  instanceLimit: 0,
+  currentCount: 0,
+  ramLimitMB: 0,
+  ramAllocatedMB: 0,
+  availableRamMB: 0
+});
+const appPackagesRef = ref<InstanceType<typeof AppPackages>>();
+const selectedTemplate = ref<QuickStartPackages | null>(null);
+
 const createInstanceModal = ref({
   visible: false,
   daemonId: "",
@@ -35,8 +52,8 @@ const createInstanceModal = ref({
   ramAllocatedMB: 0,
   availableRamMB: 0,
   ramAllocation: 1024, // Default 1GB
-  portMapping: "",
   loading: false,
+  baseStartCommand: "", // Store original template start command
   config: {
     nickname: "",
     startCommand: "",
@@ -46,24 +63,12 @@ const createInstanceModal = ref({
     oe: "utf-8",
     fileCode: "utf-8",
     processType: "docker",
+    actionCommandList: [] as string[],
     docker: {
-      containerName: "",
       image: "",
-      ports: [],
-      extraVolumes: [],
-      memory: 1024,
-      networkMode: "bridge",
-      networkAliases: [],
-      cpusetCpus: "",
-      cpuUsage: 0,
-      maxSpace: 0,
-      io: 0,
-      network: 0,
-      workingDir: "/workspace/",
-      env: [],
-      changeWorkdir: true
-    },
-    actionCommandList: [] as string[]
+      ports: [] as string[],
+      extraVolumes: [] as string[]
+    }
   }
 });
 
@@ -80,49 +85,108 @@ const loadOwnedDaemons = async () => {
   }
 };
 
-const showCreateInstanceModal = (daemon: any) => {
-  const defaultRam = Math.min(1024, daemon.availableRamMB || 1024); // Default to 1GB or available, whichever is less
+const showCreateInstanceModal = async (daemon: any) => {
+  // Reload daemon data to get fresh RAM info before showing template market
+  await loadOwnedDaemons();
+
+  // Find the refreshed daemon data
+  const refreshedDaemon = ownedDaemons.value.find(d => d.daemonId === daemon.daemonId) || daemon;
+
+  // First show template market
+  templateMarketModal.value = {
+    visible: true,
+    daemonId: refreshedDaemon.daemonId,
+    daemonName: refreshedDaemon.daemonName,
+    instanceLimit: refreshedDaemon.instanceLimit,
+    currentCount: refreshedDaemon.instanceCount,
+    ramLimitMB: refreshedDaemon.ramLimitMB || -1,
+    ramAllocatedMB: refreshedDaemon.ramAllocatedMB || 0,
+    availableRamMB: refreshedDaemon.availableRamMB || 0
+  };
+  selectedTemplate.value = null;
+  appPackagesRef.value?.init();
+};
+
+// Helper function to adjust -Xmx and -Xms in start command based on RAM
+const adjustJavaMemoryInCommand = (command: string, ramMB: number): string => {
+  if (!command) return command;
+
+  // Leave some headroom for the JVM itself (typically 10-20% overhead)
+  // For containers, use 80% of allocated RAM for heap
+  const heapMB = Math.floor(ramMB * 0.8);
+  const heapG = (heapMB / 1024).toFixed(1);
+
+  // Replace -Xmx and -Xms with the calculated values
+  // Supports formats: -Xmx2G, -Xmx2048M, -Xmx2g, -Xmx2048m
+  let updatedCommand = command
+    .replace(/-Xmx\d+[GgMm]/g, `-Xmx${heapG}G`)
+    .replace(/-Xms\d+[GgMm]/g, `-Xms${heapG}G`);
+
+  return updatedCommand;
+};
+
+const handleSelectTemplate = (template: QuickStartPackages | null) => {
+  if (!template) {
+    templateMarketModal.value.visible = false;
+    return;
+  }
+
+  selectedTemplate.value = template;
+  templateMarketModal.value.visible = false;
+
+  // Now show RAM allocation modal with template pre-filled
+  const modal = templateMarketModal.value;
+  const defaultRam = Math.min(1024, modal.availableRamMB || 1024);
+
+  // Get start command from template
+  const setupInfo = template.setupInfo;
+  let baseStartCommand = "";
+  if (setupInfo?.startCommand) {
+    baseStartCommand = setupInfo.startCommand;
+  } else if (setupInfo?.docker?.command) {
+    baseStartCommand = setupInfo.docker.command;
+  } else if (setupInfo?.command) {
+    baseStartCommand = setupInfo.command;
+  }
+
+  // Adjust Java memory parameters in start command based on default RAM
+  const adjustedStartCommand = adjustJavaMemoryInCommand(baseStartCommand, defaultRam);
+
   createInstanceModal.value = {
     visible: true,
-    daemonId: daemon.daemonId,
-    daemonName: daemon.daemonName,
-    instanceLimit: daemon.instanceLimit,
-    currentCount: daemon.instanceCount,
-    ramLimitMB: daemon.ramLimitMB || -1,
-    ramAllocatedMB: daemon.ramAllocatedMB || 0,
-    availableRamMB: daemon.availableRamMB || 0,
+    daemonId: modal.daemonId,
+    daemonName: modal.daemonName,
+    instanceLimit: modal.instanceLimit,
+    currentCount: modal.currentCount,
+    ramLimitMB: modal.ramLimitMB,
+    ramAllocatedMB: modal.ramAllocatedMB,
+    availableRamMB: modal.availableRamMB,
     ramAllocation: defaultRam,
-    portMapping: "",
     loading: false,
+    baseStartCommand: baseStartCommand, // Store the original template command
     config: {
-      nickname: "",
-      startCommand: "",
-      stopCommand: "^C",
-      cwd: "",
+      nickname: template.title || "",
+      startCommand: adjustedStartCommand,
+      stopCommand: setupInfo?.stopCommand || "^C",
+      cwd: setupInfo?.cwd || "",
       ie: "utf-8",
       oe: "utf-8",
       fileCode: "utf-8",
       processType: "docker",
+      actionCommandList: [],
       docker: {
-        containerName: "",
-        image: "",
-        ports: [],
-        extraVolumes: [],
-        memory: 1024,
-        networkMode: "bridge",
-        networkAliases: [],
-        cpusetCpus: "",
-        cpuUsage: 0,
-        maxSpace: 0,
-        io: 0,
-        network: 0,
-        workingDir: "/workspace/",
-        env: [],
-        changeWorkdir: true
-      },
-      actionCommandList: []
+        image: setupInfo?.docker?.image || "eclipse-temurin:21-jre",
+        ports: setupInfo?.docker?.ports || ["25565:25565/tcp"],
+        extraVolumes: setupInfo?.docker?.extraVolumes || []
+      }
     }
   };
+};
+
+const goBackToTemplateMarket = () => {
+  createInstanceModal.value.visible = false;
+  templateMarketModal.value.visible = true;
+  appPackagesRef.value?.init();
 };
 
 const handleCreateInstance = async () => {
@@ -130,16 +194,6 @@ const handleCreateInstance = async () => {
 
   if (!modal.config.nickname.trim()) {
     message.error("Please enter an instance name");
-    return;
-  }
-
-  if (!modal.config.docker.image.trim()) {
-    message.error("Please enter a Docker image");
-    return;
-  }
-
-  if (!modal.portMapping.trim()) {
-    message.error("Please specify at least one port mapping");
     return;
   }
 
@@ -160,16 +214,6 @@ const handleCreateInstance = async () => {
 
   try {
     modal.loading = true;
-
-    // Update Docker memory limit to match RAM allocation
-    if (modal.config.docker) {
-      modal.config.docker.memory = modal.ramAllocation;
-
-      // Parse and add port mapping
-      if (modal.portMapping.trim()) {
-        modal.config.docker.ports = [modal.portMapping.trim()];
-      }
-    }
 
     const res = await executeCreateInstance({
       data: {
@@ -214,6 +258,20 @@ const getStatusColor = (available: boolean) => {
   return available ? "#52c41a" : "#ff4d4f";
 };
 
+// Watch RAM allocation changes and update start command accordingly
+watch(
+  () => createInstanceModal.value.ramAllocation,
+  (newRam) => {
+    // Only adjust if we have a base command to work with
+    if (createInstanceModal.value.baseStartCommand) {
+      createInstanceModal.value.config.startCommand = adjustJavaMemoryInCommand(
+        createInstanceModal.value.baseStartCommand,
+        newRam
+      );
+    }
+  }
+);
+
 onMounted(() => {
   loadOwnedDaemons();
 });
@@ -221,7 +279,8 @@ onMounted(() => {
 
 <template>
   <CardPanel :card="card">
-    <div class="my-nodes-page">
+    <template #body>
+      <div class="my-nodes-page">
       <!-- Header -->
       <div class="page-header">
         <div class="header-left">
@@ -249,9 +308,6 @@ onMounted(() => {
             </div>
             <div class="node-info">
               <h3 class="node-name">{{ daemon.daemonName }}</h3>
-              <div class="node-address">
-                {{ daemon.ip }}:{{ daemon.port }}
-              </div>
             </div>
             <div class="node-status" :style="{ color: getStatusColor(daemon.available) }">
               <component :is="daemon.available ? CheckCircleOutlined : CloseCircleOutlined" />
@@ -289,19 +345,19 @@ onMounted(() => {
               <div class="stat-content">
                 <div class="stat-label">RAM Allocation</div>
                 <div class="stat-value">
-                  {{ (daemon.ramAllocatedMB / 1024).toFixed(1) }}GB / {{ daemon.ramLimitMB === -1 ? '∞' : (daemon.ramLimitMB / 1024).toFixed(1) + 'GB' }}
+                  {{ ((daemon.ramAllocatedMB || 0) / 1024).toFixed(1) }}GB / {{ daemon.ramLimitMB === -1 || !daemon.ramLimitMB ? '∞' : ((daemon.ramLimitMB || 0) / 1024).toFixed(1) + 'GB' }}
                 </div>
                 <div class="stat-progress">
                   <div
                     class="stat-progress-bar"
                     :style="{
-                      width: daemon.ramLimitMB === -1 ? '0%' : `${(daemon.ramAllocatedMB / daemon.ramLimitMB) * 100}%`,
-                      background: (daemon.ramAllocatedMB / daemon.ramLimitMB) * 100 >= 90 ? '#ff4d4f' : '#52c41a'
+                      width: daemon.ramLimitMB === -1 || !daemon.ramLimitMB ? '0%' : `${((daemon.ramAllocatedMB || 0) / daemon.ramLimitMB) * 100}%`,
+                      background: daemon.ramLimitMB && ((daemon.ramAllocatedMB || 0) / daemon.ramLimitMB) * 100 >= 90 ? '#ff4d4f' : '#52c41a'
                     }"
                   ></div>
                 </div>
                 <div class="stat-detail" style="margin-top: 4px;">
-                  Available: {{ (daemon.availableRamMB / 1024).toFixed(1) }}GB
+                  Available: {{ ((daemon.availableRamMB || 0) / 1024).toFixed(1) }}GB
                 </div>
               </div>
             </div>
@@ -347,27 +403,49 @@ onMounted(() => {
       <!-- Empty State -->
       <div v-else class="empty-state">
         <CloudServerOutlined style="font-size: 64px; color: #d9d9d9; margin-bottom: 16px;" />
-        <h3>You currently don't own any nodes</h3>
-        <p>No nodes have been assigned to your account yet.</p>
-        <p class="empty-hint">
-          If you believe this is an error or need assistance, join our Discord:
-          <a href="https://discord.gg/SA6e7ZHHfn" target="_blank" rel="noopener noreferrer" class="discord-link">
-            https://discord.gg/SA6e7ZHHfn
-          </a>
-        </p>
+        <h3>No Nodes Assigned</h3>
+        <p>You don't have any nodes assigned yet.</p>
+        <p class="empty-hint">Contact your administrator to get access to nodes.</p>
       </div>
     </div>
 
-    <!-- Create Instance Modal -->
+    <!-- Template Market Modal -->
+    <a-modal
+      v-model:open="templateMarketModal.visible"
+      centered
+      width="1600px"
+      :footer="null"
+      :mask-closable="false"
+      @cancel="templateMarketModal.visible = false"
+    >
+      <AppPackages
+        ref="appPackagesRef"
+        btn-text="Select"
+        title="Select Server Template"
+        :show-custom-btn="false"
+        :only-docker-template="true"
+        :hide-create-button="true"
+        @handle-select-template="handleSelectTemplate"
+      />
+    </a-modal>
+
+    <!-- Create Instance Modal (RAM Allocation) -->
     <a-modal
       v-model:open="createInstanceModal.visible"
-      title="Create Instance"
       centered
       :destroy-on-close="true"
       :width="700"
       class="create-instance-modal"
       @cancel="createInstanceModal.visible = false"
     >
+      <template #title>
+        <div class="modal-title-with-back">
+          <button class="back-btn" @click="goBackToTemplateMarket">
+            <ArrowLeftOutlined />
+          </button>
+          <span>Configure Instance - {{ selectedTemplate?.title || 'New Instance' }}</span>
+        </div>
+      </template>
       <div class="modal-content">
         <div class="modal-info">
           <div class="info-item">
@@ -397,28 +475,6 @@ onMounted(() => {
             />
           </a-form-item>
 
-          <a-form-item label="Docker Image" required>
-            <a-input
-              v-model:value="createInstanceModal.config.docker.image"
-              placeholder="e.g., itzg/minecraft-server:latest"
-              size="large"
-            />
-            <div class="field-hint" style="margin-top: 8px;">
-              Docker image to use (e.g., itzg/minecraft-server, openjdk:17, node:18-alpine)
-            </div>
-          </a-form-item>
-
-          <a-form-item label="Container Ports">
-            <a-input
-              v-model:value="createInstanceModal.portMapping"
-              placeholder="e.g., 25565:25565/tcp or 8080:8080/tcp"
-              size="large"
-            />
-            <div class="field-hint" style="margin-top: 8px;">
-              Format: host_port:container_port/protocol (e.g., 25565:25565/tcp)
-            </div>
-          </a-form-item>
-
           <a-form-item label="RAM Allocation (MB)" required>
             <div class="ram-input-group">
               <a-input-number
@@ -444,40 +500,29 @@ onMounted(() => {
               </div>
             </div>
             <div class="field-hint" style="margin-top: 8px;">
-              {{ (createInstanceModal.ramAllocation / 1024).toFixed(1) }}GB will be allocated and enforced by Docker ({{ createInstanceModal.availableRamMB }}MB available)
+              {{ (createInstanceModal.ramAllocation / 1024).toFixed(1) }}GB will be allocated ({{ createInstanceModal.availableRamMB }}MB available)
             </div>
           </a-form-item>
 
-          <a-form-item label="Start Command" required>
-            <a-input
-              v-model:value="createInstanceModal.config.startCommand"
-              placeholder="e.g., java -jar server.jar"
-              size="large"
-            />
-          </a-form-item>
+          <!-- Hidden fields - auto-filled from template -->
+          <!-- Start command, stop command, and working directory are automatically set from the template -->
 
-          <a-form-item label="Stop Command">
-            <a-input
-              v-model:value="createInstanceModal.config.stopCommand"
-              placeholder="Default: ^C"
-              size="large"
-            />
-          </a-form-item>
-
-          <a-form-item label="Working Directory">
-            <a-input
-              v-model:value="createInstanceModal.config.cwd"
-              placeholder="Leave empty for default"
-              size="large"
-            />
-          </a-form-item>
-
-          <a-form-item label="Process Type">
-            <a-select v-model:value="createInstanceModal.config.processType" size="large" style="width: 100%">
-              <a-select-option value="general">General</a-select-option>
-              <a-select-option value="docker">Docker</a-select-option>
-            </a-select>
-          </a-form-item>
+          <div class="template-info" style="background: var(--color-bg-2); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+            <div style="font-size: 13px; color: var(--color-text-3); margin-bottom: 8px;">
+              Template Configuration
+            </div>
+            <div style="font-size: 12px; color: var(--color-text-4);">
+              <div v-if="createInstanceModal.config.startCommand">
+                <strong>Start:</strong> {{ createInstanceModal.config.startCommand }}
+              </div>
+              <div v-if="createInstanceModal.config.stopCommand">
+                <strong>Stop:</strong> {{ createInstanceModal.config.stopCommand }}
+              </div>
+              <div v-if="createInstanceModal.config.cwd">
+                <strong>Directory:</strong> {{ createInstanceModal.config.cwd }}
+              </div>
+            </div>
+          </div>
         </a-form>
       </div>
 
@@ -497,6 +542,7 @@ onMounted(() => {
         </div>
       </template>
     </a-modal>
+    </template>
   </CardPanel>
 </template>
 
@@ -504,7 +550,6 @@ onMounted(() => {
 .my-nodes-page {
   padding: 24px;
   min-height: 500px;
-  background: var(--color-bg-1);
 }
 
 .page-header {
@@ -776,17 +821,6 @@ onMounted(() => {
     font-size: 13px;
     color: var(--color-text-4);
     margin-top: 12px;
-
-    .discord-link {
-      color: #5865f2;
-      text-decoration: none;
-      font-weight: 500;
-      margin-left: 4px;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
   }
 }
 
@@ -908,6 +942,37 @@ onMounted(() => {
   .field-hint {
     font-size: 12px;
     color: var(--color-text-3);
+  }
+}
+
+// Modal title with back button
+.modal-title-with-back {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .back-btn {
+    padding: 6px 10px;
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-border-2);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: var(--color-text-2);
+
+    &:hover {
+      border-color: #ff8c00;
+      color: #ff8c00;
+      background: rgba(255, 140, 0, 0.05);
+    }
+  }
+
+  span {
+    font-weight: 600;
+    font-size: 16px;
   }
 }
 </style>

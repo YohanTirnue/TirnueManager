@@ -1,4 +1,5 @@
 import "ant-design-vue/dist/reset.css";
+import "nprogress/nprogress.css";
 import "@/assets/base.scss";
 import "@/assets/tools.scss";
 import "@/assets/variables.scss";

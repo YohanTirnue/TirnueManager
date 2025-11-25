@@ -194,3 +194,39 @@ html {
   border-radius: 4px;
   background: #ffffff0a;
 }
+
+// NProgress loading bar customization
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: linear-gradient(90deg, rgba(153, 27, 27, 0.95) 0%, rgba(127, 29, 29, 0.95) 100%);
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+}
+
+#nprogress .peg {
+  display: block;
+  position: absolute;
+  right: 0px;
+  width: 100px;
+  height: 100%;
+  box-shadow: 0 0 10px rgba(153, 27, 27, 0.95), 0 0 5px rgba(153, 27, 27, 0.95);
+  opacity: 1;
+  transform: rotate(3deg) translate(0px, -4px);
+}
+
+.app-dark-theme {
+  #nprogress .bar {
+    background: linear-gradient(90deg, rgba(220, 38, 38, 0.95) 0%, rgba(185, 28, 28, 0.95) 100%);
+  }
+
+  #nprogress .peg {
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.95), 0 0 5px rgba(220, 38, 38, 0.95);
+  }
+}
