@@ -954,3 +954,160 @@ const onTurnstileCallback = (token: string) => {
   color: white !important;
 }
 </style>
+
+<style lang="scss">
+// Global Light Mode Styles for Login Page
+.app-light-theme {
+  .modern-login-page {
+    background: #f5f5f5;
+  }
+
+  .gradient-orb {
+    &.orb-1 {
+      background: radial-gradient(circle, #FF8C42, transparent);
+      opacity: 0.15;
+    }
+
+    &.orb-2 {
+      background: radial-gradient(circle, #D4AF37, transparent);
+      opacity: 0.15;
+    }
+
+    &.orb-3 {
+      background: radial-gradient(circle, #FF6B35, transparent);
+      opacity: 0.15;
+    }
+  }
+
+  .login-container {
+    background: rgba(255, 255, 255, 0.98);
+    border: 2px solid #333;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  }
+
+  .brand-section {
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.08) 0%, rgba(212, 175, 55, 0.08) 100%);
+  }
+
+  .brand-title {
+    color: #1a1a1a;
+  }
+
+  .brand-subtitle {
+    color: #666;
+  }
+
+  .feature-item {
+    background: rgba(255, 255, 255, 0.6);
+    border: 2px solid #333;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    h3 {
+      color: #1a1a1a;
+    }
+
+    p {
+      color: #666;
+    }
+  }
+
+  .form-section {
+    background: #fafafa;
+    border-left: 1px solid #ddd;
+  }
+
+  .form-header {
+    h2 {
+      color: #1a1a1a;
+    }
+
+    p {
+      color: #666;
+    }
+  }
+
+  .input-group label {
+    color: #1a1a1a;
+  }
+
+  .modern-input {
+    .ant-input,
+    .ant-input-password,
+    .ant-input-affix-wrapper {
+      background: white !important;
+      border: 2px solid #333 !important;
+      color: #1a1a1a !important;
+
+      &::placeholder {
+        color: #999 !important;
+      }
+
+      &:hover {
+        border-color: #666 !important;
+        background: #fafafa !important;
+      }
+
+      &:focus, &:focus-within {
+        border-color: #FF8C42 !important;
+        background: white !important;
+        box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15) !important;
+      }
+    }
+
+    .ant-input-password-icon {
+      color: rgba(255, 140, 66, 0.6) !important;
+
+      &:hover {
+        color: #FF8C42 !important;
+      }
+    }
+  }
+
+  .login-button {
+    background: linear-gradient(135deg, #FF8C42, #FF6B35);
+    border: none;
+
+    &:hover {
+      background: linear-gradient(135deg, #FFA500, #FF8C42);
+    }
+  }
+
+  .secondary-button {
+    border: 2px solid #333;
+    background: white;
+    color: #4a4a4a;
+
+    &:hover {
+      border-color: #FF8C42;
+      background: rgba(255, 140, 66, 0.1);
+      color: #FF8C42;
+    }
+  }
+
+  .auth-link {
+    color: #666;
+
+    &:hover {
+      color: #FF8C42;
+    }
+  }
+
+  .status-screen {
+    h3 {
+      color: #1a1a1a;
+    }
+
+    p {
+      color: #666;
+    }
+
+    .loading-icon,
+    .success-icon {
+      color: #FF8C42;
+    }
+  }
+}
+</style>

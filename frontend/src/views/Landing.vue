@@ -1059,9 +1059,11 @@ const logLines = [
     font-size: 32px;
   }
 }
+</style>
 
-// Light Mode Styles - With Darker Card Edges
-:deep(.app-light-theme) {
+<style lang="scss">
+// Global Light Mode Styles for Landing Page
+.app-light-theme {
   .landing-page {
     background: #f5f5f5;
   }
@@ -1205,7 +1207,7 @@ const logLines = [
   .feature-icon {
     background: rgba(255, 140, 0, 0.15);
 
-    :deep(.anticon) {
+    .anticon {
       color: #ff8c00;
     }
   }
@@ -1274,7 +1276,7 @@ const logLines = [
   .pricing-feature {
     color: #4a4a4a;
 
-    :deep(.anticon) {
+    .anticon {
       color: #ff8c00;
     }
   }

@@ -1247,3 +1247,177 @@ onUnmounted(() => {
   caret-color: white !important;
 }
 </style>
+
+<style lang="scss">
+// Global Light Mode Styles for Register Page
+.app-light-theme {
+  .register-page {
+    background: #f5f5f5;
+  }
+
+  .gradient-orb {
+    &.orb-1 {
+      background: radial-gradient(circle, #ff8c42, transparent);
+      opacity: 0.15;
+    }
+
+    &.orb-2 {
+      background: radial-gradient(circle, #d4af37, transparent);
+      opacity: 0.15;
+    }
+
+    &.orb-3 {
+      background: radial-gradient(circle, #ff6b35, transparent);
+      opacity: 0.15;
+    }
+  }
+
+  .register-container {
+    background: rgba(255, 255, 255, 0.98);
+    border: 2px solid #333;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  }
+
+  .brand-section {
+    background: linear-gradient(135deg, rgba(255, 140, 66, 0.08) 0%, rgba(212, 175, 55, 0.08) 100%);
+  }
+
+  .brand-title {
+    color: #1a1a1a;
+  }
+
+  .brand-subtitle {
+    color: #666;
+  }
+
+  .form-section {
+    background: #fafafa;
+    border-left: 1px solid #ddd;
+  }
+
+  .form-header {
+    h2 {
+      color: #1a1a1a;
+    }
+
+    p {
+      color: #666;
+    }
+  }
+
+  .progress-steps {
+    .step {
+      background: #fff;
+      border: 2px solid #333;
+
+      &.active {
+        background: rgba(255, 140, 0, 0.1);
+        border-color: #ff8c00;
+      }
+
+      &.completed {
+        background: rgba(255, 140, 0, 0.15);
+        border-color: #ff8c00;
+      }
+    }
+
+    .step-number {
+      color: #4a4a4a;
+    }
+
+    .step.active .step-number,
+    .step.completed .step-number {
+      color: #ff8c00;
+    }
+
+    .step-label {
+      color: #666;
+    }
+
+    .step.active .step-label {
+      color: #1a1a1a;
+    }
+  }
+
+  .form-label {
+    color: #1a1a1a;
+  }
+
+  .modern-input {
+    input,
+    .ant-select-selector,
+    .ant-input-affix-wrapper {
+      background: white !important;
+      border: 2px solid #333 !important;
+      color: #1a1a1a !important;
+
+      &::placeholder {
+        color: #999 !important;
+      }
+
+      &:hover {
+        border-color: #666 !important;
+        background: #fafafa !important;
+      }
+
+      &:focus, &:focus-within {
+        border-color: #ff8c00 !important;
+        background: white !important;
+        box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.15) !important;
+      }
+    }
+  }
+
+  .password-strength {
+    background: rgba(255, 140, 0, 0.1);
+    border: 1px solid rgba(255, 140, 0, 0.2);
+  }
+
+  .password-requirement {
+    color: #666;
+
+    &.met {
+      color: #ff8c00;
+    }
+  }
+
+  .form-buttons {
+    .ant-btn {
+      border: 2px solid #333;
+      color: #4a4a4a;
+      background: white;
+
+      &:hover {
+        border-color: #ff8c00;
+        color: #ff8c00;
+      }
+    }
+
+    .ant-btn-primary {
+      background: linear-gradient(135deg, #ff8c00, #ff6b35);
+      border: none;
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
+      }
+    }
+  }
+
+  .success-icon,
+  .check-icon {
+    color: #ff8c00;
+  }
+
+  .success-screen,
+  .otp-screen {
+    h3 {
+      color: #1a1a1a;
+    }
+
+    p {
+      color: #666;
+    }
+  }
+}
+</style>
