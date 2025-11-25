@@ -5,32 +5,12 @@ import {
   ThunderboltOutlined,
   SafetyCertificateOutlined,
   GlobalOutlined,
-  RocketOutlined,
-  CustomerServiceOutlined,
+  TeamOutlined,
   CheckCircleOutlined,
   ArrowRightOutlined,
-  TeamOutlined,
-  EyeOutlined
+  DollarOutlined,
+  CustomerServiceOutlined
 } from "@ant-design/icons-vue";
-import { message } from "ant-design-vue";
-import { onMounted, onUnmounted, ref } from "vue";
-
-const showContent = ref(true); // Show immediately
-const showFeatures = ref(true);
-const showServices = ref(true);
-const showCTA = ref(true);
-
-// Scrolling log animation
-const logs = ref([
-  { user: "dev1", action: "uploaded files", icon: "↑" },
-  { user: "dev1", action: "downloaded config.yml", icon: "↓" },
-  { user: "dev2", action: "viewed server console", icon: "👁" },
-  { user: "dev1", action: "stopped server", icon: "⏹" },
-  { user: "dev2", action: "uploaded plugin.jar", icon: "↑" },
-]);
-
-const currentLogIndex = ref(0);
-let logInterval: any = null;
 
 const goToLogin = () => {
   router.push("/login");
@@ -44,301 +24,310 @@ const openDiscord = () => {
   window.open("https://discord.gg/SA6e7ZHHfn", "_blank");
 };
 
-const showUnderDevelopment = () => {
-  message.info("This feature is under development. Check back soon!");
+const scrollToSection = (id: string) => {
+  const element = document.getElementById(id);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 };
-
-onMounted(() => {
-  // Start log animation
-  logInterval = setInterval(() => {
-    currentLogIndex.value = (currentLogIndex.value + 1) % logs.value.length;
-  }, 2500);
-});
-
-onUnmounted(() => {
-  if (logInterval) clearInterval(logInterval);
-});
 </script>
 
 <template>
   <div class="landing-page">
-    <!-- Background Image with Blur -->
-    <div class="background-image"></div>
-
-    <!-- Animated Background -->
-    <div class="background-effects">
-      <div class="grid-overlay"></div>
-      <div class="gradient-orb orb-1"></div>
-      <div class="gradient-orb orb-2"></div>
-      <div class="gradient-orb orb-3"></div>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="landing-nav">
-      <div class="nav-brand">
-        <img src="/favicon.png" alt="Tirnue" class="nav-logo" />
-        <span class="nav-title">Tirnue</span>
-      </div>
-      <div class="nav-actions">
-        <a-button class="nav-signin-secondary" @click="goToLogin">
-          Sign In
-        </a-button>
-        <a-button type="primary" class="nav-register" @click="goToRegister">
-          Register Now
-          <ArrowRightOutlined />
-        </a-button>
+    <!-- Fixed Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <img src="/favicon.png" alt="Tirnue" class="brand-logo" />
+          <span class="brand-name">Tirnue</span>
+        </div>
+        <div class="nav-links">
+          <a @click="scrollToSection('features')" class="nav-link">Features</a>
+          <a @click="scrollToSection('pricing')" class="nav-link">Pricing</a>
+          <a @click="openDiscord" class="nav-link">Support</a>
+          <a-button class="btn-login" @click="goToLogin">Sign In</a-button>
+          <a-button type="primary" class="btn-register" @click="goToRegister">Get Started</a-button>
+        </div>
       </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero-section" :class="{ show: showContent }">
-      <div class="hero-content">
+    <section class="hero" id="hero">
+      <div class="hero-container">
         <div class="hero-badge">
           <span class="badge-dot"></span>
-          Powered by MCS Manager
+          Cheap Startup Hosting
         </div>
-        <h1 class="hero-title">
-          A Startup
-          <span class="highlight">Panel Hosting</span>
-          Minecraft Servers
-        </h1>
+        <h1 class="hero-title">Minecraft Server Hosting<br/>Built for Transparency</h1>
         <p class="hero-subtitle">
-          Take advantage of cheap hosting now! We're a new startup mainly focused on Minecraft servers.
-          Game server panel hosting with 24/7 support - no fancy claims, just honest pricing.
+          Affordable panel hosting with complete team control. Track every action,<br/>
+          control permissions, and manage your developers with full transparency.
         </p>
-        <div class="hero-actions">
+        <div class="hero-cta">
           <a-button type="primary" size="large" class="cta-primary" @click="goToRegister">
-            Register Now
+            Get Started Now
             <ArrowRightOutlined />
           </a-button>
-          <a-button size="large" class="cta-secondary" @click="goToLogin">
-            Sign In
+          <a-button size="large" class="cta-secondary" @click="openDiscord">
+            Join Discord
           </a-button>
         </div>
-        <div class="hero-stats">
-          <div class="stat-item">
-            <span class="stat-value">Cheap</span>
-            <span class="stat-label">Pricing</span>
+        <div class="hero-features">
+          <div class="feature-pill">
+            <CheckCircleOutlined />
+            <span>Cheap Pricing</span>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">24/7</span>
-            <span class="stat-label">Support</span>
+          <div class="feature-pill">
+            <CheckCircleOutlined />
+            <span>24/7 Support</span>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">New</span>
-            <span class="stat-label">Startup</span>
+          <div class="feature-pill">
+            <CheckCircleOutlined />
+            <span>Full Team Control</span>
           </div>
-        </div>
-      </div>
-      <div class="hero-visual">
-        <div class="server-illustration">
-          <img src="/favicon.png" alt="Tirnue Server" class="hero-logo" />
         </div>
       </div>
     </section>
 
     <!-- Features Section -->
-    <section class="features-section" :class="{ show: showFeatures }">
-      <h2 class="section-title">What We Offer</h2>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <SafetyCertificateOutlined />
-          </div>
-          <h3>DDoS Protection</h3>
-          <p>Basic DDoS protection included to help keep your Minecraft server running.</p>
+    <section class="features" id="features">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title">Why Choose Tirnue?</h2>
+          <p class="section-subtitle">Honest hosting with features that matter</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <GlobalOutlined />
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <TeamOutlined />
+            </div>
+            <h3>Complete Team Management</h3>
+            <p>Track every action your developers take. Full audit logs, granular permissions, and real-time monitoring included.</p>
           </div>
-          <h3>Dedicated IPs</h3>
-          <p>Your own IP address for your Minecraft server. No sharing, no extra charges.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <ThunderboltOutlined />
+          <div class="feature-card">
+            <div class="feature-icon">
+              <DollarOutlined />
+            </div>
+            <h3>Startup Pricing</h3>
+            <p>Take advantage of our cheap startup prices. No hidden fees, no overselling, just honest pricing.</p>
           </div>
-          <h3>Reliable Hardware</h3>
-          <p>Solid server hardware that works. We don't oversell or make crazy speed claims.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <EyeOutlined />
+          <div class="feature-card">
+            <div class="feature-icon">
+              <SafetyCertificateOutlined />
+            </div>
+            <h3>DDoS Protection</h3>
+            <p>Basic DDoS protection included to keep your server online and protected from attacks.</p>
           </div>
-          <h3>Full Team Control</h3>
-          <p>Manage your developers with complete transparency. See logs, control file access, track everything they do.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <CloudServerOutlined />
+          <div class="feature-card">
+            <div class="feature-icon">
+              <GlobalOutlined />
+            </div>
+            <h3>Dedicated IPs</h3>
+            <p>Your own dedicated IP address for your server. No sharing, no extra charges.</p>
           </div>
-          <h3>Easy Minecraft Setup</h3>
-          <p>Simple Minecraft server deployment through our panel. Straightforward and quick.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <RocketOutlined />
+          <div class="feature-card">
+            <div class="feature-icon">
+              <ThunderboltOutlined />
+            </div>
+            <h3>Reliable Hardware</h3>
+            <p>Solid server hardware that works. We don't make crazy speed claims, just reliable hosting.</p>
           </div>
-          <h3>Cheap Hosting</h3>
-          <p>Affordable prices from a new startup. Take advantage of cheap hosting now!</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <CustomerServiceOutlined />
+          <div class="feature-card">
+            <div class="feature-icon">
+              <CustomerServiceOutlined />
+            </div>
+            <h3>24/7 Real Support</h3>
+            <p>Real people answering questions around the clock. Small team, direct help via Discord.</p>
           </div>
-          <h3>24/7 Real Support</h3>
-          <p>Real people answering your questions around the clock. Small team, direct help.</p>
         </div>
       </div>
     </section>
 
-    <!-- Team Management Section -->
-    <section class="team-management-section" :class="{ show: showFeatures }">
-      <div class="team-management-content">
-        <div class="team-management-text">
-          <h2 class="section-title-left">Tired of Sketchy Developers?</h2>
-          <p class="team-management-intro">
-            We're sick of hosts promising the world then hiding what's really happening behind the scenes.
-            That's why we built something different.
-          </p>
-          <h3>Full Sub-User Management Built In</h3>
-          <p>Invite your developers, moderators, and friends - then control exactly what they can access:</p>
-          <ul class="team-management-features">
-            <li><CheckCircleOutlined /> <strong>Complete audit logs</strong> - See every action they take</li>
-            <li><CheckCircleOutlined /> <strong>Granular permissions</strong> - Control file access, console, commands, and more</li>
-            <li><CheckCircleOutlined /> <strong>File management tracking</strong> - Know who uploaded, edited, or deleted what</li>
-            <li><CheckCircleOutlined /> <strong>Real-time monitoring</strong> - Watch activity as it happens</li>
-            <li><CheckCircleOutlined /> <strong>Peace of mind</strong> - Run your server with your team without worrying</li>
-          </ul>
-          <p class="team-management-highlight">
-            No more blind trust. No more wondering what happened. Just complete transparency and control.
-          </p>
-        </div>
-        <div class="team-management-visual">
-          <div class="permission-card">
-            <div class="permission-header">
-              <EyeOutlined />
-              <span>Live Activity Monitor</span>
-            </div>
-            <div class="activity-log">
-              <div
-                v-for="(log, index) in logs"
-                :key="index"
-                class="log-entry"
-                :class="{ active: index === currentLogIndex }"
-              >
-                <span class="log-icon">{{ log.icon }}</span>
-                <span class="log-user">{{ log.user }}</span>
-                <span class="log-action">{{ log.action }}</span>
+    <!-- Team Control Section -->
+    <section class="team-control">
+      <div class="section-container">
+        <div class="team-control-content">
+          <div class="team-control-text">
+            <h2>Stop Wondering What Happened</h2>
+            <p class="lead">Complete transparency into your team's actions</p>
+            <ul class="benefits-list">
+              <li>
+                <CheckCircleOutlined class="check-icon" />
+                <div>
+                  <strong>Full Audit Logs</strong>
+                  <p>See every action your developers take in real-time</p>
+                </div>
+              </li>
+              <li>
+                <CheckCircleOutlined class="check-icon" />
+                <div>
+                  <strong>Granular Permissions</strong>
+                  <p>Control exactly what each team member can access</p>
+                </div>
+              </li>
+              <li>
+                <CheckCircleOutlined class="check-icon" />
+                <div>
+                  <strong>File Tracking</strong>
+                  <p>Know who uploaded, edited, or deleted what</p>
+                </div>
+              </li>
+              <li>
+                <CheckCircleOutlined class="check-icon" />
+                <div>
+                  <strong>Peace of Mind</strong>
+                  <p>Run your server with your team without worrying</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="team-control-visual">
+            <div class="log-window">
+              <div class="log-header">
+                <div class="log-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span class="log-title">Live Activity Monitor</span>
+              </div>
+              <div class="log-content">
+                <div class="log-line">
+                  <span class="log-time">14:32:15</span>
+                  <span class="log-user">dev1</span>
+                  <span class="log-action">uploaded plugin.jar</span>
+                </div>
+                <div class="log-line">
+                  <span class="log-time">14:31:42</span>
+                  <span class="log-user">dev2</span>
+                  <span class="log-action">viewed server console</span>
+                </div>
+                <div class="log-line">
+                  <span class="log-time">14:30:18</span>
+                  <span class="log-user">dev1</span>
+                  <span class="log-action">downloaded config.yml</span>
+                </div>
+                <div class="log-line">
+                  <span class="log-time">14:29:05</span>
+                  <span class="log-user">dev2</span>
+                  <span class="log-action">stopped server</span>
+                </div>
+                <div class="log-line">
+                  <span class="log-time">14:28:33</span>
+                  <span class="log-user">dev1</span>
+                  <span class="log-action">edited permissions.yml</span>
+                </div>
               </div>
             </div>
-            <div class="permission-footer">
-              <TeamOutlined />
-              <span>All actions logged & tracked</span>
-            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Services Section -->
-    <section class="services-section" :class="{ show: showServices }">
-      <h2 class="section-title">Our Services</h2>
-      <div class="services-grid">
-        <div class="service-card premium">
-          <div class="service-badge">Main</div>
-          <h3>Cheap Minecraft Hosting</h3>
-          <p class="service-desc">Affordable Minecraft server hosting - startup prices you won't find elsewhere</p>
-          <ul class="service-features">
-            <li><CheckCircleOutlined /> Cheap pricing, honest service</li>
-            <li><CheckCircleOutlined /> Mod & plugin support (Forge, Fabric, Spigot)</li>
-            <li><CheckCircleOutlined /> Web-based control panel</li>
-            <li><CheckCircleOutlined /> 24/7 support via Discord</li>
-          </ul>
-          <a-button type="primary" block class="service-btn" @click="goToRegister">
-            Register Now
-          </a-button>
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title">Simple, Honest Pricing</h2>
+          <p class="section-subtitle">New startup, cheap prices - take advantage now</p>
         </div>
-        <div class="service-card">
-          <h3>Other Game Servers</h3>
-          <p class="service-desc">We support other game servers beyond Minecraft</p>
-          <ul class="service-features">
-            <li><CheckCircleOutlined /> Terraria, Rust, ARK support</li>
-            <li><CheckCircleOutlined /> Same control panel</li>
-            <li><CheckCircleOutlined /> Same 24/7 support</li>
-            <li><CheckCircleOutlined /> Same cheap startup prices</li>
-          </ul>
-          <a-button block class="service-btn-secondary" @click="openDiscord">
-            Ask on Discord
-          </a-button>
-        </div>
-        <div class="service-card">
-          <h3>Custom Setup Needed?</h3>
-          <p class="service-desc">Talk to us - we're a small team and we're flexible</p>
-          <ul class="service-features">
-            <li><CheckCircleOutlined /> Custom Minecraft configurations</li>
-            <li><CheckCircleOutlined /> Special hosting requirements</li>
-            <li><CheckCircleOutlined /> We'll work with you directly</li>
-            <li><CheckCircleOutlined /> No hidden fees</li>
-          </ul>
-          <a-button block class="service-btn-secondary" @click="openDiscord">
-            Contact on Discord
-          </a-button>
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <div class="pricing-header">
+              <h3>Minecraft Hosting</h3>
+              <div class="pricing-badge">Most Popular</div>
+            </div>
+            <div class="pricing-features">
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>Cheap startup pricing</span>
+              </div>
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>Full team management</span>
+              </div>
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>Dedicated IP included</span>
+              </div>
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>24/7 Discord support</span>
+              </div>
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>Mod & plugin support</span>
+              </div>
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>Web control panel</span>
+              </div>
+            </div>
+            <a-button type="primary" block size="large" @click="goToRegister">
+              Get Started
+            </a-button>
+          </div>
+          <div class="pricing-card">
+            <div class="pricing-header">
+              <h3>Other Games</h3>
+            </div>
+            <div class="pricing-features">
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>Terraria, Rust, ARK</span>
+              </div>
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>Same cheap pricing</span>
+              </div>
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>Same control panel</span>
+              </div>
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>24/7 support</span>
+              </div>
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>Dedicated IPs</span>
+              </div>
+              <div class="pricing-feature">
+                <CheckCircleOutlined />
+                <span>Full team control</span>
+              </div>
+            </div>
+            <a-button block size="large" @click="openDiscord">
+              Contact Us
+            </a-button>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="cta-section" :class="{ show: showCTA }">
-      <div class="cta-content">
-        <h2>Want to Give Us a Try?</h2>
-        <p>We're a small team building something we believe in. Come check it out.</p>
-        <a-button type="primary" size="large" class="cta-final" @click="goToRegister">
-          <img src="/favicon.png" alt="" class="btn-icon" />
+    <section class="cta-section">
+      <div class="cta-container">
+        <h2>Ready to Get Started?</h2>
+        <p>Join our growing community of Minecraft server owners</p>
+        <a-button type="primary" size="large" @click="goToRegister">
           Create Your Account
           <ArrowRightOutlined />
         </a-button>
       </div>
     </section>
 
-    <!-- Join Team Section -->
-    <section class="join-team-section" :class="{ show: showCTA }">
-      <div class="join-team-content">
-        <div class="join-team-icon">
-          <TeamOutlined />
-        </div>
-        <h2>Join Our Team</h2>
-        <p>We're always looking for passionate people to help us grow. Whether you're into development, support, or community management - we'd love to hear from you.</p>
-        <div class="join-team-roles">
-          <span class="role-tag">Developers</span>
-          <span class="role-tag">Support Staff</span>
-          <span class="role-tag">Community Mods</span>
-        </div>
-        <a-button size="large" class="join-team-btn" @click="openDiscord">
-          <TeamOutlined />
-          Join Our Discord
-        </a-button>
-      </div>
-    </section>
-
     <!-- Footer -->
-    <footer class="landing-footer">
-      <div class="footer-content">
+    <footer class="footer">
+      <div class="footer-container">
         <div class="footer-brand">
-          <img src="/favicon.png" alt="Tirnue" class="footer-logo" />
+          <img src="/favicon.png" alt="Tirnue" />
           <span>Tirnue</span>
         </div>
-        <p class="footer-notice">New startup offering cheap Minecraft hosting • 24/7 Support • Take advantage now!</p>
-        <p class="footer-contact">
-          <a href="https://discord.gg/SA6e7ZHHfn" target="_blank" rel="noopener noreferrer" class="discord-link">
-            Contact & Support: Join our Discord
-          </a>
-        </p>
-        <p class="footer-powered">Powered by MCS Manager</p>
-        <p class="footer-copy">&copy; 2025 Tirnue. All rights reserved.</p>
+        <p>&copy; 2025 Tirnue. Powered by MCS Manager</p>
+        <a href="https://discord.gg/SA6e7ZHHfn" target="_blank" class="footer-link">
+          Join our Discord for support
+        </a>
       </div>
     </footer>
   </div>
@@ -346,174 +335,101 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .landing-page {
-  position: fixed;
-  inset: 0;
+  width: 100%;
   min-height: 100vh;
-  background: #050505;
-  color: white;
+  background: #ffffff;
+  scroll-behavior: smooth;
   overflow-x: hidden;
-  overflow-y: auto;
-  z-index: 9999;
-}
-
-// Blurred Background Image
-.background-image {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background-image: url('/landing-bg.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: blur(8px);
-  transform: scale(1.1); // Prevent blur edge artifacts
-  opacity: 0.3;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(5, 5, 5, 0.9) 0%,
-      rgba(255, 140, 66, 0.1) 50%,
-      rgba(5, 5, 5, 0.95) 100%
-    );
-  }
-}
-
-// Background Effects
-.background-effects {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.grid-overlay {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 140, 66, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 140, 66, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-
-.gradient-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px); // Reduced from 120px for performance
-  opacity: 0.1; // Reduced from 0.15
-
-  &.orb-1 {
-    width: 400px; // Reduced from 600px
-    height: 400px;
-    background: #FF8C42;
-    top: -100px;
-    right: -100px;
-  }
-
-  &.orb-2 {
-    width: 350px; // Reduced from 500px
-    height: 350px;
-    background: #D4AF37;
-    bottom: 20%;
-    left: -100px;
-  }
-
-  &.orb-3 {
-    display: none; // Hide third orb for performance
-  }
 }
 
 // Navigation
-.landing-nav {
+.navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+  padding: 16px 0;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 60px;
-  background: rgba(5, 5, 5, 0.8);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 140, 66, 0.1);
 }
 
 .nav-brand {
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
 }
 
-.nav-logo {
-  width: 40px;
-  height: 40px;
+.brand-logo {
+  width: 32px;
+  height: 32px;
 }
 
-.nav-title {
-  font-size: 24px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.brand-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
 }
 
-.nav-actions {
+.nav-links {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 32px;
 }
 
-.nav-signin-secondary {
-  height: 44px;
-  padding: 0 24px;
-  font-weight: 600;
-  border-radius: 8px;
-  background: transparent;
-  border: 2px solid rgba(255, 140, 66, 0.3);
-  color: white;
+.nav-link {
+  color: #4a4a4a;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
 
   &:hover {
-    border-color: #FF8C42;
-    color: #FF8C42;
-    background: rgba(255, 140, 66, 0.05);
+    color: #d84315;
   }
 }
 
-.nav-register {
-  height: 44px;
-  padding: 0 24px;
-  font-weight: 600;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.btn-login {
+  border: 1px solid #e0e0e0;
+  color: #4a4a4a;
 
   &:hover {
-    background: linear-gradient(135deg, #FF6B35, #FF5A24);
+    border-color: #d84315;
+    color: #d84315;
+  }
+}
+
+.btn-register {
+  background: #d84315;
+  border: none;
+
+  &:hover {
+    background: #bf360c;
   }
 }
 
 // Hero Section
-.hero-section {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 60px;
-  padding: 120px 60px 60px;
-  position: relative;
-  z-index: 1;
+.hero {
+  padding: 140px 32px 100px;
+  background: linear-gradient(135deg, #fff 0%, #fff5f2 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.hero-content {
-  max-width: 600px;
+.hero-container {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .hero-badge {
@@ -521,194 +437,158 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: rgba(255, 140, 66, 0.1);
-  border: 1px solid rgba(255, 140, 66, 0.3);
-  border-radius: 20px;
-  font-size: 14px;
-  color: #FF8C42;
+  background: rgba(216, 67, 21, 0.1);
+  border: 1px solid rgba(216, 67, 21, 0.2);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d84315;
   margin-bottom: 24px;
 }
 
 .badge-dot {
-  width: 8px;
-  height: 8px;
-  background: #FF8C42;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  background: #d84315;
 }
 
 .hero-title {
   font-size: 56px;
   font-weight: 800;
-  line-height: 1.1;
-  margin: 0 0 24px;
-
-  .highlight {
-    display: block;
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+  color: #1a1a1a;
+  line-height: 1.2;
+  margin: 0 0 24px 0;
 }
 
 .hero-subtitle {
   font-size: 18px;
-  color: rgba(255, 255, 255, 0.7);
+  color: #6a6a6a;
   line-height: 1.6;
-  margin-bottom: 32px;
+  margin: 0 0 40px 0;
 }
 
-.hero-actions {
+.hero-cta {
   display: flex;
+  justify-content: center;
   gap: 16px;
   margin-bottom: 48px;
 }
 
 .cta-primary {
-  height: 52px;
+  height: 48px;
   padding: 0 32px;
   font-size: 16px;
   font-weight: 600;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  background: #d84315;
   border: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 20px rgba(255, 140, 66, 0.3);
 
   &:hover {
+    background: #bf360c;
     transform: translateY(-2px);
-    box-shadow: 0 6px 30px rgba(255, 140, 66, 0.4);
+    box-shadow: 0 8px 24px rgba(216, 67, 21, 0.3);
   }
 }
 
 .cta-secondary {
-  height: 52px;
+  height: 48px;
   padding: 0 32px;
   font-size: 16px;
   font-weight: 600;
-  border-radius: 10px;
-  border: 2px solid rgba(255, 140, 66, 0.3);
-  background: transparent;
-  color: white;
+  border: 2px solid #e0e0e0;
+  color: #4a4a4a;
 
   &:hover {
-    border-color: #FF8C42;
-    color: #FF8C42;
+    border-color: #d84315;
+    color: #d84315;
   }
 }
 
-.hero-stats {
+.hero-features {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.feature-pill {
   display: flex;
   align-items: center;
-  gap: 24px;
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-value {
-  display: block;
-  font-size: 28px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.stat-label {
+  gap: 8px;
+  padding: 12px 20px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 100px;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  color: #4a4a4a;
+
+  :deep(.anticon) {
+    color: #4caf50;
+    font-size: 16px;
+  }
 }
 
-.stat-divider {
-  width: 1px;
-  height: 40px;
-  background: rgba(255, 140, 66, 0.3);
+// Sections
+.features,
+.team-control,
+.pricing {
+  padding: 100px 32px;
 }
 
-// Hero Visual
-.hero-visual {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.server-illustration {
-  position: relative;
-  width: 400px;
-  height: 400px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.hero-logo {
-  width: 150px;
-  height: 150px;
-  filter: drop-shadow(0 20px 40px rgba(255, 140, 66, 0.3));
-  z-index: 2;
-}
-
-// Orbits removed for performance
-
-// Features Section
-.features-section {
-  padding: 100px 60px;
-  position: relative;
-  z-index: 1;
-}
-
-.section-title {
-  text-align: center;
-  font-size: 40px;
-  font-weight: 800;
-  margin-bottom: 60px;
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+.section-container {
   max-width: 1200px;
   margin: 0 auto;
 }
 
+.section-header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.section-title {
+  font-size: 42px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 16px 0;
+}
+
+.section-subtitle {
+  font-size: 18px;
+  color: #6a6a6a;
+  margin: 0;
+}
+
+// Features Grid
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
 .feature-card {
-  padding: 32px;
-  background: rgba(10, 10, 10, 0.8);
-  border: 1px solid rgba(255, 140, 66, 0.15);
+  padding: 40px 32px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
 
   &:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 140, 66, 0.4);
-    background: rgba(15, 15, 15, 0.9);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    border-color: rgba(216, 67, 21, 0.2);
   }
 
   h3 {
     font-size: 20px;
     font-weight: 700;
-    margin: 16px 0 12px;
+    color: #1a1a1a;
+    margin: 0 0 12px 0;
   }
 
   p {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
+    color: #6a6a6a;
     line-height: 1.6;
     margin: 0;
   }
@@ -717,737 +597,357 @@ onUnmounted(() => {
 .feature-icon {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.2), rgba(212, 175, 55, 0.2));
   border-radius: 12px;
+  background: rgba(216, 67, 21, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  color: #FF8C42;
+  margin-bottom: 20px;
+
+  :deep(.anticon) {
+    font-size: 28px;
+    color: #d84315;
+  }
 }
 
-// Team Management Section
-.team-management-section {
-  padding: 100px 60px;
-  position: relative;
-  z-index: 1;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.03), rgba(10, 10, 10, 0.95));
+// Team Control
+.team-control {
+  background: #fafafa;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.team-management-content {
-  max-width: 1200px;
-  margin: 0 auto;
+.team-control-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: 80px;
   align-items: center;
 }
 
-.team-management-text {
-  h3 {
-    font-size: 24px;
-    font-weight: 700;
-    margin: 24px 0 16px;
-    color: #FF8C42;
+.team-control-text {
+  h2 {
+    font-size: 40px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0 0 16px 0;
+  }
+
+  .lead {
+    font-size: 18px;
+    color: #6a6a6a;
+    margin: 0 0 40px 0;
+  }
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  li {
+    display: flex;
+    gap: 16px;
+  }
+
+  .check-icon {
+    color: #4caf50;
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  strong {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
   }
 
   p {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.7);
-    line-height: 1.7;
-    margin-bottom: 16px;
+    font-size: 14px;
+    color: #6a6a6a;
+    margin: 0;
   }
 }
 
-.section-title-left {
-  text-align: left;
-  font-size: 40px;
-  font-weight: 800;
-  margin-bottom: 20px;
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+// Log Window
+.log-window {
+  background: #1a1a1a;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
-.team-management-intro {
-  font-size: 18px !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  margin-bottom: 32px !important;
-}
-
-.team-management-features {
-  list-style: none;
-  padding: 0;
-  margin: 24px 0;
-
-  li {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 0;
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-
-    :deep(.anticon) {
-      color: #FF8C42;
-      margin-top: 3px;
-      font-size: 18px;
-    }
-
-    strong {
-      color: white;
-    }
-  }
-}
-
-.team-management-highlight {
-  font-size: 17px !important;
-  color: #FF8C42 !important;
-  font-weight: 600 !important;
-  margin-top: 24px !important;
-  padding: 20px;
-  background: rgba(255, 140, 66, 0.1);
-  border-left: 4px solid #FF8C42;
-  border-radius: 8px;
-}
-
-.team-management-visual {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.permission-card {
-  background: rgba(10, 10, 10, 0.9);
-  border: 2px solid rgba(255, 140, 66, 0.3);
-  border-radius: 16px;
-  padding: 24px;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 10px 40px rgba(255, 140, 66, 0.2);
-}
-
-.permission-header {
+.log-header {
+  padding: 12px 16px;
+  background: #2a2a2a;
+  border-bottom: 1px solid #3a3a3a;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 140, 66, 0.2);
-  margin-bottom: 16px;
+}
 
-  :deep(.anticon) {
-    font-size: 24px;
-    color: #FF8C42;
-  }
+.log-dots {
+  display: flex;
+  gap: 6px;
 
   span {
-    font-size: 18px;
-    font-weight: 700;
-    color: white;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #4a4a4a;
+
+    &:nth-child(1) {
+      background: #ff5f56;
+    }
+
+    &:nth-child(2) {
+      background: #ffbd2e;
+    }
+
+    &:nth-child(3) {
+      background: #27c93f;
+    }
   }
 }
 
-.activity-log {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 200px;
-  overflow: hidden;
-}
-
-.log-entry {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border-left: 3px solid transparent;
-  border-radius: 6px;
+.log-title {
   font-size: 13px;
-  opacity: 0.3;
-  transform: translateY(10px);
-  transition: all 0.5s ease;
+  color: #8a8a8a;
+  font-weight: 500;
+}
 
-  &.active {
-    border-left-color: #FF8C42;
-    background: rgba(255, 140, 66, 0.08);
-    box-shadow: 0 0 15px rgba(255, 140, 66, 0.15);
-  }
+.log-content {
+  padding: 20px;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 13px;
+}
 
-  .log-icon {
-    font-size: 16px;
-    min-width: 20px;
-    text-align: center;
+.log-line {
+  display: flex;
+  gap: 16px;
+  padding: 8px 0;
+  color: #8a8a8a;
+  animation: slideIn 0.5s ease;
+
+  .log-time {
+    color: #6a6a6a;
   }
 
   .log-user {
-    color: #FF8C42;
+    color: #d84315;
     font-weight: 600;
-    min-width: 50px;
+    min-width: 60px;
   }
 
   .log-action {
-    color: rgba(255, 255, 255, 0.8);
-    flex: 1;
+    color: #aaa;
   }
 }
 
-.permission-footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 140, 66, 0.2);
-  font-size: 13px;
-  color: #FF8C42;
-  font-weight: 600;
-
-  :deep(.anticon) {
-    font-size: 16px;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-// Services Section
-.services-section {
-  padding: 100px 60px;
-  position: relative;
-  z-index: 1;
-}
-
-.services-grid {
+// Pricing
+.pricing-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  max-width: 1200px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-.service-card {
-  padding: 32px;
-  background: rgba(10, 10, 10, 0.8);
-  border: 1px solid rgba(255, 140, 66, 0.15);
+.pricing-card {
+  padding: 40px;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
-  position: relative;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
 
   &:hover {
+    border-color: #d84315;
     transform: translateY(-4px);
-    border-color: rgba(255, 140, 66, 0.4);
+    box-shadow: 0 12px 32px rgba(216, 67, 21, 0.15);
   }
+}
 
-  &.premium {
-    border-color: rgba(255, 140, 66, 0.5);
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(10, 10, 10, 0.9));
-  }
+.pricing-header {
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   h3 {
     font-size: 24px;
     font-weight: 700;
-    margin: 0 0 8px;
+    color: #1a1a1a;
+    margin: 0;
   }
 }
 
-.service-badge {
-  position: absolute;
-  top: -12px;
-  right: 24px;
-  padding: 6px 16px;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
-  border-radius: 20px;
+.pricing-badge {
+  padding: 6px 12px;
+  background: rgba(216, 67, 21, 0.1);
+  border-radius: 100px;
   font-size: 12px;
-  font-weight: 700;
-}
-
-.service-desc {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 24px;
-}
-
-.service-features {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 24px;
-
-  li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.8);
-
-    :deep(.anticon) {
-      color: #FF8C42;
-    }
-  }
-}
-
-.service-btn {
-  height: 44px;
   font-weight: 600;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
-  border: none;
+  color: #d84315;
 }
 
-.service-btn-secondary {
-  height: 44px;
-  font-weight: 600;
-  border-radius: 8px;
-  border: 2px solid rgba(255, 140, 66, 0.3);
-  background: transparent;
-  color: white;
+.pricing-features {
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-  &:hover {
-    border-color: #FF8C42;
-    color: #FF8C42;
+.pricing-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: #4a4a4a;
+
+  :deep(.anticon) {
+    color: #4caf50;
+    font-size: 18px;
   }
 }
 
 // CTA Section
 .cta-section {
-  padding: 100px 60px;
-  position: relative;
-  z-index: 1;
+  padding: 100px 32px;
+  background: linear-gradient(135deg, #d84315 0%, #bf360c 100%);
 }
 
-.cta-content {
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 60px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(10, 10, 10, 0.9));
-  border: 1px solid rgba(255, 140, 66, 0.3);
-  border-radius: 24px;
-
-  h2 {
-    font-size: 36px;
-    font-weight: 800;
-    margin: 0 0 16px;
-  }
-
-  p {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 32px;
-  }
-}
-
-.cta-final {
-  height: 56px;
-  padding: 0 32px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 4px 20px rgba(255, 140, 66, 0.4);
-}
-
-.btn-icon {
-  width: 24px;
-  height: 24px;
-}
-
-// Join Team Section
-.join-team-section {
-  padding: 80px 60px;
-  position: relative;
-  z-index: 1;
-}
-
-.join-team-content {
+.cta-container {
   max-width: 700px;
   margin: 0 auto;
   text-align: center;
-  padding: 48px;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(10, 10, 10, 0.9));
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 24px;
 
   h2 {
-    font-size: 32px;
+    font-size: 42px;
     font-weight: 800;
-    margin: 0 0 16px;
-    background: linear-gradient(135deg, #D4AF37, #FF8C42);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: white;
+    margin: 0 0 16px 0;
   }
 
   p {
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 24px;
-    line-height: 1.7;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 40px 0;
   }
-}
 
-.join-team-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 20px;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(255, 140, 66, 0.2));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  color: #D4AF37;
-}
+  .ant-btn-primary {
+    height: 56px;
+    padding: 0 40px;
+    font-size: 18px;
+    font-weight: 600;
+    background: white;
+    color: #d84315;
+    border: none;
 
-.join-team-roles {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 28px;
-}
-
-.role-tag {
-  padding: 8px 16px;
-  background: rgba(212, 175, 55, 0.1);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 20px;
-  font-size: 13px;
-  color: #D4AF37;
-  font-weight: 500;
-}
-
-.join-team-btn {
-  height: 48px;
-  padding: 0 28px;
-  font-size: 15px;
-  font-weight: 600;
-  border-radius: 12px;
-  background: transparent;
-  border: 2px solid #D4AF37;
-  color: #D4AF37;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(212, 175, 55, 0.15);
-    border-color: #FF8C42;
-    color: #FF8C42;
+    &:hover {
+      background: #f5f5f5;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
   }
 }
 
 // Footer
-.landing-footer {
-  padding: 40px 60px;
-  border-top: 1px solid rgba(255, 140, 66, 0.1);
-  position: relative;
-  z-index: 1;
+.footer {
+  padding: 48px 32px;
+  background: #1a1a1a;
+  border-top: 1px solid #2a2a2a;
 }
 
-.footer-content {
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
   text-align: center;
 }
 
 .footer-brand {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
 
-  span {
-    font-size: 18px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-}
-
-.footer-logo {
-  width: 28px;
-  height: 28px;
-}
-
-.footer-notice {
-  font-size: 13px;
-  color: rgba(255, 140, 66, 0.7);
-  margin: 0 0 12px;
-  font-weight: 500;
-}
-
-.footer-contact {
-  margin: 0 0 12px;
-}
-
-.discord-link {
-  font-size: 14px;
-  color: #FF8C42;
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.3s ease;
-
-  &:hover {
-    color: #D4AF37;
-    text-decoration: underline;
-  }
-}
-
-.footer-powered {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 0 0 8px;
-}
-
-.footer-copy {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.3);
-  margin: 0;
-}
-
-// Responsive
-@media (max-width: 1200px) {
-  .hero-section {
-    grid-template-columns: 1fr;
-    text-align: center;
-    padding-top: 140px;
-  }
-
-  .hero-content {
-    max-width: 100%;
-  }
-
-  .hero-actions {
-    justify-content: center;
-  }
-
-  .hero-stats {
-    justify-content: center;
-  }
-
-  .hero-visual {
-    display: none;
-  }
-
-  .features-grid,
-  .services-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .team-management-content {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-
-  .section-title-left {
-    text-align: center;
-    font-size: 32px;
-  }
-}
-
-@media (max-width: 768px) {
-  .landing-nav {
-    padding: 12px 16px;
-  }
-
-  .nav-logo {
+  img {
     width: 32px;
     height: 32px;
   }
 
-  .nav-title {
-    font-size: 18px;
-  }
-
-  .nav-actions {
-    gap: 8px;
-  }
-
-  .nav-signin-secondary {
-    height: 36px;
-    padding: 0 12px;
-    font-size: 13px;
-  }
-
-  .nav-register {
-    height: 36px;
-    padding: 0 12px;
-    font-size: 13px;
-  }
-
-  .hero-section {
-    padding: 100px 16px 60px;
-    min-height: auto;
-  }
-
-  .hero-badge {
-    font-size: 12px;
-    padding: 6px 12px;
-  }
-
-  .hero-title {
-    font-size: 28px;
-  }
-
-  .hero-subtitle {
-    font-size: 14px;
-    margin-bottom: 24px;
-  }
-
-  .hero-actions {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .cta-primary,
-  .cta-secondary {
-    width: 100%;
-    height: 48px;
-  }
-
-  .hero-stats {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .stat-divider {
-    display: none;
-  }
-
-  .stat-value {
-    font-size: 22px;
-  }
-
-  .features-section,
-  .services-section,
-  .cta-section,
-  .join-team-section,
-  .team-management-section {
-    padding: 60px 16px;
-  }
-
-  .section-title-left {
-    font-size: 28px;
-  }
-
-  .team-management-intro {
-    font-size: 16px !important;
-  }
-
-  .team-management-features li {
-    font-size: 14px;
-  }
-
-  .team-management-highlight {
-    font-size: 15px !important;
-  }
-
-  .permission-card {
-    max-width: 100%;
-  }
-
-  .join-team-content {
-    padding: 32px 20px;
-
-    h2 {
-      font-size: 24px;
-    }
-
-    p {
-      font-size: 14px;
-    }
-  }
-
-  .join-team-icon {
-    width: 56px;
-    height: 56px;
-    font-size: 24px;
-  }
-
-  .role-tag {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .join-team-btn {
-    height: 44px;
-    font-size: 14px;
-    width: 100%;
-  }
-
-  .features-grid,
-  .services-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .feature-card {
-    padding: 24px;
-  }
-
-  .section-title {
-    font-size: 24px;
-    margin-bottom: 32px;
-  }
-
-  .service-card {
-    padding: 24px;
-  }
-
-  .cta-content {
-    padding: 32px 20px;
-
-    h2 {
-      font-size: 24px;
-    }
-
-    p {
-      font-size: 14px;
-    }
-  }
-
-  .cta-final {
-    height: 48px;
-    padding: 0 20px;
-    font-size: 14px;
-  }
-
-  .landing-footer {
-    padding: 32px 16px;
-  }
-
-  .footer-notice {
-    font-size: 11px;
+  span {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
   }
 }
 
-@media (max-width: 480px) {
+.footer-container p {
+  color: #8a8a8a;
+  margin: 0 0 8px 0;
+}
+
+.footer-link {
+  color: #d84315;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .nav-links {
+    gap: 16px;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .team-control-content {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
   .hero-title {
-    font-size: 24px;
+    font-size: 36px;
   }
 
-  .feature-icon {
-    width: 48px;
-    height: 48px;
-    font-size: 24px;
+  .features-grid {
+    grid-template-columns: 1fr;
   }
 
-  .feature-card h3 {
-    font-size: 16px;
+  .nav-links {
+    display: none;
   }
 
-  .feature-card p {
-    font-size: 13px;
-  }
-
-  .service-card h3 {
-    font-size: 18px;
+  .section-title {
+    font-size: 32px;
   }
 }
 </style>
