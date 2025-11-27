@@ -1030,6 +1030,7 @@ const logLines = [
 
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
   }
 
   .team-control-content {
@@ -1043,20 +1044,283 @@ const logLines = [
 }
 
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 36px;
+  // Navigation
+  .navbar {
+    padding: 12px 0;
   }
 
-  .features-grid {
-    grid-template-columns: 1fr;
+  .nav-container {
+    padding: 0 20px;
+  }
+
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .brand-name {
+    font-size: 18px;
   }
 
   .nav-links {
     display: none;
   }
 
-  .section-title {
+  // Hero
+  .hero {
+    padding: 100px 20px 60px;
+  }
+
+  .hero-title {
     font-size: 32px;
+    line-height: 1.3;
+    margin-bottom: 16px;
+    br {
+      display: none;
+    }
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+    margin-bottom: 32px;
+    br {
+      display: none;
+    }
+  }
+
+  .hero-badge {
+    font-size: 12px;
+    padding: 6px 12px;
+    margin-bottom: 20px;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .cta-primary,
+  .cta-secondary {
+    width: 100%;
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .hero-features {
+    gap: 12px;
+  }
+
+  .feature-pill {
+    font-size: 13px;
+    padding: 8px 14px;
+  }
+
+  // Sections
+  .features,
+  .team-control,
+  .pricing {
+    padding: 60px 20px;
+  }
+
+  .section-header {
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+
+  .section-subtitle {
+    font-size: 16px;
+  }
+
+  // Features Grid
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .feature-card {
+    padding: 28px 20px;
+
+    h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+
+    :deep(.anticon) {
+      font-size: 24px;
+    }
+  }
+
+  // Team Control
+  .team-control-content {
+    gap: 32px;
+  }
+
+  .team-control-text {
+    h2 {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .lead {
+      font-size: 16px;
+      margin-bottom: 28px;
+    }
+  }
+
+  .benefits-list {
+    gap: 16px;
+
+    strong {
+      font-size: 15px;
+    }
+
+    p {
+      font-size: 13px;
+    }
+  }
+
+  .log-window {
+    margin-top: 20px;
+  }
+
+  .log-content {
+    padding: 16px;
+    height: 250px;
+  }
+
+  .log-line {
+    padding: 8px;
+    font-size: 11px;
+    margin-bottom: 6px;
+
+    .log-time {
+      min-width: 55px;
+      font-size: 10px;
+    }
+
+    .log-user {
+      min-width: 45px;
+      font-size: 11px;
+    }
+
+    .log-action {
+      font-size: 11px;
+    }
+  }
+
+  // Pricing
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .pricing-card {
+    padding: 28px 20px;
+  }
+
+  .pricing-header {
+    margin-bottom: 24px;
+
+    h3 {
+      font-size: 20px;
+    }
+  }
+
+  .pricing-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .pricing-features {
+    margin-bottom: 24px;
+    gap: 12px;
+  }
+
+  .pricing-feature {
+    font-size: 14px;
+  }
+
+  // CTA
+  .cta-section {
+    padding: 60px 20px;
+  }
+
+  .cta-container {
+    h2 {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 16px;
+      margin-bottom: 28px;
+    }
+
+    .ant-btn-primary {
+      height: 48px;
+      padding: 0 32px;
+      font-size: 16px;
+    }
+  }
+
+  // Footer
+  .footer {
+    padding: 32px 20px;
+  }
+
+  .footer-brand {
+    margin-bottom: 12px;
+
+    img {
+      width: 28px;
+      height: 28px;
+    }
+
+    span {
+      font-size: 18px;
+    }
+  }
+
+  .footer-container p {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .footer-link {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 28px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+
+  .team-control-text h2 {
+    font-size: 24px;
+  }
+
+  .cta-container h2 {
+    font-size: 28px;
   }
 }
 </style>
