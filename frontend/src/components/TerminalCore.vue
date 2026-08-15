@@ -161,42 +161,6 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <div class="command-input">
-      <div v-show="focusHistoryList" class="history">
-        <li v-for="(item, key) in history" :key="item">
-          <a-tag
-            :color="key !== selectLocation ? 'blue' : '#108ee9'"
-            @click="handleClickHistoryItem(item)"
-          >
-            {{ item.length > 14 ? item.slice(0, 14) + "..." : item }}
-          </a-tag>
-        </li>
-      </div>
-      <a-input
-        ref="inputRef"
-        v-model:value="commandInputValue"
-        :placeholder="t('TXT_CODE_555e2c1b')"
-        autofocus
-        :disabled="containerState.isDesignMode || !isConnect"
-        @press-enter="handleSendCommand"
-        @keydown="handleHistorySelect"
-      >
-        <template #prefix>
-          <CodeOutlined style="font-size: 18px" />
-        </template>
-        <template #suffix>
-          <a-button
-            type="primary"
-            size="small"
-            class="send-command-btn"
-            :disabled="containerState.isDesignMode || !isConnect"
-            @click="handleSendCommand"
-          >
-            Send
-          </a-button>
-        </template>
-      </a-input>
-    </div>
 
     <!-- Error Dialog -->
     <div v-if="socketError" class="error-card">
@@ -294,6 +258,7 @@ onMounted(async () => {
 }
 .console-wrapper {
   position: relative;
+  height: 100%;
 
   .terminal-loading {
     z-index: 12;
@@ -352,8 +317,6 @@ onMounted(async () => {
       // min-width: 1200px;
       height: 100%;
     }
-
-    margin-bottom: 12px;
   }
 
   .command-input {
@@ -387,7 +350,7 @@ onMounted(async () => {
 
     // Mobile-friendly send button
     :deep(.send-command-btn) {
-      background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+      background: var(--theme-primary-gradient);
       border: none;
       border-radius: 6px;
       color: white;
@@ -395,11 +358,11 @@ onMounted(async () => {
       padding: 4px 16px;
       height: 32px;
       transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(255, 140, 66, 0.3);
+      box-shadow: 0 2px 8px var(--theme-shadow-hover);
 
       &:hover:not(:disabled) {
-        background: linear-gradient(135deg, #FFA366 0%, #FF8C42 100%);
-        box-shadow: 0 4px 12px rgba(255, 140, 66, 0.5);
+        background: var(--theme-primary-gradient);
+        box-shadow: 0 4px 12px var(--theme-shadow-hover);
         transform: translateY(-1px);
       }
 

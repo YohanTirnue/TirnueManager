@@ -232,7 +232,7 @@ const getServerTypeColor = (type?: string) => {
   if (typeLower.includes('minecraft')) return { bg: 'rgba(139, 195, 74, 0.15)', color: '#8bc34a' };
   if (typeLower.includes('docker')) return { bg: 'rgba(33, 150, 243, 0.15)', color: '#2196f3' };
   if (typeLower.includes('steam')) return { bg: 'rgba(156, 39, 176, 0.15)', color: '#9c27b0' };
-  return { bg: 'rgba(255, 140, 66, 0.15)', color: '#ff8c42' };
+  return { bg: 'var(--theme-shadow-hover)', color: 'var(--theme-primary-color)' };
 };
 
 const canStart = (status: INSTANCE_STATUS_CODE) => {
@@ -292,7 +292,7 @@ onMounted(() => {
       </a-button>
     </template>
     <template #body>
-      <PermissionBanner type="instance" theme="orange" />
+      <PermissionBanner type="instance" theme="default" />
 
       <!-- Stats Overview -->
       <div class="stats-overview">
@@ -545,7 +545,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .modern-applications-panel {
   background: linear-gradient(145deg, rgba(18, 18, 24, 0.98) 0%, rgba(26, 26, 36, 0.98) 100%);
-  border: 1px solid rgba(255, 140, 66, 0.15);
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 20px;
   overflow: hidden;
   position: relative;
@@ -557,7 +557,7 @@ onMounted(() => {
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 140, 66, 0.5), transparent);
+    background: var(--theme-primary-gradient);
   }
 }
 
@@ -574,7 +574,7 @@ onMounted(() => {
 .panel-title {
   font-size: 20px;
   font-weight: 700;
-  background: linear-gradient(135deg, #fff 0%, #d4af37 50%, #ff8c42 100%);
+  background: var(--theme-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -587,7 +587,7 @@ onMounted(() => {
   left: 0;
   width: 40px;
   height: 3px;
-  background: linear-gradient(90deg, #ff8c42, #d4af37);
+  background: var(--theme-primary-gradient);
   border-radius: 2px;
 }
 
@@ -645,10 +645,10 @@ onMounted(() => {
 
   &.total {
     .stat-icon {
-      background: rgba(255, 140, 66, 0.15);
-      color: #ff8c42;
+      background: var(--theme-shadow-hover);
+      color: var(--theme-primary-color);
     }
-    .stat-number { color: #ff8c42; }
+    .stat-number { color: var(--theme-primary-color); }
   }
 
   &.running {
@@ -711,7 +711,7 @@ onMounted(() => {
 
     &:focus {
       outline: none;
-      border-color: rgba(255, 140, 66, 0.5);
+      border-color: var(--theme-shadow-hover);
       background: rgba(255, 255, 255, 0.08);
     }
   }
@@ -766,8 +766,8 @@ onMounted(() => {
     }
 
     &.active {
-      background: rgba(255, 140, 66, 0.2);
-      color: #ff8c42;
+      background: var(--theme-shadow-hover);
+      color: var(--theme-primary-color);
     }
   }
 }
@@ -789,7 +789,7 @@ onMounted(() => {
 
   .empty-icon {
     font-size: 72px;
-    color: rgba(255, 140, 66, 0.3);
+    color: var(--theme-shadow-hover);
     position: relative;
     z-index: 1;
   }
@@ -803,7 +803,7 @@ onMounted(() => {
     .circle {
       position: absolute;
       border-radius: 50%;
-      border: 1px solid rgba(255, 140, 66, 0.1);
+      border: 1px solid var(--theme-shadow-hover);
 
       &.c1 {
         width: 100px;
@@ -890,8 +890,8 @@ onMounted(() => {
   .spinner {
     width: 48px;
     height: 48px;
-    border: 3px solid rgba(255, 140, 66, 0.1);
-    border-top-color: #ff8c42;
+    border: 3px solid var(--theme-shadow-hover);
+    border-top-color: var(--theme-primary-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -938,10 +938,10 @@ onMounted(() => {
   }
 
   &:hover {
-    border-color: rgba(255, 140, 66, 0.3);
+    border-color: var(--theme-shadow-hover);
     box-shadow:
       0 20px 60px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 140, 66, 0.1),
+      0 0 0 1px var(--theme-shadow-hover),
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
     transform: translateY(-4px);
 
@@ -1019,7 +1019,7 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background-image:
-    radial-gradient(circle at 20% 80%, rgba(255, 140, 66, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, var(--theme-shadow-hover) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.03) 0%, transparent 50%);
   pointer-events: none;
 }
@@ -1030,7 +1030,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 140, 66, 0.6), rgba(212, 175, 55, 0.6), transparent);
+  background: var(--theme-primary-gradient);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -1133,7 +1133,7 @@ onMounted(() => {
   border-radius: 10px;
 
   .info-icon {
-    color: rgba(255, 140, 66, 0.6);
+    color: var(--theme-shadow-hover);
     font-size: 14px;
   }
 }
@@ -1198,7 +1198,7 @@ onMounted(() => {
   }
 
   .copy-icon {
-    color: rgba(255, 140, 66, 0.7);
+    color: var(--theme-shadow-hover);
     font-size: 12px;
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -1282,14 +1282,14 @@ onMounted(() => {
   transition: all 0.2s ease;
 
   &.primary-action {
-    background: linear-gradient(135deg, #ff8c42 0%, #d4af37 100%);
+    background: var(--theme-primary-gradient);
     border: none;
     color: #000;
 
     &:hover:not(:disabled) {
-      background: linear-gradient(135deg, #ff9a5c 0%, #e5c04a 100%);
+      background: var(--theme-primary-gradient);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+      box-shadow: 0 4px 12px var(--theme-shadow-hover);
     }
 
     &:disabled {

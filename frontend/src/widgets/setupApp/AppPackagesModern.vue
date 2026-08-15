@@ -383,14 +383,14 @@ onMounted(() => {
 
 // Hero Section
 .hero-section {
-  background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 50%, #D4AF37 100%);
+  background: var(--theme-primary-gradient);
   border-radius: 24px;
   padding: 60px 40px;
   margin-bottom: 40px;
   text-align: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 8px 32px var(--theme-shadow-hover);
 
   &::before {
     content: '';
@@ -443,7 +443,7 @@ onMounted(() => {
 
 .create-instance-btn {
   background: white;
-  color: #FF6B35;
+  color: var(--theme-primary-color);
   border: none;
   font-weight: 600;
   font-size: 16px;
@@ -455,7 +455,7 @@ onMounted(() => {
 
   &:hover {
     background: rgba(255,255,255,0.95);
-    color: #FF6B35;
+    color: var(--theme-primary-color);
     transform: translateY(-2px);
     box-shadow: 0 6px 24px rgba(0,0,0,0.3);
   }
@@ -480,8 +480,8 @@ onMounted(() => {
     padding: 8px 16px;
 
     &:hover, &:focus, &:focus-within {
-      border-color: #FF8C42;
-      box-shadow: 0 8px 32px rgba(255, 140, 66, 0.2);
+      border-color: var(--theme-primary-color);
+      box-shadow: 0 8px 32px var(--theme-shadow-hover);
       transform: translateY(-2px);
     }
 
@@ -497,7 +497,7 @@ onMounted(() => {
 
   .search-icon {
     font-size: 20px;
-    color: #FF8C42;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -526,17 +526,17 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 
   &:hover {
-    border-color: #FF8C42;
-    color: #FF8C42;
+    border-color: var(--theme-primary-color);
+    color: var(--theme-primary-color);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.15);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
   }
 
   &.active {
-    background: linear-gradient(135deg, #FF8C42, #FF6B35);
+    background: var(--theme-primary-gradient);
     color: white;
     border-color: transparent;
-    box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+    box-shadow: 0 4px 16px var(--theme-shadow-hover);
   }
 }
 
@@ -555,7 +555,7 @@ onMounted(() => {
   color: var(--text-color);
 
   .anticon {
-    color: #FF8C42;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -576,7 +576,7 @@ onMounted(() => {
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 16px 48px rgba(255, 140, 66, 0.25);
+    box-shadow: 0 16px 48px var(--theme-shadow-hover);
 
     .featured-image img {
       transform: scale(1.1);
@@ -611,13 +611,13 @@ onMounted(() => {
     position: absolute;
     top: 16px;
     right: 16px;
-    background: linear-gradient(135deg, #FF8C42, #FF6B35);
+    background: var(--theme-primary-gradient);
     color: white;
     padding: 8px 16px;
     border-radius: 8px;
     font-weight: 700;
     font-size: 12px;
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.4);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
   }
 }
 
@@ -644,8 +644,8 @@ onMounted(() => {
   flex-wrap: wrap;
 
   .tag {
-    background: rgba(255, 140, 66, 0.1);
-    color: #FF6B35;
+    background: var(--theme-shadow-hover);
+    color: var(--theme-primary-color);
     padding: 6px 12px;
     border-radius: 8px;
     font-size: 12px;
@@ -684,7 +684,7 @@ onMounted(() => {
 
   &:hover {
     transform: translateY(-6px);
-    box-shadow: 0 12px 32px rgba(255, 140, 66, 0.2);
+    box-shadow: 0 12px 32px var(--theme-shadow-hover);
 
     .template-image img {
       transform: scale(1.08);
@@ -710,12 +710,12 @@ onMounted(() => {
     top: 12px;
     right: 12px;
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(8px);
+    backdrop-filter: none; /* Optimized */
     padding: 6px 12px;
     border-radius: 8px;
     font-size: 12px;
     font-weight: 600;
-    color: #FF6B35;
+    color: var(--theme-primary-color);
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
 }
@@ -741,8 +741,8 @@ onMounted(() => {
   margin-bottom: 12px;
 
   .tag {
-    background: rgba(255, 140, 66, 0.1);
-    color: #FF6B35;
+    background: var(--theme-shadow-hover);
+    color: var(--theme-primary-color);
     padding: 4px 10px;
     border-radius: 6px;
     font-size: 11px;
@@ -777,19 +777,19 @@ onMounted(() => {
 }
 
 .install-btn {
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  background: var(--theme-primary-gradient);
   border: none;
   border-radius: 12px;
   height: 44px;
   font-weight: 700;
   font-size: 15px;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 4px 16px var(--theme-shadow-hover);
   transition: all 0.3s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(255, 140, 66, 0.4);
-    background: linear-gradient(135deg, #FF6B35, #FF4500);
+    box-shadow: 0 6px 24px var(--theme-shadow-hover);
+    background: var(--theme-primary-gradient);
   }
 }
 
@@ -830,11 +830,11 @@ onMounted(() => {
       font-weight: 600;
 
       &:hover {
-        border-color: #FF8C42;
+        border-color: var(--theme-primary-color);
       }
 
       &-active {
-        background: linear-gradient(135deg, #FF8C42, #FF6B35);
+        background: var(--theme-primary-gradient);
         border-color: transparent;
 
         a {
@@ -845,7 +845,7 @@ onMounted(() => {
 
     .ant-pagination-prev, .ant-pagination-next {
       a {
-        color: #FF8C42;
+        color: var(--theme-primary-color);
         font-weight: 600;
       }
     }

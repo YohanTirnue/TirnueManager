@@ -27,6 +27,13 @@ const isDarkUI = isDarkTheme();
 const appTheme = {
   algorithm: theme.defaultAlgorithm,
   token: {
+    colorPrimary: '#000000',
+    colorInfo: '#000000',
+    colorSuccess: '#000000',
+    colorWarning: '#000000',
+    colorError: '#000000',
+    colorTextBase: '#000000',
+    colorBgBase: '#ffffff',
     fontSizeLG: 14,
     fontSizeSM: 12,
     fontSizeXL: 18
@@ -35,6 +42,13 @@ const appTheme = {
 
 if (isDarkUI) {
   appTheme.algorithm = theme.darkAlgorithm;
+  appTheme.token.colorPrimary = '#ffffff';
+  appTheme.token.colorInfo = '#ffffff';
+  appTheme.token.colorSuccess = '#ffffff';
+  appTheme.token.colorWarning = '#ffffff';
+  appTheme.token.colorError = '#ffffff';
+  appTheme.token.colorTextBase = '#ffffff';
+  appTheme.token.colorBgBase = '#000000';
 }
 </script>
 

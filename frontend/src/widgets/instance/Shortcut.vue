@@ -383,7 +383,7 @@ const instanceOperations = computed(() =>
         <PermissionBanner
           type="custom"
           :customPermissions="availablePermissions || []"
-          theme="orange"
+          theme="default"
         />
 
         <div class="action-buttons-grid" :class="{ 'centered-grid': instanceOperations.length <= 3 }">
@@ -412,7 +412,7 @@ const instanceOperations = computed(() =>
 .instance-title {
   font-size: 20px;
   font-weight: 700;
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
+  background: var(--theme-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -468,9 +468,9 @@ const instanceOperations = computed(() =>
   padding: 8px 18px;
   font-size: 14px;
   font-weight: 600;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.15), rgba(212, 175, 55, 0.15));
-  color: #FF8C42;
-  border: 2px solid rgba(255, 140, 66, 0.3);
+  background: var(--theme-primary-gradient);
+  color: var(--theme-primary-color);
+  border: 2px solid var(--theme-shadow-hover);
   border-radius: 10px;
 }
 
@@ -504,17 +504,17 @@ const instanceOperations = computed(() =>
   gap: 12px;
   font-size: 14px;
   padding: 10px 12px;
-  background: rgba(255, 140, 66, 0.03);
+  background: var(--theme-shadow-hover);
   border-radius: 8px;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 140, 66, 0.08);
+    background: var(--theme-shadow-hover);
   }
 
   .title {
     font-weight: 600;
-    color: #FF8C42;
+    color: var(--theme-primary-color);
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
@@ -535,14 +535,14 @@ const instanceOperations = computed(() =>
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
-  border: 2px solid rgba(255, 140, 66, 0.25);
+  background: var(--theme-primary-gradient);
+  border: 2px solid var(--theme-shadow-hover);
   border-radius: 10px;
   margin-top: 16px;
 
   .permission-icon {
     font-size: 20px;
-    color: #FF8C42;
+    color: var(--theme-primary-color);
     flex-shrink: 0;
   }
 
@@ -556,7 +556,7 @@ const instanceOperations = computed(() =>
   .permission-label {
     font-size: 12px;
     font-weight: 600;
-    color: #FF8C42;
+    color: var(--theme-primary-color);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -574,7 +574,7 @@ const instanceOperations = computed(() =>
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
   padding-top: 16px;
-  border-top: 2px solid rgba(255, 140, 66, 0.15);
+  border-top: 2px solid var(--theme-shadow-hover);
 
   // Center buttons when there are 3 or fewer
   &.centered-grid {
@@ -593,8 +593,8 @@ const instanceOperations = computed(() =>
   width: 100%;
   height: 52px !important; // MUCH BIGGER - was 38px
   border-radius: 12px !important;
-  border: 2px solid rgba(255, 140, 66, 0.2) !important;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.05), rgba(212, 175, 55, 0.05)) !important;
+  border: 2px solid var(--theme-card-border) !important;
+  background: transparent !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -602,8 +602,8 @@ const instanceOperations = computed(() =>
   font-weight: 600 !important;
   font-size: 14px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-  color: var(--color-gray-10) !important;
+  box-shadow: none !important;
+  color: var(--theme-title-color) !important;
 
   .btn-icon {
     font-size: 20px !important;
@@ -616,11 +616,11 @@ const instanceOperations = computed(() =>
   }
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%) !important;
-    border-color: #FF8C42 !important;
-    color: white !important;
+    background: var(--theme-card-bg-hover) !important;
+    border-color: var(--theme-title-color) !important;
+    color: var(--theme-title-color) !important;
     transform: translateY(-3px) !important;
-    box-shadow: 0 6px 20px rgba(255, 140, 66, 0.4) !important;
+    box-shadow: none !important;
 
     .btn-icon {
       transform: scale(1.15);
@@ -629,7 +629,7 @@ const instanceOperations = computed(() =>
 
   &:active:not(:disabled) {
     transform: translateY(-1px) !important;
-    box-shadow: 0 3px 12px rgba(255, 140, 66, 0.3) !important;
+    box-shadow: none !important;
   }
 
   &:disabled {
@@ -638,15 +638,15 @@ const instanceOperations = computed(() =>
   }
 
   &.btn-danger {
-    background: linear-gradient(135deg, rgba(255, 77, 79, 0.08), rgba(255, 77, 79, 0.05)) !important;
-    border-color: rgba(255, 77, 79, 0.3) !important;
-    color: #ff4d4f !important;
+    background: transparent !important;
+    border-color: var(--theme-card-border) !important;
+    color: var(--theme-title-color) !important;
 
     &:hover:not(:disabled) {
-      background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%) !important;
-      border-color: #ff4d4f !important;
-      color: white !important;
-      box-shadow: 0 6px 20px rgba(255, 77, 79, 0.4) !important;
+      background: var(--theme-card-bg-hover) !important;
+      border-color: var(--theme-title-color) !important;
+      color: var(--theme-title-color) !important;
+      box-shadow: none !important;
     }
   }
 }

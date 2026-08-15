@@ -66,16 +66,16 @@ const { containerState } = useLayoutContainerStore();
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.02), rgba(212, 175, 55, 0.02));
+    background: var(--theme-primary-gradient);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
   }
 
   &:hover {
-    border-color: rgba(255, 140, 66, 0.4);
+    border-color: var(--theme-shadow-hover);
     transform: translateY(-6px);
-    box-shadow: 0 12px 40px rgba(255, 140, 66, 0.15);
+    box-shadow: 0 12px 40px var(--theme-shadow-hover);
 
     &::before {
       opacity: 1;

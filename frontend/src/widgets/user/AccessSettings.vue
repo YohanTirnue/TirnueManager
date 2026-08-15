@@ -301,7 +301,7 @@ const columns = computed(() => {
       condition: () => !isPhone.value,
       customRender: (row: { text: string | number }) => {
         if (Number(row.text) === 0) return t("TXT_CODE_8dfd8b17");
-        if (!isNaN(Number(row.text))) return dayjs(Number(row.text)).format("YYYY-MM-DD HH:mm:ss");
+        if (!isNaN(Number(row.text))) return dayjs(Number(row.text)).format("MMM DD YYYY").toUpperCase();
         return row.text;
       }
     },
@@ -609,7 +609,7 @@ const columns = computed(() => {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -649,13 +649,13 @@ const columns = computed(() => {
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   color: white;
 }
 
 .action-btn.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
 }
 
 .action-btn.secondary {
@@ -715,7 +715,7 @@ const columns = computed(() => {
   }
 
   :deep(.ant-pagination-item-active a) {
-    color: #ff8c00;
+    color: var(--theme-primary-color);
   }
 
   :deep(.ant-select-selector) {
@@ -792,10 +792,10 @@ const columns = computed(() => {
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(255, 140, 0, 0.1);
-  border: 1px solid rgba(255, 140, 0, 0.3);
+  background: var(--theme-shadow-hover);
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 6px;
-  color: #ff8c00;
+  color: var(--theme-primary-color);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -803,8 +803,8 @@ const columns = computed(() => {
 }
 
 .permissions-btn:hover {
-  background: rgba(255, 140, 0, 0.2);
-  border-color: rgba(255, 140, 0, 0.5);
+  background: var(--theme-shadow-hover);
+  border-color: var(--theme-shadow-hover);
 }
 
 /* Permissions Modal */
@@ -854,12 +854,12 @@ const columns = computed(() => {
 }
 
 .permission-item:hover {
-  border-color: #ff8c00;
+  border-color: var(--theme-primary-color);
 }
 
 .permission-item.active {
-  border-color: #ff8c00;
-  background: rgba(255, 140, 0, 0.1);
+  border-color: var(--theme-primary-color);
+  background: var(--theme-shadow-hover);
 }
 
 .permission-item.restriction.active {
@@ -893,7 +893,7 @@ const columns = computed(() => {
 .btn-save {
   padding: 8px 16px;
   border: none;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   border-radius: 6px;
   cursor: pointer;
   color: white;
@@ -903,7 +903,7 @@ const columns = computed(() => {
 
 .btn-save:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
 }
 
 .btn-save:disabled {

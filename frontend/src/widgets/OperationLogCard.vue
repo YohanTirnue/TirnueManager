@@ -30,12 +30,12 @@ onMounted(() => {
           <div class="empty-description">{{ t("TXT_CODE_73102f2b") }}</div>
         </div>
         <a-timeline v-else>
-          <a-timeline-item v-for="(item, index) in formattedLogs" :key="index" :color="item.color">
+          <a-timeline-item v-for="(item, index) in formattedLogs" :key="index">
             <div class="log-item">
               <div class="log-content">{{ item.text }}</div>
-              <div class="log-time">
-                {{ dayjs(Number(item.operation_time)).format("YYYY-MM-DD HH:mm:ss") }}
-              </div>
+              <span class="mr-4 text-sm whitespace-nowrap opacity-60">
+                {{ dayjs(Number(item.operation_time)).format("MMM DD YYYY").toUpperCase() }}
+              </span>
             </div>
           </a-timeline-item>
         </a-timeline>

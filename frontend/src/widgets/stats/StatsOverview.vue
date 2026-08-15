@@ -39,14 +39,14 @@ const quickStats = computed(() => {
       value: system.type,
       subtitle: `${system.platform} ${system.release}`,
       icon: DashboardOutlined,
-      color: "#FF8C42"
+      color: "var(--theme-primary-color)"
     },
     {
       title: "Node Version",
       value: system.node,
       subtitle: `MCSManager v${version}`,
       icon: ThunderboltOutlined,
-      color: "#D4AF37"
+      color: "var(--theme-primary-color)"
     },
     {
       title: "Memory Usage",
@@ -117,7 +117,6 @@ const detailedInfo = computed(() => {
           :value="stat.value"
           :subtitle="stat.subtitle"
           :icon="stat.icon"
-          :color="stat.color"
         />
       </a-col>
     </a-row>
@@ -138,7 +137,7 @@ const detailedInfo = computed(() => {
                   :value="systemResources.memory.used"
                   :max="systemResources.memory.total"
                   unit="GB"
-                  color="#FF8C42"
+                  
                 />
               </div>
               <div class="resource-item">
@@ -147,7 +146,7 @@ const detailedInfo = computed(() => {
                   :value="systemResources.process.memory"
                   :max="systemResources.memory.total"
                   unit="MB"
-                  color="#D4AF37"
+                  
                 />
               </div>
               <div v-if="systemResources.loadavg && systemResources.loadavg.length > 0" class="resource-item">
@@ -215,9 +214,9 @@ const detailedInfo = computed(() => {
 
 .resource-item {
   padding: 12px;
-  background: rgba(255, 140, 66, 0.02);
+  background: var(--theme-shadow-hover);
   border-radius: 8px;
-  border: 1px solid rgba(255, 140, 66, 0.1);
+  border: 1px solid var(--theme-shadow-hover);
 }
 
 .load-avg-display {
@@ -240,7 +239,7 @@ const detailedInfo = computed(() => {
     align-items: center;
     gap: 4px;
     padding: 8px 16px;
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(212, 175, 55, 0.1));
+    background: var(--theme-primary-gradient);
     border-radius: 8px;
     flex: 1;
   }
@@ -254,7 +253,7 @@ const detailedInfo = computed(() => {
   .load-number {
     font-size: 20px;
     font-weight: 700;
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    background: var(--theme-primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -278,8 +277,8 @@ const detailedInfo = computed(() => {
   transition: all 0.2s ease;
 
   &:hover {
-    border-left-color: #FF8C42;
-    background: rgba(255, 140, 66, 0.05);
+    border-left-color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
   }
 }
 

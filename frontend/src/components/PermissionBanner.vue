@@ -89,10 +89,10 @@ const themeColors = computed(() => {
       };
     default: // orange
       return {
-        bg: "rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08)",
-        border: "rgba(255, 140, 66, 0.25)",
-        icon: "#FF8C42",
-        label: "#FF8C42"
+        bg: "var(--theme-shadow-hover), rgba(212, 175, 55, 0.08)",
+        border: "var(--theme-shadow-hover)",
+        icon: "var(--theme-primary-color)",
+        label: "var(--theme-primary-color)"
       };
   }
 });

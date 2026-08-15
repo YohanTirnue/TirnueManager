@@ -80,7 +80,7 @@ onMounted(async () => {
       {{ card.title }}
     </template>
     <template #body>
-      <PermissionBanner type="instance" theme="orange" />
+      <PermissionBanner type="instance" theme="default" />
 
       <!-- Game Server Info (if applicable and has permission) -->
       <div v-if="instanceGameServerInfo && canAccessMinecraftQuery" class="game-server-section">
@@ -111,7 +111,7 @@ onMounted(async () => {
             :key="index"
             class="port-card"
           >
-            <a-tag color="green" class="protocol-tag">{{ item.protocol.toUpperCase() }}</a-tag>
+            <a-tag  class="protocol-tag">{{ item.protocol.toUpperCase() }}</a-tag>
             <div class="port-info">
               <span class="port-label">{{ t("TXT_CODE_8dfc41ef") }}:</span>
               <span class="port-value">{{ item.host }}</span>
@@ -191,14 +191,14 @@ onMounted(async () => {
 .info-header {
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 2px solid rgba(255, 140, 66, 0.4);
+  border-bottom: 2px solid var(--theme-shadow-hover);
 }
 
 .instance-name {
   margin: 0 0 12px 0;
   font-size: 20px;
   font-weight: 800;
-  background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
+  background: var(--theme-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -228,15 +228,15 @@ onMounted(async () => {
 .info-card {
   padding: 14px 16px;
   background: linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(40, 40, 40, 0.85) 100%);
-  border: 1.5px solid rgba(255, 140, 66, 0.3);
+  border: 1.5px solid var(--theme-shadow-hover);
   border-radius: 10px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 140, 66, 0.25);
-    border-color: rgba(255, 140, 66, 0.5);
+    box-shadow: 0 5px 15px var(--theme-shadow-hover);
+    border-color: var(--theme-shadow-hover);
     background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
   }
 
@@ -254,14 +254,14 @@ onMounted(async () => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: rgba(255, 140, 66, 0.7);
+  color: var(--theme-shadow-hover);
   margin-bottom: 6px;
 }
 
 .info-value {
   font-size: 15px;
   font-weight: 700;
-  color: #D4AF37;
+  color: var(--theme-primary-color);
   line-height: 1.4;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
@@ -269,7 +269,7 @@ onMounted(async () => {
 .info-link {
   font-size: 14px;
   font-weight: 600;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   text-decoration: underline;
 
   &:hover {
@@ -298,7 +298,7 @@ onMounted(async () => {
 .section-title {
   font-size: 13px;
   font-weight: 700;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   margin-bottom: 10px;
   padding-left: 4px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -313,7 +313,7 @@ onMounted(async () => {
 .port-card {
   padding: 12px 14px;
   background: linear-gradient(135deg, rgba(20, 20, 20, 0.8) 0%, rgba(40, 40, 40, 0.8) 100%);
-  border: 1.5px solid rgba(255, 140, 66, 0.3);
+  border: 1.5px solid var(--theme-shadow-hover);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -322,8 +322,8 @@ onMounted(async () => {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
-    border-color: rgba(255, 140, 66, 0.5);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
+    border-color: var(--theme-shadow-hover);
     background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
   }
 }
@@ -343,12 +343,12 @@ onMounted(async () => {
 
 .port-label {
   font-weight: 600;
-  color: rgba(255, 140, 66, 0.7);
+  color: var(--theme-shadow-hover);
 }
 
 .port-value {
   font-weight: 700;
-  color: #D4AF37;
+  color: var(--theme-primary-color);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
@@ -379,13 +379,13 @@ onMounted(async () => {
 .id-card {
   padding: 12px 14px;
   background: linear-gradient(135deg, rgba(20, 20, 20, 0.8) 0%, rgba(40, 40, 40, 0.8) 100%);
-  border: 1.5px solid rgba(255, 140, 66, 0.3);
+  border: 1.5px solid var(--theme-shadow-hover);
   border-radius: 10px;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(255, 140, 66, 0.5);
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+    border-color: var(--theme-shadow-hover);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
     background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(40, 40, 40, 1) 100%);
   }
 }
@@ -395,20 +395,20 @@ onMounted(async () => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: rgba(255, 140, 66, 0.7);
+  color: var(--theme-shadow-hover);
   margin-bottom: 6px;
 }
 
 .id-value {
   font-size: 13px;
   font-weight: 600;
-  color: #D4AF37;
+  color: var(--theme-primary-color);
   font-family: monospace;
   word-break: break-all;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 
   :deep(.ant-typography) {
-    color: #D4AF37;
+    color: var(--theme-primary-color);
   }
 }
 

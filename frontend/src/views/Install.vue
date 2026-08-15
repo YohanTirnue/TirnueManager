@@ -245,7 +245,7 @@ const toOverview = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: saturate(120%) blur(10px);
+  backdrop-filter: none; /* Optimized */
   z-index: 200;
   transition: all 0.8s;
 
@@ -255,7 +255,7 @@ const toOverview = () => {
     // max-height: 420px;
     width: 100%;
     background-color: var(--login-panel-bg);
-    backdrop-filter: saturate(120%) blur(12px);
+    backdrop-filter: none; /* Optimized */
     padding: 40px;
   }
 }

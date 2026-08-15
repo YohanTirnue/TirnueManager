@@ -3,7 +3,7 @@ import type { Dayjs } from "dayjs";
 
 export function parseTimestamp(st = 0) {
   if (!st) return "";
-  return dayjs(st).format("YYYY-MM-DD HH:mm:ss");
+  return dayjs(st).format("MMM DD YYYY").toUpperCase();
 }
 
 export function dayjsToTimestamp(dayjs?: Dayjs) {

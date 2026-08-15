@@ -117,7 +117,7 @@ const closeModal = () => {
 
   .header-icon {
     font-size: 24px;
-    color: #D4AF37;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -149,7 +149,7 @@ const closeModal = () => {
     &:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      border-color: #D4AF37;
+      border-color: var(--theme-primary-color);
 
       .option-arrow {
         transform: translateX(4px);

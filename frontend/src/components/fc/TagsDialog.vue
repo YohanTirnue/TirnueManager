@@ -105,7 +105,7 @@ defineExpose({ openDialog });
                 v-for="tag in instanceTags"
                 :key="tag"
                 class="m-4 my-tag"
-                color="blue"
+                
                 closable
                 @close="() => removeTag(tag)"
               >

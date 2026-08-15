@@ -54,7 +54,7 @@ onMounted(() => {
 
 <template>
   <div style="width: 100%; height: 100%; position: relative">
-    <CardPanel v-if="urlSrc !== ''" style="backdrop-filter: blur()">
+    <CardPanel v-if="urlSrc !== ''" style="backdrop-filter: none;">
       <template #title>
         {{ card.title }}
         <a-button

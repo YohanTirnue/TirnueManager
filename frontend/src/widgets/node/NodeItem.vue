@@ -229,7 +229,7 @@ const quickActions = computed(() => [
   {
     title: t("TXT_CODE_ae533703"), // Files
     icon: FolderOpenOutlined,
-    color: "#FF8C42",
+    color: "var(--theme-primary-color)",
     show: remoteNode.value?.available,
     action: () => {
       const daemonId = remoteNode.value?.uuid;
@@ -243,7 +243,7 @@ const quickActions = computed(() => [
   {
     title: t("TXT_CODE_524e3036"), // Terminal
     icon: CodeOutlined,
-    color: "#D4AF37",
+    color: "var(--theme-primary-color)",
     show: remoteNode.value?.available,
     action: () => {
       const daemonId = remoteNode.value?.uuid;
@@ -338,7 +338,7 @@ onMounted(() => {
               :value="resourceData.memory.used"
               :max="resourceData.memory.total"
               unit="GB"
-              color="#FF8C42"
+              
             />
           </div>
           <div class="resource-row">
@@ -347,7 +347,7 @@ onMounted(() => {
               :value="resourceData.cpu.usage"
               :max="100"
               unit="%"
-              color="#D4AF37"
+              
             />
           </div>
         </div>
@@ -410,13 +410,13 @@ onMounted(() => {
 }
 
 .modern-node-card {
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.02), rgba(212, 175, 55, 0.02));
-  border: 1px solid rgba(255, 140, 66, 0.1);
+  background: var(--theme-primary-gradient);
+  border: 1px solid var(--theme-shadow-hover);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    border-color: rgba(255, 140, 66, 0.3);
-    box-shadow: 0 4px 16px rgba(255, 140, 66, 0.15);
+    border-color: var(--theme-shadow-hover);
+    box-shadow: 0 4px 16px var(--theme-shadow-hover);
   }
 }
 
@@ -437,7 +437,7 @@ onMounted(() => {
 
 .node-icon {
   font-size: 24px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
 }
 
 .node-info {
@@ -471,7 +471,7 @@ onMounted(() => {
   border-radius: 6px;
 
   &:hover {
-    background: rgba(255, 140, 66, 0.1);
+    background: var(--theme-shadow-hover);
     transform: translateY(-2px);
   }
 }
@@ -480,7 +480,7 @@ onMounted(() => {
   color: var(--color-gray-8);
 
   &:hover {
-    color: #FF8C42;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -492,10 +492,10 @@ onMounted(() => {
 }
 
 .resource-row {
-  background: rgba(255, 140, 66, 0.03);
+  background: var(--theme-shadow-hover);
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 140, 66, 0.1);
+  border: 1px solid var(--theme-shadow-hover);
 }
 
 .stats-grid {
@@ -513,8 +513,8 @@ onMounted(() => {
   transition: all 0.2s ease;
 
   &:hover {
-    border-left-color: #FF8C42;
-    background: rgba(255, 140, 66, 0.05);
+    border-left-color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
   }
 }
 
@@ -552,10 +552,10 @@ onMounted(() => {
 }
 
 .chart-section {
-  background: rgba(255, 140, 66, 0.02);
+  background: var(--theme-shadow-hover);
   padding: 16px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 140, 66, 0.1);
+  border: 1px solid var(--theme-shadow-hover);
 }
 
 @media (max-width: 992px) {

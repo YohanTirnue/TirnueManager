@@ -451,8 +451,8 @@ const renderChart = () => {
         {
           label: "Revenue",
           data: dashboardData.value.monthlyTrend.map((d: any) => d.revenue),
-          borderColor: "#FF8C42",
-          backgroundColor: "rgba(255, 140, 66, 0.1)",
+          borderColor: "var(--theme-primary-color)",
+          backgroundColor: "var(--theme-shadow-hover)",
           tension: 0.4,
           fill: true
         }
@@ -1201,13 +1201,13 @@ onMounted(async () => {
 .page-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.15), rgba(212, 175, 55, 0.15));
+  background: var(--theme-primary-gradient);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
 }
 
 .page-title {
@@ -1248,18 +1248,18 @@ onMounted(async () => {
   color: var(--text-color);
 
   &:hover {
-    border-color: #FF8C42;
-    color: #FF8C42;
+    border-color: var(--theme-primary-color);
+    color: var(--theme-primary-color);
   }
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  background: var(--theme-primary-gradient);
   color: white;
-  box-shadow: 0 2px 8px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 2px 8px var(--theme-shadow-hover);
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(255, 140, 66, 0.4);
+    box-shadow: 0 4px 16px var(--theme-shadow-hover);
   }
 }
 
@@ -1287,12 +1287,12 @@ onMounted(async () => {
   margin-bottom: -2px;
 
   &:hover {
-    color: #FF8C42;
+    color: var(--theme-primary-color);
   }
 
   &.active {
-    color: #FF8C42;
-    border-bottom-color: #FF8C42;
+    color: var(--theme-primary-color);
+    border-bottom-color: var(--theme-primary-color);
   }
 }
 
@@ -1334,7 +1334,7 @@ onMounted(async () => {
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 4px 16px rgba(255, 140, 66, 0.2);
+    box-shadow: 0 4px 16px var(--theme-shadow-hover);
   }
 }
 
@@ -1346,8 +1346,8 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   font-size: 28px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(212, 175, 55, 0.1));
-  color: #FF8C42;
+  background: var(--theme-primary-gradient);
+  color: var(--theme-primary-color);
 }
 
 .stat-content {
@@ -1434,7 +1434,7 @@ onMounted(async () => {
 
 .transaction-amount {
   font-weight: 700;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
 }
 
 // Tables
@@ -1451,8 +1451,8 @@ onMounted(async () => {
   border-collapse: collapse;
 
   thead {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
-    border-bottom: 2px solid #FF8C42;
+    background: var(--theme-primary-gradient);
+    border-bottom: 2px solid var(--theme-primary-color);
 
     th {
       padding: 16px;
@@ -1471,7 +1471,7 @@ onMounted(async () => {
       transition: all 0.2s ease;
 
       &:hover {
-        background: rgba(255, 140, 66, 0.04);
+        background: var(--theme-shadow-hover);
       }
 
       td {
@@ -1519,8 +1519,8 @@ onMounted(async () => {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 12px;
-  background: rgba(255, 140, 66, 0.1);
-  color: #FF8C42;
+  background: var(--theme-shadow-hover);
+  color: var(--theme-primary-color);
   font-size: 11px;
   font-weight: 600;
   text-transform: capitalize;
@@ -1540,7 +1540,7 @@ onMounted(async () => {
 .invoice-number {
   font-family: monospace;
   font-weight: 600;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
 }
 
 .pagination-container {
@@ -1584,7 +1584,7 @@ onMounted(async () => {
   }
 
   &:hover {
-    background: rgba(255, 140, 66, 0.05);
+    background: var(--theme-shadow-hover);
   }
 }
 
@@ -1601,13 +1601,13 @@ onMounted(async () => {
 
 .selected-user-info {
   padding: 12px 16px;
-  background: rgba(255, 140, 66, 0.1);
+  background: var(--theme-shadow-hover);
   border-radius: 8px;
-  border: 1px solid rgba(255, 140, 66, 0.3);
+  border: 1px solid var(--theme-shadow-hover);
   margin-bottom: 16px;
 
   strong {
-    color: #FF8C42;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -1627,7 +1627,7 @@ onMounted(async () => {
 
 .item-total {
   font-weight: 600;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   font-size: 14px;
 }
 
@@ -1650,7 +1650,7 @@ onMounted(async () => {
     padding-top: 16px;
     font-size: 16px;
     font-weight: 700;
-    color: #FF8C42;
+    color: var(--theme-primary-color);
   }
 }
 

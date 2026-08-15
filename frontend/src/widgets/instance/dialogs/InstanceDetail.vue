@@ -514,7 +514,7 @@ defineExpose({
 
                 <!-- Right: Status Tag + Toggle Switch -->
                 <div class="protection-right-section">
-                  <a-tag :color="isDockerMode ? 'orange' : 'default'" class="status-tag">
+                  <a-tag class="status-tag">
                     {{ isDockerMode ? 'ENABLED' : 'DISABLED' }}
                   </a-tag>
                   <a-switch
@@ -894,8 +894,8 @@ defineExpose({
 }
 
 .protection-section-card.active {
-  border-color: #ff8c00; /* ORANGE */
-  box-shadow: 0 4px 16px rgba(255, 140, 0, 0.2);
+  border-color: var(--theme-primary-color); /* ORANGE */
+  box-shadow: 0 4px 16px var(--theme-shadow-hover);
 }
 
 .protection-section-card:not(.active) {
@@ -933,9 +933,9 @@ defineExpose({
 }
 
 .protection-icon-wrapper.active {
-  background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%); /* ORANGE gradient */
+  background: var(--theme-primary-gradient); /* ORANGE gradient */
   color: #000000; /* BLACK icon */
-  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+  box-shadow: 0 2px 8px var(--theme-shadow-hover);
 }
 
 .protection-icon-wrapper:not(.active) {
@@ -954,7 +954,7 @@ defineExpose({
   padding: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #ffd700; /* GOLD */
+  color: var(--theme-primary-color); /* GOLD */
   line-height: 1.4;
   white-space: nowrap; /* OCD: No wrapping on desktop */
 }
@@ -990,7 +990,7 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   padding: 6px 12px; /* OCD: 6px vertical, 12px horizontal */
-  background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%); /* ORANGE */
+  background: var(--theme-primary-gradient); /* ORANGE */
   color: #000000; /* BLACK text */
   border-radius: 6px; /* OCD: 6px radius */
   font-size: 13px;
@@ -1004,7 +1004,7 @@ defineExpose({
   align-items: center;
   padding: 6px 12px; /* OCD: Same as benefit */
   background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%);
-  color: #ffd700; /* GOLD text */
+  color: var(--theme-primary-color); /* GOLD text */
   border-radius: 6px; /* OCD: 6px radius */
   font-size: 13px;
   font-weight: 600;
@@ -1070,8 +1070,8 @@ defineExpose({
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: #ff8c00; /* ORANGE on hover */
-    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.15);
+    border-color: var(--theme-primary-color); /* ORANGE on hover */
+    box-shadow: 0 4px 16px var(--theme-shadow-hover);
   }
 
   &:last-child {
@@ -1102,12 +1102,12 @@ defineExpose({
   padding: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #ffd700; /* GOLD */
+  color: var(--theme-primary-color); /* GOLD */
   line-height: 1.4;
 
   &.required::after {
     content: " *";
-    color: #ff8c00; /* ORANGE asterisk */
+    color: var(--theme-primary-color); /* ORANGE asterisk */
   }
 }
 
@@ -1153,7 +1153,7 @@ defineExpose({
 
   &.required::after {
     content: " *";
-    color: #ff8c00; /* ORANGE asterisk */
+    color: var(--theme-primary-color); /* ORANGE asterisk */
   }
 }
 
@@ -1196,38 +1196,38 @@ defineExpose({
 :deep(.settings-card) {
   .ant-input:hover,
   .ant-input:focus {
-    border-color: #ff8c00; /* ORANGE */
+    border-color: var(--theme-primary-color); /* ORANGE */
   }
 
   .ant-input:focus {
-    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+    box-shadow: 0 0 0 2px var(--theme-shadow-hover);
   }
 
   .ant-select:not(.ant-select-disabled):hover .ant-select-selector,
   .ant-select-focused:not(.ant-select-disabled).ant-select .ant-select-selector {
-    border-color: #ff8c00; /* ORANGE */
+    border-color: var(--theme-primary-color); /* ORANGE */
   }
 
   .ant-select-focused:not(.ant-select-disabled).ant-select .ant-select-selector {
-    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+    box-shadow: 0 0 0 2px var(--theme-shadow-hover);
   }
 
   .ant-picker:hover,
   .ant-picker-focused {
-    border-color: #ff8c00; /* ORANGE */
+    border-color: var(--theme-primary-color); /* ORANGE */
   }
 
   .ant-picker-focused {
-    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+    box-shadow: 0 0 0 2px var(--theme-shadow-hover);
   }
 
   textarea.ant-input:hover,
   textarea.ant-input:focus {
-    border-color: #ff8c00; /* ORANGE */
+    border-color: var(--theme-primary-color); /* ORANGE */
   }
 
   textarea.ant-input:focus {
-    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+    box-shadow: 0 0 0 2px var(--theme-shadow-hover);
   }
 }
 </style>

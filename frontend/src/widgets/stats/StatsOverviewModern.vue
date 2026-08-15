@@ -110,7 +110,7 @@ const quickStats = computed(() => {
         title: "Instances",
         value: daemon.instance?.total || 0,
         icon: AppstoreOutlined,
-        color: "#D4AF37",
+        color: "var(--theme-primary-color)",
         subtitle: `${daemon.instance?.running || 0} running now`
       },
       {
@@ -138,14 +138,14 @@ const quickStats = computed(() => {
       title: "Total Nodes",
       value: remote?.length || 0,
       icon: CloudServerOutlined,
-      color: "#FF8C42",
+      color: "var(--theme-primary-color)",
       subtitle: `${system?.platform || 'Unknown'} ${system?.type || ''}`
     },
     {
       title: "Total Instances",
       value: totalInstance || 0,
       icon: AppstoreOutlined,
-      color: "#D4AF37",
+      color: "var(--theme-primary-color)",
       subtitle: `${runningInstance || 0} running now`
     },
     {
@@ -274,17 +274,17 @@ const updateCPUChart = () => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: "rgba(255, 140, 66, 0.4)" },
-              { offset: 1, color: "rgba(255, 140, 66, 0.05)" }
+              { offset: 0, color: "var(--theme-shadow-hover)" },
+              { offset: 1, color: "var(--theme-shadow-hover)" }
             ]
           }
         },
         lineStyle: {
-          color: "#FF8C42",
+          color: "var(--theme-primary-color)",
           width: 3
         },
         itemStyle: {
-          color: "#FF8C42"
+          color: "var(--theme-primary-color)"
         },
         data: cpuHistory.value
       }
@@ -334,7 +334,7 @@ const updateMemoryChart = () => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: "#D4AF37" },
+              { offset: 0, color: "var(--theme-primary-color)" },
               { offset: 1, color: "rgba(212, 175, 55, 0.5)" }
             ]
           },
@@ -430,8 +430,8 @@ const updateInstanceChart = () => {
                 x2: 0,
                 y2: 1,
                 colorStops: [
-                  { offset: 0, color: "#FF8C42" },
-                  { offset: 1, color: "#FF6B35" }
+                  { offset: 0, color: "var(--theme-primary-color)" },
+                  { offset: 1, color: "var(--theme-primary-color)" }
                 ]
               }
             }
@@ -703,7 +703,7 @@ onUnmounted(() => {
             <div class="resource-bar">
               <div
                 class="resource-fill"
-                :style="{ width: systemResources.cpu.usage + '%', background: '#FF8C42' }"
+                :style="{ width: systemResources.cpu.usage + '%', background: 'var(--theme-primary-color)' }"
               />
             </div>
             <div class="resource-meta">{{ systemResources.cpu.cores }} Cores</div>
@@ -717,7 +717,7 @@ onUnmounted(() => {
             <div class="resource-bar">
               <div
                 class="resource-fill"
-                :style="{ width: systemResources.memory.percentage + '%', background: '#D4AF37' }"
+                :style="{ width: systemResources.memory.percentage + '%', background: 'var(--theme-primary-color)' }"
               />
             </div>
             <div class="resource-meta">
@@ -819,14 +819,14 @@ onUnmounted(() => {
 
 // Hero Banner
 .stats-hero {
-  background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 50%, #D4AF37 100%);
+  background: var(--theme-primary-gradient);
   border-radius: 12px;
   padding: 20px 32px;
   margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.2);
+  box-shadow: 0 4px 16px var(--theme-shadow-hover);
   position: relative;
   overflow: hidden;
 
@@ -898,7 +898,7 @@ onUnmounted(() => {
       background: rgba(255, 255, 255, 0.15) !important;
       border: 1px solid rgba(255, 255, 255, 0.3) !important;
       color: white !important;
-      backdrop-filter: blur(8px);
+      backdrop-filter: none; /* Optimized */
 
       .ant-select-selection-item {
         color: white !important;
@@ -1047,7 +1047,7 @@ onUnmounted(() => {
 }
 
 .resource-value {
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   font-size: 18px;
 }
 
@@ -1088,13 +1088,13 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 8px;
   padding: 16px;
-  background: rgba(255, 140, 66, 0.05);
+  background: var(--theme-shadow-hover);
   border-radius: 8px;
-  border-left: 3px solid #FF8C42;
+  border-left: 3px solid var(--theme-primary-color);
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 140, 66, 0.1);
+    background: var(--theme-shadow-hover);
     transform: translateX(4px);
   }
 }

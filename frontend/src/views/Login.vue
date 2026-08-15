@@ -58,7 +58,7 @@ const skeletonConfigs = [
   top: 0px;
 
   background-color: #29292957;
-  backdrop-filter: saturate(120%) blur(10px);
+  backdrop-filter: none; /* Optimized */
   transition: all 0.8s;
   overflow-y: auto;
   overflow-x: hidden;

@@ -482,7 +482,7 @@ const onClickIcon = () => {
   justify-content: center;
   align-items: center;
   background: var(--app-header-bg);
-  backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: none; /* Optimized */
   color: var(--app-header-text-color);
 
   position: fixed;

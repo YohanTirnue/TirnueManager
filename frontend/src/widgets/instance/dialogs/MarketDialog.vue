@@ -294,13 +294,13 @@ defineExpose({
 }
 
 .instance-item:hover {
-  border-color: #FF8C42;
-  background: rgba(255, 140, 66, 0.05);
+  border-color: var(--theme-primary-color);
+  background: var(--theme-shadow-hover);
 }
 
 .instance-item.selected {
-  border-color: #FF8C42;
-  background: rgba(255, 140, 66, 0.1);
+  border-color: var(--theme-primary-color);
+  background: var(--theme-shadow-hover);
 }
 
 .instance-item.disabled {
@@ -354,7 +354,7 @@ defineExpose({
 
 .check-icon {
   font-size: 18px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   font-weight: bold;
 }
 </style>

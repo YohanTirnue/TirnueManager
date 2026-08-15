@@ -730,7 +730,7 @@ onMounted(() => {
 
   .page-icon {
     font-size: 48px;
-    color: #ff8c00;
+    color: var(--theme-primary-color);
   }
 
   .page-title {
@@ -761,9 +761,9 @@ onMounted(() => {
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    border-color: #ff8c00;
-    color: #ff8c00;
-    background: rgba(255, 140, 0, 0.05);
+    border-color: var(--theme-primary-color);
+    color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
   }
 
   &:disabled {
@@ -792,7 +792,7 @@ onMounted(() => {
 
     .info-icon {
       font-size: 18px;
-      color: #ff8c00;
+      color: var(--theme-primary-color);
     }
 
     .info-label {
@@ -824,7 +824,7 @@ onMounted(() => {
 
       .section-icon {
         font-size: 32px;
-        color: #ff8c00;
+        color: var(--theme-primary-color);
       }
 
       h2 {
@@ -843,7 +843,7 @@ onMounted(() => {
 
     .btn-add {
       padding: 10px 20px;
-      background: linear-gradient(135deg, #ff8c00, #ff9d1f);
+      background: var(--theme-primary-gradient);
       color: white;
       border: none;
       border-radius: 8px;
@@ -857,7 +857,7 @@ onMounted(() => {
 
       &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(255, 140, 0, 0.4);
+        box-shadow: 0 6px 16px var(--theme-shadow-hover);
       }
     }
   }
@@ -876,8 +876,8 @@ onMounted(() => {
     transition: all 0.3s ease;
 
     &:hover {
-      border-color: #ff8c00;
-      box-shadow: 0 8px 24px rgba(255, 140, 0, 0.12);
+      border-color: var(--theme-primary-color);
+      box-shadow: 0 8px 24px var(--theme-shadow-hover);
       transform: translateY(-2px);
     }
 
@@ -892,7 +892,7 @@ onMounted(() => {
       .card-icon {
         width: 40px;
         height: 40px;
-        background: linear-gradient(135deg, #ff8c00, #ff9d1f);
+        background: var(--theme-primary-gradient);
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -1038,12 +1038,12 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #ff8c00;
+  background: var(--theme-primary-color);
   color: white;
 
   &:hover:not(:disabled) {
-    background: #ff9d1f;
-    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+    background: var(--theme-primary-color);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
   }
 
   &:disabled {

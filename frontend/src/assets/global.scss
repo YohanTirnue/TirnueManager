@@ -145,7 +145,7 @@ html {
 // Override the AntDesign original style - Modern Black theme
 .ant-modal-mask,
 .ant-drawer-mask {
-  backdrop-filter: saturate(110%) blur(8px);
+  backdrop-filter: none; /* Optimized */
   background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
@@ -161,14 +161,14 @@ html {
 }
 
 .ant-btn-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  border: 1px solid #1e40af;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  background: var(--core-btn-primary);
+  border: 1px solid var(--core-btn-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .ant-btn-primary:hover {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+  background: var(--core-btn-primary-hover);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   transform: translateY(-2px);
 }
 
@@ -201,7 +201,7 @@ html {
 }
 
 #nprogress .bar {
-  background: linear-gradient(90deg, rgba(153, 27, 27, 0.95) 0%, rgba(127, 29, 29, 0.95) 100%);
+  background: #000000;
   position: fixed;
   z-index: 9999;
   top: 0;
@@ -216,17 +216,30 @@ html {
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px rgba(153, 27, 27, 0.95), 0 0 5px rgba(153, 27, 27, 0.95);
+  box-shadow: 0 0 10px #000000, 0 0 5px #000000;
   opacity: 1;
   transform: rotate(3deg) translate(0px, -4px);
 }
 
 .app-dark-theme {
   #nprogress .bar {
-    background: linear-gradient(90deg, rgba(220, 38, 38, 0.95) 0%, rgba(185, 28, 28, 0.95) 100%);
+    background: #ffffff;
   }
 
   #nprogress .peg {
-    box-shadow: 0 0 10px rgba(220, 38, 38, 0.95), 0 0 5px rgba(220, 38, 38, 0.95);
+    box-shadow: 0 0 10px #ffffff, 0 0 5px #ffffff;
   }
+}
+
+// Force ALL Ant Design Tags to be purely monotone, no exceptions
+.ant-tag, .ant-badge-status-dot {
+  background-color: var(--core-bg-base) !important;
+  border-color: var(--core-border) !important;
+  color: var(--core-text-main) !important;
+}
+
+.ant-btn-dangerous, .ant-btn-background-ghost.ant-btn-dangerous {
+  background-color: var(--core-bg-base) !important;
+  border-color: var(--core-border) !important;
+  color: var(--core-text-main) !important;
 }

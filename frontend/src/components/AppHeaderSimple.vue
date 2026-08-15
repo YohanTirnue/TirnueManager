@@ -97,7 +97,7 @@ const toggleTheme = () => {
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(10px);
+  backdrop-filter: none; /* Optimized */
   flex-shrink: 0;
 }
 

@@ -2,7 +2,7 @@
 
 .bg-extend-css {
   .card-panel {
-    backdrop-filter: blur(3px);
+    backdrop-filter: none; /* Optimized */
   }
 
   .ant-table,
@@ -17,32 +17,32 @@
   .card-panel,
   .ant-pagination-item {
     background-color: var(--level-1-bg-color) !important;
-    backdrop-filter: blur(3px) !important;
+    backdrop-filter: none; /* Optimized */
   }
 
   .ant-btn-default {
     background-color: var(--level-1-bg-color) !important;
-    backdrop-filter: blur(3px) !important;
+    backdrop-filter: none; /* Optimized */
   }
   .ant-btn-primary {
     background-color: var(--primary-btn-color);
-    backdrop-filter: blur(3px) !important;
+    backdrop-filter: none; /* Optimized */
   }
 
   .ant-btn-dangerous {
     background-color: var(--danger-btn-color);
-    backdrop-filter: blur(3px) !important;
+    backdrop-filter: none; /* Optimized */
   }
 
   .ant-input-affix-wrapper,
   .ant-select-selector {
     background-color: var(--level-1-bg-color) !important;
-    backdrop-filter: blur(3px) !important;
+    backdrop-filter: none; /* Optimized */
   }
 
   .ant-modal-content {
     background-color: var(--level-0-bg-color) !important;
-    backdrop-filter: blur(3px) !important;
+    backdrop-filter: none; /* Optimized */
   }
 
   .ant-modal-title,
@@ -58,7 +58,7 @@
   }
   .terminal-wrapper {
     background-color: rgba(0, 0, 0, 0.8) !important;
-    backdrop-filter: blur(3px) !important;
+    backdrop-filter: none; /* Optimized */
   }
   .app-header-content-for-phone {
     .card-panel {
@@ -73,35 +73,41 @@
   }
   .terminal-wrapper {
     background-color: var(--level-1-bg-color) !important;
-    backdrop-filter: blur(3px) !important;
+    backdrop-filter: none; /* Optimized */
   }
 }
 
 // PC
 .app-light-extend-theme {
-  --level-0-bg-color: #ffffffd0;
-  --level-1-bg-color: #ffffffae;
-  --level-2-bg-color: #ffffff84;
-  --primary-btn-color: #1669dccf;
-  --danger-btn-color: #d32f2fac;
+  --level-0-bg-color: var(--core-bg-base);
+  --level-1-bg-color: var(--core-bg-surface);
+  --level-2-bg-color: var(--core-bg-surface-hover);
+  --primary-btn-color: var(--core-btn-primary);
+  --danger-btn-color: var(--core-btn-danger);
   --background-color-white: var(--level-1-bg-color);
 
-  // ORANGE GOLD BLACK Theme - Light Mode
-  --theme-card-bg: #ffffff;
-  --theme-card-bg-hover: #fff9f0;
-  --theme-card-border: #e6e6e6;
-  --theme-card-border-hover: #ff8c00;
-  --theme-info-card-bg: #fff9e6;
-  --theme-info-card-border: #ffa500;
-  --theme-title-color: #d97706;
-  --theme-subtitle-color: #666666;
-  --theme-label-color: #1a1a1a;
-  --theme-hint-color: #999999;
-  --theme-text-color: #1a1a1a;
-  --theme-info-text-color: #b45309;
+  // Universal Theme Variables - Light Mode
+  --theme-primary-color: var(--core-btn-primary);
+  --theme-primary-color-hover: var(--core-btn-primary-hover);
+  --theme-primary-gradient: var(--core-btn-primary);
+  --theme-primary-gradient-hover: var(--core-btn-primary-hover);
+
+  // Semantic Mapping - Light Mode
+  --theme-card-bg: var(--core-bg-base);
+  --theme-card-bg-hover: var(--core-bg-surface);
+  --theme-card-border: var(--core-border);
+  --theme-card-border-hover: var(--core-btn-primary);
+  --theme-info-card-bg: var(--core-bg-surface);
+  --theme-info-card-border: var(--core-border);
+  --theme-title-color: var(--core-btn-primary);
+  --theme-subtitle-color: var(--core-text-muted);
+  --theme-label-color: var(--core-text-main);
+  --theme-hint-color: var(--core-text-muted);
+  --theme-text-color: var(--core-text-main);
+  --theme-info-text-color: var(--core-text-main);
   --theme-shadow: rgba(0, 0, 0, 0.08);
-  --theme-shadow-hover: rgba(255, 140, 0, 0.15);
-  --theme-focus-shadow: rgba(255, 140, 0, 0.3);
+  --theme-shadow-hover: rgba(0, 0, 0, 0.15);
+  --theme-focus-shadow: rgba(0, 0, 0, 0.3);
 
   .app-header-wrapper {
     background-color: #00000093 !important;
@@ -112,29 +118,35 @@
 
 // PC
 .app-dark-extend-theme {
-  --level-0-bg-color: #000000b4;
-  --level-1-bg-color: #000000a9;
-  --level-2-bg-color: #1919196b;
-  --primary-btn-color: #1669dccf;
-  --danger-btn-color: #d32f2fac;
+  --level-0-bg-color: var(--core-bg-base);
+  --level-1-bg-color: var(--core-bg-surface);
+  --level-2-bg-color: var(--core-bg-surface-hover);
+  --primary-btn-color: var(--core-btn-primary);
+  --danger-btn-color: var(--core-btn-danger);
   --background-color-white: var(--level-1-bg-color);
 
-  // ORANGE GOLD BLACK Theme - Dark Mode
-  --theme-card-bg: #000000;
-  --theme-card-bg-hover: #1a1a1a;
-  --theme-card-border: #2a2a2a;
-  --theme-card-border-hover: #ff8c00;
-  --theme-info-card-bg: #1a1a00;
-  --theme-info-card-border: #ff8c00;
-  --theme-title-color: #ffd700;
-  --theme-subtitle-color: #999999;
-  --theme-label-color: #ffffff;
-  --theme-hint-color: #666666;
-  --theme-text-color: #ffffff;
-  --theme-info-text-color: #ffd700;
-  --theme-shadow: rgba(0, 0, 0, 0.3);
-  --theme-shadow-hover: rgba(255, 140, 0, 0.15);
-  --theme-focus-shadow: rgba(255, 140, 0, 0.2);
+  // Universal Theme Variables - Dark Mode
+  --theme-primary-color: var(--core-btn-primary);
+  --theme-primary-color-hover: var(--core-btn-primary-hover);
+  --theme-primary-gradient: var(--core-btn-primary);
+  --theme-primary-gradient-hover: var(--core-btn-primary-hover);
+
+  // Semantic Mapping - Dark Mode
+  --theme-card-bg: var(--core-bg-base);
+  --theme-card-bg-hover: var(--core-bg-surface);
+  --theme-card-border: var(--core-border);
+  --theme-card-border-hover: var(--core-btn-primary);
+  --theme-info-card-bg: var(--core-bg-surface);
+  --theme-info-card-border: var(--core-border);
+  --theme-title-color: var(--core-btn-primary);
+  --theme-subtitle-color: var(--core-text-muted);
+  --theme-label-color: var(--core-text-main);
+  --theme-hint-color: var(--core-text-muted);
+  --theme-text-color: var(--core-text-main);
+  --theme-info-text-color: var(--core-text-main);
+  --theme-shadow: rgba(255, 255, 255, 0.1);
+  --theme-shadow-hover: rgba(255, 255, 255, 0.15);
+  --theme-focus-shadow: rgba(255, 255, 255, 0.2);
 
   @extend .bg-extend-css;
   @extend .extend-dark-css;

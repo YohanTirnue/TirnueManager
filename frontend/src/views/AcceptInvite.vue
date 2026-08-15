@@ -303,10 +303,10 @@ const goToLogin = () => {
     margin-bottom: 12px;
 
     &.invite-info {
-      background: rgba(255, 140, 0, 0.1);
+      background: var(--theme-shadow-hover);
       padding: 12px;
       border-radius: 8px;
-      border-left: 3px solid #ff8c00;
+      border-left: 3px solid var(--theme-primary-color);
     }
   }
 
@@ -324,7 +324,7 @@ const goToLogin = () => {
 
     .invite-icon {
       font-size: 48px;
-      color: #ff8c00;
+      color: var(--theme-primary-color);
       margin-bottom: 16px;
     }
 
@@ -334,10 +334,10 @@ const goToLogin = () => {
     }
 
     .invite-info {
-      background: rgba(255, 140, 0, 0.1);
+      background: var(--theme-shadow-hover);
       padding: 12px;
       border-radius: 8px;
-      border-left: 3px solid #ff8c00;
+      border-left: 3px solid var(--theme-primary-color);
       color: var(--color-text-2);
       font-size: 14px;
     }
@@ -355,7 +355,7 @@ const goToLogin = () => {
     color: var(--color-text-2);
 
     :deep(.anticon) {
-      color: #ff8c00;
+      color: var(--theme-primary-color);
     }
   }
 }
@@ -396,8 +396,8 @@ const goToLogin = () => {
 
         &:focus {
           outline: none;
-          border-color: #ff8c00;
-          box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+          border-color: var(--theme-primary-color);
+          box-shadow: 0 0 0 3px var(--theme-shadow-hover);
         }
 
         &.error {
@@ -422,7 +422,7 @@ const goToLogin = () => {
 .btn-primary {
   width: 100%;
   padding: 14px 24px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   border: none;
   border-radius: 8px;
   color: white;
@@ -433,7 +433,7 @@ const goToLogin = () => {
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+    box-shadow: 0 6px 20px var(--theme-shadow-hover);
   }
 
   &:disabled {
@@ -453,7 +453,7 @@ const goToLogin = () => {
   color: var(--color-text-3);
 
   a {
-    color: #ff8c00;
+    color: var(--theme-primary-color);
     cursor: pointer;
     font-weight: 600;
 

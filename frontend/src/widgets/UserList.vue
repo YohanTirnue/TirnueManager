@@ -268,11 +268,11 @@ const getPermissionIcon = (permission: string) => {
 };
 
 const getPermissionColor = (permission: string) => {
-  if (permission === "10") return "#FF8C42";
-  if (permission === "7") return "#D4AF37";
-  if (permission === "5") return "#FFA500";
-  if (permission === "1") return "#FFB84D";
-  return "#ff8c00";
+  if (permission === "10") return "var(--theme-primary-color)";
+  if (permission === "7") return "var(--theme-primary-color)";
+  if (permission === "5") return "var(--theme-primary-color)";
+  if (permission === "1") return "var(--theme-primary-color)";
+  return "var(--theme-primary-color)";
 };
 
 const toggleUserSelection = (uuid: string) => {
@@ -576,7 +576,7 @@ onMounted(async () => {
             <template #label>
               <span class="field-label">Account Status</span>
             </template>
-            <a-tag :color="formData.accountStatus === 'active' ? 'green' : formData.accountStatus === 'suspended' ? 'red' : 'orange'">
+            <a-tag>
               {{ formData.accountStatus }}
             </a-tag>
           </a-form-item>
@@ -1023,13 +1023,13 @@ onMounted(async () => {
   --theme-card-bg: var(--color-bg-2);
   --theme-card-bg-hover: var(--color-bg-3);
   --theme-card-border: var(--color-border-2);
-  --theme-card-border-hover: #ff8c00;
+  --theme-card-border-hover: var(--theme-primary-color);
   --theme-title-color: var(--color-text-1);
   --theme-subtitle-color: var(--color-text-3);
   --theme-label-color: var(--color-text-2);
   --theme-hint-color: var(--color-text-3);
   --theme-shadow: rgba(0, 0, 0, 0.1);
-  --theme-shadow-hover: rgba(255, 140, 0, 0.15);
+  --theme-shadow-hover: var(--theme-shadow-hover);
 }
 
 /* Industrial Modal Styles */
@@ -1043,13 +1043,13 @@ onMounted(async () => {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
   color: white;
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
 }
 
 .header-content-industrial h3 {
@@ -1077,7 +1077,7 @@ onMounted(async () => {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1126,7 +1126,7 @@ onMounted(async () => {
 
 .btn-submit-industrial {
   padding: 10px 24px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   border: none;
   border-radius: 8px;
   color: white;
@@ -1138,7 +1138,7 @@ onMounted(async () => {
 
 .btn-submit-industrial:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
 }
 
 .btn-submit-industrial:disabled {
@@ -1181,21 +1181,21 @@ onMounted(async () => {
 .page-icon {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  background: var(--theme-primary-gradient);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32px;
   color: white;
-  box-shadow: 0 8px 20px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 8px 20px var(--theme-shadow-hover);
 }
 
 .page-title {
   font-size: 32px;
   font-weight: 800;
   margin: 0;
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
+  background: var(--theme-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1245,20 +1245,20 @@ onMounted(async () => {
   border: 2px solid var(--card-border-color);
 
   &:hover:not(:disabled) {
-    border-color: #FF8C42;
-    color: #FF8C42;
-    background: rgba(255, 140, 66, 0.1);
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.2);
+    border-color: var(--theme-primary-color);
+    color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
   }
 }
 
 .add-btn {
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  background: var(--theme-primary-gradient);
   color: white;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 4px 16px var(--theme-shadow-hover);
 
   &:hover:not(:disabled) {
-    box-shadow: 0 6px 24px rgba(255, 140, 66, 0.4);
+    box-shadow: 0 6px 24px var(--theme-shadow-hover);
   }
 }
 
@@ -1292,7 +1292,7 @@ onMounted(async () => {
   top: 50%;
   transform: translateY(-50%);
   font-size: 20px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
 }
 
 .search-input {
@@ -1307,9 +1307,9 @@ onMounted(async () => {
 
   &:focus {
     outline: none;
-    border-color: #FF8C42;
+    border-color: var(--theme-primary-color);
     background: var(--background-color-white);
-    box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
+    box-shadow: 0 0 0 4px var(--theme-shadow-hover);
   }
 
   &::placeholder {
@@ -1330,13 +1330,13 @@ onMounted(async () => {
 
   &:focus {
     outline: none;
-    border-color: #FF8C42;
+    border-color: var(--theme-primary-color);
     background: var(--background-color-white);
-    box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
+    box-shadow: 0 0 0 4px var(--theme-shadow-hover);
   }
 
   &:hover {
-    border-color: #FF8C42;
+    border-color: var(--theme-primary-color);
   }
 }
 
@@ -1356,8 +1356,8 @@ onMounted(async () => {
   border-collapse: collapse;
 
   thead {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
-    border-bottom: 2px solid #FF8C42;
+    background: var(--theme-primary-gradient);
+    border-bottom: 2px solid var(--theme-primary-color);
 
     tr th {
       padding: 16px 12px;
@@ -1420,11 +1420,11 @@ onMounted(async () => {
       transition: all 0.2s ease;
 
       &:hover {
-        background: rgba(255, 140, 66, 0.04);
+        background: var(--theme-shadow-hover);
       }
 
       &.selected {
-        background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
+        background: var(--theme-primary-gradient);
       }
 
       td {
@@ -1462,13 +1462,13 @@ onMounted(async () => {
   cursor: pointer;
 
   &.checked {
-    background: linear-gradient(135deg, #FF8C42, #FF6B35);
-    border-color: #FF8C42;
+    background: var(--theme-primary-gradient);
+    border-color: var(--theme-primary-color);
     color: white;
   }
 
   &:hover {
-    border-color: #FF8C42;
+    border-color: var(--theme-primary-color);
   }
 }
 
@@ -1482,7 +1482,7 @@ onMounted(async () => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  background: var(--theme-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1513,8 +1513,8 @@ onMounted(async () => {
 
 .instance-count {
   font-weight: 600;
-  color: #FF8C42;
-  background: rgba(255, 140, 66, 0.1);
+  color: var(--theme-primary-color);
+  background: var(--theme-shadow-hover);
   padding: 4px 10px;
   border-radius: 8px;
   display: inline-block;
@@ -1530,7 +1530,7 @@ onMounted(async () => {
 .device-id-text {
   font-family: monospace;
   font-size: 11px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   font-weight: 500;
 }
 
@@ -1549,23 +1549,23 @@ onMounted(async () => {
 .action-btn {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(212, 175, 55, 0.1));
-  border: 2px solid #FF8C42;
+  background: var(--theme-primary-gradient);
+  border: 2px solid var(--theme-primary-color);
   border-radius: 12px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   font-size: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(255, 140, 66, 0.1);
+  box-shadow: 0 2px 8px var(--theme-shadow-hover);
 
   &:hover {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.25), rgba(212, 175, 55, 0.25));
-    box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
-    border-color: #FF6B35;
+    background: var(--theme-primary-gradient);
+    box-shadow: 0 4px 16px var(--theme-shadow-hover);
+    border-color: var(--theme-primary-color);
   }
 
   &:active {
-    box-shadow: 0 1px 4px rgba(255, 140, 66, 0.2);
+    box-shadow: 0 1px 4px var(--theme-shadow-hover);
   }
 }
 
@@ -1596,14 +1596,14 @@ onMounted(async () => {
   }
 
   &.edit-btn {
-    border-color: rgba(255, 140, 0, 0.3);
+    border-color: var(--theme-shadow-hover);
     color: var(--color-blue-6);
 
     &:hover {
-      background: rgba(255, 140, 0, 0.12);
+      background: var(--theme-shadow-hover);
       border-color: var(--color-blue-6);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
+      box-shadow: 0 4px 12px var(--theme-shadow-hover);
     }
   }
 
@@ -1732,9 +1732,9 @@ onMounted(async () => {
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(255, 140, 66, 0.4);
+    border-color: var(--theme-shadow-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.15);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
   }
 }
 
@@ -1747,7 +1747,7 @@ onMounted(async () => {
   margin: 0 0 10px 0;
   padding-bottom: 10px;
   border-bottom: 2px solid var(--card-border-color);
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
+  background: var(--theme-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1755,7 +1755,7 @@ onMounted(async () => {
 
 .category-icon {
   font-size: 18px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
 }
 
 .permission-items {
@@ -1772,7 +1772,7 @@ onMounted(async () => {
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(255, 140, 66, 0.08);
+      background: var(--theme-shadow-hover);
       padding-left: 14px;
     }
   }
@@ -1787,17 +1787,17 @@ onMounted(async () => {
     }
 
     &:hover .ant-checkbox-inner {
-      border-color: #FF8C42;
+      border-color: var(--theme-primary-color);
     }
 
     &.ant-checkbox-checked {
       .ant-checkbox-inner {
-        background: linear-gradient(135deg, #FF8C42, #FF6B35);
-        border-color: #FF8C42;
+        background: var(--theme-primary-gradient);
+        border-color: var(--theme-primary-color);
       }
 
       &::after {
-        border-color: #FF8C42;
+        border-color: var(--theme-primary-color);
       }
     }
   }
@@ -1812,7 +1812,7 @@ onMounted(async () => {
 /* LANDSCAPE User Permission Cards - ORANGE GOLD BLACK THEME */
 .user-info-card {
   background: linear-gradient(135deg, #1a1a00 0%, #2a2200 100%);
-  border: 2px solid #ff8c00;
+  border: 2px solid var(--theme-primary-color);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
@@ -1838,7 +1838,7 @@ onMounted(async () => {
   margin: 0 0 4px 0;
   padding: 0;
   font-size: 13px;
-  color: #ffd700; /* GOLD */
+  color: var(--theme-primary-color); /* GOLD */
   line-height: 1.4;
 
   &:last-child {
@@ -1847,11 +1847,11 @@ onMounted(async () => {
 }
 
 .user-info-link {
-  color: #ff8c00; /* ORANGE */
+  color: var(--theme-primary-color); /* ORANGE */
   text-decoration: underline;
 
   &:hover {
-    color: #ffa500; /* Lighter ORANGE */
+    color: var(--theme-primary-color); /* Lighter ORANGE */
   }
 }
 
@@ -1974,9 +1974,9 @@ onMounted(async () => {
   font-size: 12px;
   font-weight: 500;
   margin-bottom: 8px;
-  background: rgba(255, 140, 0, 0.1);
-  color: #ff8c00;
-  border: 1px solid rgba(255, 140, 0, 0.3);
+  background: var(--theme-shadow-hover);
+  color: var(--theme-primary-color);
+  border: 1px solid var(--theme-shadow-hover);
 }
 
 /* Modern Sub-User Cards */
@@ -1999,15 +1999,15 @@ onMounted(async () => {
 }
 
 .sub-user-card-modern:hover {
-  border-color: #ff8c00;
-  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.15);
+  border-color: var(--theme-primary-color);
+  box-shadow: 0 2px 8px var(--theme-shadow-hover);
 }
 
 .sub-user-avatar {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2048,7 +2048,7 @@ onMounted(async () => {
 
 .sub-user-card-modern.clickable:hover .sub-user-edit-icon {
   opacity: 1;
-  color: #ff8c00;
+  color: var(--theme-primary-color);
 }
 
 /* Sub-User Permissions Modal */
@@ -2098,12 +2098,12 @@ onMounted(async () => {
 }
 
 .sub-user-permissions-content .permission-item:hover {
-  border-color: #ff8c00;
+  border-color: var(--theme-primary-color);
 }
 
 .sub-user-permissions-content .permission-item.active {
-  border-color: #ff8c00;
-  background: rgba(255, 140, 0, 0.1);
+  border-color: var(--theme-primary-color);
+  background: var(--theme-shadow-hover);
 }
 
 .sub-user-permissions-content .permission-item.restriction.active {
@@ -2137,7 +2137,7 @@ onMounted(async () => {
 .sub-user-permissions-content .btn-save {
   padding: 8px 16px;
   border: none;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   border-radius: 6px;
   cursor: pointer;
   color: white;
@@ -2147,7 +2147,7 @@ onMounted(async () => {
 
 .sub-user-permissions-content .btn-save:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
 }
 
 .sub-user-permissions-content .btn-save:disabled {
@@ -2175,8 +2175,8 @@ onMounted(async () => {
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(255, 140, 0, 0.4);
-    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.1);
+    border-color: var(--theme-shadow-hover);
+    box-shadow: 0 4px 16px var(--theme-shadow-hover);
   }
 
   &.security {
@@ -2203,14 +2203,14 @@ onMounted(async () => {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
   color: white;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
 
   &.warning {
     background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
@@ -2257,17 +2257,17 @@ onMounted(async () => {
   user-select: none;
 
   &:hover {
-    border-color: #ff8c00;
-    background: rgba(255, 140, 0, 0.08);
+    border-color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
   }
 
   &.active {
-    border-color: #ff8c00;
-    background: rgba(255, 140, 0, 0.15);
-    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.2);
+    border-color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
+    box-shadow: 0 2px 8px var(--theme-shadow-hover);
 
     .perm-label {
-      color: #ff8c00;
+      color: var(--theme-primary-color);
       font-weight: 600;
     }
   }
@@ -2340,7 +2340,7 @@ onMounted(async () => {
 
 // Owned Daemons Styles
 .btn-add-daemon {
-  background: #ff8c00;
+  background: var(--theme-primary-color);
   color: white;
   border: none;
   border-radius: 8px;
@@ -2354,9 +2354,9 @@ onMounted(async () => {
   transition: all 0.2s ease;
 
   &:hover {
-    background: #ff9d1f;
+    background: var(--theme-primary-color);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
   }
 
   &:active {
@@ -2379,8 +2379,8 @@ onMounted(async () => {
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: #ff8c00;
-    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.15);
+    border-color: var(--theme-primary-color);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
   }
 
   .daemon-header {
@@ -2393,7 +2393,7 @@ onMounted(async () => {
   .daemon-icon {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, #ff8c00, #ff9d1f);
+    background: var(--theme-primary-gradient);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -2474,9 +2474,9 @@ onMounted(async () => {
   }
 
   .btn-daemon-edit:hover {
-    border-color: #ff8c00;
-    color: #ff8c00;
-    background: rgba(255, 140, 0, 0.05);
+    border-color: var(--theme-primary-color);
+    color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
   }
 
   .btn-daemon-remove:hover {
@@ -2523,9 +2523,9 @@ onMounted(async () => {
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: #ff8c00;
-    color: #ff8c00;
-    background: rgba(255, 140, 0, 0.05);
+    border-color: var(--theme-primary-color);
+    color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
   }
 }
 </style>

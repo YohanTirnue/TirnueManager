@@ -14,23 +14,26 @@ export const DEFAULT_PLACE_HOLDER_CARD = {
 
 export function useCardLayoutComputed(currentLayoutConfig: LayoutCard[]) {
   const computedLayout = computed(() => {
+    const filteredConfig = currentLayoutConfig.filter(
+      c => c.type !== "InstanceOperationLogs" && c.type !== "OperationLogCard"
+    );
     const newLayoutConfig: LayoutCard[] = [];
     let currentColNumber = 0;
 
     function lastLineCheck(currentLineWidth: number, i: number) {
-      if (currentLineWidth != 12 && currentLineWidth != 0 && i + 1 == currentLayoutConfig.length) {
+      if (currentLineWidth != 12 && currentLineWidth != 0 && i + 1 == filteredConfig.length) {
         newLayoutConfig.push({
           ...DEFAULT_PLACE_HOLDER_CARD,
           id: getRandomId(),
           width: 12 - currentLineWidth,
-          followId: currentLayoutConfig[currentLayoutConfig.length - 1].id,
+          followId: filteredConfig[filteredConfig.length - 1].id,
           meta: {}
         });
       }
     }
 
-    for (let i = 0; i < currentLayoutConfig.length; i++) {
-      const config = currentLayoutConfig[i];
+    for (let i = 0; i < filteredConfig.length; i++) {
+      const config = filteredConfig[i];
       if (currentColNumber + config.width == 12 || currentColNumber == 12) {
         newLayoutConfig.push(config);
         currentColNumber = currentColNumber === 12 ? config.width : 12;
@@ -39,7 +42,7 @@ export function useCardLayoutComputed(currentLayoutConfig: LayoutCard[]) {
       }
       if (currentColNumber + config.width > 12) {
         // i - 1 must be greater than 0 because there is already an element in front of it
-        const lastID = currentLayoutConfig[i - 1].id;
+        const lastID = filteredConfig[i - 1].id;
         newLayoutConfig.push({
           ...DEFAULT_PLACE_HOLDER_CARD,
           id: getRandomId(),

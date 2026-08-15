@@ -41,7 +41,7 @@ defineExpose({
             <span>{{ t("TXT_CODE_8dfc41ef") }}: {{ item.host }}</span>
             <span style="margin-left: 6px">{{ t("TXT_CODE_8f8103b7") }}: {{ item.container }}</span>
             <span style="margin-left: 8px">
-              <a-tag color="green">{{ item.protocol.toUpperCase() }}</a-tag>
+              <a-tag >{{ item.protocol.toUpperCase() }}</a-tag>
             </span>
           </div>
         </div>

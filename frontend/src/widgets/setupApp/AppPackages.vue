@@ -372,7 +372,7 @@ onMounted(() => {
         class="marketplace-search"
       >
         <template #prefix>
-          <SearchOutlined style="color: #FF8C42; font-size: 18px" />
+          <SearchOutlined style="color: var(--theme-primary-color); font-size: 18px" />
         </template>
       </a-input-search>
     </a-col>
@@ -519,7 +519,7 @@ onMounted(() => {
                       {{ item.title }}
                     </span>
                     <span>
-                      <a-tag v-if="item.platform" color="cyan">
+                      <a-tag v-if="item.platform" >
                         {{
                           String(item.platform).toLowerCase() === "all"
                             ? t("TXT_CODE_all_platform")
@@ -529,7 +529,7 @@ onMounted(() => {
                     </span>
                   </a-typography-title>
                   <div class="mb-5">
-                    <a-tag v-for="tag in item.tags" :key="tag" color="blue">{{ tag }}</a-tag>
+                    <a-tag v-for="tag in item.tags" :key="tag" >{{ tag }}</a-tag>
                   </div>
                   <a-typography-paragraph>
                     <a-typography-text :style="{ fontSize: '12px' }">
@@ -594,9 +594,9 @@ onMounted(() => {
   align-items: center;
   padding: 20px 24px;
   margin-bottom: 20px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(212, 175, 55, 0.08));
+  background: var(--theme-primary-gradient);
   border-radius: 16px;
-  border: 1px solid rgba(255, 140, 66, 0.2);
+  border: 1px solid var(--theme-shadow-hover);
 }
 
 .market-title-section {
@@ -607,8 +607,8 @@ onMounted(() => {
 
 .market-icon {
   font-size: 36px;
-  color: #FF8C42;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.2), rgba(212, 175, 55, 0.2));
+  color: var(--theme-primary-color);
+  background: var(--theme-primary-gradient);
   padding: 12px;
   border-radius: 12px;
 }
@@ -618,7 +618,7 @@ onMounted(() => {
     margin: 0 0 4px 0;
     font-size: 24px;
     font-weight: 700;
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    background: var(--theme-primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -649,13 +649,13 @@ onMounted(() => {
   padding: 12px 20px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
-  border: 1px solid rgba(255, 140, 66, 0.15);
+  border: 1px solid var(--theme-shadow-hover);
 }
 
 .stat-number {
   font-size: 28px;
   font-weight: 700;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   line-height: 1;
 }
 
@@ -681,10 +681,10 @@ onMounted(() => {
 }
 
 .filters-container {
-  background: rgba(255, 140, 66, 0.03);
+  background: var(--theme-shadow-hover);
   border-radius: 12px;
   padding: 16px;
-  border: 1px solid rgba(255, 140, 66, 0.1);
+  border: 1px solid var(--theme-shadow-hover);
 }
 
 .filters-form {
@@ -724,7 +724,7 @@ onMounted(() => {
   transition: box-shadow 0.3s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.15);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
   }
 
   // Removed ::after pseudo-element for better performance
@@ -740,7 +740,7 @@ onMounted(() => {
   object-fit: cover;
   height: 200px; // Increased from 160px for better visibility
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.05), rgba(212, 175, 55, 0.05));
+  background: var(--theme-primary-gradient);
   user-drag: none;
   user-select: none;
   will-change: transform;
@@ -758,7 +758,7 @@ onMounted(() => {
     margin-bottom: 12px !important;
 
     span:first-child {
-      background: linear-gradient(135deg, #FF8C42, #D4AF37);
+      background: var(--theme-primary-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -775,16 +775,16 @@ onMounted(() => {
     background: linear-gradient(135deg, rgba(255, 171, 0, 0.15), rgba(230, 81, 0, 0.15));
     color: #E65100;
 
-    &[color="cyan"] {
-      background: linear-gradient(135deg, rgba(255, 140, 66, 0.2), rgba(212, 175, 55, 0.2));
-      color: #D4AF37;
+    &[] {
+      background: var(--theme-primary-gradient);
+      color: var(--theme-primary-color);
       border: 1px solid rgba(212, 175, 55, 0.3);
     }
 
-    &[color="blue"] {
-      background: linear-gradient(135deg, rgba(255, 140, 66, 0.15), rgba(212, 175, 55, 0.15));
-      color: #FF6B35;
-      border: 1px solid rgba(255, 140, 66, 0.3);
+    &[] {
+      background: var(--theme-primary-gradient);
+      color: var(--theme-primary-color);
+      border: 1px solid var(--theme-shadow-hover);
     }
   }
 }
@@ -802,15 +802,15 @@ onMounted(() => {
   height: 40px;
   font-weight: 600;
   border-radius: 10px;
-  background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+  background: var(--theme-primary-gradient);
   border: none;
   color: white;
-  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
   will-change: transform;
 
   &:hover {
     transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 6px 20px rgba(255, 140, 66, 0.4);
+    box-shadow: 0 6px 20px var(--theme-shadow-hover);
     // Removed gradient change on hover for better performance
   }
 
@@ -826,8 +826,8 @@ onMounted(() => {
 
 .package-subtitle {
   cursor: pointer;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.95), rgba(212, 175, 55, 0.95));
-  backdrop-filter: blur(8px);
+  background: var(--theme-primary-gradient);
+  backdrop-filter: none; /* Optimized */
   color: rgb(255, 255, 255);
   padding: 12px 8px;
   font-size: 15px;
@@ -857,12 +857,12 @@ onMounted(() => {
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.2);
+  box-shadow: 0 4px 16px var(--theme-shadow-hover);
   will-change: transform;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.3);
+    box-shadow: 0 8px 24px var(--theme-shadow-hover);
   }
 
   .package-image-container {
@@ -882,13 +882,13 @@ onMounted(() => {
     transition: all 0.2s ease !important;
 
     &:hover {
-      border-color: rgba(255, 140, 66, 0.3) !important;
+      border-color: var(--theme-shadow-hover) !important;
     }
   }
 
   &.ant-select-focused .ant-select-selector {
-    border-color: #FF8C42 !important;
-    box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.1) !important;
+    border-color: var(--theme-primary-color) !important;
+    box-shadow: 0 0 0 2px var(--theme-shadow-hover) !important;
   }
 }
 
@@ -897,14 +897,14 @@ onMounted(() => {
   font-weight: 500;
 
   &[type="default"] {
-    border: 2px solid rgba(255, 140, 66, 0.3);
-    color: #FF8C42;
+    border: 2px solid var(--theme-shadow-hover);
+    color: var(--theme-primary-color);
     transition: all 0.2s ease;
 
     &:hover {
-      border-color: #FF8C42;
-      color: #FF6B35;
-      background: rgba(255, 140, 66, 0.05);
+      border-color: var(--theme-primary-color);
+      color: var(--theme-primary-color);
+      background: var(--theme-shadow-hover);
     }
   }
 }
@@ -913,40 +913,40 @@ onMounted(() => {
   0%,
   100% {
     box-shadow:
-      0 6px 20px rgba(255, 140, 66, 0.4),
-      0 0 15px rgba(255, 140, 66, 0.2);
+      0 6px 20px var(--theme-shadow-hover),
+      0 0 15px var(--theme-shadow-hover);
   }
   50% {
     box-shadow:
-      0 8px 30px rgba(255, 140, 66, 0.6),
-      0 0 25px rgba(255, 140, 66, 0.4);
+      0 8px 30px var(--theme-shadow-hover),
+      0 0 25px var(--theme-shadow-hover);
   }
 }
 
 // Marketplace search styling
 :deep(.marketplace-search) {
   .ant-input-search-button {
-    background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+    background: var(--theme-primary-gradient);
     border: none;
     height: 40px;
     font-weight: 600;
 
     &:hover {
-      background: linear-gradient(135deg, #FF6B35 0%, #FF4500 100%);
+      background: var(--theme-primary-gradient);
       transform: scale(1.02);
     }
   }
 
   .ant-input-affix-wrapper {
-    border: 2px solid rgba(255, 140, 66, 0.3);
+    border: 2px solid var(--theme-shadow-hover);
     border-radius: 10px;
     transition: all 0.3s ease;
 
     &:hover,
     &:focus,
     &:focus-within {
-      border-color: #FF8C42;
-      box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.1);
+      border-color: var(--theme-primary-color);
+      box-shadow: 0 0 0 2px var(--theme-shadow-hover);
     }
 
     input {

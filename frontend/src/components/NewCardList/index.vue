@@ -99,13 +99,13 @@ const currentCardCategory = ref<NEW_CARD_TYPE>(NEW_CARD_TYPE.COMMON);
                 <a-typography-paragraph>
                   <div>
                     {{ t("TXT_CODE_8575f7c") }}
-                    <a-tag v-if="card.permission >= ROLE.ADMIN" color="red">
+                    <a-tag v-if="card.permission >= ROLE.ADMIN" >
                       {{ t("TXT_CODE_cd978243") }}
                     </a-tag>
-                    <a-tag v-else-if="card.permission >= ROLE.USER" color="green">
+                    <a-tag v-else-if="card.permission >= ROLE.USER" >
                       {{ t("TXT_CODE_b67197fc") }}
                     </a-tag>
-                    <a-tag v-else color="green">
+                    <a-tag v-else >
                       {{ t("TXT_CODE_b488372f") }}
                     </a-tag>
                   </div>
@@ -158,7 +158,7 @@ const currentCardCategory = ref<NEW_CARD_TYPE>(NEW_CARD_TYPE.COMMON);
   right: 24px;
   top: 24px;
   background-color: var(--new-card-list-background-color-menu);
-  backdrop-filter: saturate(100%) blur(12px);
+  backdrop-filter: none; /* Optimized */
   padding: 16px 0px;
   border-radius: 6px;
   border: 1px dashed var(--gray-border-color);
@@ -178,7 +178,7 @@ const currentCardCategory = ref<NEW_CARD_TYPE>(NEW_CARD_TYPE.COMMON);
   padding: 24px;
 
   background-color: var(--new-card-list-background-color);
-  backdrop-filter: saturate(100%) blur(12px);
+  backdrop-filter: none; /* Optimized */
   z-index: 998;
   overflow-y: auto;
 

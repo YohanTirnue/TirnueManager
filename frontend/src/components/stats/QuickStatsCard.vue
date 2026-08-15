@@ -12,7 +12,7 @@ const props = defineProps<{
   color?: string;
 }>();
 
-const iconColor = computed(() => props.color || "#FF8C42");
+const iconColor = computed(() => props.color || "var(--theme-primary-color)");
 </script>
 
 <template>
@@ -41,16 +41,16 @@ const iconColor = computed(() => props.color || "#FF8C42");
 
 <style lang="scss" scoped>
 .quick-stat-card {
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.03), rgba(212, 175, 55, 0.03));
-  border: 2px solid rgba(255, 140, 66, 0.15);
+  background: var(--theme-primary-gradient);
+  border: 2px solid var(--theme-shadow-hover);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
   cursor: pointer;
 
   &:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 140, 66, 0.4);
-    box-shadow: 0 8px 20px rgba(255, 140, 66, 0.2);
+    border-color: var(--theme-shadow-hover);
+    box-shadow: 0 8px 20px var(--theme-shadow-hover);
   }
 }
 
@@ -88,7 +88,7 @@ const iconColor = computed(() => props.color || "#FF8C42");
 .stat-value {
   font-size: 28px;
   font-weight: 700;
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
+  background: var(--theme-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

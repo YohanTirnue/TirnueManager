@@ -992,7 +992,7 @@ const formatExpiry = (expiresAt: number) => {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1001,11 +1001,11 @@ const formatExpiry = (expiresAt: number) => {
 }
 
 .header-icon.edit {
-  background: linear-gradient(135deg, #ffa500 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
 }
 
 .header-icon.create {
-  background: linear-gradient(135deg, #ffb347 0%, #ffd700 100%);
+  background: var(--theme-primary-gradient);
 }
 
 .header-content h3 {
@@ -1031,14 +1031,14 @@ const formatExpiry = (expiresAt: number) => {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: rgba(255, 140, 0, 0.1);
-  border: 1px solid rgba(255, 140, 0, 0.3);
+  background: var(--theme-shadow-hover);
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 8px;
   margin-bottom: 20px;
 }
 
 .alert-icon {
-  color: #ff8c00;
+  color: var(--theme-primary-color);
   font-size: 18px;
 }
 
@@ -1050,7 +1050,7 @@ const formatExpiry = (expiresAt: number) => {
 
 .alert-content strong {
   font-size: 13px;
-  color: #ff8c00;
+  color: var(--theme-primary-color);
 }
 
 .alert-content span {
@@ -1071,7 +1071,7 @@ const formatExpiry = (expiresAt: number) => {
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   border: none;
   border-radius: 8px;
   color: white;
@@ -1083,7 +1083,7 @@ const formatExpiry = (expiresAt: number) => {
 
 .add-user-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
 }
 
 .add-user-btn:disabled {
@@ -1111,7 +1111,7 @@ const formatExpiry = (expiresAt: number) => {
 }
 
 .slot-dot.filled {
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
 }
 
 /* Admin user count */
@@ -1122,7 +1122,7 @@ const formatExpiry = (expiresAt: number) => {
 }
 
 .count-badge {
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   color: white;
   padding: 4px 10px;
   border-radius: 12px;
@@ -1179,9 +1179,9 @@ const formatExpiry = (expiresAt: number) => {
 
 .pending-expiry {
   font-size: 12px;
-  color: #ff8c00;
+  color: var(--theme-primary-color);
   padding: 2px 8px;
-  background: rgba(255, 140, 0, 0.1);
+  background: var(--theme-shadow-hover);
   border-radius: 4px;
 }
 
@@ -1216,7 +1216,7 @@ const formatExpiry = (expiresAt: number) => {
 }
 
 .user-card:hover {
-  border-color: rgba(255, 140, 0, 0.5);
+  border-color: var(--theme-shadow-hover);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -1231,7 +1231,7 @@ const formatExpiry = (expiresAt: number) => {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1274,8 +1274,8 @@ const formatExpiry = (expiresAt: number) => {
 .parent-badge {
   font-size: 11px;
   padding: 2px 8px;
-  background: rgba(255, 140, 0, 0.1);
-  color: #ff8c00;
+  background: var(--theme-shadow-hover);
+  color: var(--theme-primary-color);
   border-radius: 4px;
 }
 
@@ -1288,12 +1288,12 @@ const formatExpiry = (expiresAt: number) => {
 
 .parent-icon {
   font-size: 12px;
-  color: #ff8c00;
+  color: var(--theme-primary-color);
 }
 
 .parent-name {
   font-size: 12px;
-  color: #ff8c00;
+  color: var(--theme-primary-color);
   font-weight: 500;
 }
 
@@ -1344,12 +1344,12 @@ const formatExpiry = (expiresAt: number) => {
 }
 
 .action-btn.edit {
-  background: rgba(255, 140, 0, 0.1);
-  color: #ff8c00;
+  background: var(--theme-shadow-hover);
+  color: var(--theme-primary-color);
 }
 
 .action-btn.edit:hover {
-  background: rgba(255, 140, 0, 0.2);
+  background: var(--theme-shadow-hover);
 }
 
 .action-btn.delete {
@@ -1436,7 +1436,7 @@ const formatExpiry = (expiresAt: number) => {
 }
 
 .section-header > span:first-of-type {
-  color: #ff8c00;
+  color: var(--theme-primary-color);
 }
 
 /* Permissions Container */
@@ -1464,7 +1464,7 @@ const formatExpiry = (expiresAt: number) => {
 }
 
 .group-header > span:first-of-type {
-  color: #ff8c00;
+  color: var(--theme-primary-color);
 }
 
 .permission-items {
@@ -1559,7 +1559,7 @@ const formatExpiry = (expiresAt: number) => {
   align-items: center;
   gap: 8px;
   padding: 10px 24px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: var(--theme-primary-gradient);
   border: none;
   border-radius: 8px;
   color: white;
@@ -1571,7 +1571,7 @@ const formatExpiry = (expiresAt: number) => {
 
 .btn-submit:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
 }
 
 .btn-submit:disabled {

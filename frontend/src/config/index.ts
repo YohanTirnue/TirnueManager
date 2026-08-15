@@ -27,7 +27,7 @@ import InstanceFileManager from "@/widgets/instance/FileManager.vue";
 import InstanceOperationLogs from "@/widgets/instance/OperationLogs.vue";
 import UserInstanceList from "@/widgets/UserInstanceList.vue";
 import UserStatusBlock from "@/widgets/UserStatusBlock.vue";
-import OperationLogCard from "@/widgets/OperationLogCard.vue";
+
 import Schedule from "@/widgets/instance/Schedule.vue";
 import InstanceShortcut from "@/widgets/instance/Shortcut.vue";
 import UnderDevelopment from "@/widgets/UnderDevelopment.vue";
@@ -99,7 +99,7 @@ export const LAYOUT_CARD_TYPES: { [key: string]: any } = {
   PluginCard,
   MusicCard,
   ShelvesCard,
-  OperationLogCard,
+
   Market,
   Accounting,
   MyNodes,
@@ -432,17 +432,7 @@ export function getLayoutCardPool() {
       height: LayoutCardHeight.BIG,
       category: NEW_CARD_TYPE.DATA
     },
-    {
-      id: getRandomId(),
-      permission: ROLE.ADMIN,
-      type: "OperationLogCard",
-      title: t("TXT_CODE_f6a33629"),
-      meta: {},
-      width: 3,
-      description: t("TXT_CODE_9e8c176e"),
-      height: LayoutCardHeight.MEDIUM,
-      category: NEW_CARD_TYPE.DATA
-    },
+
     {
       id: getRandomId(),
       permission: ROLE.ADMIN,
@@ -473,34 +463,6 @@ export function getLayoutCardPool() {
         {
           field: "instance",
           label: t("TXT_CODE_e7cad65f"),
-          type: "instance"
-        }
-      ]
-    },
-    {
-      id: getRandomId(),
-      permission: ROLE.USER,
-      meta: {},
-      type: "InstanceManagerBtns",
-      title: t("TXT_CODE_d2bbb2f1"),
-      width: 8,
-      description: t("TXT_CODE_1934114b"),
-      height: LayoutCardHeight.MEDIUM,
-      category: NEW_CARD_TYPE.INSTANCE,
-      params: [
-        {
-          field: "instanceId",
-          label: t("TXT_CODE_e6a5c12b"),
-          type: "string"
-        },
-        {
-          field: "daemonId",
-          label: t("TXT_CODE_72cfab69"),
-          type: "string"
-        },
-        {
-          field: "instance",
-          label: t("TXT_CODE_cb043d10"),
           type: "instance"
         }
       ]

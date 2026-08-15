@@ -387,8 +387,8 @@ const logLines = [
   left: 0;
   right: 0;
   background: rgba(10, 10, 10, 0.98);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 140, 0, 0.2);
+  backdrop-filter: none; /* Optimized */
+  border-bottom: 1px solid var(--theme-shadow-hover);
   z-index: 1000;
   padding: 16px 0;
 }
@@ -417,7 +417,7 @@ const logLines = [
 .brand-name {
   font-size: 20px;
   font-weight: 700;
-  color: #ff8c00;
+  color: var(--theme-primary-color);
 }
 
 .nav-links {
@@ -434,7 +434,7 @@ const logLines = [
   transition: color 0.2s;
 
   &:hover {
-    color: #ff8c00;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -453,9 +453,9 @@ const logLines = [
   transition: all 0.3s;
 
   &:hover {
-    border-color: #ff8c00;
-    color: #ff8c00;
-    background: rgba(255, 140, 0, 0.1);
+    border-color: var(--theme-primary-color);
+    color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
   }
 }
 
@@ -465,17 +465,17 @@ const logLines = [
   background: transparent;
 
   &:hover {
-    border-color: #ff8c00;
-    color: #ff8c00;
+    border-color: var(--theme-primary-color);
+    color: var(--theme-primary-color);
   }
 }
 
 .btn-register {
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
+  background: var(--theme-primary-gradient);
   border: none;
 
   &:hover {
-    background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+    background: var(--theme-primary-gradient);
   }
 }
 
@@ -483,7 +483,7 @@ const logLines = [
 .hero {
   padding: 140px 32px 100px;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1200 100%);
-  border-bottom: 1px solid rgba(255, 140, 0, 0.2);
+  border-bottom: 1px solid var(--theme-shadow-hover);
 }
 
 .hero-container {
@@ -497,12 +497,12 @@ const logLines = [
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: rgba(255, 140, 0, 0.15);
-  border: 1px solid rgba(255, 140, 0, 0.3);
+  background: var(--theme-shadow-hover);
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 100px;
   font-size: 13px;
   font-weight: 600;
-  color: #ffa500;
+  color: var(--theme-primary-color);
   margin-bottom: 24px;
 }
 
@@ -510,7 +510,7 @@ const logLines = [
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #ff8c00;
+  background: var(--theme-primary-color);
   animation: pulse 2s infinite;
 }
 
@@ -525,7 +525,7 @@ const logLines = [
   color: #ffffff;
   line-height: 1.2;
   margin: 0 0 24px 0;
-  text-shadow: 0 0 40px rgba(255, 140, 0, 0.3);
+  text-shadow: 0 0 40px var(--theme-shadow-hover);
 }
 
 .hero-subtitle {
@@ -547,13 +547,13 @@ const logLines = [
   padding: 0 32px;
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
+  background: var(--theme-primary-gradient);
   border: none;
 
   &:hover {
-    background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+    background: var(--theme-primary-gradient);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(255, 140, 0, 0.4);
+    box-shadow: 0 8px 24px var(--theme-shadow-hover);
   }
 }
 
@@ -567,8 +567,8 @@ const logLines = [
   background: transparent;
 
   &:hover {
-    border-color: #ff8c00;
-    color: #ff8c00;
+    border-color: var(--theme-primary-color);
+    color: var(--theme-primary-color);
   }
 }
 
@@ -592,7 +592,7 @@ const logLines = [
   color: #cccccc;
 
   :deep(.anticon) {
-    color: #ffa500;
+    color: var(--theme-primary-color);
     font-size: 16px;
   }
 }
@@ -643,8 +643,8 @@ const logLines = [
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(255, 140, 0, 0.2);
-    border-color: #ff8c00;
+    box-shadow: 0 12px 32px var(--theme-shadow-hover);
+    border-color: var(--theme-primary-color);
   }
 
   h3 {
@@ -666,7 +666,7 @@ const logLines = [
   width: 56px;
   height: 56px;
   border-radius: 12px;
-  background: rgba(255, 140, 0, 0.15);
+  background: var(--theme-shadow-hover);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -674,15 +674,15 @@ const logLines = [
 
   :deep(.anticon) {
     font-size: 28px;
-    color: #ff8c00;
+    color: var(--theme-primary-color);
   }
 }
 
 // Team Control
 .team-control {
   background: #0f0f0f;
-  border-top: 1px solid rgba(255, 140, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 140, 0, 0.2);
+  border-top: 1px solid var(--theme-shadow-hover);
+  border-bottom: 1px solid var(--theme-shadow-hover);
 }
 
 .team-control-content {
@@ -721,7 +721,7 @@ const logLines = [
   }
 
   .check-icon {
-    color: #ffa500;
+    color: var(--theme-primary-color);
     font-size: 20px;
     flex-shrink: 0;
     margin-top: 2px;
@@ -846,7 +846,7 @@ const logLines = [
   gap: 16px;
   padding: 12px;
   color: #8a8a8a;
-  background: rgba(255, 140, 0, 0.05);
+  background: var(--theme-shadow-hover);
   border-radius: 8px;
   margin-bottom: 8px;
   min-height: 40px;
@@ -858,7 +858,7 @@ const logLines = [
   }
 
   .log-user {
-    color: #ff8c00;
+    color: var(--theme-primary-color);
     font-weight: 600;
     min-width: 55px;
   }
@@ -886,9 +886,9 @@ const logLines = [
   transition: all 0.3s;
 
   &:hover {
-    border-color: #ff8c00;
+    border-color: var(--theme-primary-color);
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(255, 140, 0, 0.2);
+    box-shadow: 0 12px 32px var(--theme-shadow-hover);
   }
 }
 
@@ -908,11 +908,11 @@ const logLines = [
 
 .pricing-badge {
   padding: 6px 12px;
-  background: rgba(255, 140, 0, 0.15);
+  background: var(--theme-shadow-hover);
   border-radius: 100px;
   font-size: 12px;
   font-weight: 600;
-  color: #ffa500;
+  color: var(--theme-primary-color);
 }
 
 .pricing-features {
@@ -930,7 +930,7 @@ const logLines = [
   color: #cccccc;
 
   :deep(.anticon) {
-    color: #ffa500;
+    color: var(--theme-primary-color);
     font-size: 18px;
   }
 }
@@ -938,7 +938,7 @@ const logLines = [
 // CTA Section
 .cta-section {
   padding: 100px 32px;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
+  background: var(--theme-primary-gradient);
 }
 
 .cta-container {
@@ -965,7 +965,7 @@ const logLines = [
     font-size: 18px;
     font-weight: 600;
     background: #0a0a0a;
-    color: #ff8c00;
+    color: var(--theme-primary-color);
     border: none;
 
     &:hover {
@@ -980,7 +980,7 @@ const logLines = [
 .footer {
   padding: 48px 32px;
   background: #0a0a0a;
-  border-top: 1px solid rgba(255, 140, 0, 0.2);
+  border-top: 1px solid var(--theme-shadow-hover);
 }
 
 .footer-container {
@@ -1004,7 +1004,7 @@ const logLines = [
   span {
     font-size: 20px;
     font-weight: 700;
-    color: #ff8c00;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -1014,7 +1014,7 @@ const logLines = [
 }
 
 .footer-link {
-  color: #ff8c00;
+  color: var(--theme-primary-color);
   font-weight: 500;
 
   &:hover {
@@ -1339,14 +1339,14 @@ const logLines = [
   }
 
   .brand-name {
-    color: #ff8c00;
+    color: var(--theme-primary-color);
   }
 
   .nav-link {
     color: #4a4a4a;
 
     &:hover {
-      color: #ff8c00;
+      color: var(--theme-primary-color);
     }
   }
 
@@ -1355,9 +1355,9 @@ const logLines = [
     color: #4a4a4a;
 
     &:hover {
-      border-color: #ff8c00;
-      color: #ff8c00;
-      background: rgba(255, 140, 0, 0.1);
+      border-color: var(--theme-primary-color);
+      color: var(--theme-primary-color);
+      background: var(--theme-shadow-hover);
     }
   }
 
@@ -1367,17 +1367,17 @@ const logLines = [
     background: white;
 
     &:hover {
-      border-color: #ff8c00;
-      color: #ff8c00;
+      border-color: var(--theme-primary-color);
+      color: var(--theme-primary-color);
     }
   }
 
   .btn-register {
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
+    background: var(--theme-primary-gradient);
     border: none;
 
     &:hover {
-      background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+      background: var(--theme-primary-gradient);
     }
   }
 
@@ -1388,13 +1388,13 @@ const logLines = [
   }
 
   .hero-badge {
-    background: rgba(255, 140, 0, 0.15);
-    border: 1px solid rgba(255, 140, 0, 0.3);
-    color: #ff8c00;
+    background: var(--theme-shadow-hover);
+    border: 1px solid var(--theme-shadow-hover);
+    color: var(--theme-primary-color);
   }
 
   .badge-dot {
-    background: #ff8c00;
+    background: var(--theme-primary-color);
   }
 
   .hero-title {
@@ -1407,11 +1407,11 @@ const logLines = [
   }
 
   .cta-primary {
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
+    background: var(--theme-primary-gradient);
 
     &:hover {
-      background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
-      box-shadow: 0 8px 24px rgba(255, 140, 0, 0.3);
+      background: var(--theme-primary-gradient);
+      box-shadow: 0 8px 24px var(--theme-shadow-hover);
     }
   }
 
@@ -1421,8 +1421,8 @@ const logLines = [
     background: white;
 
     &:hover {
-      border-color: #ff8c00;
-      color: #ff8c00;
+      border-color: var(--theme-primary-color);
+      color: var(--theme-primary-color);
     }
   }
 
@@ -1456,7 +1456,7 @@ const logLines = [
 
     &:hover {
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
-      border-color: #ff8c00;
+      border-color: var(--theme-primary-color);
     }
 
     h3 {
@@ -1469,10 +1469,10 @@ const logLines = [
   }
 
   .feature-icon {
-    background: rgba(255, 140, 0, 0.15);
+    background: var(--theme-shadow-hover);
 
     .anticon {
-      color: #ff8c00;
+      color: var(--theme-primary-color);
     }
   }
 
@@ -1495,7 +1495,7 @@ const logLines = [
 
   .benefits-list {
     .check-icon {
-      color: #ff8c00;
+      color: var(--theme-primary-color);
     }
 
     strong {
@@ -1522,7 +1522,7 @@ const logLines = [
 
     &:hover {
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
-      border-color: #ff8c00;
+      border-color: var(--theme-primary-color);
     }
   }
 
@@ -1533,21 +1533,21 @@ const logLines = [
   }
 
   .pricing-badge {
-    background: rgba(255, 140, 0, 0.15);
-    color: #ff8c00;
+    background: var(--theme-shadow-hover);
+    color: var(--theme-primary-color);
   }
 
   .pricing-feature {
     color: #4a4a4a;
 
     .anticon {
-      color: #ff8c00;
+      color: var(--theme-primary-color);
     }
   }
 
   // CTA Section
   .cta-section {
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6500 100%);
+    background: var(--theme-primary-gradient);
   }
 
   .cta-container {
@@ -1561,7 +1561,7 @@ const logLines = [
 
     .ant-btn-primary {
       background: white;
-      color: #ff8c00;
+      color: var(--theme-primary-color);
 
       &:hover {
         background: #f5f5f5;

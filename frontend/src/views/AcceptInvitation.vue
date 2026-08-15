@@ -418,7 +418,7 @@ watch(invitationDetails, (details) => {
   width: 100%;
   max-width: 500px;
   background: rgba(20, 20, 20, 0.95);
-  border: 1px solid rgba(255, 140, 66, 0.2);
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 16px;
   padding: 40px;
 }
@@ -431,7 +431,7 @@ watch(invitationDetails, (details) => {
 
 .loading-icon {
   font-size: 48px;
-  color: #ff8c42;
+  color: var(--theme-primary-color);
   margin-bottom: 16px;
 }
 
@@ -461,7 +461,7 @@ watch(invitationDetails, (details) => {
   height: 64px;
   margin: 0 auto 16px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #ff8c42 0%, #ff6b1a 100%);
+  background: var(--theme-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -481,7 +481,7 @@ watch(invitationDetails, (details) => {
 }
 
 .subtitle strong {
-  color: #ff8c42;
+  color: var(--theme-primary-color);
 }
 
 .instance-name {
@@ -496,15 +496,15 @@ watch(invitationDetails, (details) => {
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: rgba(255, 140, 66, 0.1);
-  border: 1px solid rgba(255, 140, 66, 0.3);
+  background: var(--theme-shadow-hover);
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 8px;
   margin-bottom: 24px;
 }
 
 .info-icon {
   font-size: 20px;
-  color: #ff8c42;
+  color: var(--theme-primary-color);
 }
 
 .info-box p {
@@ -514,7 +514,7 @@ watch(invitationDetails, (details) => {
 }
 
 .info-box strong {
-  color: #ff8c42;
+  color: var(--theme-primary-color);
 }
 
 .info-box.warning {
@@ -541,9 +541,9 @@ watch(invitationDetails, (details) => {
   width: 100%;
   padding: 12px 24px;
   background: transparent;
-  border: 1px solid rgba(255, 140, 66, 0.5);
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 8px;
-  color: #ff8c42;
+  color: var(--theme-primary-color);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -551,8 +551,8 @@ watch(invitationDetails, (details) => {
 }
 
 .secondary-btn:hover {
-  background: rgba(255, 140, 66, 0.1);
-  border-color: #ff8c42;
+  background: var(--theme-shadow-hover);
+  border-color: var(--theme-primary-color);
 }
 
 .info-note {
@@ -573,7 +573,7 @@ watch(invitationDetails, (details) => {
 .primary-btn {
   width: 100%;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #ff8c42 0%, #ff6b1a 100%);
+  background: var(--theme-primary-gradient);
   border: none;
   border-radius: 8px;
   color: white;
@@ -585,7 +585,7 @@ watch(invitationDetails, (details) => {
 
 .primary-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.4);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
 }
 
 .primary-btn:disabled {
@@ -646,7 +646,7 @@ watch(invitationDetails, (details) => {
   text-align: center;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 140, 66, 0.1);
+  border-top: 1px solid var(--theme-shadow-hover);
   font-size: 12px;
   color: rgba(255, 255, 255, 0.4);
 }

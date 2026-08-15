@@ -184,7 +184,7 @@ const getActionColor = (type: string, level: string) => {
   if (type.includes("delete")) return "#ff7875";
   if (type.includes("upload")) return "#1890ff";
   if (type.includes("download")) return "#722ed1";
-  return "#d4af37";
+  return "var(--theme-primary-color)";
 };
 
 // Get details from log
@@ -294,7 +294,7 @@ onMounted(() => {
 
             <a-table-column title="Action" data-index="type" :width="140">
               <template #default="{ record }">
-                <a-tag :color="getActionColor(record.type, record.operation_level)">
+                <a-tag>
                   <component :is="getActionIcon(record.type)" />
                   {{ getActionName(record.type) }}
                 </a-tag>
@@ -329,7 +329,7 @@ onMounted(() => {
 <style scoped lang="scss">
 .operation-logs-panel {
   background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
-  border: 1px solid rgba(255, 140, 66, 0.3);
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 12px;
 }
 
@@ -372,8 +372,8 @@ onMounted(() => {
 
     .ant-table-thead > tr > th {
       background: rgba(40, 40, 40, 0.8);
-      color: #d4af37;
-      border-bottom: 1px solid rgba(255, 140, 66, 0.3);
+      color: var(--theme-primary-color);
+      border-bottom: 1px solid var(--theme-shadow-hover);
       font-weight: 600;
       font-size: 12px;
     }
@@ -387,7 +387,7 @@ onMounted(() => {
     }
 
     .ant-table-tbody > tr:hover > td {
-      background: rgba(255, 140, 66, 0.1);
+      background: var(--theme-shadow-hover);
     }
   }
 }
@@ -405,7 +405,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #d4af37;
+  color: var(--theme-primary-color);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -427,17 +427,17 @@ onMounted(() => {
   :deep(.ant-pagination) {
     .ant-pagination-item {
       background: rgba(40, 40, 40, 0.8);
-      border-color: rgba(255, 140, 66, 0.3);
+      border-color: var(--theme-shadow-hover);
 
       a {
         color: rgba(255, 255, 255, 0.85);
       }
 
       &-active {
-        border-color: #ff8c42;
+        border-color: var(--theme-primary-color);
 
         a {
-          color: #ff8c42;
+          color: var(--theme-primary-color);
         }
       }
     }
@@ -446,7 +446,7 @@ onMounted(() => {
     .ant-pagination-next {
       .ant-pagination-item-link {
         background: rgba(40, 40, 40, 0.8);
-        border-color: rgba(255, 140, 66, 0.3);
+        border-color: var(--theme-shadow-hover);
         color: rgba(255, 255, 255, 0.85);
       }
     }

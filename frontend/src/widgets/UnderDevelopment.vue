@@ -42,13 +42,13 @@ const pageDescription = computed(() => props.description || "This feature is cur
   width: 80px;
   height: 80px;
   margin: 0 auto 24px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.2), rgba(212, 175, 55, 0.2));
+  background: var(--theme-primary-gradient);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 36px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
 }
 
 h2 {
@@ -68,11 +68,11 @@ p {
 .dev-badge {
   display: inline-block;
   padding: 8px 16px;
-  background: rgba(255, 140, 66, 0.15);
-  border: 1px solid rgba(255, 140, 66, 0.3);
+  background: var(--theme-shadow-hover);
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
 }
 </style>

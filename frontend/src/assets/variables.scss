@@ -1,34 +1,48 @@
 .app-light-theme {
   @extend .app-light-base-color;
 
-  --background-color: rgb(250, 245, 245);
-  --background-color-white: rgb(255, 252, 252);
-  --drag-background-color: rgb(254, 226, 226);
-  --new-card-list-background-color: rgba(254, 226, 226, 0.3);
-  --new-card-list-background-color-menu: rgba(255, 252, 252, 0.95);
-  --float-box-bg-color: rgba(254, 242, 242, 0.9);
-  --gray-border-color: rgb(254, 202, 202);
+  // --- CORE PALETTE ---
+  --core-bg-base: #ffffff;
+  --core-bg-surface: #f5f5f5;
+  --core-bg-surface-hover: #e6e6e6;
+  --core-border: #d9d9d9;
+  
+  --core-text-main: #000000;
+  --core-text-muted: #595959;
+  
+  --core-btn-primary: #000000;
+  --core-btn-primary-hover: #404040;
+  --core-btn-danger: #000000;
+  
+  // --- SEMANTIC MAPPING ---
+  --background-color: var(--core-bg-base);
+  --background-color-white: var(--core-bg-base);
+  --drag-background-color: var(--core-bg-surface-hover);
+  --new-card-list-background-color: var(--core-bg-surface);
+  --new-card-list-background-color-menu: var(--core-bg-base);
+  --float-box-bg-color: var(--core-bg-base);
+  --gray-border-color: var(--core-border);
 
-  --login-panel-bg: rgb(255, 252, 252);
+  --login-panel-bg: var(--core-bg-base);
 
-  --app-header-bg: linear-gradient(135deg, rgba(153, 27, 27, 0.95) 0%, rgba(127, 29, 29, 0.95) 100%);
-  --app-header-bg-extend: linear-gradient(135deg, rgba(153, 27, 27, 1) 0%, rgba(127, 29, 29, 1) 100%);
-  --app-header-text-color: rgb(254, 242, 242);
+  --app-header-bg: var(--core-bg-base);
+  --app-header-bg-extend: var(--core-bg-base);
+  --app-header-text-color: var(--core-text-main);
 
   // Sidebar Variables
   --sidebar-width: 260px;
-  --sidebar-bg: linear-gradient(180deg, rgba(153, 27, 27, 0.95) 0%, rgba(80, 15, 15, 1) 100%);
-  --sidebar-text: rgb(254, 242, 242);
-  --sidebar-active-bg: rgba(255, 255, 255, 0.15);
-  --sidebar-hover-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-bg: var(--core-bg-surface);
+  --sidebar-text: var(--core-text-main);
+  --sidebar-active-bg: var(--core-border);
+  --sidebar-hover-bg: var(--core-bg-surface-hover);
 
-  --text-color: rgb(55, 11, 11);
+  --text-color: var(--core-text-main);
 
-  --card-border-color: rgba(254, 202, 202, 0.8);
-  --card-shadow-color: rgba(127, 29, 29, 0.15);
-  --card-shadow-extend-color: rgba(153, 27, 27, 0.25);
+  --card-border-color: var(--core-border);
+  --card-shadow-color: rgba(0, 0, 0, 0.1);
+  --card-shadow-extend-color: rgba(0, 0, 0, 0.2);
 
-  --card-bottom-background-color: rgba(254, 242, 242, 0.8);
+  --card-bottom-background-color: var(--core-bg-surface);
 }
 
 .app-light-base-color {
@@ -168,9 +182,9 @@
   --color-gray-12: #141414;
   --color-gray-13: #000000;
 
-  --color-primary: #2563eb;
-  --color-danger: #dc2626;
-  --color-warning: #f59e0b;
-  --color-success: #10b981;
-  --color-info: #6b7280;
+  --color-primary: #000000;
+  --color-danger: #000000;
+  --color-warning: #000000;
+  --color-success: #000000;
+  --color-info: #000000;
 }

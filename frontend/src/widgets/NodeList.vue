@@ -128,7 +128,7 @@ const toggleSort = (newSortBy: SortBy) => {
         <BetweenMenus>
           <template v-if="!isPhone" #left>
             <a-typography-title class="mb-0 page-title" :level="4">
-              <ClusterOutlined style="color: #FF8C42" />
+              <ClusterOutlined style="color: var(--theme-primary-color)" />
               {{ card.title }}
             </a-typography-title>
           </template>
@@ -177,7 +177,7 @@ const toggleSort = (newSortBy: SortBy) => {
                   @change="operationForm.current = 1"
                 >
                   <template #prefix>
-                    <SearchOutlined style="color: #FF8C42" />
+                    <SearchOutlined style="color: var(--theme-primary-color)" />
                   </template>
                 </a-input>
               </a-input-group>
@@ -299,7 +299,7 @@ const toggleSort = (newSortBy: SortBy) => {
 }
 
 .page-title {
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
+  background: var(--theme-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -311,11 +311,11 @@ const toggleSort = (newSortBy: SortBy) => {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.2);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
   }
 
   &.primary-btn {
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    background: var(--theme-primary-gradient);
     border: none;
 
     &:hover {
@@ -337,8 +337,8 @@ const toggleSort = (newSortBy: SortBy) => {
     border-radius: 0 6px 6px 0;
 
     &:focus {
-      border-color: #FF8C42;
-      box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.1);
+      border-color: var(--theme-primary-color);
+      box-shadow: 0 0 0 2px var(--theme-shadow-hover);
     }
   }
 }
@@ -349,9 +349,9 @@ const toggleSort = (newSortBy: SortBy) => {
   align-items: center;
   gap: 16px;
   padding: 12px 16px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.03), rgba(212, 175, 55, 0.03));
+  background: var(--theme-primary-gradient);
   border-radius: 8px;
-  border: 1px solid rgba(255, 140, 66, 0.1);
+  border: 1px solid var(--theme-shadow-hover);
   flex-wrap: wrap;
 }
 
@@ -379,7 +379,7 @@ const toggleSort = (newSortBy: SortBy) => {
 
 .sort-group {
   :deep(.ant-btn-primary) {
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    background: var(--theme-primary-gradient);
     border: none;
 
     &:hover {
@@ -394,15 +394,15 @@ const toggleSort = (newSortBy: SortBy) => {
     height: 32px;
 
     &:hover {
-      border-color: #FF8C42;
-      color: #FF8C42;
+      border-color: var(--theme-primary-color);
+      color: var(--theme-primary-color);
     }
   }
 }
 
 .view-toggle {
   :deep(.ant-btn-primary) {
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    background: var(--theme-primary-gradient);
     border: none;
 
     &:hover {
@@ -421,8 +421,8 @@ const toggleSort = (newSortBy: SortBy) => {
     justify-content: center;
 
     &:hover {
-      border-color: #FF8C42;
-      color: #FF8C42;
+      border-color: var(--theme-primary-color);
+      color: var(--theme-primary-color);
     }
   }
 }

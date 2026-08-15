@@ -14,11 +14,13 @@ import UploadBubble from "@/components/UploadBubble.vue";
 import { useSecurityRestrictions } from "@/hooks/useSecurityRestrictions";
 import PermissionBanner from "@/components/PermissionBanner.vue";
 import { useAppStateStore } from "@/stores/useAppStateStore";
+import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
 import { computed } from "vue";
 
 const { isDarkTheme, setBackgroundImage } = useAppConfigStore();
 const { getSettingsConfig, hasBgImage } = useLayoutConfigStore();
 const { state } = useAppStateStore();
+const layoutStore = useLayoutContainerStore();
 const route = useRoute();
 
 // Pages accessible without login
@@ -80,7 +82,7 @@ onMounted(async () => {
       <AppSidebar v-if="showAppLayout" />
 
       <!-- Main Content Area -->
-      <div class="main-content-wrapper" :class="{ 'with-sidebar': showAppLayout }">
+      <div class="main-content-wrapper" :class="{ 'with-sidebar': showAppLayout, 'sidebar-collapsed': layoutStore.containerState.sidebarCollapsed }">
         <!-- Only show header for logged-in users -->
         <AppHeaderSimple v-if="showAppLayout" />
 
@@ -118,11 +120,17 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s ease, max-width 0.3s ease;
   background: var(--background-color);
 
   &.with-sidebar {
     margin-left: var(--sidebar-width, 240px);
+    max-width: calc(100% - var(--sidebar-width, 240px));
+  }
+  
+  &.with-sidebar.sidebar-collapsed {
+    margin-left: 60px;
+    max-width: calc(100% - 60px);
   }
 }
 
@@ -136,6 +144,7 @@ onMounted(async () => {
 @media (max-width: 992px) {
   .main-content-wrapper.with-sidebar {
     margin-left: 0;
+    max-width: 100%;
   }
 
   .security-banner-container {

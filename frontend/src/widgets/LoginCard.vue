@@ -368,7 +368,7 @@ const onTurnstileCallback = (token: string) => {
   &.orb-1 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, #FF8C42, transparent);
+    background: radial-gradient(circle, var(--theme-primary-color), transparent);
     top: -10%;
     left: -10%;
   }
@@ -376,7 +376,7 @@ const onTurnstileCallback = (token: string) => {
   &.orb-2 {
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, #D4AF37, transparent);
+    background: radial-gradient(circle, var(--theme-primary-color), transparent);
     bottom: -10%;
     right: -10%;
   }
@@ -384,7 +384,7 @@ const onTurnstileCallback = (token: string) => {
   &.orb-3 {
     width: 350px;
     height: 350px;
-    background: radial-gradient(circle, #FF6B35, transparent);
+    background: radial-gradient(circle, var(--theme-primary-color), transparent);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -402,16 +402,16 @@ const onTurnstileCallback = (token: string) => {
   height: 90vh;
   max-height: 800px;
   background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: blur(20px);
+  backdrop-filter: none; /* Optimized */
   border-radius: 24px;
-  border: 1px solid rgba(255, 140, 66, 0.2);
+  border: 1px solid var(--theme-shadow-hover);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   overflow: hidden;
 }
 
 // Brand Section (Left)
 .brand-section {
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.08) 0%, rgba(212, 175, 55, 0.08) 100%);
+  background: var(--theme-primary-gradient);
   padding: 60px;
   display: flex;
   align-items: center;
@@ -445,7 +445,7 @@ const onTurnstileCallback = (token: string) => {
 .brand-logo {
   width: 120px;
   height: 120px;
-  filter: drop-shadow(0 10px 25px rgba(255, 140, 66, 0.3));
+  filter: drop-shadow(0 10px 25px var(--theme-shadow-hover));
 }
 
 // Animated Brand Name - Smooth fade and slide
@@ -463,7 +463,7 @@ const onTurnstileCallback = (token: string) => {
 .brand-icon {
   width: 100px;
   height: 100px;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  background: var(--theme-primary-gradient);
   border-radius: 24px;
   display: flex;
   align-items: center;
@@ -471,13 +471,13 @@ const onTurnstileCallback = (token: string) => {
   font-size: 48px;
   color: white;
   margin-bottom: 32px;
-  box-shadow: 0 10px 25px rgba(255, 140, 66, 0.25);
+  box-shadow: 0 10px 25px var(--theme-shadow-hover);
 }
 
 .brand-title {
   font-size: 56px;
   font-weight: 800;
-  background: linear-gradient(135deg, #FF8C42, #D4AF37);
+  background: var(--theme-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -486,7 +486,7 @@ const onTurnstileCallback = (token: string) => {
   letter-spacing: 2px;
 
   .highlight {
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    background: var(--theme-primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -523,19 +523,19 @@ const onTurnstileCallback = (token: string) => {
   padding: 20px;
   background: rgba(10, 10, 10, 0.6);
   border-radius: 12px;
-  border: 1px solid rgba(255, 140, 66, 0.15);
+  border: 1px solid var(--theme-shadow-hover);
   transition: all 0.3s ease;
 
   &:hover {
     background: rgba(20, 20, 20, 0.8);
     transform: translateX(8px);
-    border-color: rgba(255, 140, 66, 0.4);
+    border-color: var(--theme-shadow-hover);
   }
 }
 
 .feature-icon {
   font-size: 32px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   flex-shrink: 0;
 }
 
@@ -564,10 +564,10 @@ const onTurnstileCallback = (token: string) => {
 
 .version-badge {
   padding: 8px 16px;
-  background: rgba(255, 140, 66, 0.2);
-  border: 1px solid rgba(255, 140, 66, 0.3);
+  background: var(--theme-shadow-hover);
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 20px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   font-size: 14px;
   font-weight: 600;
 }
@@ -579,7 +579,7 @@ const onTurnstileCallback = (token: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-left: 1px solid rgba(255, 140, 66, 0.2);
+  border-left: 1px solid var(--theme-shadow-hover);
 }
 
 .form-container {
@@ -607,7 +607,7 @@ const onTurnstileCallback = (token: string) => {
   h2 {
     font-size: 36px;
     font-weight: 800;
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    background: var(--theme-primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -651,7 +651,7 @@ const onTurnstileCallback = (token: string) => {
   :deep(.ant-input-affix-wrapper) {
     font-size: 16px !important;
     padding: 12px 16px !important;
-    border: 2px solid rgba(255, 140, 66, 0.25) !important;
+    border: 2px solid var(--theme-shadow-hover) !important;
     border-radius: 12px !important;
     background: rgba(10, 10, 10, 0.7) !important;
     color: white !important;
@@ -664,14 +664,14 @@ const onTurnstileCallback = (token: string) => {
     }
 
     &:hover {
-      border-color: rgba(255, 140, 66, 0.5) !important;
+      border-color: var(--theme-shadow-hover) !important;
       background: rgba(15, 15, 15, 0.8) !important;
     }
 
     &:focus, &:focus-within {
-      border-color: #FF8C42 !important;
+      border-color: var(--theme-primary-color) !important;
       background: rgba(20, 20, 20, 0.9) !important;
-      box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15) !important;
+      box-shadow: 0 0 0 3px var(--theme-shadow-hover) !important;
     }
   }
 
@@ -684,16 +684,16 @@ const onTurnstileCallback = (token: string) => {
   }
 
   :deep(.ant-input-password-icon) {
-    color: rgba(255, 140, 66, 0.6) !important;
+    color: var(--theme-shadow-hover) !important;
 
     &:hover {
-      color: #FF8C42 !important;
+      color: var(--theme-primary-color) !important;
     }
   }
 }
 
 .input-icon {
-  color: rgba(255, 140, 66, 0.8);
+  color: var(--theme-shadow-hover);
   font-size: 18px;
 }
 
@@ -715,14 +715,14 @@ const onTurnstileCallback = (token: string) => {
   font-size: 16px;
   font-weight: 600;
   border-radius: 12px;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  background: var(--theme-primary-gradient);
   border: none;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 4px 16px var(--theme-shadow-hover);
   transition: all 0.3s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(255, 140, 66, 0.4);
+    box-shadow: 0 6px 24px var(--theme-shadow-hover);
   }
 
   &:active {
@@ -735,15 +735,15 @@ const onTurnstileCallback = (token: string) => {
   font-size: 15px;
   font-weight: 600;
   border-radius: 12px;
-  border: 2px solid rgba(255, 140, 66, 0.3);
+  border: 2px solid var(--theme-shadow-hover);
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: #FF8C42;
-    background: rgba(255, 140, 66, 0.1);
-    color: #FF8C42;
+    border-color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
+    color: var(--theme-primary-color);
   }
 }
 
@@ -761,7 +761,7 @@ const onTurnstileCallback = (token: string) => {
   transition: color 0.3s ease;
 
   &:hover {
-    color: #FF8C42;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -788,17 +788,17 @@ const onTurnstileCallback = (token: string) => {
   }
 
   .loading-icon {
-    color: #FF8C42;
+    color: var(--theme-primary-color);
   }
 
   .success-icon {
-    color: #D4AF37;
+    color: var(--theme-primary-color);
   }
 
   h3 {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(135deg, #FF8C42, #D4AF37);
+    background: var(--theme-primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -964,17 +964,17 @@ const onTurnstileCallback = (token: string) => {
 
   .gradient-orb {
     &.orb-1 {
-      background: radial-gradient(circle, #FF8C42, transparent);
+      background: radial-gradient(circle, var(--theme-primary-color), transparent);
       opacity: 0.15;
     }
 
     &.orb-2 {
-      background: radial-gradient(circle, #D4AF37, transparent);
+      background: radial-gradient(circle, var(--theme-primary-color), transparent);
       opacity: 0.15;
     }
 
     &.orb-3 {
-      background: radial-gradient(circle, #FF6B35, transparent);
+      background: radial-gradient(circle, var(--theme-primary-color), transparent);
       opacity: 0.15;
     }
   }
@@ -986,7 +986,7 @@ const onTurnstileCallback = (token: string) => {
   }
 
   .brand-section {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.08) 0%, rgba(212, 175, 55, 0.08) 100%);
+    background: var(--theme-primary-gradient);
   }
 
   .brand-title {
@@ -1051,27 +1051,27 @@ const onTurnstileCallback = (token: string) => {
       }
 
       &:focus, &:focus-within {
-        border-color: #FF8C42 !important;
+        border-color: var(--theme-primary-color) !important;
         background: white !important;
-        box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15) !important;
+        box-shadow: 0 0 0 3px var(--theme-shadow-hover) !important;
       }
     }
 
     .ant-input-password-icon {
-      color: rgba(255, 140, 66, 0.6) !important;
+      color: var(--theme-shadow-hover) !important;
 
       &:hover {
-        color: #FF8C42 !important;
+        color: var(--theme-primary-color) !important;
       }
     }
   }
 
   .login-button {
-    background: linear-gradient(135deg, #FF8C42, #FF6B35);
+    background: var(--theme-primary-gradient);
     border: none;
 
     &:hover {
-      background: linear-gradient(135deg, #FFA500, #FF8C42);
+      background: var(--theme-primary-gradient);
     }
   }
 
@@ -1081,9 +1081,9 @@ const onTurnstileCallback = (token: string) => {
     color: #4a4a4a;
 
     &:hover {
-      border-color: #FF8C42;
-      background: rgba(255, 140, 66, 0.1);
-      color: #FF8C42;
+      border-color: var(--theme-primary-color);
+      background: var(--theme-shadow-hover);
+      color: var(--theme-primary-color);
     }
   }
 
@@ -1091,7 +1091,7 @@ const onTurnstileCallback = (token: string) => {
     color: #666;
 
     &:hover {
-      color: #FF8C42;
+      color: var(--theme-primary-color);
     }
   }
 
@@ -1106,7 +1106,7 @@ const onTurnstileCallback = (token: string) => {
 
     .loading-icon,
     .success-icon {
-      color: #FF8C42;
+      color: var(--theme-primary-color);
     }
   }
 }

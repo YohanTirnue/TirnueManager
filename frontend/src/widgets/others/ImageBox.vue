@@ -93,10 +93,6 @@ const close = () => {
       <a-tab-pane key="upload" :tab="t('TXT_CODE_e00c858c')">
         <a-progress
           v-if="percentComplete > 0"
-          :stroke-color="{
-            '0%': '#49b3ff',
-            '100%': '#25f5b9'
-          }"
           :percent="percentComplete"
           class="mb-20"
         />

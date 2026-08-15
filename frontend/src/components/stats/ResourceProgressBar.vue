@@ -22,7 +22,7 @@ const displayValue = computed(() => {
 
 const gradientColor = computed(() => {
   const pct = percentage.value;
-  const baseColor = props.color || "#FF8C42";
+  const baseColor = props.color || "var(--theme-primary-color)";
 
   if (pct < 50) {
     return `linear-gradient(90deg, #52c41a, ${baseColor})`;

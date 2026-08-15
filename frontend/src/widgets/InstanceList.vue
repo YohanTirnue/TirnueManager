@@ -521,7 +521,7 @@ onMounted(async () => {
         </BetweenMenus>
       </a-col>
       <a-col :span="24">
-        <PermissionBanner type="instance" theme="orange" />
+        <PermissionBanner type="instance" theme="default" />
       </a-col>
       <a-col :span="24">
         <BetweenMenus>
@@ -588,7 +588,7 @@ onMounted(async () => {
         <div v-if="tagTips && tagTips?.length > 0" class="instances-tag-container">
           <a-tag
             v-if="selectedTags.length > 0"
-            color="red"
+            
             class="group-name-tag"
             @click="clearTags"
           >

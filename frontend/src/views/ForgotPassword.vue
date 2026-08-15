@@ -333,7 +333,7 @@ onUnmounted(() => {
   &.orb-1 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, #ff8c42, transparent);
+    background: radial-gradient(circle, var(--theme-primary-color), transparent);
     top: -10%;
     left: -10%;
   }
@@ -341,7 +341,7 @@ onUnmounted(() => {
   &.orb-2 {
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, #d4af37, transparent);
+    background: radial-gradient(circle, var(--theme-primary-color), transparent);
     bottom: -10%;
     right: -10%;
   }
@@ -349,7 +349,7 @@ onUnmounted(() => {
   &.orb-3 {
     width: 350px;
     height: 350px;
-    background: radial-gradient(circle, #ff6b35, transparent);
+    background: radial-gradient(circle, var(--theme-primary-color), transparent);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -362,9 +362,9 @@ onUnmounted(() => {
   width: 90%;
   max-width: 480px;
   background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: blur(20px);
+  backdrop-filter: none; /* Optimized */
   border-radius: 24px;
-  border: 1px solid rgba(255, 140, 66, 0.2);
+  border: 1px solid var(--theme-shadow-hover);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   overflow: hidden;
 }
@@ -387,7 +387,7 @@ onUnmounted(() => {
   transition: color 0.3s;
 
   &:hover {
-    color: #ff8c42;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -398,7 +398,7 @@ onUnmounted(() => {
   h2 {
     font-size: 32px;
     font-weight: 800;
-    background: linear-gradient(135deg, #ff8c42, #d4af37);
+    background: var(--theme-primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -411,7 +411,7 @@ onUnmounted(() => {
     margin: 0;
 
     strong {
-      color: #ff8c42;
+      color: var(--theme-primary-color);
     }
   }
 }
@@ -440,7 +440,7 @@ onUnmounted(() => {
   :deep(.ant-input-affix-wrapper) {
     font-size: 14px !important;
     padding: 10px 14px !important;
-    border: 2px solid rgba(255, 140, 66, 0.25) !important;
+    border: 2px solid var(--theme-shadow-hover) !important;
     border-radius: 10px !important;
     background: rgba(10, 10, 10, 0.7) !important;
     color: white !important;
@@ -451,19 +451,19 @@ onUnmounted(() => {
     }
 
     &:hover {
-      border-color: rgba(255, 140, 66, 0.5) !important;
+      border-color: var(--theme-shadow-hover) !important;
     }
 
     &:focus,
     &:focus-within {
-      border-color: #ff8c42 !important;
-      box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15) !important;
+      border-color: var(--theme-primary-color) !important;
+      box-shadow: 0 0 0 3px var(--theme-shadow-hover) !important;
     }
   }
 }
 
 .input-icon {
-  color: rgba(255, 140, 66, 0.8);
+  color: var(--theme-shadow-hover);
   font-size: 16px;
 }
 
@@ -475,20 +475,20 @@ onUnmounted(() => {
   letter-spacing: 10px;
   text-align: center;
   background: rgba(10, 10, 10, 0.7);
-  border: 2px solid rgba(255, 140, 66, 0.3);
+  border: 2px solid var(--theme-shadow-hover);
   border-radius: 10px;
-  color: #ff8c42;
+  color: var(--theme-primary-color);
   font-family: monospace;
 
   &::placeholder {
-    color: rgba(255, 140, 66, 0.2);
+    color: var(--theme-shadow-hover);
     letter-spacing: 10px;
   }
 
   &:focus {
     outline: none;
-    border-color: #ff8c42;
-    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15);
+    border-color: var(--theme-primary-color);
+    box-shadow: 0 0 0 3px var(--theme-shadow-hover);
   }
 }
 
@@ -528,14 +528,14 @@ onUnmounted(() => {
   font-size: 15px;
   font-weight: 600;
   border-radius: 10px;
-  background: linear-gradient(135deg, #ff8c42, #ff6b35);
+  background: var(--theme-primary-gradient);
   border: none;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 4px 16px var(--theme-shadow-hover);
   margin-top: 8px;
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(255, 140, 66, 0.4);
+    box-shadow: 0 6px 24px var(--theme-shadow-hover);
   }
 
   &:disabled {
@@ -550,7 +550,7 @@ onUnmounted(() => {
 }
 
 .resend-link {
-  color: #ff8c42;
+  color: var(--theme-primary-color);
   cursor: pointer;
 
   &:hover {
@@ -566,7 +566,7 @@ onUnmounted(() => {
   cursor: pointer;
 
   &:hover {
-    color: #ff8c42;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -578,7 +578,7 @@ onUnmounted(() => {
   h2 {
     font-size: 28px;
     font-weight: 800;
-    background: linear-gradient(135deg, #ff8c42, #d4af37);
+    background: var(--theme-primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

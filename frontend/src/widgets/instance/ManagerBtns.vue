@@ -40,6 +40,13 @@ import RconSettings from "./dialogs/RconSettings.vue";
 import TermConfig from "./dialogs/TermConfig.vue";
 import { openMarketDialog } from "@/components/fc";
 import { INSTANCE_STATUS_CODE } from "@/types/const";
+import FileManager from "./FileManager.vue";
+import ServerConfigOverview from "./ServerConfigOverview.vue";
+import Schedule from "./Schedule.vue";
+
+const fileManagerVisible = ref(false);
+const serverConfigVisible = ref(false);
+const scheduleVisible = ref(false);
 
 const terminalConfigDialog = ref<InstanceType<typeof TermConfig>>();
 const rconSettingsDialog = ref<InstanceType<typeof RconSettings>>();
@@ -53,6 +60,7 @@ const { toPage: toOtherPager } = useAppRouters();
 
 const props = defineProps<{
   card: LayoutCard;
+  merged?: boolean;
 }>();
 
 const { isAdmin, state } = useAppStateStore();
@@ -119,19 +127,14 @@ const btns = computed(() => {
         );
       },
       click: (): void => {
-        toPage({
-          path: "/instances/terminal/serverConfig",
-          query: {
-            type: instanceInfo.value?.config.type
-          }
-        });
+        serverConfigVisible.value = true;
       }
     },
     {
       title: t("TXT_CODE_ae533703"),
       icon: FolderOpenOutlined,
       click: () => {
-        toPage({ path: "/instances/terminal/files" });
+        fileManagerVisible.value = true;
       },
       condition: () =>
         (state.settings.canFileManager || isAdmin.value) &&
@@ -172,13 +175,7 @@ const btns = computed(() => {
         !isGlobalTerminal.value &&
         (isAdmin.value || userPermissions.value.canAccessScheduledTasks),
       click: () => {
-        toPage({
-          path: "/instances/schedule",
-          query: {
-            instanceId,
-            daemonId
-          }
-        });
+        scheduleVisible.value = true;
       }
     },
     {
@@ -237,36 +234,33 @@ watch(instanceInfo, (cfg, oldCfg) => {
 </script>
 
 <template>
-  <CardPanel class="containerWrapper ultra-widget-panel" style="height: 100%">
-    <template #title>
-      <div class="widget-header">
-        <div class="header-glow"></div>
-        <ControlOutlined class="header-icon-modern" />
-        <span class="header-text-gradient">{{ card.title }}</span>
-      </div>
+  <template v-if="props.merged">
+    <template v-for="item in btns" :key="item.title">
+      <a-button
+        v-if="item.condition()"
+        size="large"
+        class="action-btn"
+        @click="item.click"
+      >
+        <template #icon>
+          <component :is="item.icon" />
+        </template>
+        {{ item.title }}
+      </a-button>
     </template>
-    <template #body>
-      <div class="manager-buttons-grid" :class="{ 'centered-manager-grid': btns.length <= 3 }">
-        <a-button
-          v-for="(item, index) in btns"
-          :key="item.title"
-          size="large"
-          class="manager-modern-btn"
-          @click="item.click"
-          :style="{ animationDelay: `${index * 0.04}s` }"
-        >
-          <div class="btn-icon-wrapper">
-            <component :is="item.icon" class="btn-icon" />
-          </div>
-          <div class="btn-content">
-            <span class="btn-title">{{ item.title }}</span>
-            <span class="btn-subtitle">{{ t("TXT_CODE_6c5985ca") }}</span>
-          </div>
-          <ArrowRightOutlined class="btn-arrow" />
-        </a-button>
-      </div>
-    </template>
-  </CardPanel>
+  </template>
+
+  <a-modal v-model:open="fileManagerVisible" :footer="null" :title="t('TXT_CODE_ae533703')" width="95%" wrapClassName="full-modal">
+    <FileManager :card="props.card" v-if="fileManagerVisible" />
+  </a-modal>
+
+  <a-modal v-model:open="serverConfigVisible" :footer="null" :title="t('TXT_CODE_d07742fe')" width="95%" wrapClassName="full-modal">
+    <ServerConfigOverview :card="props.card" v-if="serverConfigVisible" />
+  </a-modal>
+
+  <a-modal v-model:open="scheduleVisible" :footer="null" :title="t('TXT_CODE_b7d026f8')" width="95%" wrapClassName="full-modal">
+    <Schedule :card="props.card" v-if="scheduleVisible" />
+  </a-modal>
 
   <TermConfig
     ref="terminalConfigDialog"
@@ -348,23 +342,21 @@ watch(instanceInfo, (cfg, oldCfg) => {
   left: 0;
   width: 60px;
   height: 60px;
-  background: radial-gradient(circle, rgba(153, 27, 27, 0.3), transparent 70%);
+  background: radial-gradient(circle, var(--theme-card-bg-hover), transparent 70%);
   filter: blur(20px);
   pointer-events: none;
 }
 
 .header-icon-modern {
   font-size: 22px;
-  color: rgba(153, 27, 27, 0.9);
-  filter: drop-shadow(0 2px 4px rgba(153, 27, 27, 0.2));
+  color: var(--theme-title-color);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .header-text-gradient {
   font-weight: 700;
-  background: linear-gradient(135deg, rgba(153, 27, 27, 1) 0%, rgba(212, 107, 8, 1) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: none;
+  color: var(--theme-title-color);
   font-size: 16px;
   letter-spacing: -0.3px;
 }
@@ -375,14 +367,14 @@ watch(instanceInfo, (cfg, oldCfg) => {
   align-items: center;
   gap: 12px;
   padding: 14px 18px;
-  background: linear-gradient(135deg, rgba(153, 27, 27, 0.08), rgba(212, 107, 8, 0.08));
-  border: 2px solid rgba(153, 27, 27, 0.25);
+  background: var(--theme-card-bg-hover);
+  border: 2px solid var(--theme-card-border);
   border-radius: 12px;
   margin-bottom: 16px;
 
   .manager-permission-icon {
     font-size: 22px;
-    color: rgba(153, 27, 27, 0.9);
+    color: var(--theme-title-color);
     flex-shrink: 0;
   }
 
@@ -396,7 +388,7 @@ watch(instanceInfo, (cfg, oldCfg) => {
   .manager-permission-label {
     font-size: 11px;
     font-weight: 700;
-    color: rgba(153, 27, 27, 0.9);
+    color: var(--theme-title-color);
     text-transform: uppercase;
     letter-spacing: 0.8px;
   }
@@ -409,16 +401,16 @@ watch(instanceInfo, (cfg, oldCfg) => {
 }
 
 // MODERN MANAGER BUTTONS GRID
+// MODERN MANAGER BUTTONS GRID
 .manager-buttons-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 14px;
   animation: grid-fade-in 0.5s ease-out;
 
   // Center buttons when there are 3 or fewer
   &.centered-manager-grid {
     justify-content: center;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 350px));
     max-width: 1200px;
     margin: 0 auto;
   }
@@ -434,45 +426,64 @@ watch(instanceInfo, (cfg, oldCfg) => {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 14px;
-  width: 100%;
-  height: auto;
-  min-height: 72px;
-  padding: 16px 18px;
-  background: var(--theme-card-bg);
-  border: 2px solid var(--theme-card-border);
-  border-radius: 14px;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  width: 72px !important;
+  height: 72px !important;
+  min-height: 72px !important;
+  padding: 8px !important;
+  background: var(--theme-card-bg) !important;
+  border: 2px solid var(--theme-card-border) !important;
+  border-radius: 36px !important;
   text-align: left;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px var(--theme-shadow);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  box-shadow: 0 4px 12px var(--theme-shadow) !important;
   animation: btn-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+    background: transparent;
     opacity: 0;
     transition: opacity 0.3s ease;
   }
 
   &:hover {
-    transform: translateY(-4px);
-    border-color: var(--theme-card-border-hover);
-    box-shadow: 0 8px 24px var(--theme-shadow-hover);
-    background: var(--theme-card-bg-hover);
+    width: 280px !important;
+    border-radius: 14px !important;
+    padding: 8px 16px 8px 8px !important;
+    gap: 14px !important;
+    transform: translateY(-4px) !important;
+    border-color: var(--theme-card-border-hover) !important;
+    box-shadow: 0 8px 24px var(--theme-shadow-hover) !important;
+    background: var(--theme-card-bg-hover) !important;
 
     &::before {
       opacity: 1;
+    }
+
+    .btn-icon-wrapper {
+      border-radius: 12px;
     }
 
     .btn-icon {
       transform: scale(1.12) rotate(-5deg);
     }
 
+    .btn-content {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      transition-delay: 0.1s;
+    }
+
     .btn-arrow {
-      transform: translateX(6px);
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      transition-delay: 0.15s;
     }
 
     .btn-title {
@@ -481,8 +492,8 @@ watch(instanceInfo, (cfg, oldCfg) => {
   }
 
   &:active {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 14px var(--theme-shadow);
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 14px var(--theme-shadow) !important;
   }
 }
 
@@ -506,14 +517,14 @@ watch(instanceInfo, (cfg, oldCfg) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.2) 0%, rgba(255, 107, 53, 0.2) 100%);
-  border-radius: 12px;
-  border: 1.5px solid rgba(255, 140, 66, 0.5);
-  transition: all 0.3s ease;
+  background: var(--theme-card-bg);
+  border-radius: 50%;
+  border: 1.5px solid var(--theme-card-border);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-icon {
-  font-size: 26px;
+  font-size: 24px;
   color: var(--theme-card-border-hover);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -525,6 +536,11 @@ watch(instanceInfo, (cfg, oldCfg) => {
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
 }
 
 .btn-title {
@@ -549,28 +565,36 @@ watch(instanceInfo, (cfg, oldCfg) => {
   font-size: 16px;
   color: var(--theme-card-border-hover);
   flex-shrink: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
 }
 
 // RESPONSIVE
 @media (max-width: 992px) {
   .manager-buttons-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    justify-content: flex-start;
   }
 
   .manager-modern-btn {
-    min-height: 68px;
-    padding: 14px 16px;
+    width: 60px !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    padding: 6px !important;
+
+    &:hover {
+      width: 240px !important;
+    }
   }
 
   .btn-icon-wrapper {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
   }
 
   .btn-icon {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .btn-title {
@@ -580,21 +604,27 @@ watch(instanceInfo, (cfg, oldCfg) => {
 
 @media (max-width: 576px) {
   .manager-buttons-grid {
-    grid-template-columns: 1fr;
+    justify-content: center;
   }
 
   .manager-modern-btn {
-    min-height: 64px;
-    padding: 14px 16px;
+    width: 54px !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    padding: 5px !important;
+
+    &:hover {
+      width: 100% !important;
+    }
   }
 
   .btn-icon-wrapper {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
   }
 
   .btn-icon {
-    font-size: 22px;
+    font-size: 18px;
   }
 
   .btn-title {

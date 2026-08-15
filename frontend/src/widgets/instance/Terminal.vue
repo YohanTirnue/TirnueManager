@@ -6,6 +6,10 @@ import PermissionBanner from "@/components/PermissionBanner.vue";
 import TerminalCore from "@/components/TerminalCore.vue";
 import TerminalTags from "@/components/TerminalTags.vue";
 import SubUserManager from "@/components/SubUserManager.vue";
+import FileManager from "./FileManager.vue";
+import ServerConfigOverview from "./ServerConfigOverview.vue";
+import Schedule from "./Schedule.vue";
+import InstanceOperationLogs from "./OperationLogs.vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { INSTANCE_TYPE_TRANSLATION, verifyEULA } from "@/hooks/useInstance";
 import { useScreen } from "@/hooks/useScreen";
@@ -42,7 +46,11 @@ import {
   PauseCircleOutlined,
   PlayCircleOutlined,
   RedoOutlined,
-  TeamOutlined
+  TeamOutlined,
+  FolderOpenOutlined,
+  ControlOutlined,
+  FieldTimeOutlined,
+  ProfileOutlined
 } from "@ant-design/icons-vue";
 import { useLocalStorage } from "@vueuse/core";
 import prettyBytes, { type Options as PrettyOptions } from "pretty-bytes";
@@ -56,15 +64,9 @@ import { parseTimestamp } from "../../tools/time";
 // Format date with month name
 const formatDateWithMonth = (timestamp: number | string | undefined) => {
   if (!timestamp) return '-';
-  const date = new Date(timestamp);
-  if (isNaN(date.getTime())) return '-';
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  const val = typeof timestamp === "string" ? new Date(timestamp).getTime() : timestamp;
+  if (isNaN(val)) return '-';
+  return parseTimestamp(val);
 };
 
 const props = defineProps<{
@@ -74,7 +76,7 @@ const props = defineProps<{
 const { isPhone } = useScreen();
 const { state, isAdmin } = useAppStateStore();
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
-const { canPerformInstanceAction, userPermissions } = useUserPermissions();
+const { canPerformInstanceAction, userPermissions, hasInstanceAccess } = useUserPermissions();
 
 // The `useTerminal` is shared by this component and `TerminalCore`.
 // Please do not initialize `useTerminal` in this component; all initialization logic should be placed in its child component `TerminalCore.vue`.
@@ -100,6 +102,11 @@ const instanceTypeText = computed(
 const hasConsoleAccess = computed(() =>
   canPerformInstanceAction(instanceId ?? "", "canAccessConsole")
 );
+
+const fileManagerVisible = ref(false);
+const serverConfigVisible = ref(false);
+const scheduleVisible = ref(false);
+const operationLogsVisible = ref(false);
 
 // Sub-user management
 const subUserManagerVisible = ref(false);
@@ -209,6 +216,34 @@ const quickOperations = computed(() =>
         }
       },
       condition: () => isRunning.value
+    },
+    {
+      title: t("TXT_CODE_d07742fe"),
+      icon: ControlOutlined,
+      noConfirm: true,
+      click: () => { serverConfigVisible.value = true; },
+      condition: () => !isGlobalTerminal.value && (isAdmin.value || userPermissions.value.canAccessConfigFiles)
+    },
+    {
+      title: t("TXT_CODE_ae533703"),
+      icon: FolderOpenOutlined,
+      noConfirm: true,
+      click: () => { fileManagerVisible.value = true; },
+      condition: () => hasInstanceAccess(instanceId ?? "") && (isAdmin.value || userPermissions.value.canAccessFileManager)
+    },
+    {
+      title: t("TXT_CODE_b7d026f8"),
+      icon: FieldTimeOutlined,
+      noConfirm: true,
+      click: () => { scheduleVisible.value = true; },
+      condition: () => !isGlobalTerminal.value && (isAdmin.value || userPermissions.value.canAccessScheduledTasks)
+    },
+    {
+      title: "Operation Logs",
+      icon: ProfileOutlined,
+      noConfirm: true,
+      click: () => { operationLogsVisible.value = true; },
+      condition: () => true
     }
   ])
 );
@@ -344,37 +379,13 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 <template>
   <!-- COMPACT 3-ROW LAYOUT (Default View) -->
   <div class="compact-terminal-container">
-    <PermissionBanner type="instance" theme="orange" />
+    <PermissionBanner type="instance" theme="default" />
 
     <!-- ROW 1: Header | Basic Info | Buttons -->
     <div class="top-bar">
-      <!-- Header Section with integrated Basic Info -->
-      <div class="header-section">
-        <div class="status-orb" :class="{ 'orb-running': isRunning, 'orb-busy': isBuys, 'orb-stopped': isStopped }">
-          <div class="orb-pulse"></div>
-          <div class="orb-ring"></div>
-        </div>
-        <div class="header-info">
-          <h1 class="instance-name">{{ getInstanceName }}</h1>
-          <div class="status-chips">
-            <a-tag v-if="isRunning" color="green">
-              <CheckCircleOutlined />
-              {{ instanceStatusText }}
-            </a-tag>
-            <a-tag v-else-if="isBuys" color="orange">
-              <LoadingOutlined />
-              {{ instanceStatusText }}
-            </a-tag>
-            <a-tag v-else>
-              <InfoCircleOutlined />
-              {{ instanceStatusText }}
-            </a-tag>
-            <a-tag v-if="instanceTypeText" color="purple">
-              <CloudServerOutlined />
-              {{ instanceTypeText }}
-            </a-tag>
-          </div>
-        </div>
+      <!-- Header Section -->
+      <div class="header-section" v-if="isPhone">
+        <h1 class="instance-name">{{ getInstanceName }}</h1>
       </div>
 
       <!-- Basic Info integrated into header -->
@@ -498,15 +509,33 @@ const terminalTopTags = computed<TagInfo[]>(() => {
       </div>
     </div>
 
+    <a-modal v-model:open="fileManagerVisible" :footer="null" :title="t('TXT_CODE_ae533703')" width="95%" wrapClassName="full-modal">
+      <FileManager :card="props.card" v-if="fileManagerVisible" />
+    </a-modal>
+
+    <a-modal v-model:open="serverConfigVisible" :footer="null" :title="t('TXT_CODE_d07742fe')" width="95%" wrapClassName="full-modal">
+      <ServerConfigOverview :card="props.card" v-if="serverConfigVisible" />
+    </a-modal>
+
+    <a-modal v-model:open="scheduleVisible" :footer="null" :title="t('TXT_CODE_b7d026f8')" width="95%" wrapClassName="full-modal">
+      <Schedule :card="props.card" v-if="scheduleVisible" />
+    </a-modal>
+
+    <a-modal v-model:open="operationLogsVisible" :footer="null" title="Operation Logs" width="95%" wrapClassName="full-modal">
+      <InstanceOperationLogs :card="props.card" v-if="operationLogsVisible" />
+    </a-modal>
+
     <!-- ROW 2: Console with iOS-style header -->
     <div class="glass-terminal-wrapper">
       <div class="terminal-glass-header">
         <div class="terminal-dots">
-          <span class="dot dot-red"></span>
-          <span class="dot dot-yellow"></span>
-          <span class="dot dot-green"></span>
+          <span class="dot dot-red" :class="{ active: isStopped }"></span>
+          <span class="dot dot-yellow" :class="{ active: isBuys || instanceInfo?.status === 1 || instanceInfo?.status === 2 }"></span>
+          <span class="dot dot-green" :class="{ active: isRunning }"></span>
         </div>
         <span class="terminal-title">Console</span>
+        <span class="terminal-instance-name">{{ getInstanceName }}</span>
+        <div style="flex: 1"></div>
       </div>
       <div class="console-section">
         <TerminalCore
@@ -514,7 +543,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
           :use-terminal-hook="terminalHook"
           :instance-id="instanceId"
           :daemon-id="daemonId"
-          :height="card.height"
+          :height="'100%'"
         />
         <div v-else-if="!hasConsoleAccess" class="access-denied">
           <CloseOutlined style="font-size: 48px; margin-bottom: 16px;" />
@@ -542,20 +571,26 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   flex-direction: column;
   gap: 12px;
   height: 100%;
+  min-height: calc(100vh - 180px);
   padding: 8px;
+  box-sizing: border-box;
 }
 
 // ROW 1: TOP BAR - Header | Stats | Buttons
 .top-bar {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   align-items: center;
   padding: 16px 24px;
   background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
   border-radius: 12px;
-  border: 1px solid rgba(255, 140, 66, 0.3);
+  border: 1px solid var(--theme-shadow-hover);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+
+  .header-section { order: 1; margin-right: 8px; }
+  .buttons-section { order: 2; margin-right: 8px; }
+  .info-stats { order: 3; margin-left: auto; }
 }
 
 // Header Section
@@ -574,10 +609,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   margin: 0 0 8px 0;
   font-size: 22px;
   font-weight: 800;
-  background: linear-gradient(135deg, #FF8C42 0%, #D4AF37 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -616,7 +648,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
 
 .stat-icon {
   font-size: 14px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -659,129 +691,70 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   gap: 12px;
 }
 
-// Industry Standard Button Styling
-.action-btn {
-  background: linear-gradient(135deg, rgba(40, 40, 40, 0.95) 0%, rgba(50, 50, 50, 0.95) 100%) !important;
-  border: 2px solid rgba(255, 140, 66, 0.5) !important;
-  color: #D4AF37 !important;
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  font-size: 14px !important;
+:deep(.action-btn) {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  width: auto !important;
+  max-width: 44px !important;
   height: 44px !important;
-  padding: 0 20px !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 140, 66, 0.2) !important;
+  padding: 4px !important;
+  background: transparent !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 22px !important;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  box-shadow: none !important;
+
+  .anticon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0;
+    margin: 0 !important;
+    font-size: 18px !important;
+    color: #ffffff !important;
+    transition: all 0.4s ease;
+  }
+
+  span:not(.anticon) {
+    opacity: 0;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff !important;
+    transform: translateX(-10px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
 
   &:hover {
-    background: linear-gradient(135deg, rgba(50, 50, 50, 1) 0%, rgba(60, 60, 60, 1) 100%) !important;
-    border-color: #FF8C42 !important;
-    color: #FFD700 !important;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 140, 66, 0.4) !important;
+    max-width: 200px !important;
+    border-radius: 12px !important;
+    padding: 4px 14px 4px 4px !important;
+    gap: 8px !important;
     transform: translateY(-2px);
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+
+    .anticon {
+      transform: scale(1.1);
+      color: #000000 !important;
+    }
+
+    span:not(.anticon) {
+      opacity: 1;
+      transform: translateX(0);
+      color: #000000 !important;
+      transition-delay: 0.1s;
+    }
   }
 
   &:active {
     transform: translateY(0);
-  }
-
-  :deep(.anticon) {
-    color: #FF8C42 !important;
-    font-size: 16px !important;
-  }
-
-  // Manage Users button - purple theme
-  &.manage-users-btn {
-    background: linear-gradient(135deg, rgba(114, 46, 209, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
-    border-color: rgba(114, 46, 209, 0.6) !important;
-    color: #9254de !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(114, 46, 209, 0.3) !important;
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(114, 46, 209, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
-      border-color: #9254de !important;
-      color: #b37feb !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(114, 46, 209, 0.4) !important;
-    }
-
-    :deep(.anticon) {
-      color: #9254de !important;
-    }
-  }
-
-  // Green Start button
-  &.button-color-success {
-    background: linear-gradient(135deg, rgba(82, 196, 26, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
-    border-color: rgba(82, 196, 26, 0.6) !important;
-    color: #52c41a !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(82, 196, 26, 0.3) !important;
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(82, 196, 26, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
-      border-color: #52c41a !important;
-      color: #73d13d !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(82, 196, 26, 0.5) !important;
-    }
-
-    :deep(.anticon) {
-      color: #52c41a !important;
-    }
-  }
-
-  // Red Stop/Danger button
-  &.btn-danger {
-    background: linear-gradient(135deg, rgba(255, 77, 79, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
-    border-color: rgba(255, 77, 79, 0.6) !important;
-    color: #ff4d4f !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 77, 79, 0.3) !important;
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(255, 77, 79, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
-      border-color: #ff4d4f !important;
-      color: #ff7875 !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 77, 79, 0.5) !important;
-    }
-
-    :deep(.anticon) {
-      color: #ff4d4f !important;
-    }
-  }
-
-  // Orange Restart button
-  &.button-color-warning {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
-    border-color: rgba(255, 140, 66, 0.6) !important;
-    color: #FF8C42 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 140, 66, 0.3) !important;
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(255, 140, 66, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
-      border-color: #FF8C42 !important;
-      color: #FFA366 !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 140, 66, 0.5) !important;
-    }
-
-    :deep(.anticon) {
-      color: #FF8C42 !important;
-    }
-  }
-
-  // Purple Manage Users button
-  &.button-color-users {
-    background: linear-gradient(135deg, rgba(114, 46, 209, 0.2) 0%, rgba(40, 40, 40, 0.95) 100%) !important;
-    border-color: rgba(114, 46, 209, 0.6) !important;
-    color: #722ed1 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(114, 46, 209, 0.3) !important;
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(114, 46, 209, 0.3) 0%, rgba(50, 50, 50, 1) 100%) !important;
-      border-color: #722ed1 !important;
-      color: #9254de !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(114, 46, 209, 0.5) !important;
-    }
-
-    :deep(.anticon) {
-      color: #722ed1 !important;
-    }
   }
 }
 
@@ -801,7 +774,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 140, 66, 0.4), rgba(212, 175, 55, 0.1));
+  background: radial-gradient(circle, var(--theme-shadow-hover), rgba(212, 175, 55, 0.1));
   filter: blur(6px);
   animation: orb-pulse 2s ease-in-out infinite;
 }
@@ -811,8 +784,8 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: radial-gradient(circle, #FF8C42, #D4AF37);
-  box-shadow: 0 0 12px rgba(255, 140, 66, 0.6);
+  background: radial-gradient(circle, var(--theme-primary-color), var(--theme-primary-color));
+  box-shadow: 0 0 12px var(--theme-shadow-hover);
 }
 
 .orb-running {
@@ -857,14 +830,14 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   display: flex;
   flex-direction: column;
   background: rgba(20, 20, 20, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 140, 66, 0.3);
+  backdrop-filter: none; /* Optimized */
+  -webkit-backdrop-filter: none; /* Optimized */ /* Optimized */
+  border: 1px solid var(--theme-shadow-hover);
   border-radius: 12px;
   overflow: hidden;
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(255, 140, 66, 0.1),
+    0 0 20px var(--theme-shadow-hover),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
@@ -874,7 +847,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   gap: 12px;
   padding: 10px 16px;
   background: linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
-  border-bottom: 1px solid rgba(255, 140, 66, 0.2);
+  border-bottom: 1px solid var(--theme-shadow-hover);
 }
 
 .terminal-dots {
@@ -887,29 +860,52 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   height: 12px;
   border-radius: 50%;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 
   &.dot-red {
-    background: linear-gradient(135deg, #ff5f57, #ff3b30);
-    box-shadow: 0 0 8px rgba(255, 59, 48, 0.4);
+    background: darkred;
+    &.active {
+      background: linear-gradient(135deg, #ff5f57, #ff3b30);
+      box-shadow: 0 0 8px rgba(255, 59, 48, 0.6);
+    }
   }
 
   &.dot-yellow {
-    background: linear-gradient(135deg, #ffbd2e, #ff9500);
-    box-shadow: 0 0 8px rgba(255, 149, 0, 0.4);
+    background: #8c4600;
+    &.active {
+      background: linear-gradient(135deg, #ffbd2e, #ff9500);
+      box-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+    }
   }
 
   &.dot-green {
-    background: linear-gradient(135deg, #28c840, #30d158);
-    box-shadow: 0 0 8px rgba(48, 209, 88, 0.4);
+    background: darkgreen;
+    &.active {
+      background: linear-gradient(135deg, #28c840, #30d158);
+      box-shadow: 0 0 8px rgba(48, 209, 88, 0.6);
+    }
   }
 }
 
 .terminal-title {
   font-size: 12px;
   font-weight: 600;
-  color: #D4AF37;
+  color: rgba(255, 255, 255, 0.5);
   letter-spacing: 0.5px;
-  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.terminal-instance-name {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40%;
 }
 
 // ROW 2: Console Section
@@ -926,7 +922,7 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   color: #ff4d4f;
 
   h3 {
-    color: #D4AF37;
+    color: var(--theme-primary-color);
   }
 }
 

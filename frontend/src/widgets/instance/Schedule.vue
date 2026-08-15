@@ -175,7 +175,7 @@ onMounted(async () => {
         </BetweenMenus>
       </a-col>
       <a-col :span="24">
-        <PermissionBanner type="instance" theme="orange" />
+        <PermissionBanner type="instance" theme="default" />
       </a-col>
       <a-col :span="24">
         <CardPanel style="height: 100%">

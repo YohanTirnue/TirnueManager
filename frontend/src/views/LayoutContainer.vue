@@ -145,6 +145,7 @@ const showCardOperator = (card: ILayoutCard) => {
   min-height: calc(100vh - 70px);
   padding: 24px 32px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 @keyframes scaleAnimation {

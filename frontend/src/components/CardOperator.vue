@@ -107,7 +107,7 @@ let btns = arrayFilter([
   align-items: center;
   justify-content: center;
   background-color: var(--float-box-bg-color);
-  backdrop-filter: saturate(180%) blur(16px);
+  backdrop-filter: none; /* Optimized */
   font-size: 12px;
   border: 1px dashed var(--gray-border-color);
   font-size: 12px;

@@ -150,7 +150,7 @@ async function handleLogout() {
   <!-- Mobile Overlay -->
   <div v-if="mobileMenuOpen" class="mobile-overlay" @click="closeMobileMenu"></div>
 
-  <div class="app-sidebar" :class="{ collapsed: sidebarCollapsed, 'mobile-open': mobileMenuOpen }">
+  <div class="app-sidebar" :class="{ collapsed: sidebarCollapsed, 'mobile-open': mobileMenuOpen }" @click="toggleSidebar" style="cursor: pointer;">
     <!-- Logo Section -->
     <div class="sidebar-logo">
       <div class="logo-icon">
@@ -160,7 +160,7 @@ async function handleLogout() {
     </div>
 
     <!-- User Profile (Clickable for logout) -->
-    <div class="sidebar-user" :class="{ collapsed: sidebarCollapsed }" @click="openLogoutModal">
+    <div class="sidebar-user" :class="{ collapsed: sidebarCollapsed }" @click.stop="openLogoutModal" style="cursor: pointer;">
       <div class="user-avatar">
         <UserOutlined />
       </div>
@@ -178,7 +178,7 @@ async function handleLogout() {
         :key="item.path"
         class="nav-item"
         :class="{ active: isActive(item.path) }"
-        @click="navigateAndClose(item.path)"
+        @click.stop="navigateAndClose(item.path)"
       >
         <component :is="item.icon" class="nav-icon" />
         <span v-if="!sidebarCollapsed" class="nav-text">{{ item.name }}</span>
@@ -186,11 +186,6 @@ async function handleLogout() {
       </div>
     </nav>
 
-    <!-- Collapse Toggle -->
-    <div class="sidebar-toggle" @click="toggleSidebar">
-      <MenuFoldOutlined v-if="!sidebarCollapsed" />
-      <MenuUnfoldOutlined v-else />
-    </div>
   </div>
 
   <!-- Custom Logout Modal -->
@@ -278,17 +273,17 @@ async function handleLogout() {
   align-items: center;
   padding: 20px;
   gap: 12px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.15), rgba(212, 175, 55, 0.15));
+  background: var(--theme-primary-gradient);
   margin: 16px;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 140, 66, 0.2);
+  border: 1px solid var(--theme-shadow-hover);
 
   &:hover {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.25), rgba(212, 175, 55, 0.25));
+    background: var(--theme-primary-gradient);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+    box-shadow: 0 4px 12px var(--theme-shadow-hover);
   }
 
   &.collapsed {
@@ -300,7 +295,7 @@ async function handleLogout() {
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+    background: var(--theme-primary-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -375,26 +370,13 @@ async function handleLogout() {
   }
 }
 
-.sidebar-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 16px 20px;
-  cursor: pointer;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 18px;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
-}
 
 // Custom Logout Modal
 .logout-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
+  backdrop-filter: none; /* Optimized */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -438,13 +420,13 @@ async function handleLogout() {
   height: 80px;
   margin: 0 auto 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(212, 175, 55, 0.1));
-  border: 3px solid #FF8C42;
+  background: var(--theme-primary-gradient);
+  border: 3px solid var(--theme-primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 40px;
-  color: #FF8C42;
+  color: var(--theme-primary-color);
 }
 
 .modal-title {
@@ -498,13 +480,13 @@ async function handleLogout() {
 }
 
 .logout-btn {
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  background: var(--theme-primary-gradient);
   color: white;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 4px 16px var(--theme-shadow-hover);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(255, 140, 66, 0.4);
+    box-shadow: 0 6px 24px var(--theme-shadow-hover);
   }
 }
 
@@ -518,14 +500,14 @@ async function handleLogout() {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #FF8C42, #FF6B35);
+  background: var(--theme-primary-gradient);
   border: none;
   color: white;
   font-size: 20px;
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.4);
+  box-shadow: 0 4px 12px var(--theme-shadow-hover);
   transition: all 0.3s ease;
 
   &:hover {

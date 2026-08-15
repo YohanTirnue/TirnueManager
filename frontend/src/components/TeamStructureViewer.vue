@@ -94,7 +94,7 @@ const getPermissionSummary = (permissions: any): string => {
       <div v-if="teams.length > 0" class="teams-container">
         <div v-for="team in teams" :key="team.parent.uuid" class="team-card">
           <div class="parent-user">
-            <a-avatar :style="{ backgroundColor: '#FF8C42', marginRight: '12px' }">
+            <a-avatar :style="{ backgroundColor: 'var(--theme-primary-color)', marginRight: '12px' }">
               <template #icon>
                 <CrownOutlined />
               </template>
@@ -102,7 +102,7 @@ const getPermissionSummary = (permissions: any): string => {
             <div class="user-info">
               <div class="user-name">
                 {{ team.parent.userName }}
-                <a-tag color="orange">Parent User</a-tag>
+                <a-tag >Parent User</a-tag>
               </div>
               <div class="user-meta">
                 Permission Level: {{ team.parent.permission }}
@@ -131,7 +131,7 @@ const getPermissionSummary = (permissions: any): string => {
               <div class="user-info">
                 <div class="user-name">
                   {{ subUser.userName }}
-                  <a-tag color="blue" size="small">Sub-User</a-tag>
+                  <a-tag  size="small">Sub-User</a-tag>
                 </div>
                 <div class="user-meta">
                   <div>Created: {{ subUser.registerTime }}</div>
@@ -179,7 +179,7 @@ const getPermissionSummary = (permissions: any): string => {
 }
 
 .parent-user {
-  background: rgba(255, 140, 66, 0.1);
+  background: var(--theme-shadow-hover);
   margin-bottom: 12px;
 }
 

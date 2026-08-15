@@ -1,38 +1,52 @@
 .app-dark-theme {
   @extend .app-dark-base-color;
 
-  --vscode-bg-color: rgb(15, 15, 15);
-  --blue-background-color: rgb(15, 15, 15);
+  // --- CORE PALETTE ---
+  --core-bg-base: #000000;
+  --core-bg-surface: #141414;
+  --core-bg-surface-hover: #1f1f1f;
+  --core-border: #434343;
+  
+  --core-text-main: #ffffff;
+  --core-text-muted: #a6a6a6;
+  
+  --core-btn-primary: #ffffff;
+  --core-btn-primary-hover: #d9d9d9;
+  --core-btn-danger: #ffffff;
 
-  --background-color: rgb(15, 15, 15);
-  --background-color-white: rgb(25, 25, 25);
+  // --- SEMANTIC MAPPING ---
+  --vscode-bg-color: var(--core-bg-base);
+  --blue-background-color: var(--core-bg-base);
 
-  --drag-background-color: rgb(35, 35, 35);
-  --new-card-list-background-color: rgba(35, 35, 35, 0.3);
-  --new-card-list-background-color-menu: rgba(25, 25, 25, 0.95);
-  --float-box-bg-color: rgba(25, 25, 25, 0.9);
-  --gray-border-color: rgb(55, 55, 55);
+  --background-color: var(--core-bg-base);
+  --background-color-white: var(--core-bg-surface);
 
-  --login-panel-bg: rgba(25, 25, 25, 0.95);
+  --drag-background-color: var(--core-bg-surface-hover);
+  --new-card-list-background-color: var(--core-bg-surface-hover);
+  --new-card-list-background-color-menu: var(--core-bg-surface);
+  --float-box-bg-color: var(--core-bg-surface);
+  --gray-border-color: var(--core-border);
 
-  --app-header-bg: linear-gradient(135deg, rgba(18, 18, 18, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%);
-  --app-header-bg-extend: linear-gradient(135deg, rgba(18, 18, 18, 1) 0%, rgba(10, 10, 10, 1) 100%);
-  --app-header-text-color: rgb(240, 240, 240);
+  --login-panel-bg: var(--core-bg-surface);
+
+  --app-header-bg: var(--core-bg-base);
+  --app-header-bg-extend: var(--core-bg-base);
+  --app-header-text-color: var(--core-text-main);
 
   // Sidebar Variables
   --sidebar-width: 260px;
-  --sidebar-bg: linear-gradient(180deg, rgba(30, 30, 35, 0.98) 0%, rgba(15, 15, 18, 1) 100%);
-  --sidebar-text: rgb(240, 240, 240);
-  --sidebar-active-bg: rgba(255, 255, 255, 0.12);
-  --sidebar-hover-bg: rgba(255, 255, 255, 0.08);
+  --sidebar-bg: var(--core-bg-base);
+  --sidebar-text: var(--core-text-main);
+  --sidebar-active-bg: var(--core-border);
+  --sidebar-hover-bg: var(--core-bg-surface-hover);
 
-  --text-color: rgb(230, 230, 230);
+  --text-color: var(--core-text-main);
 
-  --card-border-color: rgba(55, 55, 55, 0.6);
-  --card-shadow-color: rgba(0, 0, 0, 0.5);
-  --card-shadow-extend-color: rgba(35, 35, 35, 0.4);
+  --card-border-color: var(--core-border);
+  --card-shadow-color: rgba(255, 255, 255, 0.1);
+  --card-shadow-extend-color: rgba(255, 255, 255, 0.2);
 
-  --card-bottom-background-color: rgba(15, 15, 15, 0.9);
+  --card-bottom-background-color: var(--core-bg-surface);
 
   .app-header-wrapper {
     border-bottom: 1px solid var(--color-gray-5);
@@ -40,41 +54,39 @@
 
   // Antdv for dark mode - Modern Black theme
   .ant-btn-default {
-    background-color: rgb(35, 35, 35);
-    border: 1px solid rgb(55, 55, 55);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    color: rgb(230, 230, 230);
+    background-color: var(--core-bg-base);
+    border: 1px solid var(--core-text-main);
+    color: var(--core-text-main);
     transition: all 0.3s ease;
   }
 
   .ant-btn-default:hover {
-    background-color: rgb(45, 45, 45);
-    border-color: rgb(75, 75, 75);
-    box-shadow: 0 4px 12px rgba(75, 75, 75, 0.4);
+    background-color: var(--core-bg-surface);
+    border-color: var(--core-btn-primary-hover);
+    color: var(--core-btn-primary-hover);
   }
 
   .ant-btn-primary {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    border: 1px solid #1e40af;
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.5);
-    color: rgb(240, 240, 240);
+    background: var(--core-btn-primary);
+    border: 1px solid var(--core-btn-primary);
+    color: var(--core-bg-base);
     font-weight: 600;
   }
 
   .ant-btn-primary:hover {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+    background: var(--core-btn-primary-hover);
+    border: 1px solid var(--core-btn-primary-hover);
+    color: var(--core-bg-base);
   }
 
   .ant-modal-content {
-    border: 1px solid rgb(55, 55, 55);
+    border: 1px solid var(--core-border);
     border-radius: 16px;
-    background-color: rgb(25, 25, 25);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+    background-color: var(--core-bg-base);
   }
 
   .ant-tag-purple {
-    border: 1px solid var(--color-purple-5) !important;
+    border: 1px solid var(--core-text-main) !important;
   }
 }
 
@@ -215,9 +227,9 @@
   --color-gray-2: #141414;
   --color-gray-1: #000000;
 
-  --color-primary: #3b82f6;
-  --color-danger: #ef4444;
-  --color-warning: #f59e0b;
-  --color-success: #10b981;
-  --color-info: #6b7280;
+  --color-primary: #ffffff;
+  --color-danger: #ffffff;
+  --color-warning: #ffffff;
+  --color-success: #ffffff;
+  --color-info: #ffffff;
 }

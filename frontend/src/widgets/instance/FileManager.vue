@@ -135,7 +135,7 @@ const columns = computed(() => {
       dataIndex: "time",
       key: "time",
       customRender: (e: { text: string }) => {
-        return dayjs(e.text).format("YYYY-MM-DD HH:mm:ss");
+        return dayjs(e.text).format("MMM DD YYYY").toUpperCase();
       },
       minWidth: 200,
       condition: () => !isPhone.value
@@ -541,10 +541,6 @@ onUnmounted(() => {
             </div>
             <div v-if="uploadData.current" class="flex-nowrap w-100">
               <a-progress
-                :stroke-color="{
-                  '0%': '#49b3ff',
-                  '100%': '#25f5b9'
-                }"
                 :percent="progress"
                 :show-info="false"
                 class="mb-20 no-animation"

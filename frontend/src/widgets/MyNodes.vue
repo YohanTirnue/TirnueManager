@@ -331,7 +331,7 @@ onMounted(() => {
                     class="stat-progress-bar"
                     :style="{
                       width: daemon.instanceLimit === -1 ? '0%' : `${usagePercentage(daemon)}%`,
-                      background: usagePercentage(daemon) >= 90 ? '#ff4d4f' : '#ff8c00'
+                      background: usagePercentage(daemon) >= 90 ? '#ff4d4f' : 'var(--theme-primary-color)'
                     }"
                   ></div>
                 </div>
@@ -566,7 +566,7 @@ onMounted(() => {
 
   .page-icon {
     font-size: 48px;
-    color: #ff8c00;
+    color: var(--theme-primary-color);
   }
 
   .page-title {
@@ -597,9 +597,9 @@ onMounted(() => {
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    border-color: #ff8c00;
-    color: #ff8c00;
-    background: rgba(255, 140, 0, 0.05);
+    border-color: var(--theme-primary-color);
+    color: var(--theme-primary-color);
+    background: var(--theme-shadow-hover);
   }
 
   &:disabled {
@@ -622,8 +622,8 @@ onMounted(() => {
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: #ff8c00;
-    box-shadow: 0 8px 24px rgba(255, 140, 0, 0.12);
+    border-color: var(--theme-primary-color);
+    box-shadow: 0 8px 24px var(--theme-shadow-hover);
     transform: translateY(-2px);
   }
 }
@@ -640,7 +640,7 @@ onMounted(() => {
 .node-icon {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, #ff8c00, #ff9d1f);
+  background: var(--theme-primary-gradient);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -714,7 +714,7 @@ onMounted(() => {
   }
 
   &.cpu {
-    background: linear-gradient(135deg, #ff8c00, #ff9d1f);
+    background: var(--theme-primary-gradient);
   }
 }
 
@@ -762,7 +762,7 @@ onMounted(() => {
 .btn-create-instance {
   flex: 1;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #ff8c00, #ff9d1f);
+  background: var(--theme-primary-gradient);
   color: white;
   border: none;
   border-radius: 10px;
@@ -777,7 +777,7 @@ onMounted(() => {
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(255, 140, 0, 0.4);
+    box-shadow: 0 6px 16px var(--theme-shadow-hover);
   }
 
   &:active:not(:disabled) {
@@ -888,13 +888,13 @@ onMounted(() => {
     }
 
     .btn-create {
-      background: #ff8c00;
+      background: var(--theme-primary-color);
       border: none;
       color: white;
 
       &:hover:not(:disabled) {
-        background: #ff9d1f;
-        box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+        background: var(--theme-primary-color);
+        box-shadow: 0 4px 12px var(--theme-shadow-hover);
       }
 
       &:disabled {
@@ -964,9 +964,9 @@ onMounted(() => {
     color: var(--color-text-2);
 
     &:hover {
-      border-color: #ff8c00;
-      color: #ff8c00;
-      background: rgba(255, 140, 0, 0.05);
+      border-color: var(--theme-primary-color);
+      color: var(--theme-primary-color);
+      background: var(--theme-shadow-hover);
     }
   }
 

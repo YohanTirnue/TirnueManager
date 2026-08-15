@@ -787,7 +787,7 @@ onUnmounted(() => {
   &.orb-1 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, #ff8c42, transparent);
+    background: radial-gradient(circle, var(--theme-primary-color), transparent);
     top: -10%;
     left: -10%;
   }
@@ -795,7 +795,7 @@ onUnmounted(() => {
   &.orb-2 {
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, #d4af37, transparent);
+    background: radial-gradient(circle, var(--theme-primary-color), transparent);
     bottom: -10%;
     right: -10%;
   }
@@ -803,7 +803,7 @@ onUnmounted(() => {
   &.orb-3 {
     width: 350px;
     height: 350px;
-    background: radial-gradient(circle, #ff6b35, transparent);
+    background: radial-gradient(circle, var(--theme-primary-color), transparent);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -820,16 +820,16 @@ onUnmounted(() => {
   min-height: 90vh;
   max-height: 850px;
   background: rgba(20, 20, 20, 0.95);
-  backdrop-filter: blur(20px);
+  backdrop-filter: none; /* Optimized */
   border-radius: 24px;
-  border: 1px solid rgba(255, 140, 66, 0.3);
+  border: 1px solid var(--theme-shadow-hover);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   overflow: hidden;
   margin: 20px 0;
 }
 
 .brand-section {
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.08) 0%, rgba(212, 175, 55, 0.08) 100%);
+  background: var(--theme-primary-gradient);
   padding: 60px;
   display: flex;
   align-items: center;
@@ -848,14 +848,14 @@ onUnmounted(() => {
 .brand-logo {
   width: 100px;
   height: 100px;
-  filter: drop-shadow(0 10px 25px rgba(255, 140, 66, 0.3));
+  filter: drop-shadow(0 10px 25px var(--theme-shadow-hover));
 }
 
 .brand-title {
   font-size: 48px;
   font-weight: 800;
-  color: #ff8c42;
-  background: linear-gradient(135deg, #ff8c42, #d4af37);
+  color: var(--theme-primary-color);
+  background: var(--theme-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -882,7 +882,7 @@ onUnmounted(() => {
   font-size: 14px;
 
   .feature-icon {
-    color: #ff8c42;
+    color: var(--theme-primary-color);
     font-size: 18px;
   }
 }
@@ -893,7 +893,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-left: 1px solid rgba(255, 140, 66, 0.2);
+  border-left: 1px solid var(--theme-shadow-hover);
   overflow-y: auto;
 }
 
@@ -912,7 +912,7 @@ onUnmounted(() => {
   transition: color 0.3s;
 
   &:hover {
-    color: #ff8c42;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -923,8 +923,8 @@ onUnmounted(() => {
   h2 {
     font-size: 32px;
     font-weight: 800;
-    color: #ff8c42;
-    background: linear-gradient(135deg, #ff8c42, #d4af37);
+    color: var(--theme-primary-color);
+    background: var(--theme-primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -968,7 +968,7 @@ onUnmounted(() => {
   :deep(.ant-input-affix-wrapper) {
     font-size: 14px !important;
     padding: 10px 14px !important;
-    border: 2px solid rgba(255, 140, 66, 0.25) !important;
+    border: 2px solid var(--theme-shadow-hover) !important;
     border-radius: 10px !important;
     background: rgba(10, 10, 10, 0.7) !important;
     color: white !important;
@@ -979,13 +979,13 @@ onUnmounted(() => {
     }
 
     &:hover {
-      border-color: rgba(255, 140, 66, 0.5) !important;
+      border-color: var(--theme-shadow-hover) !important;
     }
 
     &:focus,
     &:focus-within {
-      border-color: #ff8c42 !important;
-      box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15) !important;
+      border-color: var(--theme-primary-color) !important;
+      box-shadow: 0 0 0 3px var(--theme-shadow-hover) !important;
     }
   }
 }
@@ -995,7 +995,7 @@ onUnmounted(() => {
     font-size: 14px !important;
     padding: 6px 14px !important;
     height: 44px !important;
-    border: 2px solid rgba(255, 140, 66, 0.25) !important;
+    border: 2px solid var(--theme-shadow-hover) !important;
     border-radius: 10px !important;
     background: rgba(10, 10, 10, 0.7) !important;
     color: white !important;
@@ -1011,21 +1011,21 @@ onUnmounted(() => {
   }
 
   &:hover :deep(.ant-select-selector) {
-    border-color: rgba(255, 140, 66, 0.5) !important;
+    border-color: var(--theme-shadow-hover) !important;
   }
 
   &.ant-select-focused :deep(.ant-select-selector) {
-    border-color: #ff8c42 !important;
-    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15) !important;
+    border-color: var(--theme-primary-color) !important;
+    box-shadow: 0 0 0 3px var(--theme-shadow-hover) !important;
   }
 
   :deep(.ant-select-arrow) {
-    color: rgba(255, 140, 66, 0.8) !important;
+    color: var(--theme-shadow-hover) !important;
   }
 }
 
 .input-icon {
-  color: rgba(255, 140, 66, 0.8);
+  color: var(--theme-shadow-hover);
   font-size: 16px;
 }
 
@@ -1064,7 +1064,7 @@ onUnmounted(() => {
 }
 
 .info-text {
-  color: rgba(255, 140, 66, 0.8);
+  color: var(--theme-shadow-hover);
   font-size: 12px;
   margin-top: 4px;
 }
@@ -1079,14 +1079,14 @@ onUnmounted(() => {
   font-size: 15px;
   font-weight: 600;
   border-radius: 10px;
-  background: linear-gradient(135deg, #ff8c42, #ff6b35);
+  background: var(--theme-primary-gradient);
   border: none;
-  box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+  box-shadow: 0 4px 16px var(--theme-shadow-hover);
   margin-top: 8px;
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(255, 140, 66, 0.4);
+    box-shadow: 0 6px 24px var(--theme-shadow-hover);
   }
 
   &:disabled {
@@ -1119,20 +1119,20 @@ onUnmounted(() => {
   letter-spacing: 12px;
   text-align: center;
   background: rgba(10, 10, 10, 0.7);
-  border: 2px solid rgba(255, 140, 66, 0.3);
+  border: 2px solid var(--theme-shadow-hover);
   border-radius: 12px;
-  color: #ff8c42;
+  color: var(--theme-primary-color);
   font-family: monospace;
 
   &::placeholder {
-    color: rgba(255, 140, 66, 0.2);
+    color: var(--theme-shadow-hover);
     letter-spacing: 12px;
   }
 
   &:focus {
     outline: none;
-    border-color: #ff8c42;
-    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15);
+    border-color: var(--theme-primary-color);
+    box-shadow: 0 0 0 3px var(--theme-shadow-hover);
   }
 }
 
@@ -1143,7 +1143,7 @@ onUnmounted(() => {
 }
 
 .resend-link {
-  color: #ff8c42;
+  color: var(--theme-primary-color);
   cursor: pointer;
 
   &:hover {
@@ -1159,7 +1159,7 @@ onUnmounted(() => {
   cursor: pointer;
 
   &:hover {
-    color: #ff8c42;
+    color: var(--theme-primary-color);
   }
 }
 
@@ -1171,7 +1171,7 @@ onUnmounted(() => {
   h2 {
     font-size: 28px;
     font-weight: 800;
-    background: linear-gradient(135deg, #ff8c42, #d4af37);
+    background: var(--theme-primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1257,17 +1257,17 @@ onUnmounted(() => {
 
   .gradient-orb {
     &.orb-1 {
-      background: radial-gradient(circle, #ff8c42, transparent);
+      background: radial-gradient(circle, var(--theme-primary-color), transparent);
       opacity: 0.15;
     }
 
     &.orb-2 {
-      background: radial-gradient(circle, #d4af37, transparent);
+      background: radial-gradient(circle, var(--theme-primary-color), transparent);
       opacity: 0.15;
     }
 
     &.orb-3 {
-      background: radial-gradient(circle, #ff6b35, transparent);
+      background: radial-gradient(circle, var(--theme-primary-color), transparent);
       opacity: 0.15;
     }
   }
@@ -1279,7 +1279,7 @@ onUnmounted(() => {
   }
 
   .brand-section {
-    background: linear-gradient(135deg, rgba(255, 140, 66, 0.08) 0%, rgba(212, 175, 55, 0.08) 100%);
+    background: var(--theme-primary-gradient);
   }
 
   .brand-title {
@@ -1311,13 +1311,13 @@ onUnmounted(() => {
       border: 2px solid #333;
 
       &.active {
-        background: rgba(255, 140, 0, 0.1);
-        border-color: #ff8c00;
+        background: var(--theme-shadow-hover);
+        border-color: var(--theme-primary-color);
       }
 
       &.completed {
-        background: rgba(255, 140, 0, 0.15);
-        border-color: #ff8c00;
+        background: var(--theme-shadow-hover);
+        border-color: var(--theme-primary-color);
       }
     }
 
@@ -1327,7 +1327,7 @@ onUnmounted(() => {
 
     .step.active .step-number,
     .step.completed .step-number {
-      color: #ff8c00;
+      color: var(--theme-primary-color);
     }
 
     .step-label {
@@ -1361,23 +1361,23 @@ onUnmounted(() => {
       }
 
       &:focus, &:focus-within {
-        border-color: #ff8c00 !important;
+        border-color: var(--theme-primary-color) !important;
         background: white !important;
-        box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.15) !important;
+        box-shadow: 0 0 0 3px var(--theme-shadow-hover) !important;
       }
     }
   }
 
   .password-strength {
-    background: rgba(255, 140, 0, 0.1);
-    border: 1px solid rgba(255, 140, 0, 0.2);
+    background: var(--theme-shadow-hover);
+    border: 1px solid var(--theme-shadow-hover);
   }
 
   .password-requirement {
     color: #666;
 
     &.met {
-      color: #ff8c00;
+      color: var(--theme-primary-color);
     }
   }
 
@@ -1388,25 +1388,25 @@ onUnmounted(() => {
       background: white;
 
       &:hover {
-        border-color: #ff8c00;
-        color: #ff8c00;
+        border-color: var(--theme-primary-color);
+        color: var(--theme-primary-color);
       }
     }
 
     .ant-btn-primary {
-      background: linear-gradient(135deg, #ff8c00, #ff6b35);
+      background: var(--theme-primary-gradient);
       border: none;
       color: white;
 
       &:hover {
-        background: linear-gradient(135deg, #ffa500, #ff8c00);
+        background: var(--theme-primary-gradient);
       }
     }
   }
 
   .success-icon,
   .check-icon {
-    color: #ff8c00;
+    color: var(--theme-primary-color);
   }
 
   .success-screen,
