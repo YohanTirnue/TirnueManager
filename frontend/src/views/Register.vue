@@ -450,9 +450,8 @@ onUnmounted(() => {
       <div class="brand-section">
         <div class="brand-content">
           <div class="brand-logo-container">
-            <img src="/favicon.png" alt="Tirnue Logo" class="brand-logo" />
+            <img src="/favicon.png" alt="Tirnue Logo" class="brand-logo-wide" />
           </div>
-          <h1 class="brand-title">Tirnue</h1>
           <p class="brand-subtitle">Cheap hosting with complete team transparency</p>
 
           <div class="features-list">
@@ -845,9 +844,11 @@ onUnmounted(() => {
   margin-bottom: 24px;
 }
 
-.brand-logo {
-  width: 100px;
-  height: 100px;
+.brand-logo-wide {
+  height: 60px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
   filter: drop-shadow(0 10px 25px var(--theme-shadow-hover));
 }
 

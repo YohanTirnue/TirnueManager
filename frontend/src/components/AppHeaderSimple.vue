@@ -117,7 +117,7 @@ const toggleTheme = () => {
     text-overflow: ellipsis;
 
     &:last-child {
-      color: var(--color-orange-6);
+      color: var(--text-color);
       font-weight: 700;
       font-size: 20px;
     }
@@ -151,9 +151,9 @@ const toggleTheme = () => {
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--color-orange-1);
-    border-color: var(--color-orange-4);
-    color: var(--color-orange-7);
+    background: var(--text-color);
+    border-color: var(--text-color);
+    color: var(--background-color-white);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px var(--card-shadow-color);
   }

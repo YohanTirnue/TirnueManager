@@ -25,7 +25,10 @@ import {
   updateSubUserPermissions,
   updateOwnerPermissions,
   deleteSubUser,
-  getParentUsers
+  getParentUsers,
+  userInfoApiAdvanced,
+  getUserInfo,
+  updateUserInstance
 } from "@/services/apis";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import axios from "axios";
@@ -101,6 +104,72 @@ const isAdmin = computed(() => {
   const userInfo = appStateStore.state.userInfo;
   return userInfo && userInfo.permission >= 5; // Moderator or higher
 });
+
+// Add owner state
+const addOwnerDialogVisible = ref(false);
+const addOwnerFormRef = ref<FormInstance>();
+const allUsers = ref<Array<{ uuid: string; userName: string }>>([]);
+const addOwnerFormData = ref({ userUuid: "" });
+const isSearchingUsers = ref(false);
+
+const handleSearchUsers = _.debounce(async (value: string) => {
+  if (!value) {
+    allUsers.value = [];
+    return;
+  }
+  isSearchingUsers.value = true;
+  try {
+    const res = await getUserInfo().execute({
+      params: { userName: value, page: 1, page_size: 20, role: "" }
+    });
+    allUsers.value = res.value?.data.map((u: any) => ({
+      uuid: u.uuid,
+      userName: u.userName
+    })) || [];
+  } catch (error: any) {
+    console.error(error);
+  } finally {
+    isSearchingUsers.value = false;
+  }
+}, 500);
+
+const handleAddOwnerSubmit = async () => {
+  try {
+    await addOwnerFormRef.value?.validate();
+    loading.value = true;
+    
+    const userInfoRes = await userInfoApiAdvanced().execute({ params: { uuid: addOwnerFormData.value.userUuid, advanced: true }, forceRequest: true });
+    const userInstances = userInfoRes.value?.instances || [];
+    
+    if (userInstances.some((inst: any) => inst.instanceUuid === props.instanceUuid && inst.daemonId === props.daemonId)) {
+      message.warning("User is already an owner of this instance.");
+      loading.value = false;
+      return;
+    }
+
+    userInstances.push({
+      instanceUuid: props.instanceUuid,
+      daemonId: props.daemonId
+    });
+
+    await updateUserInstance().execute({
+      data: {
+        uuid: addOwnerFormData.value.userUuid,
+        config: { instances: userInstances }
+      }
+    });
+    
+    message.success("Owner assigned successfully");
+    addOwnerDialogVisible.value = false;
+    await fetchParentUsers();
+    await fetchSubUsers();
+    emit("refresh");
+  } catch (error: any) {
+    reportErrorMsg(error.message);
+  } finally {
+    loading.value = false;
+  }
+};
 
 // Current user's permissions for this instance (non-admin owners)
 const currentUserPermissions = ref<UserPermissions | null>(null);
@@ -186,6 +255,8 @@ const editFormData = ref({
 
 const canAddMore = computed(() => {
   if (isAdmin.value) {
+    // If there is no owner, we can't add sub-users, but the limit banner shouldn't say "reached maximum capacity"
+    // The banner is hidden below if there is no owner
     return availableParents.value.length > 0;
   }
   return subUsers.value.length < MAX_SUB_USERS.value;
@@ -467,29 +538,61 @@ const handleUpdatePermissions = async () => {
 };
 
 const handleDeleteSubUser = (subUser: SubUser) => {
-  Modal.confirm({
-    title: "Remove Sub-User",
-    content: `Are you sure you want to remove "${subUser.userName}"?`,
-    okText: "Remove",
-    cancelText: "Cancel",
-    okType: "danger",
-    async onOk() {
-      try {
-        await deleteSubUser().execute({
-          params: {
-            subUserUuid: subUser.uuid,
-            daemonId: props.daemonId,
-            instanceUuid: props.instanceUuid
-          }
-        });
-        message.success("Sub-user removed");
-        fetchSubUsers();
-        emit("refresh");
-      } catch (error: any) {
-        reportErrorMsg(error.message);
+  if (subUser.isOwner) {
+    Modal.confirm({
+      title: "Remove Owner",
+      content: `Are you sure you want to completely remove ownership from "${subUser.userName}"? They will lose all access to this instance.`,
+      okText: "Remove Owner",
+      cancelText: "Cancel",
+      okType: "danger",
+      async onOk() {
+        try {
+          const userInfoRes = await userInfoApiAdvanced().execute({ params: { uuid: subUser.uuid, advanced: true }, forceRequest: true });
+          const userInstances = userInfoRes.value?.instances || [];
+          const updatedInstances = userInstances.filter(
+            (inst: any) => !(inst.instanceUuid === props.instanceUuid && inst.daemonId === props.daemonId)
+          );
+          
+          await updateUserInstance().execute({
+            data: {
+              uuid: subUser.uuid,
+              config: { instances: updatedInstances }
+            }
+          });
+          message.success("Owner removed");
+          await fetchParentUsers();
+          await fetchSubUsers();
+          emit("refresh");
+        } catch (error: any) {
+          reportErrorMsg(error.message);
+        }
       }
-    }
-  });
+    });
+  } else {
+    Modal.confirm({
+      title: "Remove Sub-User",
+      content: `Are you sure you want to remove "${subUser.userName}"?`,
+      okText: "Remove",
+      cancelText: "Cancel",
+      okType: "danger",
+      async onOk() {
+        try {
+          await deleteSubUser().execute({
+            params: {
+              subUserUuid: subUser.uuid,
+              daemonId: props.daemonId,
+              instanceUuid: props.instanceUuid
+            }
+          });
+          message.success("Sub-user removed");
+          fetchSubUsers();
+          emit("refresh");
+        } catch (error: any) {
+          reportErrorMsg(error.message);
+        }
+      }
+    });
+  }
 };
 
 const handleCancelInvitation = async (invitationId: string) => {
@@ -537,7 +640,16 @@ const formatExpiry = (expiresAt: number) => {
 
     <div class="sub-user-manager">
       <!-- Warning Alerts -->
-      <div v-if="!canAddMore" class="alert-banner">
+      <div v-if="isAdmin && parentUsers.length === 0" class="alert-banner" style="background: rgba(22,119,255,0.1); border-color: rgba(22,119,255,0.3)">
+        <div class="alert-icon" style="color: #1677ff">
+          <ExclamationCircleOutlined />
+        </div>
+        <div class="alert-content">
+          <strong>No Owner Assigned</strong>
+          <span>This instance currently has no owner. Please assign an owner first.</span>
+        </div>
+      </div>
+      <div v-else-if="!canAddMore" class="alert-banner">
         <div class="alert-icon">
           <ExclamationCircleOutlined />
         </div>
@@ -550,14 +662,27 @@ const formatExpiry = (expiresAt: number) => {
 
       <!-- Action Bar -->
       <div class="action-bar">
-        <button
-          class="add-user-btn"
-          :disabled="!canAddMore"
-          @click="handleInviteSubUser"
-        >
-          <MailOutlined />
-          <span>Invite Sub-User</span>
-        </button>
+        <div class="action-buttons-group" style="display: flex; gap: 12px;">
+          <button
+            class="add-user-btn"
+            :disabled="!canAddMore"
+            @click="handleInviteSubUser"
+          >
+            <MailOutlined />
+            <span>Invite Sub-User</span>
+          </button>
+          
+          <!-- Only show Add Owner if admin and no owner exists -->
+          <button
+            v-if="isAdmin && parentUsers.length === 0"
+            class="add-user-btn add-owner-btn"
+            @click="addOwnerDialogVisible = true"
+            style="background: var(--theme-primary-gradient);"
+          >
+            <UserOutlined />
+            <span>Assign Owner</span>
+          </button>
+        </div>
 
         <!-- Slot indicator for regular users -->
         <div v-if="!isAdmin" class="slot-indicator">
@@ -647,8 +772,7 @@ const formatExpiry = (expiresAt: number) => {
                 <EditOutlined />
                 <span>Permissions</span>
               </button>
-              <!-- Only allow deleting sub-users, not owners -->
-              <button v-if="!item.isOwner" class="action-btn delete" @click="handleDeleteSubUser(item)">
+              <button v-if="!item.isOwner || isAdmin" class="action-btn delete" @click="handleDeleteSubUser(item)">
                 <DeleteOutlined />
                 <span>Remove</span>
               </button>
@@ -978,6 +1102,75 @@ const formatExpiry = (expiresAt: number) => {
       </div>
     </a-modal>
   </a-modal>
+
+    <!-- Add Owner Dialog -->
+    <a-modal
+      v-model:open="addOwnerDialogVisible"
+      :width="500"
+      :footer="null"
+      class="invite-modal"
+      @cancel="addOwnerDialogVisible = false"
+    >
+      <template #title>
+        <div class="modal-header">
+          <div class="header-icon create">
+            <UserOutlined />
+          </div>
+          <div class="header-content">
+            <h3>Assign Instance Owner</h3>
+            <span class="header-subtitle">
+              Select a user to grant full ownership
+            </span>
+          </div>
+        </div>
+      </template>
+
+      <div>
+        <a-form
+          ref="addOwnerFormRef"
+          :model="addOwnerFormData"
+          layout="vertical"
+          class="modern-form"
+        >
+          <div class="form-section">
+            <div class="section-header">
+              <UserOutlined />
+              <span>Select User</span>
+            </div>
+            <a-form-item 
+              name="userUuid" 
+              label="Search User" 
+              :rules="[{ required: true, message: 'Please select a user' }]"
+            >
+              <a-select
+                v-model:value="addOwnerFormData.userUuid"
+                show-search
+                placeholder="Type to search users..."
+                :default-active-first-option="false"
+                :show-arrow="false"
+                :filter-option="false"
+                :not-found-content="isSearchingUsers ? undefined : 'No users found'"
+                :options="allUsers.map(u => ({ value: u.uuid, label: u.userName }))"
+                @search="handleSearchUsers"
+                size="large"
+              >
+                <template v-if="isSearchingUsers" #notFoundContent>
+                  <a-spin size="small" />
+                </template>
+              </a-select>
+            </a-form-item>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="cancel-form-btn" @click="addOwnerDialogVisible = false">Cancel</button>
+            <button type="button" class="submit-form-btn" :disabled="loading" @click="handleAddOwnerSubmit">
+              <span v-if="loading" class="spinner-small"></span>
+              <span v-else>Assign Owner</span>
+            </button>
+          </div>
+        </a-form>
+      </div>
+    </a-modal>
 </template>
 
 <style scoped>
@@ -1590,3 +1783,5 @@ const formatExpiry = (expiresAt: number) => {
   }
 }
 </style>
+
+

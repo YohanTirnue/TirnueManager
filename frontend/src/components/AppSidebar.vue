@@ -153,10 +153,7 @@ async function handleLogout() {
   <div class="app-sidebar" :class="{ collapsed: sidebarCollapsed, 'mobile-open': mobileMenuOpen }" @click="toggleSidebar" style="cursor: pointer;">
     <!-- Logo Section -->
     <div class="sidebar-logo">
-      <div class="logo-icon">
-        <img src="/favicon.png" alt="Logo" class="logo-image" />
-      </div>
-      <span v-if="!sidebarCollapsed" class="logo-text">Tirnue</span>
+      <img src="/favicon.png" alt="Logo" class="logo-image-wide" />
     </div>
 
     <!-- User Profile (Clickable for logout) -->
@@ -251,20 +248,15 @@ async function handleLogout() {
 .sidebar-logo {
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 24px 20px;
-  gap: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-  .logo-image {
-    width: 40px;
+  .logo-image-wide {
     height: 40px;
-    border-radius: 10px;
-  }
-
-  .logo-text {
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
   }
 }
 
@@ -394,12 +386,13 @@ async function handleLogout() {
 }
 
 .logout-modal {
-  background: white;
+  background: #111111;
+  border: 1px solid #333;
   border-radius: 20px;
   padding: 40px;
   max-width: 450px;
   width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
   animation: scaleIn 0.3s ease;
   text-align: center;
 }
@@ -420,25 +413,25 @@ async function handleLogout() {
   height: 80px;
   margin: 0 auto 24px;
   border-radius: 50%;
-  background: var(--theme-primary-gradient);
-  border: 3px solid var(--theme-primary-color);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid #333;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 40px;
-  color: var(--theme-primary-color);
+  color: #ffffff;
 }
 
 .modal-title {
   font-size: 28px;
   font-weight: 700;
-  color: #1e1e2e;
+  color: #ffffff;
   margin: 0 0 12px 0;
 }
 
 .modal-message {
   font-size: 16px;
-  color: #666;
+  color: #888;
   margin: 0 0 32px 0;
   line-height: 1.6;
 }
@@ -469,24 +462,27 @@ async function handleLogout() {
 }
 
 .cancel-btn {
-  background: #f5f5f5;
-  color: #666;
+  background: #1a1a1a;
+  color: #999;
+  border: 1px solid #333;
 
   &:hover {
-    background: #e8e8e8;
+    background: #222;
+    color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 }
 
 .logout-btn {
-  background: var(--theme-primary-gradient);
-  color: white;
-  box-shadow: 0 4px 16px var(--theme-shadow-hover);
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 
   &:hover {
+    background: #e0e0e0;
     transform: translateY(-2px);
-    box-shadow: 0 6px 24px var(--theme-shadow-hover);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
   }
 }
 

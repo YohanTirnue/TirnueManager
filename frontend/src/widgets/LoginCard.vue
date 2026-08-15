@@ -11,10 +11,7 @@ import {
   CheckCircleOutlined,
   LoadingOutlined,
   LockOutlined,
-  UserOutlined,
-  RocketOutlined,
-  ThunderboltOutlined,
-  CloudServerOutlined
+  UserOutlined
 } from "@ant-design/icons-vue";
 import { onMounted, reactive, ref } from "vue";
 
@@ -39,11 +36,6 @@ const { updateUserInfo, isAdmin, state: appConfig } = useAppStateStore();
 
 const loginStep = ref(0);
 const is2Fa = ref(false);
-
-// Animation states
-const showLogo = ref(false);
-const showBrandName = ref(false);
-const showLoginForm = ref(false);
 
 const handleLogin = async () => {
   if (!formData.username.trim() || !formData.password.trim()) {
@@ -87,19 +79,13 @@ const handleNext = async () => {
 
 const loginSuccess = () => {
   loginStep.value++;
-
-  // Check for redirect parameter (e.g., from invitation links)
   const redirectUrl = route.query.redirect as string;
   if (redirectUrl) {
     router.push(redirectUrl);
     return;
   }
-
-  // Default redirects based on role
   if (isAdmin.value) {
-    router.push({
-      path: "/"
-    });
+    router.push({ path: "/" });
   } else {
     router.push({ path: "/customer" });
   }
@@ -112,224 +98,128 @@ const openBuyInstanceDialog = async () => {
 onMounted(async () => {
   await execute();
   if (!appConfig.isInstall) router.push({ path: "/install" });
-
-  // Listen for loading animation completion
-  window.addEventListener("login-animation-start", startLoginAnimation);
-
-  // If already loaded, start animation immediately
-  if ((window as any).loginAnimationReady) {
-    startLoginAnimation();
-  }
 });
 
-const startLoginAnimation = () => {
-  // Step 1: Show logo (sync with loading logo fade out at 700ms)
-  setTimeout(() => {
-    showLogo.value = true;
-  }, 600);
-
-  // Step 2: Show brand name and features
-  setTimeout(() => {
-    showBrandName.value = true;
-  }, 900);
-
-  // Step 3: Fade in login form
-  setTimeout(() => {
-    showLoginForm.value = true;
-  }, 1200);
-};
-
-// Turnstile callback
 const onTurnstileCallback = (token: string) => {
   turnstileToken.value = token;
 };
 
-// Expose callback to window for Turnstile
 (window as any).onTurnstileCallback = onTurnstileCallback;
 </script>
 
 <template>
-  <div class="modern-login-page">
-    <!-- Animated Background -->
-    <div class="background-gradient">
-      <div class="gradient-orb orb-1"></div>
-      <div class="gradient-orb orb-2"></div>
-      <div class="gradient-orb orb-3"></div>
-    </div>
+  <div class="login-page">
+    <div class="login-card">
+      <!-- Full Card Background GIF -->
+      <img src="/logoGif.gif" alt="Background" class="login-bg-gif" />
 
-    <!-- Main Container -->
-    <div class="login-container">
-      <!-- Left Side - Branding -->
-      <div class="brand-section">
-        <div class="brand-content">
-          <!-- Animated Logo from Loading Screen -->
-          <div class="brand-logo-container" :class="{ show: showLogo }">
-            <img src="/favicon.png" alt="Tirnue Logo" class="brand-logo" />
-          </div>
-
-          <!-- Animated Brand Name -->
-          <div class="brand-name-container" :class="{ show: showBrandName }">
-            <h1 class="brand-title">Tirnue</h1>
-            <p class="brand-subtitle">
-              An under development panel server
-            </p>
-          </div>
-
-          <!-- Keep original welcome (hidden initially) -->
-          <h1 v-show="false" class="brand-title">
-            Welcome to <span class="highlight">Tirnue</span>
-          </h1>
-          <p v-show="false" class="brand-subtitle">
-            An under development panel server
-          </p>
-
-          <div class="features-list" :class="{ show: showBrandName }">
-            <div class="feature-item">
-              <ThunderboltOutlined class="feature-icon" />
-              <div class="feature-text">
-                <h3>Quick Setup</h3>
-                <p>Get your server running fast</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <CloudServerOutlined class="feature-icon" />
-              <div class="feature-text">
-                <h3>Panel Access</h3>
-                <p>Manage your instances through our panel</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <RocketOutlined class="feature-icon" />
-              <div class="feature-text">
-                <h3>Simple & Powerful</h3>
-                <p>Everything you need, nothing you don't</p>
-              </div>
-            </div>
-          </div>
-
-          <div v-show="showBrandName" class="brand-footer">
-            <div class="version-badge">v2.0.1</div>
-          </div>
-        </div>
+      <!-- Left Side (Empty, lets the GIF show through) -->
+      <div class="login-left">
       </div>
 
-      <!-- Right Side - Login Form -->
-      <div class="form-section">
-        <div class="form-container" :class="{ 'form-visible': showLoginForm }">
-          <!-- Login Step 0: Form -->
-          <div v-show="loginStep === 0 && showLoginForm" class="form-content">
-            <div class="form-header">
-              <h2>Sign In</h2>
-              <p>Enter your credentials to access the panel</p>
+      <!-- Right Side (Form) -->
+      <div class="login-right">
+        <h1 class="login-title">Sign in</h1>
+        <p class="login-desc">Access your panel</p>
+
+        <!-- Login Form -->
+        <div v-show="loginStep === 0" class="login-form">
+          <div v-if="!is2Fa" class="form-fields">
+            <div class="field">
+              <a-input
+                v-model:value="formData.username"
+                size="large"
+                name="mcsm-name-input"
+                placeholder="Username"
+                class="dark-input"
+              >
+                <template #prefix>
+                  <UserOutlined class="field-icon" />
+                </template>
+              </a-input>
             </div>
-
-            <form @submit.prevent="handleLogin" class="login-form">
-              <div v-if="!is2Fa" class="form-inputs">
-                <div class="input-group">
-                  <label>Username</label>
-                  <a-input
-                    v-model:value="formData.username"
-                    size="large"
-                    name="mcsm-name-input"
-                    placeholder="Enter your username"
-                    class="modern-input"
-                  >
-                    <template #prefix>
-                      <UserOutlined class="input-icon" />
-                    </template>
-                  </a-input>
-                </div>
-
-                <div class="input-group">
-                  <label>Password</label>
-                  <a-input-password
-                    v-model:value="formData.password"
-                    size="large"
-                    name="mcsm-pw-input"
-                    placeholder="Enter your password"
-                    class="modern-input"
-                    @press-enter="handleLogin"
-                  >
-                    <template #prefix>
-                      <LockOutlined class="input-icon" />
-                    </template>
-                  </a-input-password>
-                </div>
-              </div>
-
-              <div v-else class="form-inputs">
-                <div class="input-group">
-                  <label>Two-Factor Authentication Code</label>
-                  <a-input
-                    v-model:value="formData.code"
-                    size="large"
-                    type="text"
-                    placeholder="Enter 6-digit code"
-                    autocomplete="off"
-                    name="mcsm-pw-2fa"
-                    class="modern-input"
-                    @press-enter="handleLogin"
-                  >
-                    <template #prefix>
-                      <LockOutlined class="input-icon" />
-                    </template>
-                  </a-input>
-                </div>
-              </div>
-
-              <!-- Cloudflare Turnstile Widget -->
-              <div class="turnstile-container">
-                <div
-                  class="cf-turnstile"
-                  data-sitekey="0x4AAAAAACCDkhLA6W9H8wEW"
-                  data-callback="onTurnstileCallback"
-                  data-theme="dark"
-                ></div>
-              </div>
-
-              <div class="form-actions">
-                <a-button
-                  type="primary"
-                  size="large"
-                  block
-                  class="login-button"
-                  @click="handleLogin"
-                >
-                  Sign In
-                </a-button>
-
-                <a-button
-                  v-if="appConfig.settings.businessMode"
-                  size="large"
-                  block
-                  class="secondary-button"
-                  @click="openBuyInstanceDialog"
-                >
-                  {{ t("TXT_CODE_5a408a5e") }}
-                </a-button>
-              </div>
-
-              <div class="auth-links">
-                <router-link to="/forgot-password" class="auth-link">Forgot password?</router-link>
-                <span class="auth-divider">|</span>
-                <router-link to="/register" class="auth-link">Create account</router-link>
-              </div>
-            </form>
+            <div class="field">
+              <a-input-password
+                v-model:value="formData.password"
+                size="large"
+                name="mcsm-pw-input"
+                placeholder="Password"
+                class="dark-input"
+                @press-enter="handleLogin"
+              >
+                <template #prefix>
+                  <LockOutlined class="field-icon" />
+                </template>
+              </a-input-password>
+            </div>
           </div>
 
-          <!-- Login Step 1: Loading -->
-          <div v-show="loginStep === 1" class="status-screen" :class="{ show: loginStep === 1 }">
-            <LoadingOutlined class="status-icon loading-icon" />
-            <h3>Authenticating...</h3>
-            <p>Please wait while we verify your credentials</p>
+          <div v-else class="form-fields">
+            <div class="field">
+              <a-input
+                v-model:value="formData.code"
+                size="large"
+                type="text"
+                placeholder="2FA Code"
+                autocomplete="off"
+                name="mcsm-pw-2fa"
+                class="dark-input"
+                @press-enter="handleLogin"
+              >
+                <template #prefix>
+                  <LockOutlined class="field-icon" />
+                </template>
+              </a-input>
+            </div>
           </div>
 
-          <!-- Login Step 2+: Success -->
-          <div v-show="loginStep >= 2" class="status-screen" :class="{ show: loginStep >= 2 }">
-            <CheckCircleOutlined class="status-icon success-icon" />
-            <h3>Login Successful!</h3>
-            <p>Redirecting to dashboard...</p>
+          <!-- Turnstile -->
+          <div class="turnstile-box">
+            <div
+              class="cf-turnstile"
+              data-sitekey="0x4AAAAAACCDkhLA6W9H8wEW"
+              data-callback="onTurnstileCallback"
+              data-theme="dark"
+            ></div>
           </div>
+
+          <a-button
+            type="primary"
+            size="large"
+            block
+            class="sign-in-btn"
+            @click="handleLogin"
+          >
+            Sign In
+          </a-button>
+
+          <a-button
+            v-if="appConfig.settings.businessMode"
+            size="large"
+            block
+            class="secondary-btn"
+            @click="openBuyInstanceDialog"
+          >
+            {{ t("TXT_CODE_5a408a5e") }}
+          </a-button>
+
+          <div class="auth-links">
+            <router-link to="/forgot-password">Forgot password?</router-link>
+            <span class="sep">|</span>
+            <router-link to="/register">Create account</router-link>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div v-show="loginStep === 1" class="status-view">
+          <LoadingOutlined class="status-icon spin" />
+          <h3>Authenticating...</h3>
+        </div>
+
+        <!-- Success -->
+        <div v-show="loginStep >= 2" class="status-view">
+          <CheckCircleOutlined class="status-icon success" />
+          <h3>Login Successful!</h3>
         </div>
       </div>
     </div>
@@ -337,341 +227,121 @@ const onTurnstileCallback = (token: string) => {
 </template>
 
 <style lang="scss" scoped>
-.modern-login-page {
+.login-page {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #0a0a0a;
 }
 
-// Animated Background - Simplified and optimized
-.background-gradient {
-  position: absolute;
-  inset: 0;
+.login-card {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  border-radius: 0;
   overflow: hidden;
+  display: flex;
+  box-shadow: none;
+  border: none;
+}
+
+/* GIF Background covers the entire screen */
+.login-bg-gif {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   z-index: 0;
 }
 
-.gradient-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.25;
-  will-change: opacity;
-  transition: opacity 2s ease;
-
-  &.orb-1 {
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, var(--theme-primary-color), transparent);
-    top: -10%;
-    left: -10%;
-  }
-
-  &.orb-2 {
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, var(--theme-primary-color), transparent);
-    bottom: -10%;
-    right: -10%;
-  }
-
-  &.orb-3 {
-    width: 350px;
-    height: 350px;
-    background: radial-gradient(circle, var(--theme-primary-color), transparent);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-}
-
-// Main Container
-.login-container {
+.login-left {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  width: 90%;
-  max-width: 1400px;
-  height: 90vh;
-  max-height: 800px;
-  background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: none; /* Optimized */
-  border-radius: 24px;
-  border: 1px solid var(--theme-shadow-hover);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-  overflow: hidden;
-}
-
-// Brand Section (Left)
-.brand-section {
-  background: var(--theme-primary-gradient);
-  padding: 60px;
+  flex: 1; /* Takes up all remaining space */
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
 }
 
-.brand-content {
+.login-right {
   position: relative;
   z-index: 1;
-  text-align: center;
-  max-width: 500px;
-}
-
-// Animated Logo Container - Smooth fade and scale
-.brand-logo-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 32px;
-  opacity: 0;
-  transform: scale(0.9);
-  transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  &.show {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.brand-logo {
-  width: 120px;
-  height: 120px;
-  filter: drop-shadow(0 10px 25px var(--theme-shadow-hover));
-}
-
-// Animated Brand Name - Smooth fade and slide
-.brand-name-container {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  &.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.brand-icon {
-  width: 100px;
-  height: 100px;
-  background: var(--theme-primary-gradient);
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  color: white;
-  margin-bottom: 32px;
-  box-shadow: 0 10px 25px var(--theme-shadow-hover);
-}
-
-.brand-title {
-  font-size: 56px;
-  font-weight: 800;
-  background: var(--theme-primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0 0 16px 0;
-  line-height: 1.2;
-  letter-spacing: 2px;
-
-  .highlight {
-    background: var(--theme-primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-}
-
-.brand-subtitle {
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 48px;
-  font-weight: 400;
-}
-
-.features-list {
+  width: 500px; /* Fixed width for the form panel */
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  margin-bottom: 48px;
-  margin-top: 48px;
-  opacity: 0;
-  transform: translateY(15px);
-  transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s;
-
-  &.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.feature-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 20px;
-  background: rgba(10, 10, 10, 0.6);
-  border-radius: 12px;
-  border: 1px solid var(--theme-shadow-hover);
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(20, 20, 20, 0.8);
-    transform: translateX(8px);
-    border-color: var(--theme-shadow-hover);
-  }
-}
-
-.feature-icon {
-  font-size: 32px;
-  color: var(--theme-primary-color);
-  flex-shrink: 0;
-}
-
-.feature-text {
-  flex: 1;
-
-  h3 {
-    font-size: 18px;
-    font-weight: 700;
-    color: white;
-    margin: 0 0 4px 0;
-  }
-
-  p {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.6);
-    margin: 0;
-  }
-}
-
-.brand-footer {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.version-badge {
-  padding: 8px 16px;
-  background: var(--theme-shadow-hover);
-  border: 1px solid var(--theme-shadow-hover);
-  border-radius: 20px;
-  color: var(--theme-primary-color);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-// Form Section (Right)
-.form-section {
-  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%);
-  padding: 60px;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  border-left: 1px solid var(--theme-shadow-hover);
+  padding: 64px;
+  background: rgba(10, 10, 10, 0.75); /* Dark overlay */
+  backdrop-filter: blur(12px); /* Blur effect */
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.form-container {
-  width: 100%;
-  max-width: 420px;
-  opacity: 0;
-  transform: translateX(30px);
-  transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  &.form-visible {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.login-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  letter-spacing: 1px;
 }
 
-.form-content {
-  opacity: 1;
-  filter: blur(0);
-}
-
-.form-header {
-  margin-bottom: 40px;
-  text-align: center;
-
-  h2 {
-    font-size: 36px;
-    font-weight: 800;
-    background: var(--theme-primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0 0 12px 0;
-  }
-
-  p {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.7);
-    margin: 0;
-  }
+.login-desc {
+  font-size: 15px;
+  color: #aaa;
+  margin: 0 0 32px 0;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
-.form-inputs {
+.form-fields {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  label {
-    font-size: 14px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-  }
+.field-icon {
+  color: #666;
+  font-size: 16px;
 }
 
-.modern-input {
+.dark-input {
   :deep(.ant-input),
   :deep(.ant-input-password),
   :deep(.ant-input-affix-wrapper) {
-    font-size: 16px !important;
+    font-size: 15px !important;
     padding: 12px 16px !important;
-    border: 2px solid var(--theme-shadow-hover) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
-    background: rgba(10, 10, 10, 0.7) !important;
-    color: white !important;
-    transition: all 0.3s ease !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    color: #fff !important;
+    transition: all 0.2s !important;
     height: auto !important;
-    line-height: 1.5 !important;
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.35) !important;
+      color: #666 !important;
     }
 
     &:hover {
-      border-color: var(--theme-shadow-hover) !important;
-      background: rgba(15, 15, 15, 0.8) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
     }
 
-    &:focus, &:focus-within {
-      border-color: var(--theme-primary-color) !important;
-      background: rgba(20, 20, 20, 0.9) !important;
-      box-shadow: 0 0 0 3px var(--theme-shadow-hover) !important;
+    &:focus,
+    &:focus-within {
+      border-color: #fff !important;
+      background: rgba(0, 0, 0, 0.8) !important;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
     }
   }
 
@@ -684,45 +354,34 @@ const onTurnstileCallback = (token: string) => {
   }
 
   :deep(.ant-input-password-icon) {
-    color: var(--theme-shadow-hover) !important;
-
+    color: #666 !important;
     &:hover {
-      color: var(--theme-primary-color) !important;
+      color: #fff !important;
     }
   }
 }
 
-.input-icon {
-  color: var(--theme-shadow-hover);
-  font-size: 18px;
-}
-
-.turnstile-container {
+.turnstile-box {
   display: flex;
   justify-content: center;
-  margin-top: 8px;
 }
 
-.form-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.login-button {
-  height: 52px;
-  font-size: 16px;
-  font-weight: 600;
+.sign-in-btn {
+  height: 48px;
+  font-size: 15px;
+  font-weight: 700;
   border-radius: 12px;
-  background: var(--theme-primary-gradient);
-  border: none;
-  box-shadow: 0 4px 16px var(--theme-shadow-hover);
-  transition: all 0.3s ease;
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: none !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+  margin-top: 8px;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px var(--theme-shadow-hover);
+    background: #e0e0e0 !important;
+    transform: translateY(-1px);
   }
 
   &:active {
@@ -730,20 +389,18 @@ const onTurnstileCallback = (token: string) => {
   }
 }
 
-.secondary-button {
-  height: 48px;
-  font-size: 15px;
+.secondary-btn {
+  height: 46px;
+  font-size: 14px;
   font-weight: 600;
   border-radius: 12px;
-  border: 2px solid var(--theme-shadow-hover);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
+  color: #999 !important;
 
   &:hover {
-    border-color: var(--theme-primary-color);
-    background: var(--theme-shadow-hover);
-    color: var(--theme-primary-color);
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    color: #fff !important;
   }
 }
 
@@ -752,362 +409,87 @@ const onTurnstileCallback = (token: string) => {
   justify-content: center;
   align-items: center;
   gap: 12px;
-  margin-top: 20px;
-  font-size: 14px;
-}
+  margin-top: 8px;
+  font-size: 13px;
 
-.auth-link {
-  color: rgba(255, 255, 255, 0.6);
-  transition: color 0.3s ease;
+  a {
+    color: #888;
+    transition: color 0.2s;
 
-  &:hover {
-    color: var(--theme-primary-color);
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .sep {
+    color: rgba(255, 255, 255, 0.2);
   }
 }
 
-.auth-divider {
-  color: rgba(255, 255, 255, 0.3);
-}
-
-// Status Screens
-.status-screen {
+.status-view {
+  padding: 40px 0;
   text-align: center;
-  padding: 60px 20px;
-  opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  &.show {
-    opacity: 1;
-    transform: scale(1);
-  }
 
   .status-icon {
-    font-size: 80px;
-    margin-bottom: 24px;
+    font-size: 64px;
+    margin-bottom: 20px;
+    color: #fff;
   }
 
-  .loading-icon {
-    color: var(--theme-primary-color);
-  }
-
-  .success-icon {
-    color: var(--theme-primary-color);
+  .success {
+    color: #52c41a;
   }
 
   h3 {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 700;
-    background: var(--theme-primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0 0 12px 0;
-  }
-
-  p {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.6);
-    margin: 0;
+    color: #fff;
+    margin: 0 0 8px 0;
   }
 }
 
-// Responsive Design
-@media (max-width: 1200px) {
-  .login-container {
-    grid-template-columns: 1fr;
-    width: 95%;
-    max-width: 500px;
-  }
+.spin {
+  animation: spin 1s linear infinite;
+}
 
-  .brand-section {
-    display: none;
-  }
-
-  .form-section {
-    padding: 40px 24px;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (max-width: 768px) {
-  .login-container {
-    width: 100%;
-    height: 100vh;
-    max-height: none;
-    border-radius: 0;
-  }
-
-  .form-section {
-    padding: 32px 20px;
-  }
-
-  .form-header h2 {
-    font-size: 28px;
-  }
-}
-
-// Landscape mode fixes
-@media (max-height: 600px) and (orientation: landscape) {
-  .modern-login-page {
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto;
-  }
-
-  .login-container {
-    height: auto;
-    min-height: 100vh;
-    max-height: none;
-  }
-
-  .form-section {
-    padding: 20px;
-    overflow-y: auto;
-  }
-
-  .form-header {
-    margin-bottom: 20px;
-
-    h2 {
-      font-size: 24px;
-    }
-
-    p {
-      font-size: 14px;
-    }
-  }
-
-  .login-form {
-    gap: 16px;
-  }
-
-  .form-inputs {
-    gap: 16px;
-  }
-
-  .input-group {
-    gap: 4px;
-
-    label {
-      font-size: 12px;
-    }
-  }
-
-  .modern-input {
-    :deep(.ant-input),
-    :deep(.ant-input-password),
-    :deep(.ant-input-affix-wrapper) {
-      padding: 8px 12px !important;
-      font-size: 14px !important;
-    }
-  }
-
-  .form-actions {
-    margin-top: 12px;
-    gap: 8px;
-  }
-
-  .login-button {
-    height: 44px;
-    font-size: 14px;
-  }
-
-  .secondary-button {
-    height: 40px;
-    font-size: 14px;
-  }
-
-  .status-screen {
-    padding: 30px 20px;
-
-    .status-icon {
-      font-size: 50px;
-      margin-bottom: 16px;
-    }
-
-    h3 {
-      font-size: 20px;
-    }
-
-    p {
-      font-size: 14px;
-    }
-  }
-}
-
-// Override autofill styles - prevent white background
+// Override autofill styles
 :deep(input:-webkit-autofill),
 :deep(input:-webkit-autofill:hover),
 :deep(input:-webkit-autofill:focus),
 :deep(input:-webkit-autofill:active) {
   -webkit-text-fill-color: white !important;
-  -webkit-box-shadow: 0 0 0px 1000px rgba(10, 10, 10, 0.9) inset !important;
-  box-shadow: 0 0 0px 1000px rgba(10, 10, 10, 0.9) inset !important;
-  background-color: rgba(10, 10, 10, 0.9) !important;
-  background-clip: content-box !important;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(0, 0, 0, 0.8) inset !important;
+  box-shadow: 0 0 0px 1000px rgba(0, 0, 0, 0.8) inset !important;
+  background-color: transparent !important;
   caret-color: white !important;
-  transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
-// Also target autofill with specific selections
-:deep(input:-webkit-autofill::first-line) {
-  color: white !important;
-}
-</style>
-
-<style lang="scss">
-// Global Light Mode Styles for Login Page
-.app-light-theme {
-  .modern-login-page {
-    background: #f5f5f5;
+// Responsive
+@media (max-width: 768px) {
+  .login-card {
+    flex-direction: column;
+    height: auto;
+    min-height: 600px;
   }
 
-  .gradient-orb {
-    &.orb-1 {
-      background: radial-gradient(circle, var(--theme-primary-color), transparent);
-      opacity: 0.15;
-    }
-
-    &.orb-2 {
-      background: radial-gradient(circle, var(--theme-primary-color), transparent);
-      opacity: 0.15;
-    }
-
-    &.orb-3 {
-      background: radial-gradient(circle, var(--theme-primary-color), transparent);
-      opacity: 0.15;
-    }
+  .login-left {
+    width: 100%;
+    height: 200px;
   }
 
-  .login-container {
-    background: rgba(255, 255, 255, 0.98);
-    border: 2px solid #333;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-  }
-
-  .brand-section {
-    background: var(--theme-primary-gradient);
-  }
-
-  .brand-title {
-    color: #1a1a1a;
-  }
-
-  .brand-subtitle {
-    color: #666;
-  }
-
-  .feature-item {
-    background: rgba(255, 255, 255, 0.6);
-    border: 2px solid #333;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.9);
-    }
-
-    h3 {
-      color: #1a1a1a;
-    }
-
-    p {
-      color: #666;
-    }
-  }
-
-  .form-section {
-    background: #fafafa;
-    border-left: 1px solid #ddd;
-  }
-
-  .form-header {
-    h2 {
-      color: #1a1a1a;
-    }
-
-    p {
-      color: #666;
-    }
-  }
-
-  .input-group label {
-    color: #1a1a1a;
-  }
-
-  .modern-input {
-    .ant-input,
-    .ant-input-password,
-    .ant-input-affix-wrapper {
-      background: white !important;
-      border: 2px solid #333 !important;
-      color: #1a1a1a !important;
-
-      &::placeholder {
-        color: #999 !important;
-      }
-
-      &:hover {
-        border-color: #666 !important;
-        background: #fafafa !important;
-      }
-
-      &:focus, &:focus-within {
-        border-color: var(--theme-primary-color) !important;
-        background: white !important;
-        box-shadow: 0 0 0 3px var(--theme-shadow-hover) !important;
-      }
-    }
-
-    .ant-input-password-icon {
-      color: var(--theme-shadow-hover) !important;
-
-      &:hover {
-        color: var(--theme-primary-color) !important;
-      }
-    }
-  }
-
-  .login-button {
-    background: var(--theme-primary-gradient);
-    border: none;
-
-    &:hover {
-      background: var(--theme-primary-gradient);
-    }
-  }
-
-  .secondary-button {
-    border: 2px solid #333;
-    background: white;
-    color: #4a4a4a;
-
-    &:hover {
-      border-color: var(--theme-primary-color);
-      background: var(--theme-shadow-hover);
-      color: var(--theme-primary-color);
-    }
-  }
-
-  .auth-link {
-    color: #666;
-
-    &:hover {
-      color: var(--theme-primary-color);
-    }
-  }
-
-  .status-screen {
-    h3 {
-      color: #1a1a1a;
-    }
-
-    p {
-      color: #666;
-    }
-
-    .loading-icon,
-    .success-icon {
-      color: var(--theme-primary-color);
-    }
+  .login-right {
+    width: 100%;
+    height: auto;
+    padding: 32px 24px;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
   }
 }
 </style>

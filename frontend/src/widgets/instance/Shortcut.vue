@@ -304,14 +304,16 @@ const instanceOperations = computed(() =>
 </script>
 
 <template>
-  <CardPanel style="width: 100%; height: 100%; position: relative; min-height: 340px">
+  <CardPanel class="instance-card-panel">
     <template #title>
-      <div class="instance-title">
-        {{ instanceInfo?.config.nickname }}
-      </div>
-      <div v-if="daemonName && isAdmin" class="daemon-name">
-        <DatabaseOutlined />
-        {{ daemonName }}
+      <div class="instance-title-wrapper">
+        <div class="instance-title">
+          {{ instanceInfo?.config.nickname }}
+        </div>
+        <div v-if="daemonName && isAdmin" class="daemon-name">
+          <DatabaseOutlined class="daemon-icon" />
+          {{ daemonName }}
+        </div>
       </div>
     </template>
     <template #operator> </template>
@@ -386,7 +388,7 @@ const instanceOperations = computed(() =>
           theme="default"
         />
 
-        <div class="action-buttons-grid" :class="{ 'centered-grid': instanceOperations.length <= 3 }">
+        <div class="action-buttons-container">
           <template v-for="item in instanceOperations" :key="item.title">
             <div v-if="!item.area" class="action-btn-wrapper">
               <a-button
@@ -394,7 +396,7 @@ const instanceOperations = computed(() =>
                 :disabled="item.disabled"
                 :danger="item.danger"
                 @click="item.click"
-                :class="['action-btn-modern', { 'btn-danger': item.danger }]"
+                :class="['action-btn-symmetrical', { 'btn-danger': item.danger }]"
               >
                 <component :is="item.icon" class="btn-icon"></component>
                 <span class="btn-text">{{ item.title }}</span>
@@ -408,124 +410,154 @@ const instanceOperations = computed(() =>
 </template>
 
 <style lang="scss" scoped>
-// Modern Instance Card with Large Buttons
+.instance-card-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.instance-card-panel:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.instance-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .instance-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  background: var(--theme-primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .daemon-name {
   font-size: 12px;
   font-weight: 500;
-  color: var(--color-gray-7);
-  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.4);
   display: flex;
   align-items: center;
   gap: 6px;
+
+  .daemon-icon {
+    font-size: 11px;
+  }
 }
 
 .instance-card-body {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  gap: 20px;
+  flex: 1;
+  gap: 24px;
 }
 
 .instance-header {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-// Status & Type Tags - Bigger and Better
+// Status & Type Tags - Symmetrical & Clean
 .status-tag {
-  padding: 8px 18px;
-  font-size: 15px;
+  padding: 6px 14px;
+  font-size: 13px;
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: 8px;
   border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .status-running {
-  background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+  background: rgba(82, 196, 26, 0.15);
+  color: #52c41a;
+  border: 1px solid rgba(82, 196, 26, 0.3);
 }
 
 .status-stopped {
-  background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(250, 173, 20, 0.3);
+  background: rgba(250, 173, 20, 0.15);
+  color: #faad14;
+  border: 1px solid rgba(250, 173, 20, 0.3);
 }
 
 .type-tag {
-  padding: 8px 18px;
-  font-size: 14px;
-  font-weight: 600;
-  background: var(--theme-primary-gradient);
-  color: var(--theme-primary-color);
-  border: 2px solid var(--theme-shadow-hover);
-  border-radius: 10px;
-}
-
-.custom-tag {
-  padding: 8px 14px;
+  padding: 6px 14px;
   font-size: 13px;
-  font-weight: 500;
-  background: var(--color-gray-2);
-  border: 1px solid var(--color-gray-4);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
 }
 
-.tag-divider {
-  opacity: 0.3;
-  margin: 0 6px;
-  font-size: 16px;
+.custom-tag {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-// Info Grid - Cleaner Layout
+.tag-divider {
+  opacity: 0.2;
+  margin: 0 4px;
+  font-size: 14px;
+}
+
+// Info Grid - Symmetrical 2-column layout
 .instance-info-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
 }
 
 .instance-info-line {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 14px;
-  padding: 10px 12px;
-  background: var(--theme-shadow-hover);
-  border-radius: 8px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--theme-shadow-hover);
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
   .title {
     font-weight: 600;
-    color: var(--theme-primary-color);
-    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
   }
 
   .value {
-    flex: 1;
-    text-align: right;
-    opacity: 0.95;
-    font-weight: 500;
-    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -568,113 +600,97 @@ const instanceOperations = computed(() =>
   }
 }
 
-// MASSIVE Action Buttons Grid - The Main Feature!
-.action-buttons-grid {
+// Symmetrical Action Buttons Grid
+.action-buttons-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding-top: 16px;
-  border-top: 2px solid var(--theme-shadow-hover);
-
-  // Center buttons when there are 3 or fewer
-  &.centered-grid {
-    justify-content: center;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 200px));
-    max-width: 700px;
-    margin: 0 auto;
-  }
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .action-btn-wrapper {
   width: 100%;
 }
 
-.action-btn-modern {
+.action-btn-symmetrical {
   width: 100%;
-  height: 52px !important; // MUCH BIGGER - was 38px
-  border-radius: 12px !important;
-  border: 2px solid var(--theme-card-border) !important;
-  background: transparent !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 10px !important;
+  gap: 8px !important;
   font-weight: 600 !important;
-  font-size: 14px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-size: 13px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  transition: all 0.2s ease !important;
   box-shadow: none !important;
-  color: var(--theme-title-color) !important;
 
   .btn-icon {
-    font-size: 20px !important;
-    transition: transform 0.3s ease;
+    font-size: 16px !important;
+    opacity: 0.8;
   }
 
   .btn-text {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
   }
 
   &:hover:not(:disabled) {
-    background: var(--theme-card-bg-hover) !important;
-    border-color: var(--theme-title-color) !important;
-    color: var(--theme-title-color) !important;
-    transform: translateY(-3px) !important;
-    box-shadow: none !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) !important;
 
     .btn-icon {
-      transform: scale(1.15);
+      opacity: 1;
     }
   }
 
   &:active:not(:disabled) {
-    transform: translateY(-1px) !important;
-    box-shadow: none !important;
+    transform: translateY(0) !important;
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
   }
 
   &.btn-danger {
-    background: transparent !important;
-    border-color: var(--theme-card-border) !important;
-    color: var(--theme-title-color) !important;
+    background: rgba(255, 77, 79, 0.05) !important;
+    border-color: rgba(255, 77, 79, 0.2) !important;
+    color: #ff4d4f !important;
 
     &:hover:not(:disabled) {
-      background: var(--theme-card-bg-hover) !important;
-      border-color: var(--theme-title-color) !important;
-      color: var(--theme-title-color) !important;
-      box-shadow: none !important;
+      background: rgba(255, 77, 79, 0.15) !important;
+      border-color: rgba(255, 77, 79, 0.4) !important;
+      color: #ff4d4f !important;
     }
   }
 }
 
 // Responsive adjustments
 @media (max-width: 768px) {
-  .action-buttons-grid {
-    grid-template-columns: 1fr 1fr; // 2 columns on mobile
-    gap: 10px;
+  .instance-info-grid {
+    grid-template-columns: 1fr; // Stack info lines on very small screens
+  }
+  
+  .action-buttons-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
 
-  .action-btn-modern {
-    height: 48px !important;
-    font-size: 13px !important;
+  .action-btn-symmetrical {
+    height: 40px !important;
+    font-size: 12px !important;
 
     .btn-icon {
-      font-size: 18px !important;
+      font-size: 14px !important;
     }
-
-    .btn-text {
-      font-size: 13px;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .action-buttons-grid {
-    grid-template-columns: 1fr; // 1 column on very small screens
   }
 }
 </style>

@@ -65,8 +65,7 @@ const logLines = [
     <nav class="navbar">
       <div class="nav-container">
         <div class="nav-brand">
-          <img src="/favicon.png" alt="Tirnue" class="brand-logo" />
-          <span class="brand-name">Tirnue</span>
+          <img src="/favicon.png" alt="Tirnue" class="brand-logo-wide" />
         </div>
         <div class="nav-links">
           <a @click="scrollToSection('features')" class="nav-link">Features</a>
@@ -87,12 +86,12 @@ const logLines = [
       <div class="hero-container">
         <div class="hero-badge">
           <span class="badge-dot"></span>
-          Cheap Startup Hosting
+          Now Open for Players
         </div>
-        <h1 class="hero-title">Minecraft Philippines Hosting<br/>Built for Transparency</h1>
+        <h1 class="hero-title">Your Server.<br/>Your Rules.</h1>
         <p class="hero-subtitle">
-          New cheap Philippines Minecraft hosting with complete team control. Track every action,<br/>
-          control permissions, and manage your developers with full transparency.
+          Power up your Minecraft world with lightning-fast PH hosting. Full control panel,<br/>
+          instant deployment, and a team management system that actually works.
         </p>
         <div class="hero-cta">
           <a-button type="primary" size="large" class="cta-primary" @click="goToRegister">
@@ -106,7 +105,7 @@ const logLines = [
         <div class="hero-features">
           <div class="feature-pill">
             <CheckCircleOutlined />
-            <span>Cheap Pricing</span>
+            <span>Instant Deploy</span>
           </div>
           <div class="feature-pill">
             <CheckCircleOutlined />
@@ -114,7 +113,7 @@ const logLines = [
           </div>
           <div class="feature-pill">
             <CheckCircleOutlined />
-            <span>Full Team Control</span>
+            <span>Total Control</span>
           </div>
         </div>
       </div>
@@ -124,8 +123,8 @@ const logLines = [
     <section class="features" id="features">
       <div class="section-container">
         <div class="section-header">
-          <h2 class="section-title">Why Choose Tirnue?</h2>
-          <p class="section-subtitle">Honest hosting with features that matter</p>
+          <h2 class="section-title">Built Different.</h2>
+          <p class="section-subtitle">Everything you need to dominate. Nothing you don't.</p>
         </div>
         <div class="features-grid">
           <div class="feature-card">
@@ -266,8 +265,8 @@ const logLines = [
     <section class="pricing" id="pricing">
       <div class="section-container">
         <div class="section-header">
-          <h2 class="section-title">Simple, Honest Pricing</h2>
-          <p class="section-subtitle">New startup, cheap prices - take advantage now</p>
+          <h2 class="section-title">Plans That Don't Suck</h2>
+          <p class="section-subtitle">No contracts. No BS. Just pick a plan and go.</p>
         </div>
         <div class="pricing-grid">
           <div class="pricing-card">
@@ -359,8 +358,7 @@ const logLines = [
     <footer class="footer">
       <div class="footer-container">
         <div class="footer-brand">
-          <img src="/favicon.png" alt="Tirnue" />
-          <span>Tirnue</span>
+          <img src="/favicon.png" alt="Tirnue" class="brand-logo-wide" />
         </div>
         <p>&copy; 2025 Tirnue. Powered by MCS Manager</p>
         <a href="https://discord.gg/SA6e7ZHHfn" target="_blank" class="footer-link">
@@ -409,15 +407,11 @@ const logLines = [
   cursor: pointer;
 }
 
-.brand-logo {
-  width: 32px;
-  height: 32px;
-}
-
-.brand-name {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--theme-primary-color);
+.brand-logo-wide {
+  height: 40px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
 }
 
 .nav-links {
@@ -1053,13 +1047,8 @@ const logLines = [
     padding: 0 20px;
   }
 
-  .brand-logo {
-    width: 28px;
-    height: 28px;
-  }
-
-  .brand-name {
-    font-size: 18px;
+  .brand-logo-wide {
+    height: 32px;
   }
 
   .nav-links {
@@ -1287,12 +1276,10 @@ const logLines = [
     margin-bottom: 12px;
 
     img {
-      width: 28px;
-      height: 28px;
-    }
-
-    span {
-      font-size: 18px;
+      height: 32px;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
     }
   }
 

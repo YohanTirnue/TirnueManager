@@ -54,8 +54,18 @@ import {
 } from "@ant-design/icons-vue";
 import { useLocalStorage } from "@vueuse/core";
 import prettyBytes, { type Options as PrettyOptions } from "pretty-bytes";
-import { computed, ref } from "vue";
+import { onMounted, onUnmounted, ref, watch, computed } from "vue";
 import type { TagInfo } from "../../components/interface";
+
+onMounted(() => {
+  document.body.style.overflow = "hidden";
+  document.documentElement.style.overflow = "hidden";
+});
+
+onUnmounted(() => {
+  document.body.style.overflow = "auto";
+  document.documentElement.style.overflow = "auto";
+});
 import { GLOBAL_INSTANCE_NAME } from "../../config/const";
 import { useTerminal, type UseTerminalHook } from "../../hooks/useTerminal";
 import { arrayFilter } from "../../tools/array";
