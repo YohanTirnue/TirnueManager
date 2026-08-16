@@ -3,14 +3,14 @@ import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import {
-  MailOutlined,
-  UserOutlined,
-  LockOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  LoadingOutlined,
+  UserOutlined,
+  MailOutlined,
+  LockOutlined,
   ExclamationCircleOutlined
 } from "@ant-design/icons-vue";
+import SleekLoading from "@/components/SleekLoading.vue";
 import axios from "axios";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 
@@ -218,7 +218,7 @@ watch(invitationDetails, (details) => {
     <div class="invitation-card">
       <!-- Loading State -->
       <div v-if="loading" class="loading-state">
-        <LoadingOutlined class="loading-icon" />
+        <SleekLoading size="md" style="margin-bottom: 16px" />
         <p>Loading invitation...</p>
       </div>
 

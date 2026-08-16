@@ -13,6 +13,18 @@ axios.interceptors.request.use(async (config) => {
   if (!config.params.token && state.userInfo?.token) {
     config.params.token = state.userInfo.token;
   }
+
+  // Substitute path parameters in URL (e.g., /api/user/:id -> /api/user/123)
+  if (config.url && config.params) {
+    Object.keys(config.params).forEach(key => {
+      const paramTag = `:${key}`;
+      if (config.url?.includes(paramTag)) {
+        config.url = config.url.replace(paramTag, encodeURIComponent(String(config.params[key])));
+        delete config.params[key];
+      }
+    });
+  }
+
   return config;
 });
 

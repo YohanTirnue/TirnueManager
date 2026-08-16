@@ -1,25 +1,17 @@
 <script setup lang="ts">
-import { LoadingOutlined } from "@ant-design/icons-vue";
-import { h, computed } from "vue";
+import SleekLoading from "@/components/SleekLoading.vue";
+import { computed } from "vue";
 
 const props = defineProps<{ fontSize?: number }>();
 
-const fontSize = computed(() => {
-  return props.fontSize ?? 48;
-});
-
-const indicator = h(LoadingOutlined, {
-  style: {
-    fontSize: `${fontSize.value}px`,
-    fontWeight: "bold"
-  },
-  spin: true
+const size = computed(() => {
+  return props.fontSize ?? 72;
 });
 </script>
 
 <template>
-  <div class="flex align-center justify-center h-100 w-100">
-    <a-spin :indicator="indicator" />
+  <div class="flex align-center justify-center h-100 w-100 py-4">
+    <SleekLoading :size="size" />
   </div>
 </template>
 

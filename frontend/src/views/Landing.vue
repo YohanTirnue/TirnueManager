@@ -1,50 +1,32 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { router } from "@/config/router";
 import {
-  CloudServerOutlined,
   ThunderboltOutlined,
   SafetyCertificateOutlined,
-  GlobalOutlined,
   TeamOutlined,
   CheckCircleOutlined,
   ArrowRightOutlined,
-  DollarOutlined,
-  CustomerServiceOutlined,
-  BulbOutlined,
-  BulbFilled
+  ConsoleSqlOutlined,
+  CodeOutlined,
+  DatabaseOutlined
 } from "@ant-design/icons-vue";
-import { useAppConfigStore, THEME } from "@/stores/useAppConfigStore";
 
-const goToLogin = () => {
-  router.push("/login");
-};
-
-const goToRegister = () => {
-  router.push("/register");
-};
-
-const openDiscord = () => {
-  window.open("https://discord.gg/SA6e7ZHHfn", "_blank");
-};
+const goToLogin = () => router.push("/login");
+const goToRegister = () => router.push("/register");
+const openDiscord = () => window.open("https://discord.gg/SA6e7ZHHfn", "_blank");
 
 const scrollToSection = (id: string) => {
-  const element = document.getElementById(id);
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-// Theme toggle
-const { getTheme, setTheme } = useAppConfigStore();
-const currentTheme = computed(() => getTheme());
-const isLightMode = computed(() => currentTheme.value === THEME.LIGHT);
+const scrolled = ref(false);
+onMounted(() => {
+  window.addEventListener('scroll', () => {
+    scrolled.value = window.scrollY > 50;
+  });
+});
 
-const toggleTheme = () => {
-  setTheme(isLightMode.value ? THEME.DARK : THEME.LIGHT);
-};
-
-// Activity log data for continuous scroll
 const logLines = [
   { time: "14:32:15", user: "dev1", action: "uploaded plugin.jar" },
   { time: "14:31:42", user: "dev2", action: "viewed server console" },
@@ -61,121 +43,83 @@ const logLines = [
 
 <template>
   <div class="landing-page">
-    <!-- Fixed Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" :class="{ 'navbar-scrolled': scrolled }">
       <div class="nav-container">
-        <div class="nav-brand">
-          <img src="/favicon.png" alt="Tirnue" class="brand-logo-wide" />
+        <div class="nav-brand" @click="scrollToSection('hero')">
+          <img src="/logo.png" alt="Tirnue" class="brand-logo" />
         </div>
         <div class="nav-links">
           <a @click="scrollToSection('features')" class="nav-link">Features</a>
           <a @click="scrollToSection('pricing')" class="nav-link">Pricing</a>
-          <a @click="openDiscord" class="nav-link">Support</a>
-          <button class="theme-toggle" @click="toggleTheme" :title="isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode'">
-            <BulbFilled v-if="isLightMode" />
-            <BulbOutlined v-else />
-          </button>
-          <a-button class="btn-login" @click="goToLogin">Sign In</a-button>
-          <a-button type="primary" class="btn-register" @click="goToRegister">Get Started</a-button>
+          <a @click="openDiscord" class="nav-link">Community</a>
+        </div>
+        <div class="nav-actions">
+          <button class="btn-ghost" @click="goToLogin">Log in</button>
+          <button class="btn-primary" @click="goToRegister">Sign Up <ArrowRightOutlined/></button>
         </div>
       </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero" id="hero">
-      <div class="hero-container">
-        <div class="hero-badge">
-          <span class="badge-dot"></span>
-          Now Open for Players
-        </div>
-        <h1 class="hero-title">Your Server.<br/>Your Rules.</h1>
-        <p class="hero-subtitle">
-          Power up your Minecraft world with lightning-fast PH hosting. Full control panel,<br/>
-          instant deployment, and a team management system that actually works.
-        </p>
-        <div class="hero-cta">
-          <a-button type="primary" size="large" class="cta-primary" @click="goToRegister">
-            Get Started Now
-            <ArrowRightOutlined />
-          </a-button>
-          <a-button size="large" class="cta-secondary" @click="openDiscord">
-            Join Discord
-          </a-button>
-        </div>
-        <div class="hero-features">
-          <div class="feature-pill">
-            <CheckCircleOutlined />
-            <span>Instant Deploy</span>
+    <main>
+      <section class="hero" id="hero">
+        <div class="hero-bg-glow"></div>
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="badge-dot"></span>
+            Tirnue Early Access
           </div>
-          <div class="feature-pill">
-            <CheckCircleOutlined />
-            <span>24/7 Support</span>
-          </div>
-          <div class="feature-pill">
-            <CheckCircleOutlined />
-            <span>Total Control</span>
+          <h1 class="hero-title">Hosting, <br/><span class="text-gradient">Redefined.</span></h1>
+          <p class="hero-subtitle">
+            Experience the next generation of server management. Lightning-fast infrastructure, intuitive control panel, and team collaboration built from the ground up.
+          </p>
+          <div class="hero-cta">
+            <button class="btn-primary-large" @click="goToRegister">Get Started <ArrowRightOutlined/></button>
+            <button class="btn-outline-large" @click="scrollToSection('features')">Explore Features</button>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Features Section -->
-    <section class="features" id="features">
-      <div class="section-container">
+      <section class="features" id="features">
         <div class="section-header">
-          <h2 class="section-title">Built Different.</h2>
-          <p class="section-subtitle">Everything you need to dominate. Nothing you don't.</p>
+          <h2>High Performance, Low Effort</h2>
+          <p>Everything you need to run your servers flawlessly.</p>
         </div>
+        
         <div class="features-grid">
           <div class="feature-card">
-            <div class="feature-icon">
-              <TeamOutlined />
-            </div>
-            <h3>Complete Team Management</h3>
-            <p>Track every action your developers take. Full audit logs, granular permissions, and real-time monitoring included.</p>
+            <div class="feature-icon"><ThunderboltOutlined /></div>
+            <h3>Blazing Fast</h3>
+            <p>Powered by top-tier hardware ensuring your servers run with minimal latency and maximum uptime.</p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">
-              <DollarOutlined />
-            </div>
-            <h3>Startup Pricing</h3>
-            <p>Take advantage of our cheap startup prices. No hidden fees, no overselling, just honest pricing.</p>
+            <div class="feature-icon"><TeamOutlined /></div>
+            <h3>Team Management</h3>
+            <p>Granular permissions and sub-user support. Give your developers exactly the access they need.</p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">
-              <SafetyCertificateOutlined />
-            </div>
-            <h3>DDoS Protection</h3>
-            <p>Basic DDoS protection included to keep your server online and protected from attacks.</p>
+            <div class="feature-icon"><SafetyCertificateOutlined /></div>
+            <h3>Enterprise Security</h3>
+            <p>Advanced DDoS mitigation and automated backups keep your data safe around the clock.</p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">
-              <GlobalOutlined />
-            </div>
-            <h3>Dedicated IPs</h3>
-            <p>Your own dedicated IP address for your server. No sharing, no extra charges.</p>
+            <div class="feature-icon"><CodeOutlined /></div>
+            <h3>Advanced API</h3>
+            <p>Automate your workflow with our comprehensive REST API. Full control at your fingertips.</p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">
-              <ThunderboltOutlined />
-            </div>
-            <h3>Reliable Hardware</h3>
-            <p>Solid server hardware that works. We don't make crazy speed claims, just reliable hosting.</p>
+            <div class="feature-icon"><ConsoleSqlOutlined /></div>
+            <h3>Modern Console</h3>
+            <p>A sleek, responsive terminal with rich formatting, history, and real-time output streaming.</p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">
-              <CustomerServiceOutlined />
-            </div>
-            <h3>24/7 Real Support</h3>
-            <p>Real people answering questions around the clock. Small team, direct help via Discord.</p>
+            <div class="feature-icon"><DatabaseOutlined /></div>
+            <h3>Database Included</h3>
+            <p>Free MySQL databases with every server instance, easily managed from your control panel.</p>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Team Control Section -->
-    <section class="team-control">
-      <div class="section-container">
+      <section class="team-control">
         <div class="team-control-content">
           <div class="team-control-text">
             <h2>Stop Wondering What Happened</h2>
@@ -202,22 +146,13 @@ const logLines = [
                   <p>Know who uploaded, edited, or deleted what</p>
                 </div>
               </li>
-              <li>
-                <CheckCircleOutlined class="check-icon" />
-                <div>
-                  <strong>Peace of Mind</strong>
-                  <p>Run your server with your team without worrying</p>
-                </div>
-              </li>
             </ul>
           </div>
           <div class="team-control-visual">
             <div class="log-window">
               <div class="log-header">
                 <div class="log-dots">
-                  <span></span>
-                  <span></span>
-                  <span></span>
+                  <span></span><span></span><span></span>
                 </div>
                 <span class="log-title">Live Activity Monitor</span>
               </div>
@@ -230,7 +165,6 @@ const logLines = [
                         <span class="log-user">{{ line.user }}</span>
                         <span class="log-action">{{ line.action }}</span>
                       </div>
-                      <!-- Duplicate for seamless loop -->
                       <div v-for="(line, index) in logLines" :key="`up2-${index}`" class="log-line">
                         <span class="log-time">{{ line.time }}</span>
                         <span class="log-user">{{ line.user }}</span>
@@ -245,7 +179,6 @@ const logLines = [
                         <span class="log-user">{{ line.user }}</span>
                         <span class="log-action">{{ line.action }}</span>
                       </div>
-                      <!-- Duplicate for seamless loop -->
                       <div v-for="(line, index) in logLines" :key="`down2-${index}`" class="log-line">
                         <span class="log-time">{{ line.time }}</span>
                         <span class="log-user">{{ line.user }}</span>
@@ -258,347 +191,300 @@ const logLines = [
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Pricing Section -->
-    <section class="pricing" id="pricing">
-      <div class="section-container">
+      <section class="pricing" id="pricing">
         <div class="section-header">
-          <h2 class="section-title">Plans That Don't Suck</h2>
-          <p class="section-subtitle">No contracts. No BS. Just pick a plan and go.</p>
+          <h2>Simple, Transparent Pricing</h2>
+          <p>No hidden fees. Scale as you grow.</p>
         </div>
         <div class="pricing-grid">
           <div class="pricing-card">
             <div class="pricing-header">
-              <h3>Minecraft Hosting</h3>
-              <div class="pricing-badge">Most Popular</div>
+              <h3>Starter</h3>
+              <div class="price"><span>$</span>5<span class="period">/mo</span></div>
             </div>
-            <div class="pricing-features">
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>Cheap startup pricing</span>
-              </div>
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>Full team management</span>
-              </div>
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>Dedicated IP included</span>
-              </div>
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>24/7 Discord support</span>
-              </div>
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>Mod & plugin support</span>
-              </div>
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>Web control panel</span>
-              </div>
-            </div>
-            <a-button type="primary" block size="large" @click="goToRegister">
-              Get Started
-            </a-button>
+            <ul class="pricing-features">
+              <li><CheckCircleOutlined /> 4GB DDR4 RAM</li>
+              <li><CheckCircleOutlined /> 2 vCores</li>
+              <li><CheckCircleOutlined /> 50GB NVMe SSD</li>
+              <li><CheckCircleOutlined /> Standard Support</li>
+            </ul>
+            <button class="btn-outline-large full-width" @click="goToRegister">Deploy Now</button>
           </div>
+          
+          <div class="pricing-card premium">
+            <div class="popular-badge">Most Popular</div>
+            <div class="pricing-header">
+              <h3>Professional</h3>
+              <div class="price"><span>$</span>15<span class="period">/mo</span></div>
+            </div>
+            <ul class="pricing-features">
+              <li><CheckCircleOutlined /> 16GB DDR5 RAM</li>
+              <li><CheckCircleOutlined /> 4 vCores (Dedicated)</li>
+              <li><CheckCircleOutlined /> 150GB NVMe SSD</li>
+              <li><CheckCircleOutlined /> Priority Support</li>
+              <li><CheckCircleOutlined /> Free Backups</li>
+            </ul>
+            <button class="btn-primary-large full-width" @click="goToRegister">Deploy Now</button>
+          </div>
+
           <div class="pricing-card">
             <div class="pricing-header">
-              <h3>Other Games</h3>
+              <h3>Extreme</h3>
+              <div class="price"><span>$</span>30<span class="period">/mo</span></div>
             </div>
-            <div class="pricing-features">
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>Terraria, Rust, ARK</span>
-              </div>
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>Same cheap pricing</span>
-              </div>
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>Same control panel</span>
-              </div>
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>24/7 support</span>
-              </div>
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>Dedicated IPs</span>
-              </div>
-              <div class="pricing-feature">
-                <CheckCircleOutlined />
-                <span>Full team control</span>
-              </div>
-            </div>
-            <a-button block size="large" @click="openDiscord">
-              Contact Us
-            </a-button>
+            <ul class="pricing-features">
+              <li><CheckCircleOutlined /> 32GB DDR5 RAM</li>
+              <li><CheckCircleOutlined /> 8 vCores (Dedicated)</li>
+              <li><CheckCircleOutlined /> 300GB NVMe SSD</li>
+              <li><CheckCircleOutlined /> 24/7 Priority Support</li>
+              <li><CheckCircleOutlined /> Dedicated IP</li>
+            </ul>
+            <button class="btn-outline-large full-width" @click="goToRegister">Deploy Now</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <img src="/logo.png" alt="Tirnue" class="brand-logo-small" />
+          <p>Next-generation game server hosting.</p>
+        </div>
+        <div class="footer-links">
+          <div class="link-group">
+            <h4>Product</h4>
+            <a @click="scrollToSection('features')">Features</a>
+            <a @click="scrollToSection('pricing')">Pricing</a>
+          </div>
+          <div class="link-group">
+            <h4>Resources</h4>
+            <a @click="openDiscord">Discord</a>
+            <a href="#">Documentation</a>
           </div>
         </div>
       </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta-section">
-      <div class="cta-container">
-        <h2>Ready to Get Started?</h2>
-        <p>Join our growing community of Minecraft server owners</p>
-        <a-button type="primary" size="large" @click="goToRegister">
-          Create Your Account
-          <ArrowRightOutlined />
-        </a-button>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-container">
-        <div class="footer-brand">
-          <img src="/favicon.png" alt="Tirnue" class="brand-logo-wide" />
-        </div>
-        <p>&copy; 2025 Tirnue. Powered by MCS Manager</p>
-        <a href="https://discord.gg/SA6e7ZHHfn" target="_blank" class="footer-link">
-          Join our Discord for support
-        </a>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Tirnue. All rights reserved.</p>
       </div>
     </footer>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .landing-page {
-  width: 100%;
+  background-color: #050505;
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100vh;
-  background: #0a0a0a;
-  scroll-behavior: smooth;
   overflow-x: hidden;
 }
 
-// Navigation
+/* Navbar */
 .navbar {
   position: fixed;
   top: 0;
-  left: 0;
-  right: 0;
-  background: rgba(10, 10, 10, 0.98);
+  width: 100%;
+  z-index: 100;
+  transition: all 0.3s ease;
+  padding: 20px 0;
+  background: transparent;
+}
+
+.navbar-scrolled {
+  background: rgba(10, 10, 10, 0.95);
   backdrop-filter: none; /* Optimized */
-  border-bottom: 1px solid var(--theme-shadow-hover);
-  z-index: 1000;
-  padding: 16px 0;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.brand-logo {
+  height: 70px;
   cursor: pointer;
+  transition: opacity 0.2s;
 }
-
-.brand-logo-wide {
-  height: 40px;
-  width: auto;
-  max-width: 100%;
-  object-fit: contain;
+.brand-logo:hover {
+  opacity: 0.8;
 }
 
 .nav-links {
   display: flex;
-  align-items: center;
   gap: 32px;
 }
 
 .nav-link {
-  color: #cccccc;
-  font-size: 15px;
+  color: #a0a0a0;
   font-weight: 500;
+  font-size: 21px;
   cursor: pointer;
   transition: color 0.2s;
-
-  &:hover {
-    color: var(--theme-primary-color);
-  }
+}
+.nav-link:hover {
+  color: #fff;
 }
 
-.theme-toggle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid #333;
-  background: transparent;
-  color: #cccccc;
+.nav-actions {
   display: flex;
+  gap: 16px;
   align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  cursor: pointer;
-  transition: all 0.3s;
-
-  &:hover {
-    border-color: var(--theme-primary-color);
-    color: var(--theme-primary-color);
-    background: var(--theme-shadow-hover);
-  }
 }
 
-.btn-login {
-  border: 1px solid #333;
-  color: #cccccc;
+/* Buttons */
+.btn-ghost {
   background: transparent;
-
-  &:hover {
-    border-color: var(--theme-primary-color);
-    color: var(--theme-primary-color);
-  }
-}
-
-.btn-register {
-  background: var(--theme-primary-gradient);
   border: none;
-
-  &:hover {
-    background: var(--theme-primary-gradient);
-  }
+  color: #a0a0a0;
+  font-weight: 500;
+  font-size: 21px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.btn-ghost:hover {
+  color: #fff;
 }
 
-// Hero Section
+.btn-primary, .btn-primary-large {
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-primary {
+  padding: 12px 24px;
+  font-size: 21px;
+}
+.btn-primary-large {
+  padding: 14px 28px;
+  font-size: 16px;
+  border-radius: 12px;
+}
+.btn-primary:hover, .btn-primary-large:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+}
+
+.btn-outline-large {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline-large:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.full-width {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Hero Section */
 .hero {
-  padding: 140px 32px 100px;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1200 100%);
-  border-bottom: 1px solid var(--theme-shadow-hover);
+  position: relative;
+  padding: 200px 24px 120px;
+  text-align: center;
+  overflow: hidden;
 }
 
-.hero-container {
+.hero-bg-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 800px;
+  height: 800px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
   max-width: 800px;
   margin: 0 auto;
-  text-align: center;
 }
 
 .hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  background: var(--theme-shadow-hover);
-  border: 1px solid var(--theme-shadow-hover);
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 100px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--theme-primary-color);
+  color: #d0d0d0;
   margin-bottom: 24px;
 }
-
 .badge-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--theme-primary-color);
+  background: #fff;
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50% { opacity: 0.3; }
 }
 
 .hero-title {
-  font-size: 56px;
+  font-size: 72px;
   font-weight: 800;
-  color: #ffffff;
-  line-height: 1.2;
-  margin: 0 0 24px 0;
-  text-shadow: 0 0 40px var(--theme-shadow-hover);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 0 0 24px;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #fff 0%, #666 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
-  font-size: 18px;
-  color: #aaaaaa;
+  font-size: 20px;
+  color: #888;
   line-height: 1.6;
-  margin: 0 0 40px 0;
+  margin: 0 auto 48px;
+  max-width: 600px;
 }
 
 .hero-cta {
   display: flex;
-  justify-content: center;
   gap: 16px;
-  margin-bottom: 48px;
-}
-
-.cta-primary {
-  height: 48px;
-  padding: 0 32px;
-  font-size: 16px;
-  font-weight: 600;
-  background: var(--theme-primary-gradient);
-  border: none;
-
-  &:hover {
-    background: var(--theme-primary-gradient);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px var(--theme-shadow-hover);
-  }
-}
-
-.cta-secondary {
-  height: 48px;
-  padding: 0 32px;
-  font-size: 16px;
-  font-weight: 600;
-  border: 2px solid #333;
-  color: #cccccc;
-  background: transparent;
-
-  &:hover {
-    border-color: var(--theme-primary-color);
-    color: var(--theme-primary-color);
-  }
-}
-
-.hero-features {
-  display: flex;
   justify-content: center;
-  gap: 24px;
-  flex-wrap: wrap;
 }
 
-.feature-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 100px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #cccccc;
-
-  :deep(.anticon) {
-    color: var(--theme-primary-color);
-    font-size: 16px;
-  }
-}
-
-// Sections
-.features,
-.team-control,
-.pricing {
-  padding: 100px 32px;
-}
-
-.section-container {
+/* Sections */
+section {
+  padding: 100px 24px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -607,100 +493,82 @@ const logLines = [
   text-align: center;
   margin-bottom: 64px;
 }
-
-.section-title {
-  font-size: 42px;
-  font-weight: 800;
-  color: #ffffff;
-  margin: 0 0 16px 0;
+.section-header h2 {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
 }
-
-.section-subtitle {
+.section-header p {
   font-size: 18px;
-  color: #aaaaaa;
+  color: #888;
   margin: 0;
 }
 
-// Features Grid
+/* Features */
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
 }
 
 .feature-card {
-  padding: 40px 32px;
-  background: #1a1a1a;
-  border: 1px solid #333;
+  background: #0d0d0d;
+  border: 1px solid #1f1f1f;
   border-radius: 16px;
-  transition: all 0.3s;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px var(--theme-shadow-hover);
-    border-color: var(--theme-primary-color);
-  }
-
-  h3 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0 0 12px 0;
-  }
-
-  p {
-    font-size: 15px;
-    color: #aaaaaa;
-    line-height: 1.6;
-    margin: 0;
-  }
+  padding: 40px 32px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: #333;
 }
 
 .feature-icon {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
-  background: var(--theme-shadow-hover);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
-
-  :deep(.anticon) {
-    font-size: 28px;
-    color: var(--theme-primary-color);
-  }
+  font-size: 24px;
+  color: #fff;
+  margin-bottom: 24px;
 }
 
-// Team Control
+.feature-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.feature-card p {
+  color: #888;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Team Control Animated Logs */
 .team-control {
-  background: #0f0f0f;
-  border-top: 1px solid var(--theme-shadow-hover);
-  border-bottom: 1px solid var(--theme-shadow-hover);
+  padding: 100px 24px;
 }
-
 .team-control-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 80px;
   align-items: center;
 }
-
-.team-control-text {
-  h2 {
-    font-size: 40px;
-    font-weight: 800;
-    color: #ffffff;
-    margin: 0 0 16px 0;
-  }
-
-  .lead {
-    font-size: 18px;
-    color: #aaaaaa;
-    margin: 0 0 40px 0;
-  }
+.team-control-text h2 {
+  font-size: 40px;
+  font-weight: 800;
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
 }
-
+.team-control-text .lead {
+  font-size: 18px;
+  color: #888;
+  margin: 0 0 40px;
+}
 .benefits-list {
   list-style: none;
   padding: 0;
@@ -708,81 +576,60 @@ const logLines = [
   display: flex;
   flex-direction: column;
   gap: 24px;
-
-  li {
-    display: flex;
-    gap: 16px;
-  }
-
-  .check-icon {
-    color: var(--theme-primary-color);
-    font-size: 20px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  strong {
-    display: block;
-    font-size: 16px;
-    font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 4px;
-  }
-
-  p {
-    font-size: 14px;
-    color: #aaaaaa;
-    margin: 0;
-  }
 }
-
-// Log Window
+.benefits-list li {
+  display: flex;
+  gap: 16px;
+}
+.benefits-list .check-icon {
+  color: #fff;
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.benefits-list strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.benefits-list p {
+  color: #888;
+  margin: 0;
+  font-size: 14px;
+}
 .log-window {
-  background: #1a1a1a;
+  background: #0d0d0d;
   border-radius: 12px;
+  border: 1px solid #333;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
-
 .log-header {
   padding: 12px 16px;
-  background: #2a2a2a;
-  border-bottom: 1px solid #3a3a3a;
+  background: #111;
+  border-bottom: 1px solid #222;
   display: flex;
   align-items: center;
   gap: 12px;
 }
-
 .log-dots {
   display: flex;
   gap: 6px;
-
-  span {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #4a4a4a;
-
-    &:nth-child(1) {
-      background: #ff5f56;
-    }
-
-    &:nth-child(2) {
-      background: #ffbd2e;
-    }
-
-    &:nth-child(3) {
-      background: #27c93f;
-    }
-  }
 }
-
+.log-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.log-dots span:nth-child(1) { background: #ff5f56; }
+.log-dots span:nth-child(2) { background: #ffbd2e; }
+.log-dots span:nth-child(3) { background: #27c93f; }
 .log-title {
   font-size: 13px;
-  color: #8a8a8a;
+  color: #666;
   font-weight: 500;
 }
-
 .log-content {
   padding: 20px;
   font-family: 'Monaco', 'Menlo', monospace;
@@ -790,776 +637,215 @@ const logLines = [
   overflow: hidden;
   height: 300px;
 }
-
 .log-columns {
   display: flex;
   gap: 16px;
   height: 100%;
 }
-
 .log-column {
   flex: 1;
   overflow: hidden;
   position: relative;
 }
-
 .log-track {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  will-change: transform;
+  transform: translateZ(0);
 }
-
 .track-up {
   animation: scrollUp 20s linear infinite;
 }
-
 .track-down {
   animation: scrollDown 20s linear infinite;
 }
-
 @keyframes scrollUp {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-50%);
-  }
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
 }
-
 @keyframes scrollDown {
-  0% {
-    transform: translateY(-50%);
-  }
-  100% {
-    transform: translateY(0);
-  }
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0); }
 }
-
 .log-line {
   display: flex;
   gap: 16px;
   padding: 12px;
-  color: #8a8a8a;
-  background: var(--theme-shadow-hover);
+  color: #888;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   margin-bottom: 8px;
   min-height: 40px;
   align-items: center;
-
-  .log-time {
-    color: #6a6a6a;
-    min-width: 65px;
-  }
-
-  .log-user {
-    color: var(--theme-primary-color);
-    font-weight: 600;
-    min-width: 55px;
-  }
-
-  .log-action {
-    color: #aaa;
-    flex: 1;
-  }
+}
+.log-time {
+  color: #555;
+  min-width: 65px;
+}
+.log-user {
+  color: #a0a0a0;
+  font-weight: 600;
+  min-width: 55px;
+}
+.log-action {
+  color: #888;
+  flex: 1;
 }
 
-// Pricing
+/* Pricing */
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 32px;
-  max-width: 900px;
-  margin: 0 auto;
+  align-items: center;
 }
 
 .pricing-card {
+  background: #0d0d0d;
+  border: 1px solid #1f1f1f;
+  border-radius: 24px;
   padding: 40px;
-  background: #1a1a1a;
-  border: 2px solid #333;
-  border-radius: 16px;
-  transition: all 0.3s;
+  position: relative;
+}
 
-  &:hover {
-    border-color: var(--theme-primary-color);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px var(--theme-shadow-hover);
-  }
+.pricing-card.premium {
+  background: #111;
+  border-color: #333;
+  transform: scale(1.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 100px;
+  text-transform: uppercase;
 }
 
 .pricing-header {
   margin-bottom: 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  h3 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0;
-  }
 }
-
-.pricing-badge {
-  padding: 6px 12px;
-  background: var(--theme-shadow-hover);
-  border-radius: 100px;
-  font-size: 12px;
+.pricing-header h3 {
+  font-size: 20px;
   font-weight: 600;
-  color: var(--theme-primary-color);
+  color: #a0a0a0;
+  margin: 0 0 12px;
+}
+.price {
+  font-size: 48px;
+  font-weight: 800;
+  color: #fff;
+}
+.price span:first-child {
+  font-size: 24px;
+  vertical-align: super;
+  margin-right: 4px;
+}
+.period {
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
 }
 
 .pricing-features {
-  margin-bottom: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 40px;
 }
-
-.pricing-feature {
+.pricing-features li {
   display: flex;
   align-items: center;
   gap: 12px;
+  color: #d0d0d0;
+  margin-bottom: 16px;
   font-size: 15px;
-  color: #cccccc;
-
-  :deep(.anticon) {
-    color: var(--theme-primary-color);
-    font-size: 18px;
-  }
+}
+.pricing-features li .anticon {
+  color: #fff;
 }
 
-// CTA Section
-.cta-section {
-  padding: 100px 32px;
-  background: var(--theme-primary-gradient);
-}
-
-.cta-container {
-  max-width: 700px;
-  margin: 0 auto;
-  text-align: center;
-
-  h2 {
-    font-size: 42px;
-    font-weight: 800;
-    color: #0a0a0a;
-    margin: 0 0 16px 0;
-  }
-
-  p {
-    font-size: 18px;
-    color: rgba(10, 10, 10, 0.8);
-    margin: 0 0 40px 0;
-  }
-
-  .ant-btn-primary {
-    height: 56px;
-    padding: 0 40px;
-    font-size: 18px;
-    font-weight: 600;
-    background: #0a0a0a;
-    color: var(--theme-primary-color);
-    border: none;
-
-    &:hover {
-      background: #1a1a1a;
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-    }
-  }
-}
-
-// Footer
+/* Footer */
 .footer {
-  padding: 48px 32px;
-  background: #0a0a0a;
-  border-top: 1px solid var(--theme-shadow-hover);
+  border-top: 1px solid #1f1f1f;
+  padding: 80px 24px 40px;
+  background: #080808;
 }
 
-.footer-container {
+.footer-content {
   max-width: 1200px;
   margin: 0 auto;
-  text-align: center;
-}
-
-.footer-brand {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 64px;
+  margin-bottom: 64px;
+}
+
+.brand-logo-small {
+  height: 56px;
   margin-bottom: 16px;
-
-  img {
-    width: 32px;
-    height: 32px;
-  }
-
-  span {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--theme-primary-color);
-  }
+}
+.footer-brand p {
+  color: #666;
+  max-width: 200px;
+  line-height: 1.6;
 }
 
-.footer-container p {
-  color: #666666;
-  margin: 0 0 8px 0;
+.footer-links {
+  display: flex;
+  gap: 64px;
+}
+.link-group h4 {
+  color: #fff;
+  font-weight: 600;
+  margin: 0 0 24px;
+}
+.link-group a {
+  display: block;
+  color: #666;
+  margin-bottom: 12px;
+  text-decoration: none;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+.link-group a:hover {
+  color: #fff;
 }
 
-.footer-link {
-  color: var(--theme-primary-color);
-  font-weight: 500;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-// Responsive
-@media (max-width: 1024px) {
-  .nav-links {
-    gap: 16px;
-  }
-
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-  }
-
-  .team-control-content {
-    grid-template-columns: 1fr;
-    gap: 48px;
-  }
-
-  .pricing-grid {
-    grid-template-columns: 1fr;
-  }
+.footer-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-top: 1px solid #1f1f1f;
+  padding-top: 24px;
+  color: #555;
+  font-size: 14px;
+  text-align: center;
 }
 
 @media (max-width: 768px) {
-  // Navigation
-  .navbar {
-    padding: 12px 0;
+  .hero-title {
+    font-size: 48px;
   }
-
-  .nav-container {
-    padding: 0 20px;
+  .hero-cta {
+    flex-direction: column;
   }
-
-  .brand-logo-wide {
-    height: 32px;
-  }
-
   .nav-links {
     display: none;
   }
-
-  // Hero
-  .hero {
-    padding: 100px 20px 60px;
+  .pricing-card.premium {
+    transform: scale(1);
   }
-
-  .hero-title {
-    font-size: 32px;
-    line-height: 1.3;
-    margin-bottom: 16px;
-    br {
-      display: none;
-    }
-  }
-
-  .hero-subtitle {
-    font-size: 16px;
-    margin-bottom: 32px;
-    br {
-      display: none;
-    }
-  }
-
-  .hero-badge {
-    font-size: 12px;
-    padding: 6px 12px;
-    margin-bottom: 20px;
-  }
-
-  .hero-cta {
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 32px;
-  }
-
-  .cta-primary,
-  .cta-secondary {
-    width: 100%;
-    height: 44px;
-    font-size: 15px;
-  }
-
-  .hero-features {
-    gap: 12px;
-  }
-
-  .feature-pill {
-    font-size: 13px;
-    padding: 8px 14px;
-  }
-
-  // Sections
-  .features,
-  .team-control,
-  .pricing {
-    padding: 60px 20px;
-  }
-
-  .section-header {
-    margin-bottom: 40px;
-  }
-
-  .section-title {
-    font-size: 28px;
-    margin-bottom: 12px;
-  }
-
-  .section-subtitle {
-    font-size: 16px;
-  }
-
-  // Features Grid
-  .features-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .feature-card {
-    padding: 28px 20px;
-
-    h3 {
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-
-    p {
-      font-size: 14px;
-    }
-  }
-
-  .feature-icon {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 16px;
-
-    :deep(.anticon) {
-      font-size: 24px;
-    }
-  }
-
-  // Team Control
   .team-control-content {
-    gap: 32px;
-  }
-
-  .team-control-text {
-    h2 {
-      font-size: 28px;
-      margin-bottom: 12px;
-    }
-
-    .lead {
-      font-size: 16px;
-      margin-bottom: 28px;
-    }
-  }
-
-  .benefits-list {
-    gap: 16px;
-
-    strong {
-      font-size: 15px;
-    }
-
-    p {
-      font-size: 13px;
-    }
-  }
-
-  .log-window {
-    margin-top: 20px;
-  }
-
-  .log-content {
-    padding: 16px;
-    height: 250px;
-  }
-
-  .log-line {
-    padding: 8px;
-    font-size: 11px;
-    margin-bottom: 6px;
-
-    .log-time {
-      min-width: 55px;
-      font-size: 10px;
-    }
-
-    .log-user {
-      min-width: 45px;
-      font-size: 11px;
-    }
-
-    .log-action {
-      font-size: 11px;
-    }
-  }
-
-  // Pricing
-  .pricing-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .pricing-card {
-    padding: 28px 20px;
-  }
-
-  .pricing-header {
-    margin-bottom: 24px;
-
-    h3 {
-      font-size: 20px;
-    }
-  }
-
-  .pricing-badge {
-    font-size: 11px;
-    padding: 4px 10px;
-  }
-
-  .pricing-features {
-    margin-bottom: 24px;
-    gap: 12px;
-  }
-
-  .pricing-feature {
-    font-size: 14px;
-  }
-
-  // CTA
-  .cta-section {
-    padding: 60px 20px;
-  }
-
-  .cta-container {
-    h2 {
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
-
-    p {
-      font-size: 16px;
-      margin-bottom: 28px;
-    }
-
-    .ant-btn-primary {
-      height: 48px;
-      padding: 0 32px;
-      font-size: 16px;
-    }
-  }
-
-  // Footer
-  .footer {
-    padding: 32px 20px;
-  }
-
-  .footer-brand {
-    margin-bottom: 12px;
-
-    img {
-      height: 32px;
-      width: auto;
-      max-width: 100%;
-      object-fit: contain;
-    }
-  }
-
-  .footer-container p {
-    font-size: 13px;
-    margin-bottom: 6px;
-  }
-
-  .footer-link {
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: 28px;
-  }
-
-  .section-title {
-    font-size: 24px;
-  }
-
-  .team-control-text h2 {
-    font-size: 24px;
-  }
-
-  .cta-container h2 {
-    font-size: 28px;
-  }
-}
-</style>
-
-<style lang="scss">
-// Global Light Mode Styles for Landing Page
-.app-light-theme {
-  .landing-page {
-    background: #f5f5f5;
-  }
-
-  // Navigation
-  .navbar {
-    background: rgba(255, 255, 255, 0.98);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
-
-  .brand-name {
-    color: var(--theme-primary-color);
-  }
-
-  .nav-link {
-    color: #4a4a4a;
-
-    &:hover {
-      color: var(--theme-primary-color);
-    }
-  }
-
-  .theme-toggle {
-    border: 1px solid #ddd;
-    color: #4a4a4a;
-
-    &:hover {
-      border-color: var(--theme-primary-color);
-      color: var(--theme-primary-color);
-      background: var(--theme-shadow-hover);
-    }
-  }
-
-  .btn-login {
-    border: 1px solid #ddd;
-    color: #4a4a4a;
-    background: white;
-
-    &:hover {
-      border-color: var(--theme-primary-color);
-      color: var(--theme-primary-color);
-    }
-  }
-
-  .btn-register {
-    background: var(--theme-primary-gradient);
-    border: none;
-
-    &:hover {
-      background: var(--theme-primary-gradient);
-    }
-  }
-
-  // Hero Section
-  .hero {
-    background: linear-gradient(135deg, #ffffff 0%, #fff5f0 100%);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
-
-  .hero-badge {
-    background: var(--theme-shadow-hover);
-    border: 1px solid var(--theme-shadow-hover);
-    color: var(--theme-primary-color);
-  }
-
-  .badge-dot {
-    background: var(--theme-primary-color);
-  }
-
-  .hero-title {
-    color: #1a1a1a;
-    text-shadow: none;
-  }
-
-  .hero-subtitle {
-    color: #666;
-  }
-
-  .cta-primary {
-    background: var(--theme-primary-gradient);
-
-    &:hover {
-      background: var(--theme-primary-gradient);
-      box-shadow: 0 8px 24px var(--theme-shadow-hover);
-    }
-  }
-
-  .cta-secondary {
-    border: 2px solid #ddd;
-    color: #4a4a4a;
-    background: white;
-
-    &:hover {
-      border-color: var(--theme-primary-color);
-      color: var(--theme-primary-color);
-    }
-  }
-
-  .feature-pill {
-    background: white;
-    border: 2px solid #333;
-    color: #4a4a4a;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  // Sections
-  .features,
-  .team-control,
-  .pricing {
-    background: #f5f5f5;
-  }
-
-  .section-title {
-    color: #1a1a1a;
-  }
-
-  .section-subtitle {
-    color: #666;
-  }
-
-  // Feature Cards with Darker Edges
-  .feature-card {
-    background: white;
-    border: 2px solid #333;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-
-    &:hover {
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
-      border-color: var(--theme-primary-color);
-    }
-
-    h3 {
-      color: #1a1a1a;
-    }
-
-    p {
-      color: #666;
-    }
-  }
-
-  .feature-icon {
-    background: var(--theme-shadow-hover);
-
-    .anticon {
-      color: var(--theme-primary-color);
-    }
-  }
-
-  // Team Control
-  .team-control {
-    background: #ececec;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
-
-  .team-control-text {
-    h2 {
-      color: #1a1a1a;
-    }
-
-    .lead {
-      color: #666;
-    }
-  }
-
-  .benefits-list {
-    .check-icon {
-      color: var(--theme-primary-color);
-    }
-
-    strong {
-      color: #1a1a1a;
-    }
-
-    p {
-      color: #666;
-    }
-  }
-
-  // Log Window with Darker Edge
-  .log-window {
-    background: #1a1a1a;
-    border: 2px solid #000;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  }
-
-  // Pricing Cards with Darker Edges
-  .pricing-card {
-    background: white;
-    border: 2px solid #333;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-
-    &:hover {
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
-      border-color: var(--theme-primary-color);
-    }
-  }
-
-  .pricing-header {
-    h3 {
-      color: #1a1a1a;
-    }
-  }
-
-  .pricing-badge {
-    background: var(--theme-shadow-hover);
-    color: var(--theme-primary-color);
-  }
-
-  .pricing-feature {
-    color: #4a4a4a;
-
-    .anticon {
-      color: var(--theme-primary-color);
-    }
-  }
-
-  // CTA Section
-  .cta-section {
-    background: var(--theme-primary-gradient);
-  }
-
-  .cta-container {
-    h2 {
-      color: #fff;
-    }
-
-    p {
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .ant-btn-primary {
-      background: white;
-      color: var(--theme-primary-color);
-
-      &:hover {
-        background: #f5f5f5;
-      }
-    }
-  }
-
-  // Footer
-  .footer {
-    background: #1a1a1a;
-    border-top: 1px solid #333;
+    gap: 40px;
   }
 }
 </style>

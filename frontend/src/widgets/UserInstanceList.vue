@@ -8,6 +8,7 @@ import { INSTANCE_STATUS, INSTANCE_STATUS_CODE } from "@/types/const";
 import { parseTimestamp } from "../tools/time";
 import PermissionBanner from "@/components/PermissionBanner.vue";
 import SubUserManager from "@/components/SubUserManager.vue";
+import SleekLoading from "@/components/SleekLoading.vue";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import { reportErrorMsg } from "@/tools/validator";
 import { message } from "ant-design-vue";
@@ -188,15 +189,15 @@ const canManageSubUsers = () => {
 const getStatusColor = (status: INSTANCE_STATUS_CODE) => {
   switch (status) {
     case INSTANCE_STATUS_CODE.RUNNING:
-      return '#52c41a';
+      return '#ffffff';
     case INSTANCE_STATUS_CODE.STOPPED:
-      return '#ff4d4f';
+      return 'rgba(255, 255, 255, 0.4)';
     case INSTANCE_STATUS_CODE.STOPPING:
-      return '#faad14';
+      return 'rgba(255, 255, 255, 0.6)';
     case INSTANCE_STATUS_CODE.STARTING:
-      return '#1890ff';
+      return 'rgba(255, 255, 255, 0.8)';
     default:
-      return '#8c8c8c';
+      return 'rgba(255, 255, 255, 0.5)';
   }
 };
 
@@ -229,10 +230,10 @@ const getServerIcon = (type?: string) => {
 
 const getServerTypeColor = (type?: string) => {
   const typeLower = type?.toLowerCase() || '';
-  if (typeLower.includes('minecraft')) return { bg: 'rgba(139, 195, 74, 0.15)', color: '#8bc34a' };
-  if (typeLower.includes('docker')) return { bg: 'rgba(33, 150, 243, 0.15)', color: '#2196f3' };
-  if (typeLower.includes('steam')) return { bg: 'rgba(156, 39, 176, 0.15)', color: '#9c27b0' };
-  return { bg: 'var(--theme-shadow-hover)', color: 'var(--theme-primary-color)' };
+  if (typeLower.includes('minecraft')) return { bg: 'rgba(255, 255, 255, 0.08)', color: '#ffffff' };
+  if (typeLower.includes('docker')) return { bg: 'rgba(255, 255, 255, 0.08)', color: '#ffffff' };
+  if (typeLower.includes('steam')) return { bg: 'rgba(255, 255, 255, 0.08)', color: '#ffffff' };
+  return { bg: 'rgba(255, 255, 255, 0.08)', color: '#ffffff' };
 };
 
 const canStart = (status: INSTANCE_STATUS_CODE) => {
@@ -415,9 +416,7 @@ onMounted(() => {
 
       <!-- Loading State -->
       <div v-else-if="loading" class="loading-state">
-        <div class="loading-spinner">
-          <div class="spinner"></div>
-        </div>
+        <SleekLoading size="md" class="loading-spinner" />
         <p>Loading your applications...</p>
       </div>
 
@@ -439,7 +438,7 @@ onMounted(() => {
           <!-- Card Background Pattern -->
           <div class="card-pattern"></div>
 
-          <!-- Card Header with Status -->
+          <!-- Card Header with Status & Power Action -->
           <div class="card-header">
             <div class="server-icon" :style="{
               background: getServerTypeColor(instance.processType).bg,
@@ -451,56 +450,36 @@ onMounted(() => {
               <h3 class="server-name">{{ instance.nickname || 'Unnamed Server' }}</h3>
               <span class="server-type">{{ instance.processType || 'General' }}</span>
             </div>
-            <div class="status-badge" :style="{ '--status-color': getStatusColor(instance.status) }">
-              <component :is="getStatusIcon(instance.status)" :class="{ 'spin': instance.status === INSTANCE_STATUS_CODE.STARTING || instance.status === INSTANCE_STATUS_CODE.STOPPING }" />
-              <span class="status-text">{{ getStatusText(instance.status) }}</span>
-            </div>
-          </div>
 
-          <!-- Card Body with Stats -->
-          <div class="card-body">
-            <div class="info-grid">
-              <div class="info-item">
-                <ClockCircleOutlined class="info-icon" />
-                <div class="info-content">
-                  <span class="info-label">Last Active</span>
-                  <span class="info-value">{{ parseTimestamp(instance.lastDatetime) || 'Never' }}</span>
-                </div>
+            <div class="header-right">
+              <div class="quick-power-action">
+                <a-tooltip v-if="canStart(instance.status)" title="Start Server">
+                  <button
+                    class="quick-btn start"
+                    :disabled="operatingInstances.has(instance.instanceUuid)"
+                    @click.stop="quickAction(instance, 'open')"
+                  >
+                    <CaretRightOutlined v-if="!operatingInstances.has(instance.instanceUuid)" />
+                    <LoadingOutlined v-else class="spin" />
+                  </button>
+                </a-tooltip>
+                <a-tooltip v-if="canStop(instance.status)" title="Stop Server">
+                  <button
+                    class="quick-btn stop"
+                    :disabled="operatingInstances.has(instance.instanceUuid)"
+                    @click.stop="quickAction(instance, 'stop')"
+                  >
+                    <PoweroffOutlined v-if="!operatingInstances.has(instance.instanceUuid)" />
+                    <LoadingOutlined v-else class="spin" />
+                  </button>
+                </a-tooltip>
               </div>
-              <div class="info-item">
-                <PlayCircleOutlined class="info-icon" />
-                <div class="info-content">
-                  <span class="info-label">Expires</span>
-                  <span class="info-value" :class="{ 'warning': instance.endTime && instance.endTime < Date.now() + 86400000 * 7 }">
-                    {{ parseTimestamp(instance.endTime) || 'Never' }}
-                  </span>
-                </div>
+
+              <div class="status-badge" :style="{ '--status-color': getStatusColor(instance.status) }">
+                <component :is="getStatusIcon(instance.status)" :class="{ 'spin': instance.status === INSTANCE_STATUS_CODE.STARTING || instance.status === INSTANCE_STATUS_CODE.STOPPING }" />
+                <span class="status-text">{{ getStatusText(instance.status) }}</span>
               </div>
             </div>
-          </div>
-
-          <!-- Quick Actions -->
-          <div class="quick-actions">
-            <a-tooltip v-if="canStart(instance.status)" title="Start Server">
-              <button
-                class="quick-btn start"
-                :disabled="operatingInstances.has(instance.instanceUuid)"
-                @click.stop="quickAction(instance, 'open')"
-              >
-                <CaretRightOutlined v-if="!operatingInstances.has(instance.instanceUuid)" />
-                <LoadingOutlined v-else class="spin" />
-              </button>
-            </a-tooltip>
-            <a-tooltip v-if="canStop(instance.status)" title="Stop Server">
-              <button
-                class="quick-btn stop"
-                :disabled="operatingInstances.has(instance.instanceUuid)"
-                @click.stop="quickAction(instance, 'stop')"
-              >
-                <PoweroffOutlined v-if="!operatingInstances.has(instance.instanceUuid)" />
-                <LoadingOutlined v-else class="spin" />
-              </button>
-            </a-tooltip>
           </div>
 
           <!-- Card Actions -->
@@ -544,7 +523,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .modern-applications-panel {
-  background: linear-gradient(145deg, rgba(18, 18, 24, 0.98) 0%, rgba(26, 26, 36, 0.98) 100%);
+  background: linear-gradient(145deg, rgba(10, 10, 10, 0.98) 0%, rgba(15, 15, 15, 0.98) 100%);
   border: 1px solid var(--theme-shadow-hover);
   border-radius: 20px;
   overflow: hidden;
@@ -923,14 +902,16 @@ onMounted(() => {
 // Server Card
 .server-card {
   position: relative;
-  background: linear-gradient(145deg, rgba(35, 35, 45, 0.9) 0%, rgba(25, 25, 35, 0.9) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #1E1F22;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 20px;
   overflow: hidden;
   opacity: 0;
   transform: translateY(20px);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
 
   &.animated {
     opacity: 1;
@@ -938,11 +919,10 @@ onMounted(() => {
   }
 
   &:hover {
-    border-color: var(--theme-shadow-hover);
+    border-color: rgba(255, 255, 255, 0.18);
     box-shadow:
-      0 20px 60px rgba(0, 0, 0, 0.4),
-      0 0 0 1px var(--theme-shadow-hover),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      0 20px 50px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
     transform: translateY(-4px);
 
     .card-glow {
@@ -960,7 +940,7 @@ onMounted(() => {
   }
 
   &.is-running {
-    border-color: rgba(82, 196, 26, 0.2);
+    border-color: rgba(255, 255, 255, 0.15);
 
     &::after {
       content: '';
@@ -969,7 +949,7 @@ onMounted(() => {
       left: 0;
       right: 0;
       bottom: 0;
-      background: radial-gradient(ellipse at top right, rgba(82, 196, 26, 0.05) 0%, transparent 50%);
+      background: radial-gradient(ellipse at top right, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
       pointer-events: none;
     }
   }
@@ -1019,8 +999,8 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background-image:
-    radial-gradient(circle at 20% 80%, var(--theme-shadow-hover) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -1055,14 +1035,17 @@ onMounted(() => {
 }
 
 .server-icon {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
-  font-size: 26px;
+  border-radius: 12px;
+  font-size: 22px;
   flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: transform 0.3s ease;
 
   .server-card:hover & {
@@ -1076,31 +1059,40 @@ onMounted(() => {
 }
 
 .server-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
   margin: 0 0 4px 0;
+  letter-spacing: 0.5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .server-type {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
-  text-transform: capitalize;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .status-badge {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 20px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
   flex-shrink: 0;
   font-size: 11px;
-  color: var(--status-color);
+  color: #ffffff;
 
   .anticon {
     font-size: 12px;
@@ -1108,13 +1100,14 @@ onMounted(() => {
 }
 
 .status-text {
-  font-weight: 500;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .card-body {
   margin-bottom: 16px;
+  flex: 1;
 }
 
 .info-grid {
@@ -1126,40 +1119,49 @@ onMounted(() => {
 
 .info-item {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.2);
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 10px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
 
   .info-icon {
-    color: var(--theme-shadow-hover);
-    font-size: 14px;
+    display: none;
   }
 }
 
 .info-content {
   display: flex;
   flex-direction: column;
+  gap: 4px;
   min-width: 0;
 }
 
 .info-label {
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 600;
   color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .info-value {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
   &.warning {
-    color: #faad14;
+    color: rgba(255, 255, 255, 0.6);
   }
 }
 
@@ -1213,16 +1215,18 @@ onMounted(() => {
 }
 
 // Quick Actions
-.quick-actions {
-  position: absolute;
-  top: 16px;
-  right: 16px;
+.header-right {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  opacity: 0;
-  transform: translateX(10px);
-  transition: all 0.3s ease;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.quick-power-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .quick-btn {
@@ -1232,41 +1236,50 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  color: #ffffff;
   transition: all 0.2s ease;
 
   &.start {
-    background: rgba(82, 196, 26, 0.15);
-    color: #52c41a;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
 
     &:hover:not(:disabled) {
-      background: rgba(82, 196, 26, 0.25);
-      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
     }
   }
 
   &.stop {
-    background: rgba(255, 77, 79, 0.15);
-    color: #ff4d4f;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.7);
 
     &:hover:not(:disabled) {
-      background: rgba(255, 77, 79, 0.25);
-      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      transform: scale(1.05);
     }
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
   }
 }
+
 
 // Card Actions
 .card-actions {
   display: flex;
   gap: 10px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .action-btn {
@@ -1275,38 +1288,42 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 40px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  height: 42px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
 
   &.primary-action {
-    background: var(--theme-primary-gradient);
-    border: none;
-    color: #000;
+    background: #ffffff !important;
+    border: none !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15) !important;
 
     &:hover:not(:disabled) {
-      background: var(--theme-primary-gradient);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px var(--theme-shadow-hover);
+      background: #e6e6e6 !important;
+      color: #000000 !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.25) !important;
     }
 
     &:disabled {
-      opacity: 0.5;
+      opacity: 0.4 !important;
       cursor: not-allowed;
     }
   }
 
   &.secondary-action {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.12) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      color: #ffffff !important;
+      transform: translateY(-2px) !important;
     }
   }
 }

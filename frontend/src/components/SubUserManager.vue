@@ -19,6 +19,7 @@ import {
 } from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
 import { reportErrorMsg } from "@/tools/validator";
+import { parseTimestamp } from "@/tools/time";
 import type { UserPermissions } from "@/types/user";
 import {
   getSubUsers,
@@ -133,6 +134,32 @@ const handleSearchUsers = _.debounce(async (value: string) => {
   }
 }, 500);
 
+const defaultPermissions: UserPermissions = {
+  canUploadFiles: true,
+  canDownloadFiles: true,
+  canDeleteFiles: false,
+  canModifyFiles: true,
+  canAccessConsole: true,
+  canStartInstances: true,
+  canRestartInstances: true,
+  canStopInstances: true,
+  canTerminateInstances: false,
+  canViewLogs: true,
+  canAccessConfigFiles: false,
+  canAccessFileManager: true,
+  canAccessMinecraftQuery: true,
+  canAccessTerminalSettings: false,
+  canAccessScheduledTasks: false,
+  canAccessEventTasks: false,
+  canAccessInstanceSettings: false,
+  canAccessServerMarket: false,
+  disableRightClick: false,
+  disableKeyboardShortcuts: false,
+  disableTextSelection: false,
+  disableCopy: false,
+  disablePaste: false
+};
+
 const handleAddOwnerSubmit = async () => {
   try {
     await addOwnerFormRef.value?.validate();
@@ -149,7 +176,8 @@ const handleAddOwnerSubmit = async () => {
 
     userInstances.push({
       instanceUuid: props.instanceUuid,
-      daemonId: props.daemonId
+      daemonId: props.daemonId,
+      permissions: { ...defaultPermissions, canTerminateInstances: true, canAccessInstanceSettings: true }
     });
 
     await updateUserInstance().execute({
@@ -189,31 +217,7 @@ const availableParents = computed(() => {
   });
 });
 
-const defaultPermissions: UserPermissions = {
-  canUploadFiles: true,
-  canDownloadFiles: true,
-  canDeleteFiles: false,
-  canModifyFiles: true,
-  canAccessConsole: true,
-  canStartInstances: true,
-  canRestartInstances: true,
-  canStopInstances: true,
-  canTerminateInstances: false,
-  canViewLogs: true,
-  canAccessConfigFiles: false,
-  canAccessFileManager: true,
-  canAccessMinecraftQuery: true,
-  canAccessTerminalSettings: false,
-  canAccessScheduledTasks: false,
-  canAccessEventTasks: false,
-  canAccessInstanceSettings: false,
-  canAccessServerMarket: false,
-  disableRightClick: false,
-  disableKeyboardShortcuts: false,
-  disableTextSelection: false,
-  disableCopy: false,
-  disablePaste: false
-};
+
 
 const inviteFormData = ref({
   inviteeEmail: "",
@@ -758,11 +762,11 @@ const formatExpiry = (expiresAt: number) => {
               <div class="user-meta">
                 <div class="meta-item">
                   <span class="meta-label">Created</span>
-                  <span class="meta-value">{{ item.registerTime }}</span>
+                  <span class="meta-value">{{ parseTimestamp(item.registerTime) || 'N/A' }}</span>
                 </div>
                 <div v-if="item.loginTime" class="meta-item">
                   <span class="meta-label">Last Login</span>
-                  <span class="meta-value">{{ item.loginTime }}</span>
+                  <span class="meta-value">{{ parseTimestamp(item.loginTime) }}</span>
                 </div>
               </div>
             </div>

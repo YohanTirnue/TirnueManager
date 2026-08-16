@@ -10,6 +10,7 @@ import {
   CloseCircleOutlined,
   TeamOutlined
 } from "@ant-design/icons-vue";
+import SleekLoading from "@/components/SleekLoading.vue";
 import { verifyInvite, acceptInviteRegister } from "@/services/apis";
 import CardPanel from "@/components/CardPanel.vue";
 import { PASSWORD_REGEX } from "@/tools/validator";
@@ -126,7 +127,7 @@ const goToLogin = () => {
         <template #body>
           <!-- Loading State -->
           <div v-if="loading" class="invite-loading">
-            <a-spin size="large" />
+            <SleekLoading size="md" style="margin-bottom: 16px" />
             <p>Verifying invitation...</p>
           </div>
 

@@ -1,9 +1,11 @@
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 
-export function parseTimestamp(st = 0) {
+export function parseTimestamp(st: number | string | Date = 0) {
   if (!st) return "";
-  return dayjs(st).format("MMM DD YYYY").toUpperCase();
+  const d = dayjs(st);
+  if (!d.isValid()) return "";
+  return d.format("MMM DD YYYY").toUpperCase();
 }
 
 export function dayjsToTimestamp(dayjs?: Dayjs) {

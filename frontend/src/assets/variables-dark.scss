@@ -1,18 +1,18 @@
 .app-dark-theme {
   @extend .app-dark-base-color;
 
-  // --- CORE PALETTE ---
-  --core-bg-base: #000000;
-  --core-bg-surface: #141414;
-  --core-bg-surface-hover: #1f1f1f;
-  --core-border: #434343;
+  // --- GEMINI ORGANIC DARK PALETTE ---
+  --core-bg-base: #131314;           // Deep organic background (replaces harsh #000000)
+  --core-bg-surface: #1E1F22;        // Floating elevated card / chat bubble surface (replaces #141414)
+  --core-bg-surface-hover: #28292D;  // Elevated hover surface
+  --core-border: rgba(255, 255, 255, 0.08);
   
-  --core-text-main: #ffffff;
-  --core-text-muted: #a6a6a6;
+  --core-text-main: #E3E3E3;         // Dialed-back glare-free primary text (replaces harsh #ffffff glare)
+  --core-text-muted: #9E9E9E;        // Muted subtitle text
   
-  --core-btn-primary: #ffffff;
-  --core-btn-primary-hover: #d9d9d9;
-  --core-btn-danger: #ffffff;
+  --core-btn-primary: #E3E3E3;
+  --core-btn-primary-hover: #ffffff;
+  --core-btn-danger: #E3E3E3;
 
   // --- SEMANTIC MAPPING ---
   --vscode-bg-color: var(--core-bg-base);
@@ -37,52 +37,54 @@
   --sidebar-width: 260px;
   --sidebar-bg: var(--core-bg-base);
   --sidebar-text: var(--core-text-main);
-  --sidebar-active-bg: var(--core-border);
-  --sidebar-hover-bg: var(--core-bg-surface-hover);
+  --sidebar-active-bg: rgba(255, 255, 255, 0.08);
+  --sidebar-hover-bg: var(--core-bg-surface);
 
   --text-color: var(--core-text-main);
 
   --card-border-color: var(--core-border);
-  --card-shadow-color: rgba(255, 255, 255, 0.1);
-  --card-shadow-extend-color: rgba(255, 255, 255, 0.2);
+  --card-shadow-color: rgba(0, 0, 0, 0.3);
+  --card-shadow-extend-color: rgba(0, 0, 0, 0.5);
 
   --card-bottom-background-color: var(--core-bg-surface);
 
   .app-header-wrapper {
-    border-bottom: 1px solid var(--color-gray-5);
+    border-bottom: 1px solid var(--core-border);
+    background-color: var(--core-bg-base) !important;
   }
 
-  // Antdv for dark mode - Modern Black theme
+  // Antdv for dark mode - Gemini Organic Dark theme
   .ant-btn-default {
-    background-color: var(--core-bg-base);
-    border: 1px solid var(--core-text-main);
+    background-color: var(--core-bg-surface);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--core-text-main);
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
 
   .ant-btn-default:hover {
-    background-color: var(--core-bg-surface);
-    border-color: var(--core-btn-primary-hover);
-    color: var(--core-btn-primary-hover);
+    background-color: var(--core-bg-surface-hover);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
   }
 
   .ant-btn-primary {
-    background: var(--core-btn-primary);
-    border: 1px solid var(--core-btn-primary);
-    color: var(--core-bg-base);
-    font-weight: 600;
+    background: #E3E3E3;
+    border: 1px solid #E3E3E3;
+    color: #131314;
+    font-weight: 700;
   }
 
   .ant-btn-primary:hover {
-    background: var(--core-btn-primary-hover);
-    border: 1px solid var(--core-btn-primary-hover);
-    color: var(--core-bg-base);
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #131314;
   }
 
   .ant-modal-content {
     border: 1px solid var(--core-border);
     border-radius: 16px;
-    background-color: var(--core-bg-base);
+    background-color: var(--core-bg-surface);
+    color: var(--core-text-main);
   }
 
   .ant-tag-purple {
@@ -213,23 +215,23 @@
   --color-magenta-9: #f8a8cc;
   --color-magenta-10: #fad2e3;
 
-  --color-gray-13: #ffffff;
-  --color-gray-12: #fafafa;
-  --color-gray-11: #f5f5f5;
-  --color-gray-10: #f0f0f0;
-  --color-gray-9: #d9d9d9;
-  --color-gray-8: #bfbfbf;
-  --color-gray-7: #8c8c8c;
-  --color-gray-6: #595959;
-  --color-gray-5: #434343;
-  --color-gray-4: #262626;
-  --color-gray-3: #1f1f1f;
-  --color-gray-2: #141414;
-  --color-gray-1: #000000;
+  --color-gray-13: #E3E3E3;
+  --color-gray-12: #d9d9d9;
+  --color-gray-11: #bfbfbf;
+  --color-gray-10: #a6a6a6;
+  --color-gray-9: #8c8c8c;
+  --color-gray-8: #737373;
+  --color-gray-7: #595959;
+  --color-gray-6: #434343;
+  --color-gray-5: #2A2B2E;
+  --color-gray-4: #222326;
+  --color-gray-3: #1E1F22;
+  --color-gray-2: #161617;
+  --color-gray-1: #131314;
 
-  --color-primary: #ffffff;
-  --color-danger: #ffffff;
-  --color-warning: #ffffff;
-  --color-success: #ffffff;
-  --color-info: #ffffff;
+  --color-primary: #E3E3E3;
+  --color-danger: #E3E3E3;
+  --color-warning: #E3E3E3;
+  --color-success: #E3E3E3;
+  --color-info: #E3E3E3;
 }

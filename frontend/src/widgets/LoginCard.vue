@@ -13,6 +13,7 @@ import {
   LockOutlined,
   UserOutlined
 } from "@ant-design/icons-vue";
+import SleekLoading from "@/components/SleekLoading.vue";
 import { onMounted, reactive, ref } from "vue";
 
 const route = useRoute();
@@ -212,7 +213,7 @@ const onTurnstileCallback = (token: string) => {
 
         <!-- Loading -->
         <div v-show="loginStep === 1" class="status-view">
-          <LoadingOutlined class="status-icon spin" />
+          <SleekLoading size="lg" style="margin-bottom: 20px" />
           <h3>Authenticating...</h3>
         </div>
 
@@ -319,29 +320,35 @@ const onTurnstileCallback = (token: string) => {
 .dark-input {
   :deep(.ant-input),
   :deep(.ant-input-password),
-  :deep(.ant-input-affix-wrapper) {
+  :deep(.ant-input-affix-wrapper),
+  :deep(input) {
     font-size: 15px !important;
     padding: 12px 16px !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
-    background: rgba(0, 0, 0, 0.5) !important;
-    color: #fff !important;
-    transition: all 0.2s !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    color: #ffffff !important;
+    transition: all 0.2s ease !important;
     height: auto !important;
 
     &::placeholder {
-      color: #666 !important;
+      color: #666666 !important;
     }
 
     &:hover {
-      border-color: rgba(255, 255, 255, 0.2) !important;
+      border-color: rgba(255, 255, 255, 0.25) !important;
+      background: rgba(0, 0, 0, 0.8) !important;
     }
 
     &:focus,
-    &:focus-within {
-      border-color: #fff !important;
-      background: rgba(0, 0, 0, 0.8) !important;
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+    &:focus-within,
+    &:active,
+    &.ant-input-focused,
+    &.ant-input-affix-wrapper-focused {
+      border-color: #ffffff !important;
+      background: rgba(0, 0, 0, 0.95) !important;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15) !important;
+      color: #ffffff !important;
     }
   }
 
@@ -409,15 +416,18 @@ const onTurnstileCallback = (token: string) => {
   justify-content: center;
   align-items: center;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 12px;
   font-size: 13px;
 
   a {
-    color: #888;
-    transition: color 0.2s;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
 
     &:hover {
-      color: #fff;
+      color: #ffffff;
+      text-decoration: underline;
     }
   }
 
@@ -462,13 +472,14 @@ const onTurnstileCallback = (token: string) => {
 :deep(input:-webkit-autofill),
 :deep(input:-webkit-autofill:hover),
 :deep(input:-webkit-autofill:focus),
-:deep(input:-webkit-autofill:active) {
-  -webkit-text-fill-color: white !important;
-  -webkit-box-shadow: 0 0 0px 1000px rgba(0, 0, 0, 0.8) inset !important;
-  box-shadow: 0 0 0px 1000px rgba(0, 0, 0, 0.8) inset !important;
-  background-color: transparent !important;
-  caret-color: white !important;
-  transition: background-color 5000s ease-in-out 0s;
+:deep(input:-webkit-autofill:active),
+:deep(input:-internal-autofill-selected) {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0px 1000px #080808 inset !important;
+  box-shadow: 0 0 0px 1000px #080808 inset !important;
+  background-color: #080808 !important;
+  caret-color: #ffffff !important;
+  transition: background-color 50000s ease-in-out 0s !important;
 }
 
 // Responsive

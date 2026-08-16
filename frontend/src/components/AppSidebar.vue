@@ -49,21 +49,74 @@ const userRole = computed(() => {
 const showLogoutModal = ref(false);
 const { execute } = logoutUser();
 
-const menuItems = computed(() => {
-  return originRouterConfig
-    .filter((r) => {
-      if (!r.meta.mainMenu) return false;
-      if (r.meta.onlyDisplayEditMode && !containerState.isDesignMode) return false;
-      if (r.meta.condition && !r.meta.condition()) return false;
-      if (r.path === "/" || r.path === "") return false;
-      const requiredPermission = r.meta.permission ?? 0;
-      return userPermission.value >= requiredPermission;
-    })
+interface NavGroup {
+  title?: string;
+  items: Array<{
+    path: string;
+    name: string;
+    icon: any;
+  }>;
+}
+
+const menuGroups = computed<NavGroup[]>(() => {
+  const allowed = originRouterConfig.filter((r) => {
+    if (!r.meta.mainMenu) return false;
+    if (r.meta.onlyDisplayEditMode && !containerState.isDesignMode) return false;
+    if (r.meta.condition && !r.meta.condition()) return false;
+    if (r.path === "/" || r.path === "") return false;
+    const requiredPermission = r.meta.permission ?? 0;
+    return userPermission.value >= requiredPermission;
+  });
+
+  const isAdminOrMod = userPermission.value >= ROLE.MODERATOR;
+
+  if (!isAdminOrMod) {
+    return [
+      {
+        items: allowed.map((r) => ({
+          path: r.path,
+          name: r.name,
+          icon: getIconForRoute(r.path)
+        }))
+      }
+    ];
+  }
+
+  const personalPaths = ["/customer", "/my-nodes", "/account", "/support"];
+
+  const adminItems = allowed
+    .filter((r) => !personalPaths.includes(r.path))
     .map((r) => ({
       path: r.path,
       name: r.name,
       icon: getIconForRoute(r.path)
     }));
+
+  const personalItems = allowed
+    .filter((r) => personalPaths.includes(r.path))
+    .map((r) => ({
+      path: r.path,
+      name: r.name,
+      icon: getIconForRoute(r.path)
+    }));
+
+  const groups: NavGroup[] = [];
+
+  if (adminItems.length > 0) {
+    groups.push({
+      title: "Admin System",
+      items: adminItems
+    });
+  }
+
+  if (personalItems.length > 0) {
+    groups.push({
+      title: "Personal Apps",
+      items: personalItems
+    });
+  }
+
+  return groups;
 });
 
 function getIconForRoute(path: string) {
@@ -170,16 +223,23 @@ async function handleLogout() {
 
     <!-- Navigation Menu -->
     <nav class="sidebar-nav">
-      <div
-        v-for="item in menuItems"
-        :key="item.path"
-        class="nav-item"
-        :class="{ active: isActive(item.path) }"
-        @click.stop="navigateAndClose(item.path)"
-      >
-        <component :is="item.icon" class="nav-icon" />
-        <span v-if="!sidebarCollapsed" class="nav-text">{{ item.name }}</span>
-        <span v-if="!sidebarCollapsed" class="nav-arrow">›</span>
+      <div v-for="(group, gIdx) in menuGroups" :key="gIdx" class="nav-group">
+        <div v-if="group.title && !sidebarCollapsed" class="nav-group-title">
+          {{ group.title }}
+        </div>
+        <div v-else-if="gIdx > 0 && sidebarCollapsed" class="nav-group-divider"></div>
+
+        <div
+          v-for="item in group.items"
+          :key="item.path"
+          class="nav-item"
+          :class="{ active: isActive(item.path) }"
+          @click.stop="navigateAndClose(item.path)"
+        >
+          <component :is="item.icon" class="nav-icon" />
+          <span v-if="!sidebarCollapsed" class="nav-text">{{ item.name }}</span>
+          <span v-if="!sidebarCollapsed" class="nav-arrow">›</span>
+        </div>
       </div>
     </nav>
 
@@ -324,6 +384,30 @@ async function handleLogout() {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
+}
+
+.nav-group {
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.nav-group-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  padding: 12px 14px 4px 14px;
+  user-select: none;
+}
+
+.nav-group-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 12px 6px;
 }
 
 .nav-item {

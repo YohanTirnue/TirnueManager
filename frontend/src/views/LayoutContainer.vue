@@ -134,7 +134,6 @@ const showCardOperator = (card: ILayoutCard) => {
   position: relative;
 }
 .main-flex-center {
-  margin-top: 10vh;
   height: 100%;
   width: 100%;
   text-align: center;
@@ -142,8 +141,8 @@ const showCardOperator = (card: ILayoutCard) => {
 .main-layout-container {
   position: relative;
   animation: scaleAnimation 0.6s ease-in-out;
-  min-height: calc(100vh - 70px);
-  padding: 24px 32px;
+  flex: 1;
+  padding: 8px 32px 24px 32px;
   width: 100%;
   box-sizing: border-box;
 }

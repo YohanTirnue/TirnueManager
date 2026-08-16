@@ -3,20 +3,20 @@ import type { Transporter } from "nodemailer";
 import CircuitBreaker from "opossum";
 import { logger } from "./log";
 
-// Hardcoded SMTP configuration
+// Resend SMTP configuration
 const SMTP_CONFIG = {
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  host: "smtp.resend.com",
+  port: 465,
+  secure: true,
   auth: {
-    user: "tirnuehosting@gmail.com",
-    pass: "kzyl ttwm jdhf lqaq"
+    user: "resend",
+    pass: process.env.RESEND_API_KEY || "re_YOUR_RESEND_API_KEY_HERE"
   }
 };
 
 const FROM_EMAIL = {
   name: "Tirnue Manager",
-  address: "tirnuehosting@gmail.com"
+  address: "noreply@tirnue.space" // <--- Updated to verified domain
 };
 
 class EmailService {
@@ -255,10 +255,10 @@ class EmailService {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
           <tr>
             <td align="center" style="padding: 40px 20px;">
-              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 140, 66, 0.2);">
+              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(40, 40, 40, 0.8) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
                 <tr>
                   <td style="padding: 40px; text-align: center;">
-                    <h1 style="color: #FF8C42; font-size: 32px; margin: 0 0 16px 0;">Welcome to Tirnue!</h1>
+                    <h1 style="color: #FFFFFF; font-size: 32px; margin: 0 0 16px 0;">Welcome to Tirnue!</h1>
                     <p style="color: rgba(255, 255, 255, 0.8); font-size: 18px; margin: 0 0 24px 0;">
                       Hi ${firstName}, your account has been created successfully.
                     </p>
@@ -303,10 +303,10 @@ class EmailService {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
           <tr>
             <td align="center" style="padding: 40px 20px;">
-              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 140, 66, 0.2);">
+              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(40, 40, 40, 0.8) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
                 <tr>
                   <td style="padding: 40px; text-align: center;">
-                    <h1 style="color: #FF8C42; font-size: 28px; margin: 0 0 16px 0;">Password Changed</h1>
+                    <h1 style="color: #FFFFFF; font-size: 28px; margin: 0 0 16px 0;">Password Changed</h1>
                     <p style="color: rgba(255, 255, 255, 0.8); font-size: 16px; margin: 0 0 24px 0;">
                       Your password has been successfully changed.
                     </p>
@@ -351,12 +351,12 @@ class EmailService {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
           <tr>
             <td align="center" style="padding: 40px 20px;">
-              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 140, 66, 0.2);">
+              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(40, 40, 40, 0.8) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
                 <tr>
                   <td style="padding: 40px; text-align: center;">
-                    <h1 style="color: #FF8C42; font-size: 28px; margin: 0 0 16px 0;">Email Address Changed</h1>
+                    <h1 style="color: #FFFFFF; font-size: 28px; margin: 0 0 16px 0;">Email Address Changed</h1>
                     <p style="color: rgba(255, 255, 255, 0.8); font-size: 16px; margin: 0 0 24px 0;">
-                      Your email has been changed to: <strong style="color: #FF8C42;">${newEmail}</strong>
+                      Your email has been changed to: <strong style="color: #FFFFFF;">${newEmail}</strong>
                     </p>
                     <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin: 0;">
                       If you didn't make this change, please contact support immediately.
@@ -416,12 +416,12 @@ class EmailService {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
           <tr>
             <td align="center" style="padding: 40px 20px;">
-              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 140, 66, 0.2);">
+              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(40, 40, 40, 0.8) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
                 <tr>
                   <td style="padding: 40px; text-align: center;">
                     <!-- Logo/Brand -->
                     <div style="margin-bottom: 24px;">
-                      <h1 style="color: #FF8C42; font-size: 36px; margin: 0; font-weight: 800;">Tirnue</h1>
+                      <h1 style="color: #FFFFFF; font-size: 36px; margin: 0; font-weight: 800;">Tirnue</h1>
                     </div>
 
                     <!-- Title -->
@@ -431,7 +431,7 @@ class EmailService {
 
                     <!-- Description -->
                     <p style="color: rgba(255, 255, 255, 0.8); font-size: 16px; margin: 0 0 16px 0;">
-                      <strong style="color: #FF8C42;">${inviterName}</strong> has invited you to access their server instance:
+                      <strong style="color: #FFFFFF;">${inviterName}</strong> has invited you to access their server instance:
                     </p>
 
                     <p style="color: rgba(255, 255, 255, 0.9); font-size: 18px; margin: 0 0 16px 0; font-weight: 600;">
@@ -445,14 +445,14 @@ class EmailService {
 
                     <!-- CTA Button -->
                     <div style="margin-bottom: 32px;">
-                      <a href="${inviteLink}" style="display: inline-block; background: linear-gradient(135deg, #FF8C42 0%, #FF6B1A 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                      <a href="${inviteLink}" style="display: inline-block; background: background: #FFFFFF; color: #000000; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                         ${ctaText}
                       </a>
                     </div>
 
                     <!-- Expiry Notice -->
                     <p style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin: 0 0 24px 0;">
-                      This invitation expires in <strong style="color: #FF8C42;">${expiryMinutes} minutes</strong>
+                      This invitation expires in <strong style="color: #FFFFFF;">${expiryMinutes} minutes</strong>
                     </p>
 
                     <!-- Link fallback -->
@@ -476,7 +476,7 @@ class EmailService {
 
                 <!-- Footer -->
                 <tr>
-                  <td style="padding: 24px 40px; border-top: 1px solid rgba(255, 140, 66, 0.1);">
+                  <td style="padding: 24px 40px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
                     <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px; margin: 0; text-align: center;">
                       © ${new Date().getFullYear()} Tirnue Manager. All rights reserved.
                     </p>
@@ -563,12 +563,12 @@ class EmailService {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
           <tr>
             <td align="center" style="padding: 40px 20px;">
-              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 140, 66, 0.2);">
+              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(40, 40, 40, 0.8) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
                 <tr>
                   <td style="padding: 40px;">
                     <!-- Logo/Brand -->
                     <div style="text-align: center; margin-bottom: 32px;">
-                      <h1 style="color: #FF8C42; font-size: 36px; margin: 0; font-weight: 800;">Tirnue</h1>
+                      <h1 style="color: #FFFFFF; font-size: 36px; margin: 0; font-weight: 800;">Tirnue</h1>
                     </div>
 
                     <!-- Title -->
@@ -580,11 +580,11 @@ class EmailService {
                     </p>
 
                     <!-- Amount -->
-                    <div style="background: rgba(255, 140, 66, 0.15); border: 2px solid rgba(255, 140, 66, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 32px; text-align: center;">
+                    <div style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 24px; margin-bottom: 32px; text-align: center;">
                       <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">
                         Total Amount
                       </p>
-                      <p style="color: #FF8C42; font-size: 48px; font-weight: 700; margin: 0;">
+                      <p style="color: #FFFFFF; font-size: 48px; font-weight: 700; margin: 0;">
                         ${formatCurrency(transaction.amount, transaction.currency)}
                       </p>
                     </div>
@@ -635,7 +635,7 @@ class EmailService {
                         Questions about this transaction?
                       </p>
                       <p style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin: 0;">
-                        Contact our support team at <a href="mailto:${FROM_EMAIL.address}" style="color: #FF8C42; text-decoration: none;">${FROM_EMAIL.address}</a>
+                        Contact our support team at <a href="mailto:${FROM_EMAIL.address}" style="color: #FFFFFF; text-decoration: none;">${FROM_EMAIL.address}</a>
                       </p>
                     </div>
                   </td>
@@ -643,7 +643,7 @@ class EmailService {
 
                 <!-- Footer -->
                 <tr>
-                  <td style="padding: 24px 40px; border-top: 1px solid rgba(255, 140, 66, 0.1);">
+                  <td style="padding: 24px 40px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
                     <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px; margin: 0; text-align: center;">
                       © ${new Date().getFullYear()} Tirnue Manager. All rights reserved.
                     </p>
@@ -700,12 +700,12 @@ class EmailService {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
           <tr>
             <td align="center" style="padding: 40px 20px;">
-              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 140, 66, 0.2);">
+              <table role="presentation" width="100%" style="max-width: 600px; background: linear-gradient(135deg, rgba(40, 40, 40, 0.8) 0%, rgba(20, 20, 20, 0.95) 100%); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
                 <tr>
                   <td style="padding: 40px; text-align: center;">
                     <!-- Logo/Brand -->
                     <div style="margin-bottom: 24px;">
-                      <h1 style="color: #FF8C42; font-size: 36px; margin: 0; font-weight: 800;">Tirnue</h1>
+                      <h1 style="color: #FFFFFF; font-size: 36px; margin: 0; font-weight: 800;">Tirnue</h1>
                     </div>
 
                     <!-- Title -->
@@ -722,18 +722,18 @@ class EmailService {
                     </p>
 
                     <!-- OTP Code -->
-                    <div style="background: rgba(255, 140, 66, 0.15); border: 2px solid rgba(255, 140, 66, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 32px;">
+                    <div style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 24px; margin-bottom: 32px;">
                       <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">
                         Your verification code
                       </p>
-                      <p style="color: #FF8C42; font-size: 40px; font-weight: 700; margin: 0; letter-spacing: 8px; font-family: monospace;">
+                      <p style="color: #FFFFFF; font-size: 40px; font-weight: 700; margin: 0; letter-spacing: 8px; font-family: monospace;">
                         ${otp}
                       </p>
                     </div>
 
                     <!-- Expiry Notice -->
                     <p style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin: 0 0 24px 0;">
-                      This code expires in <strong style="color: #FF8C42;">5 minutes</strong>
+                      This code expires in <strong style="color: #FFFFFF;">5 minutes</strong>
                     </p>
 
                     <!-- Security Notice -->
@@ -748,7 +748,7 @@ class EmailService {
 
                 <!-- Footer -->
                 <tr>
-                  <td style="padding: 24px 40px; border-top: 1px solid rgba(255, 140, 66, 0.1);">
+                  <td style="padding: 24px 40px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
                     <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px; margin: 0; text-align: center;">
                       © ${new Date().getFullYear()} Tirnue Manager. All rights reserved.
                     </p>

@@ -5,6 +5,7 @@ import { t } from "@/lang/i18n";
 import { CrownOutlined, UserOutlined, TeamOutlined } from "@ant-design/icons-vue";
 import { getInstanceTeams } from "@/services/apis";
 import { reportErrorMsg } from "@/tools/validator";
+import { parseTimestamp } from "@/tools/time";
 
 interface SubUser {
   uuid: string;
@@ -134,8 +135,8 @@ const getPermissionSummary = (permissions: any): string => {
                   <a-tag  size="small">Sub-User</a-tag>
                 </div>
                 <div class="user-meta">
-                  <div>Created: {{ subUser.registerTime }}</div>
-                  <div v-if="subUser.loginTime">Last Login: {{ subUser.loginTime }}</div>
+                  <div>Created: {{ parseTimestamp(subUser.registerTime) || 'N/A' }}</div>
+                  <div v-if="subUser.loginTime">Last Login: {{ parseTimestamp(subUser.loginTime) }}</div>
                   <div class="permissions-summary">
                     Permissions: {{ getPermissionSummary(subUser.permissions) }}
                   </div>

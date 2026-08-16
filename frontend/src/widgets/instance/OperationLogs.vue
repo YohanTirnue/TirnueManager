@@ -218,108 +218,85 @@ onMounted(() => {
 <template>
   <CardPanel class="operation-logs-panel" style="height: 100%">
     <template #title>
+      <CodeOutlined style="margin-right: 8px; color: var(--theme-primary-color)" />
       {{ card.title || "Operation Logs" }}
     </template>
     <template #operator>
-      <a-button type="text" :loading="loading" @click="fetchLogs">
+      <a-button type="text" :loading="loading" @click="fetchLogs" style="color: var(--color-text-2)">
         <ReloadOutlined />
       </a-button>
     </template>
     <template #body>
       <!-- No Permission Message -->
       <div v-if="!hasLogPermission" class="no-permission">
-        <LockOutlined style="font-size: 48px; color: #d9d9d9; margin-bottom: 16px" />
-        <p style="color: #999; margin: 0">You do not have permission to view operation logs</p>
+        <LockOutlined style="font-size: 48px; color: #555; margin-bottom: 16px" />
+        <p style="color: #888; margin: 0">You do not have permission to view operation logs.</p>
       </div>
 
-      <div v-else class="logs-container">
-        <!-- Filters -->
-        <div class="filters-section">
-          <a-input
-            v-model:value="filterUser"
-            placeholder="Filter by user..."
-            style="width: 180px"
-            allow-clear
-          >
-            <template #prefix>
-              <UserOutlined />
-            </template>
-          </a-input>
-
-          <a-select
-            v-model:value="filterAction"
-            style="width: 180px"
-            placeholder="Filter by action"
-          >
-            <a-select-option v-for="opt in actionOptions" :key="opt.value" :value="opt.value">
-              {{ opt.label }}
-            </a-select-option>
-          </a-select>
-
-          <a-button v-if="filterUser || filterAction" @click="resetFilters">
-            Clear Filters
-          </a-button>
-
-          <span class="results-count">
-            {{ filteredLogs.length }} entries
-          </span>
-        </div>
-
-        <!-- Logs Table -->
-        <div class="logs-table-wrapper">
-          <a-table
-            :data-source="paginatedLogs"
-            :loading="loading"
-            :pagination="false"
-            size="small"
-            row-key="operation_id"
-          >
-            <a-table-column title="Time" data-index="operation_time" :width="160">
-              <template #default="{ record }">
-                <span class="time-cell">
-                  <ClockCircleOutlined />
-                  {{ formatDate(record.operation_time) }}
-                </span>
-              </template>
-            </a-table-column>
-
-            <a-table-column title="User" data-index="operator_name" :width="120">
-              <template #default="{ record }">
-                <span class="user-cell">
-                  <UserOutlined />
-                  {{ record.operator_name || "Unknown" }}
-                </span>
-              </template>
-            </a-table-column>
-
-            <a-table-column title="Action" data-index="type" :width="140">
-              <template #default="{ record }">
-                <a-tag>
-                  <component :is="getActionIcon(record.type)" />
-                  {{ getActionName(record.type) }}
-                </a-tag>
-              </template>
-            </a-table-column>
-
-            <a-table-column title="Details" data-index="details">
-              <template #default="{ record }">
-                <span class="details-cell">{{ getDetails(record) }}</span>
-              </template>
-            </a-table-column>
-          </a-table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="pagination-section">
-          <a-pagination
-            v-model:current="currentPage"
-            v-model:page-size="pageSize"
-            :total="total"
-            :show-size-changer="true"
-            :page-size-options="['10', '20', '50', '100']"
-            size="small"
-            show-quick-jumper
+      <div v-else class="console-container">
+        <!-- Minimal Filters -->
+        <div class="console-toolbar">
+          <input
+            v-model="filterUser"
+            class="console-input"
+            placeholder="Search user..."
+            @keyup.enter="currentPage = 1"
           />
+          <select v-model="filterAction" class="console-select" @change="currentPage = 1">
+            <option v-for="opt in actionOptions" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+          <span v-if="filterUser || filterAction" class="console-clear" @click="resetFilters">clear</span>
+          <span class="console-status">{{ filteredLogs.length }} lines found</span>
+        </div>
+
+        <!-- Terminal Logs Window -->
+        <div class="console-window">
+          <div v-if="loading" class="console-line">
+            <span class="console-time">[{{ new Date().toLocaleTimeString('en-US', {hour12: false}) }}]</span>
+            <span class="console-user">[system]</span>
+            <span class="console-action" style="color: #ff9800">[loading]</span>
+            <span class="console-details">Fetching logs...</span>
+          </div>
+          
+          <div v-else-if="paginatedLogs.length === 0" class="console-line">
+            <span class="console-time">[{{ new Date().toLocaleTimeString('en-US', {hour12: false}) }}]</span>
+            <span class="console-user">[system]</span>
+            <span class="console-action" style="color: #ff9800">[info]</span>
+            <span class="console-details">No logs found.</span>
+          </div>
+
+          <div
+            v-for="record in paginatedLogs"
+            :key="record.operation_id"
+            class="console-line"
+          >
+            <span class="console-time">[{{ formatDate(record.operation_time) }}]</span>
+            <span class="console-user">[{{ record.operator_name || "System" }}]</span>
+            <span class="console-action" :style="{ color: getActionColor(record.type, 'info') }">
+              [{{ getActionName(record.type).toLowerCase() }}]
+            </span>
+            <span class="console-details">
+              <template v-if="record.type === 'instance_command' && record.command">
+                <span class="cmd-prefix">$</span> {{ record.command }}
+              </template>
+              <template v-else>
+                {{ getDetails(record) }}
+              </template>
+            </span>
+          </div>
+        </div>
+
+        <!-- Minimal Console Pagination -->
+        <div class="console-footer" v-if="total > pageSize">
+          <span class="console-nav" :class="{ disabled: currentPage === 1 }" @click="currentPage > 1 && currentPage--">
+            &lt; prev
+          </span>
+          <span class="console-pages">page {{ currentPage }} / {{ Math.ceil(total / pageSize) }}</span>
+          <span class="console-nav" :class="{ disabled: currentPage >= Math.ceil(total / pageSize) }" @click="currentPage < Math.ceil(total / pageSize) && currentPage++">
+            next &gt;
+          </span>
         </div>
       </div>
     </template>
@@ -328,8 +305,8 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .operation-logs-panel {
-  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
-  border: 1px solid var(--theme-shadow-hover);
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
   border-radius: 12px;
 }
 
@@ -342,185 +319,180 @@ onMounted(() => {
   text-align: center;
 }
 
-.logs-container {
+.console-container {
   display: flex;
   flex-direction: column;
   height: 100%;
   gap: 12px;
+  font-family: 'Consolas', 'Courier New', Courier, monospace;
 }
 
-.filters-section {
+.console-toolbar {
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 8px 0;
-  flex-wrap: wrap;
+  background: #1e1e1e;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #333;
+}
 
-  .results-count {
-    margin-left: auto;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 12px;
+.console-input, .console-select {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #555;
+  color: #a0a0a0;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 2px 6px;
+  outline: none;
+  
+  &:focus {
+    border-bottom: 1px solid #00ff00;
+    color: #fff;
   }
 }
 
-.logs-table-wrapper {
+.console-select {
+  width: 140px;
+  cursor: pointer;
+
+  option {
+    background: #1e1e1e;
+    color: #e0e0e0;
+  }
+}
+
+.console-clear {
+  color: #ff4d4f;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  
+  &:hover {
+    color: #ff7875;
+  }
+}
+
+.console-status {
+  margin-left: auto;
+  color: #666;
+  font-size: 12px;
+}
+
+.console-window {
   flex: 1;
-  overflow: auto;
-
-  :deep(.ant-table) {
-    background: transparent;
-
-    .ant-table-thead > tr > th {
-      background: rgba(40, 40, 40, 0.8);
-      color: var(--theme-primary-color);
-      border-bottom: 1px solid var(--theme-shadow-hover);
-      font-weight: 600;
-      font-size: 12px;
-    }
-
-    .ant-table-tbody > tr > td {
-      background: transparent;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 12px;
-      padding: 8px 12px;
-    }
-
-    .ant-table-tbody > tr:hover > td {
-      background: var(--theme-shadow-hover);
-    }
+  background: #0d0d0d;
+  border-radius: 6px;
+  border: 1px solid #333;
+  padding: 12px;
+  overflow-y: auto;
+  color: #ccc;
+  font-size: 13px;
+  line-height: 1.6;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #111;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
   }
 }
 
-.time-cell {
+.console-line {
+  word-break: break-all;
   display: flex;
-  align-items: center;
-  gap: 6px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.user-cell {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--theme-primary-color);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.details-cell {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 11px;
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.pagination-section {
-  display: flex;
-  justify-content: center;
-  padding: 8px 0;
-
-  :deep(.ant-pagination) {
-    .ant-pagination-item {
-      background: rgba(40, 40, 40, 0.8);
-      border-color: var(--theme-shadow-hover);
-
-      a {
-        color: rgba(255, 255, 255, 0.85);
-      }
-
-      &-active {
-        border-color: var(--theme-primary-color);
-
-        a {
-          color: var(--theme-primary-color);
-        }
-      }
-    }
-
-    .ant-pagination-prev,
-    .ant-pagination-next {
-      .ant-pagination-item-link {
-        background: rgba(40, 40, 40, 0.8);
-        border-color: var(--theme-shadow-hover);
-        color: rgba(255, 255, 255, 0.85);
-      }
-    }
+  gap: 10px;
+  
+  &:hover {
+    background: rgba(255,255,255,0.05);
   }
+}
+
+.console-time {
+  color: #888;
+  white-space: nowrap;
+}
+
+.console-user {
+  color: #56b6c2;
+  white-space: nowrap;
+}
+
+.console-action {
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.console-details {
+  color: #e0e0e0;
+  flex: 1;
+}
+
+.cmd-prefix {
+  color: #e5c07b;
+  font-weight: bold;
+}
+
+.console-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  align-items: center;
+  background: #1e1e1e;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  font-size: 12px;
+}
+
+.console-nav {
+  color: #00ff00;
+  cursor: pointer;
+  
+  &:hover {
+    color: #aaffaa;
+    text-decoration: underline;
+  }
+  
+  &.disabled {
+    color: #555;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+}
+
+.console-pages {
+  color: #888;
 }
 
 // Mobile responsive styles
 @media (max-width: 768px) {
-  .filters-section {
+  .console-toolbar {
+    flex-wrap: wrap;
+    
+    .console-input, .console-select {
+      flex: 1;
+      min-width: 100px;
+    }
+  }
+
+  .console-line {
     flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-
-    .ant-input,
-    .ant-select {
-      width: 100% !important;
+    gap: 2px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #333;
+    
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
     }
-
-    .results-count {
-      margin-left: 0;
-      text-align: center;
-    }
-  }
-
-  .logs-table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-
-    :deep(.ant-table) {
-      min-width: 500px;
-
-      .ant-table-thead > tr > th,
-      .ant-table-tbody > tr > td {
-        padding: 8px 10px;
-        font-size: 11px;
-        white-space: nowrap;
-      }
-    }
-  }
-
-  .time-cell,
-  .user-cell {
-    font-size: 11px;
-  }
-
-  .details-cell {
-    max-width: 150px;
-    font-size: 11px;
-  }
-
-  .pagination-section {
-    :deep(.ant-pagination) {
-      .ant-pagination-options {
-        display: none;
-      }
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .logs-table-wrapper {
-    :deep(.ant-table) {
-      min-width: 450px;
-
-      .ant-table-thead > tr > th,
-      .ant-table-tbody > tr > td {
-        padding: 6px 8px;
-        font-size: 10px;
-      }
-    }
-  }
-
-  .details-cell {
-    max-width: 120px;
   }
 }
 </style>

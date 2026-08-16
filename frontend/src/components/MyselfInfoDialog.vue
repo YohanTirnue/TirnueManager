@@ -11,6 +11,7 @@ import CopyButton from "@/components/CopyButton.vue";
 import { bind2FA } from "../services/apis/user";
 import { PERMISSION_MAP } from "@/config/const";
 import { toCopy } from "@/tools/copy";
+import { parseTimestamp } from "@/tools/time";
 const { state, updateUserInfo } = useAppStateStore();
 const { state: tools } = useAppToolsStore();
 
@@ -118,12 +119,12 @@ const disable2FACode = async () => {
         <a-row>
           <a-col :span="12">
             <a-form-item :label="t('TXT_CODE_c5c56801')">
-              <a-tag>{{ state.userInfo?.registerTime }}</a-tag>
+              <a-tag>{{ parseTimestamp(state.userInfo?.registerTime) || 'N/A' }}</a-tag>
             </a-form-item>
           </a-col>
           <a-col>
             <a-form-item :label="t('TXT_CODE_d7ee9ba')">
-              <a-tag>{{ state.userInfo?.loginTime }}</a-tag>
+              <a-tag>{{ parseTimestamp(state.userInfo?.loginTime) || 'N/A' }}</a-tag>
             </a-form-item>
           </a-col>
         </a-row>

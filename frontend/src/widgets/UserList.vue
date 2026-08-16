@@ -42,6 +42,7 @@ import _ from "lodash";
 import { PERMISSION_MAP } from "@/config/const";
 import { reportErrorMsg } from "@/tools/validator";
 import { useAppStateStore } from "@/stores/useAppStateStore";
+import { parseTimestamp } from "@/tools/time";
 
 defineProps<{
   card: LayoutCard;
@@ -701,7 +702,7 @@ onMounted(async () => {
               </div>
               <div class="stat-item">
                 <span class="stat-label">Assigned:</span>
-                <span class="stat-value">{{ new Date(ownedDaemon.assignedAt).toLocaleDateString() }}</span>
+                <span class="stat-value">{{ parseTimestamp(ownedDaemon.assignedAt) || 'N/A' }}</span>
               </div>
             </div>
             <div class="daemon-actions">
@@ -964,7 +965,7 @@ onMounted(async () => {
                 <span class="cookie-id-text">{{ user.trackingCookie || 'N/A' }}</span>
               </td>
               <td class="col-registered">
-                <span class="date-text">{{ user.registerTime || 'N/A' }}</span>
+                <span class="date-text">{{ parseTimestamp(user.registerTime) || 'N/A' }}</span>
               </td>
               <td class="col-actions">
                 <button class="action-btn" @click.stop="() => { actionModalUser = user; actionModalOpen = true; }">

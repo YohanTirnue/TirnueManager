@@ -57,15 +57,7 @@ import prettyBytes, { type Options as PrettyOptions } from "pretty-bytes";
 import { onMounted, onUnmounted, ref, watch, computed } from "vue";
 import type { TagInfo } from "../../components/interface";
 
-onMounted(() => {
-  document.body.style.overflow = "hidden";
-  document.documentElement.style.overflow = "hidden";
-});
 
-onUnmounted(() => {
-  document.body.style.overflow = "auto";
-  document.documentElement.style.overflow = "auto";
-});
 import { GLOBAL_INSTANCE_NAME } from "../../config/const";
 import { useTerminal, type UseTerminalHook } from "../../hooks/useTerminal";
 import { arrayFilter } from "../../tools/array";
@@ -519,19 +511,19 @@ const terminalTopTags = computed<TagInfo[]>(() => {
       </div>
     </div>
 
-    <a-modal v-model:open="fileManagerVisible" :footer="null" :title="t('TXT_CODE_ae533703')" width="95%" wrapClassName="full-modal">
+    <a-modal v-model:open="fileManagerVisible" :footer="null" :title="t('TXT_CODE_ae533703')" width="75%">
       <FileManager :card="props.card" v-if="fileManagerVisible" />
     </a-modal>
 
-    <a-modal v-model:open="serverConfigVisible" :footer="null" :title="t('TXT_CODE_d07742fe')" width="95%" wrapClassName="full-modal">
+    <a-modal v-model:open="serverConfigVisible" :footer="null" :title="t('TXT_CODE_d07742fe')" width="75%">
       <ServerConfigOverview :card="props.card" v-if="serverConfigVisible" />
     </a-modal>
 
-    <a-modal v-model:open="scheduleVisible" :footer="null" :title="t('TXT_CODE_b7d026f8')" width="95%" wrapClassName="full-modal">
+    <a-modal v-model:open="scheduleVisible" :footer="null" :title="t('TXT_CODE_b7d026f8')" width="75%">
       <Schedule :card="props.card" v-if="scheduleVisible" />
     </a-modal>
 
-    <a-modal v-model:open="operationLogsVisible" :footer="null" title="Operation Logs" width="95%" wrapClassName="full-modal">
+    <a-modal v-model:open="operationLogsVisible" :footer="null" title="Operation Logs" width="75%">
       <InstanceOperationLogs :card="props.card" v-if="operationLogsVisible" />
     </a-modal>
 
@@ -580,9 +572,8 @@ const terminalTopTags = computed<TagInfo[]>(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  height: 100%;
-  min-height: calc(100vh - 180px);
-  padding: 8px;
+  height: calc(100vh - 136px);
+  padding: 0 8px 8px 8px;
   box-sizing: border-box;
 }
 

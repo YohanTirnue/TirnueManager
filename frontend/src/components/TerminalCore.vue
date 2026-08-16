@@ -7,6 +7,7 @@ import { t } from "@/lang/i18n";
 import { getInstanceOutputLog } from "@/services/apis/instance";
 import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
 import { CodeOutlined, DeleteOutlined, LoadingOutlined } from "@ant-design/icons-vue";
+import SleekLoading from "@/components/SleekLoading.vue";
 import { Terminal } from "@xterm/xterm";
 import { message } from "ant-design-vue";
 import { onMounted, ref } from "vue";
@@ -135,7 +136,7 @@ onMounted(async () => {
   <!-- Terminal Page View -->
   <div class="console-wrapper">
     <div v-if="!isConnect" class="terminal-loading">
-      <LoadingOutlined style="font-size: 72px; color: white" />
+      <SleekLoading size="lg" />
     </div>
     <div class="terminal-button-group position-absolute-right position-absolute-top">
       <ul>
