@@ -482,6 +482,20 @@ onMounted(() => {
             </div>
           </div>
 
+          <!-- Instance Info Grid (Title / Value Pairs) -->
+          <div class="card-info-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin: 12px 0 16px 0; padding: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 10px; font-size: 12px;">
+            <div class="info-item" style="display: flex; flex-direction: column; gap: 2px;">
+              <span class="info-title" style="color: #9E9E9E; font-size: 11px; font-weight: 500;">Docker Engine</span>
+              <span class="info-value" style="color: #E3E3E3; font-weight: 700;">
+                {{ instance.processType === 'docker' || instance.docker ? '⬢ Docker Enabled' : '▫ Docker Disabled' }}
+              </span>
+            </div>
+            <div class="info-item" style="display: flex; flex-direction: column; gap: 2px;">
+              <span class="info-title" style="color: #9E9E9E; font-size: 11px; font-weight: 500;">Last Activity</span>
+              <span class="info-value" style="color: #E3E3E3; font-weight: 600;">{{ parseTimestamp(instance.lastDatetime) || 'N/A' }}</span>
+            </div>
+          </div>
+
           <!-- Card Actions -->
           <div class="card-actions">
             <a-button
@@ -1080,6 +1094,29 @@ onMounted(() => {
   display: inline-block;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.docker-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  letter-spacing: 0.3px;
+
+  &.enabled {
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  }
+
+  &.disabled {
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: #9E9E9E !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
 }
 
 .status-badge {

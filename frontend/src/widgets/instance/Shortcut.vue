@@ -346,6 +346,12 @@ const instanceOperations = computed(() =>
 
           <div class="instance-info-grid">
             <div class="instance-info-line">
+              <span class="title">Docker Engine</span>
+              <span class="value" style="font-weight: 700;">
+                {{ instanceInfo?.config?.processType === 'docker' || instanceInfo?.config?.docker ? '⬢ Docker Enabled' : '▫ Docker Disabled' }}
+              </span>
+            </div>
+            <div class="instance-info-line">
               <span class="title">{{ t("TXT_CODE_34611898") }}</span>
               <span class="value"> {{ parseTimestamp(instanceInfo?.config.lastDatetime) }}</span>
             </div>

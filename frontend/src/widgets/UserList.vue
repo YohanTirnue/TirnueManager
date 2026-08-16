@@ -547,6 +547,21 @@ onMounted(async () => {
             <a-input v-if="formData.apiKey" v-model:value="formData.apiKey" :readonly="true" size="large" />
             <div v-else class="empty-field">{{ t("TXT_CODE_6c274bdc") }}</div>
           </a-form-item>
+
+          <a-form-item class="form-field">
+            <template #label>
+              <span class="field-label">Docker Engine Access</span>
+              <span class="field-hint">Container creation & daemon permissions</span>
+            </template>
+            <div class="docker-status-field" style="display: flex; align-items: center; height: 40px;">
+              <a-tag v-if="formData.permission >= 1" style="font-weight: 800; font-size: 12px; padding: 4px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.12) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.22) !important;">
+                ⬢ Docker Enabled
+              </a-tag>
+              <a-tag v-else style="font-weight: 700; font-size: 12px; padding: 4px 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.04) !important; color: #9E9E9E !important; border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                ▫ Docker Disabled
+              </a-tag>
+            </div>
+          </a-form-item>
         </div>
       </div>
 
@@ -913,6 +928,7 @@ onMounted(async () => {
               <th class="col-username">Username</th>
               <th class="col-email">Email</th>
               <th class="col-role">Role</th>
+              <th class="col-docker">Docker Status</th>
               <th class="col-instances">Instances</th>
               <th class="col-reg-ip">Registration IP</th>
               <th class="col-device-id">Device ID</th>
@@ -951,6 +967,14 @@ onMounted(async () => {
                 }">
                   {{ PERMISSION_MAP[user.permission] || user.permission }}
                 </div>
+              </td>
+              <td class="col-docker">
+                <span v-if="user.permission >= 1" class="docker-tag-enabled" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.12); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.22);">
+                  ⬢ Docker Enabled
+                </span>
+                <span v-else class="docker-tag-disabled" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.04); color: #9E9E9E; border: 1px solid rgba(255, 255, 255, 0.08);">
+                  ▫ Docker Disabled
+                </span>
               </td>
               <td class="col-instances">
                 <span class="instance-count">{{ user.instances?.length || 0 }}</span>
