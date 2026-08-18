@@ -361,6 +361,21 @@ defineExpose({
                   </a-form-item>
                   <a-form-item class="settings-form-item">
                     <div class="settings-control-label">
+                      <span class="settings-label-text">Docker Engine</span>
+                      <span class="settings-label-hint">Containerization</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; height: 32px;">
+                      <a-switch
+                        :checked="options.config.processType === 'docker'"
+                        @change="(checked: boolean | number | string) => options!.config.processType = checked ? 'docker' : 'general'"
+                      />
+                      <span style="font-weight: 700; font-size: 12px; color: #E3E3E3; white-space: nowrap;">
+                        {{ options.config.processType === 'docker' ? '⬢ Docker Enabled' : '▫ Docker Disabled' }}
+                      </span>
+                    </div>
+                  </a-form-item>
+                  <a-form-item class="settings-form-item">
+                    <div class="settings-control-label">
                       <span class="settings-label-text">{{ t("TXT_CODE_fa920c0") }}</span>
                       <span class="settings-label-hint">{{ t("TXT_CODE_b029a155") }}</span>
                     </div>

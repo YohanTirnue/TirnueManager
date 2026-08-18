@@ -1513,6 +1513,7 @@ onUnmounted(() => {
   .check-icon {
     color: var(--theme-primary-color);
   }
+}
 
 // Autofill fix
 :deep(input:-webkit-autofill),

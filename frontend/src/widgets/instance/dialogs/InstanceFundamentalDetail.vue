@@ -211,6 +211,26 @@ defineExpose({
             </a-form-item>
           </a-col>
 
+          <a-col :xs="24" :lg="6" :offset="0">
+            <a-form-item>
+              <a-typography-title :level="5">Docker Engine</a-typography-title>
+              <a-typography-paragraph>
+                <a-typography-text type="secondary">
+                  Containerization Mode
+                </a-typography-text>
+              </a-typography-paragraph>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px;">
+                <a-switch
+                  :checked="options.config.processType === 'docker'"
+                  @change="(checked: boolean | number | string) => options!.config.processType = checked ? 'docker' : 'general'"
+                />
+                <span style="font-weight: 700; font-size: 12px; color: #E3E3E3; white-space: nowrap;">
+                  {{ options.config.processType === 'docker' ? '⬢ Docker Enabled' : '▫ Docker Disabled' }}
+                </span>
+              </div>
+            </a-form-item>
+          </a-col>
+
           <a-col :xs="24" :offset="0">
             <a-form-item name="startCommand">
               <a-typography-title :level="5" :class="{ 'require-field': isDockerMode }">
